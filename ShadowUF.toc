@@ -1,0 +1,20 @@
+## Interface: 30100
+## Title: Shadow UF
+## Notes: Simple unit frames
+## Author: Mayen/Selari
+## SavedVariables: ShadowUFDB
+
+libs\LibStub-1.0\LibStub-1.0.xml
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\LibSharedMedia-3.0\lib.xml
+libs\AceAddon-3.0\AceAddon-3.0.xml
+libs\AceEvent-3.0\AceEvent-3.0.xml
+libs\AceDB-3.0\AceDB-3.0.xml
+libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+libs\AceGUI-3.0\AceGUI-3.0.xml
+libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
+libs\AceConfig-3.0\AceConfig-3.0.xml
+
+localization.enUS.lua
+
+ShadowUF.lua
