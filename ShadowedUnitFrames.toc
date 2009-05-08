@@ -1,0 +1,29 @@
+## Interface: 30100
+## Title: Shadowed Unit Frames
+## Notes: Simple unit frames. Original Concept, Original Naming Convention
+## Author: Mayen/Selari
+## SavedVariables: ShadowedUFDB
+## RequiredDeps: Spew
+
+libs\LibStub-1.0\LibStub-1.0.xml
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\LibSharedMedia-3.0\lib.xml
+libs\AceAddon-3.0\AceAddon-3.0.xml
+libs\AceEvent-3.0\AceEvent-3.0.xml
+libs\AceDB-3.0\AceDB-3.0.xml
+libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+libs\AceGUI-3.0\AceGUI-3.0.xml
+libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
+libs\AceConfig-3.0\AceConfig-3.0.xml
+
+localization.enUS.lua
+
+ShadowedUnitFrames.lua
+layouts\default.lua
+modules\tags.lua
+modules\config.lua
+modules\unit.lua
+modules\health.lua
+modules\mana.lua
+modules\portrait.lua
+modules\layout.lua

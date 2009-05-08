@@ -1,55 +1,22 @@
 -- Thanks to haste for the original tagging code, which I then mostly ripped apart and stole!
 local Tags = ShadowUF:NewModule("Tags")
-local fontStrings, eventlessUnits, events, tagPool, functionPool, temp = {}, {}, {}, {}, {}, {}
+local eventlessUnits, events, tagPool, functionPool, temp = {}, {}, {}, {}, {}
 local frame
 local L = ShadowUFLocals
 
 function Tags:OnInitialize()
 	self:LoadTags()
-	
-	-- Updates for frames without unit events, such as totot
-	local timeElapsed = 0
-	frame = CreateFrame("Frame")
-	frame:Hide()
-
-	frame:SetScript("OnUpdate", function(self, elapsed)
-		timeElapsed = timeElapsed + elapsed
-		
-		if( timeElapsed >= 0.50 ) then
-			for _, text in pairs(eventlessUnits) do
-				if( text.parent:IsVisible() and UnitExists(text.parent.unit) ) then
-					Tags:Update(text)
-				end
-			end
-		end
-	end)
 end
 
 -- Event management
 local function RegisterEvent(fontString, event)
 	events[event] = events[event] or {}
 	table.insert(events[event], fontString)
-
+	
 	frame:RegisterEvent(event)
 end
 
-local function UnregisterEvent(fontString, event)
-	if( not events[event] ) then
-		return
-	end
-	
-	for i=#(events[event]), 1, -1 do
-		if( events[event][i] == fontString ) then
-			table.remove(events[event], i)
-		end
-	end
-	
-	if( #(events[event]) == 0 ) then
-		frame:UnregisterEvent(event)
-	end
-end
-
--- Register he associated events with all the tags
+-- Register the associated events with all the tags
 local function RegisterTagEvents(fontString, tags)
 	-- Strip parantheses and anything inside them
 	tags = string.gsub(tags, "%b()", "")
@@ -63,25 +30,54 @@ local function RegisterTagEvents(fontString, tags)
 	end
 end
 
+-- Unregister all events for this tag
+local function UnregisterTagEvents(fontString)
+	for event, fsList in pairs(events) do
+		for i=#(fsList), 1, -1 do
+			if( fsList[i] == fontString ) then
+				table.remove(fsList, i)
+				
+				if( #(fsList) == 0 ) then
+					frame:UnregisterEvent(event)
+				end
+			end
+		end
+	end
+end
+
 -- Tag needs an update!
-frame:SetScript("OnEvent", function(event, ...)
+local timeElapsed = 0
+frame = CreateFrame("Frame")
+frame:Hide()
+
+frame:SetScript("OnUpdate", function(self, elapsed)
+	timeElapsed = timeElapsed + elapsed
+	
+	if( timeElapsed >= 0.50 ) then
+		for _, text in pairs(eventlessUnits) do
+			if( text.parent:IsVisible() and UnitExists(text.parent.unit) ) then
+				text:UpdateTags()
+			end
+		end
+	end
+end)
+
+frame:SetScript("OnEvent", function(self, event, unit)
 	if( not events[event] ) then
 		return
 	end
 	
-	for _, fontString in pairs(fontStrings) do
-		if( ( self.unitlessEvents[event] or ( not self.unitlessEvents[event] and fontString.parent.unit == unit ) ) and fontString:IsVisible() ) then
-			self:Update(fontString)
+	for _, fontString in pairs(events[event]) do
+		if( ( Tags.unitlessEvents[event] or ( not Tags.unitlessEvents[event] and fontString.parent.unit == unit ) ) and fontString:IsVisible() ) then
+			fontString:UpdateTags()
 		end
 	end	
-end
+end)
 
 function Tags:Register(parent, fontString, tags)
 	-- Unregister the font string first if we did register it already
-	for _, fs in pairs(fontStrings) do
-		if( fontString == fs ) then
-			self:Unregister(fs)
-		end
+	if( fontString.UpdateTags ) then
+		self:Unregister(fs)
 	end
 	
 	fontString.parent = parent
@@ -93,9 +89,9 @@ function Tags:Register(parent, fontString, tags)
 		local formattedText = string.gsub(string.gsub(tags, "%%", "%%%%"), "[[].-[]]", "%%s")
 		local args = {}
 		
-		for parsedKey in string.gmatch(tags, "%[(.-)%]") do
+		for tag in string.gmatch(tags, "%[(.-)%]") do
 			-- If they enter a tag such as "foo(|)" then we won't find a regular tag, meaning will go into our function pool code
-			local cachedFunc = funtionPool[parsedKey] or ShadowUF.tags[parsedKey]
+			local cachedFunc = functionPool[tag] or ShadowUF.tags[tag]
 			if( not cachedFunc ) then
 				-- ...
 				local pre, tagKey, ap = string.match(tag, "(%b())([%w]+)(%b())")
@@ -114,14 +110,14 @@ function Tags:Register(parent, fontString, tags)
 						end
 					end
 					
-					functionPool[parsedKey] = cachedFunc
+					functionPool[tag] = cachedFunc
 				end
 			end
 			
 			if( cachedFunc ) then
 				table.insert(args, cachedFunc)
 			else
-				return error(string.format(L["Invalid tag used %s."], parsedKey), 3)
+				return error(string.format(L["Invalid tag used %s."], tag), 3)
 			end
 		end
 		
@@ -133,16 +129,17 @@ function Tags:Register(parent, fontString, tags)
 				temp[id] = func(unit) or ""
 			end
 			
-			fontString:SetFormattedText(formattedtext, unpack(temp))
+			fontString:SetFormattedText(formattedText, unpack(temp))
 		end
 
-		tagPool[tags] = func
+		tagPool[tags] = updateFunc
 	end
-
+	
+	fontString.UpdateTags = updateFunc
+	
 	local unit = parent.unit
 	if( unit and string.match(unit, "%w+target") ) then
 		table.insert(eventlessUnits, fontString)
-		
 		frame:Show()
 	else
 		RegisterTagEvents(fontString, tags)
@@ -158,18 +155,19 @@ function Tags:Register(parent, fontString, tags)
 end
 
 function Tags:Unregister(fontString)
-	UnregisterEvents(fontString)
-	
+	UnregisterTagEvents(fontString)
+		
 	for i=#(eventlessUnits), 1, -1 do
 		if( eventlessUnits[i] == fontString ) then
 			table.remove(eventlessUnits, i)
 		end
 	end
-end
-
--- Update the font string
-function Tags:Update(fontString)
-	tagPool[fontString](fontString)
+	
+	if( #(eventlessUnits) == 0 ) then
+		frame:Hide()
+	end
+	
+	fontString.UpdateTags = nil
 end
 
 -- Helper functions for tags, the reason I store it in ShadowUF is it's easier to type ShadowUF
@@ -197,12 +195,22 @@ function Tags:LoadTags()
 		["faction"]     = [[function(unit) return UnitFactionGroup(unit) end]],
 		["leader"]      = [[function(unit) return UnitIsPartyLeader(unit) and ShadowUFLocals["(L)"] end]],
 		["leaderlong"]  = [[function(unit) return UnitIsPartyLeader(unit) and ShadowUFLocals["(Leader)"] end]],
-		["level"]       = [[function(unit) local l = UnitLevel(unit) return (l > 0) and l or ["??"] end]],
+		["level"]       = [[function(unit) local l = UnitLevel(unit) return (l > 0) and l or ShadowUFLocals["??"] end]],
 		["maxhp"]       = "UnitHealthMax",
 		["maxpp"]       = "UnitPowerMax",
 		["missinghp"]   = [[function(unit) return UnitHealthMax(unit) - UnitHealth(unit) end]],
 		["missingpp"]   = [[function(unit) return UnitPowerMax(unit) - UnitPower(unit) end]],
 		["name"]        = [[function(unit) return UnitName(unit) end]],
+		["coloredname"] = [[function(unit)
+			local classToken = select(2, unit)
+			local name = UnitName(unit)
+			if( not RAID_CLASS_COLORS[classToken] ) then 
+				return name
+			end
+			
+			return string.format("%s%s|r", ShadowUF:Hex(RAID_CLASS_COLORS[classToken]), name)
+		end
+		]],
 		["offline"]     = [[function(unit) return  (not UnitIsConnected(unit) and ShadowUFLocals["Offline"]) end]],
 		["perhp"]       = [[function(unit) local m = UnitHealthMax(unit); return m == 0 and 0 or math.floor(UnitHealth(unit)/m*100+0.5) end]],
 		["perpp"]       = [[function(unit) local m = UnitPowerMax(unit); return m == 0 and 0 or math.floor(UnitPower(unit)/m*100+0.5) end]],
