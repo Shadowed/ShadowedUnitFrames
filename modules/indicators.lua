@@ -14,8 +14,6 @@ function Indicator:OnInitialize()
 end
 
 function Indicator:UnitCreated(frame, unit)
-	frame.indicators = {}
-	
 	frame:RegisterNormalEvent("PLAYER_REGEN_ENABLED", self.UpdateStatus)
 	frame:RegisterNormalEvent("PLAYER_REGEN_DISABLED", self.UpdateStatus)
 	frame:RegisterNormalEvent("PLAYER_UPDATE_RESTING", self.UpdateStatus)
@@ -30,20 +28,23 @@ function Indicator:UnitCreated(frame, unit)
 	frame:RegisterUpdateFunc(self.UpdateLeader)
 	frame:RegisterUpdateFunc(self.UpdateMasterLoot)
 	
-	frame.indicators.status = frame:CreateTexture(nil, "OVERLAY")
+	-- Forces the indicators to be above the bars/portraits/etc
+	frame.indicators = CreateFrame("Frame", frame:GetName() .. "IndicatorFrame", frame)
+
+	frame.indicators.status = frame.indicators:CreateTexture(nil, "OVERLAY")
 	frame.indicators.status:SetTexture("Interface\\CharacterFrame\\UI-StateIcon")
 	
-	frame.indicators.pvp = frame:CreateTexture(nil, "OVERLAY")
+	frame.indicators.pvp = frame.indicators:CreateTexture(nil, "OVERLAY")
 	
-	frame.indicators.leader = frame:CreateTexture(nil, "OVERLAY")
+	frame.indicators.leader = frame.indicators:CreateTexture(nil, "OVERLAY")
 	frame.indicators.leader:SetTexture("Interface\\GroupFrame\\UI-Group-LeaderIcon")
 	
-	frame.indicators.masterLoot = frame:CreateTexture(nil, "OVERLAY")
+	frame.indicators.masterLoot = frame.indicators:CreateTexture(nil, "OVERLAY")
 	frame.indicators.masterLoot:SetTexture("Interface\\GroupFrame\\UI-Group-MasterLooter")
 end
 
 function Indicator.UpdateMasterLoot(self, unit)
-	local lootType, partyID, raidID = GetLootMethod()
+	local unit = self:GetAttribute("unit")	local lootType, partyID, raidID = GetLootMethod()
 	if( lootType ~= "master" or not partyID or not raidID ) then
 		self.indicators.masterLoot:Hide()
 	elseif( ( partyID > 0 and UnitIsUnit(unit, partyUnits[partyID]) ) or ( raidID > 0 and UnitIsUnit(unit, raidUnits[raidID]) ) ) then

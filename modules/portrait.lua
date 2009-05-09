@@ -12,7 +12,6 @@ end
 function Portrait:UnitCreated(frame, unit)
 	frame.portrait = CreateFrame("PlayerModel", frame:GetName() .. "PlayerModel", frame)
 	frame.portrait:SetScript("OnShow", resetCamera)
-	frame.portrait:SetFrameLevel(1)
 
 	frame:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", self.Update)
 	frame:RegisterUpdateFunc(self.Update)

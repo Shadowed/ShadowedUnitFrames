@@ -59,53 +59,106 @@ local function TargetUnitUpdate(self, elapsed)
 	end
 end
 
-function Unit:InitializeFrame(config, unit)
-	local mainFrame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate")
-	mainFrame.barFrame = CreateFrame("Frame", "SUFUnit" .. unit .. "BarFrame", mainFrame)
-
-	mainFrame:RegisterForClicks("AnyUp")
-	mainFrame:SetScript("OnEvent", FullUpdate)
-	mainFrame:SetScript("OnShow", FullUpdate)
-	mainFrame:SetAttribute("unit", unit)
-	mainFrame:SetAttribute("*type1", "target")
-	mainFrame:SetAttribute("*type2", "menu")
-	mainFrame.unit = unit
-	mainFrame.menu = Unit.ShowMenu
-	mainFrame:Hide()
-
-	mainFrame.fullUpdates = {}
-	mainFrame.RegisterNormalEvent = RegisterNormalEvent
-	mainFrame.RegisterUnitEvent = RegisterUnitEvent
-	mainFrame.RegisterUpdateFunc = RegisterUpdateFunc
-	mainFrame.UnregisterUpdateFunc = UnregisterUpdateFunc
-	mainFrame.FullUpdate = FullUpdate
-	
-	unitFrames[unit] = mainFrame
-		
-	ShadowUF:FireModuleEvent("UnitCreated", mainFrame, unit)
-	
-	-- Apply our layout quickly
-	ShadowUF.modules.Layout:Apply(mainFrame, unit)
-	
-	-- Annd lets get this going
-	RegisterUnitWatch(mainFrame)
-
-	-- Is it an invalid unit?
-	if( string.match(unit, "%w+target") ) then
-		mainFrame.timeElapsed = 0
-		mainFrame:SetScript("OnUpdate", TargetUnitUpdate)
-		
-	-- Automatically do a full update on target change
-	elseif( unit == "target" ) then
-		mainFrame:RegisterNormalEvent("PLAYER_TARGET_CHANGED", FullUpdate)
-	-- Automatically do a full update on focus change
-	elseif( unit == "focus" ) then
-		mainFrame:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", FullUpdate)
+-- Frame is now initialized with a unit
+local function OnAttributeChanged(self, name, value)
+	if( name ~= "unit" or not value ) then
+		return
 	end
 	
+	self.unit = value
+	self.unitID = tonumber(string.match(value, "([0-9]+)"))
+	self.configUnit = string.gsub(value, "([0-9]+)", "")
+	
+	unitFrames[value] = self
+		
+	if( not self.unitCreated ) then
+		self.unitCreated = true
+		
+		ShadowUF:FireModuleEvent("UnitCreated", self, value)
+	end
+	
+	-- Apply our layout quickly
+	ShadowUF.modules.Layout:Apply(self, self.configUnit)
+	
+	-- Is it an invalid unit?
+	if( string.match(value, "%w+target") ) then
+		self.timeElapsed = 0
+		self:SetScript("OnUpdate", TargetUnitUpdate)
+		
+	-- Automatically do a full update on target change
+	elseif( value == "target" ) then
+		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", FullUpdate)
+	-- Automatically do a full update on focus change
+	elseif( value == "focus" ) then
+		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", FullUpdate)
+	end
+		
 	-- Add to Clique
 	--ClickCastFrames = ClickCastFrames or {}
-	--ClickCastFrames[mainFrame] = true
+	--ClickCastFrames[self] = true
+end
+
+function Unit:LoadUnit(config, unit)
+	local mainFrame = CreateFrame("Button", "SSUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate")
+	self:CreateUnit(mainFrame)
+
+	mainFrame:SetAttribute("unit", unit)
+
+	-- Annd lets get this going
+	RegisterUnitWatch(mainFrame)
+end
+
+function Unit:CreateUnit(frame)
+	frame.barFrame = CreateFrame("Frame", frame:GetName() .. "BarFrame", frame)
+	
+	frame:RegisterForClicks("AnyUp")
+	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
+	frame:SetScript("OnEvent", FullUpdate)
+	frame:SetScript("OnShow", FullUpdate)
+	frame:SetAttribute("*type1", "target")
+	frame:SetAttribute("*type2", "menu")
+	frame.menu = Unit.ShowMenu
+	frame:Hide()
+	
+	frame.fullUpdates = {}
+	frame.RegisterNormalEvent = RegisterNormalEvent
+	frame.RegisterUnitEvent = RegisterUnitEvent
+	frame.RegisterUpdateFunc = RegisterUpdateFunc
+	frame.UnregisterUpdateFunc = UnregisterUpdateFunc
+	frame.FullUpdate = FullUpdate
+end
+
+local function initUnit(frame)
+	frame.isGroupHeaderUnit = true
+	Unit:CreateUnit(frame)
+end
+
+function Unit:LoadPartyUnit(config, unit)
+	local headerFrame = CreateFrame("Frame", "SSUFHeader" .. unit, UIParent, "SecureGroupHeaderTemplate")
+	headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
+	headerFrame:SetAttribute("point", "TOP")
+	headerFrame:SetAttribute("columnAnchorPoint", "TOP")
+	headerFrame:SetAttribute("initial-width", config.width)
+	headerFrame:SetAttribute("initial-height", config.height)
+	headerFrame:SetAttribute("initial-scale", config.scale)
+	headerFrame:SetAttribute("initial-unitWatch", true)
+	headerFrame:SetAttribute("showPlayer", true)
+	headerFrame:SetAttribute("showParty", true)
+	headerFrame.initialConfigFunction = initUnit
+	headerFrame:Show()
+
+	headerFrame:ClearAllPoints()
+	headerFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+end
+
+function Unit:InitializeFrame(config, unit)
+	if( unit == "party" ) then
+		self:LoadPartyUnit(config, unit)
+	elseif( unit == "raid" ) then
+		
+	else
+		self:LoadUnit(config, unit)
+	end
 end
 
 function Unit:UninitializeFrame(unit)
@@ -124,9 +177,9 @@ function Unit.ShowMenu(frame)
 		menuFrame = PetFrameDropDown
 	elseif( frame.unit == "target" ) then
 		menuFrame = TargetFrameDropDown
-	elseif( frame.type == "party" ) then
-		menuFrame = getglobal("PartyMemberFrame" .. fra,me.unitID .. "DropDown")
-	elseif( frame.type == "raid" ) then
+	elseif( frame.configUnit == "party" ) then
+		menuFrame = getglobal("PartyMemberFrame" .. frame.unitID .. "DropDown")
+	elseif( frame.configUnit == "raid" ) then
 		menuFrame = FriendsDropDown
 		menuFrame.displayMode = "MENU"
 		menuFrame.initialize = RaidFrameDropDown_Initialize
@@ -145,8 +198,7 @@ function Unit.ShowMenu(frame)
 end
 
 function Unit:CreateBar(parent, name)
-	local frame = CreateFrame("StatusBar", nil, parent)
-	frame:SetFrameLevel(1)
+	local frame = CreateFrame("StatusBar", parent:GetName() .. "HealthBar", parent)
 	frame.parent = parent
 	frame.background = frame:CreateTexture(nil, "BORDER")
 	frame.background:SetHeight(1)

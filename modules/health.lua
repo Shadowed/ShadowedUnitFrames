@@ -12,8 +12,8 @@ function Health:UnitCreated(frame, unit)
 end
 
 local function setBarColor(bar, r, g, b)
-	bar:SetStatusBarColor(r, g, b, 1.0)
-	bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.layout.general.backgroundFade)
+	bar:SetStatusBarColor(r, g, b, ShadowUF.db.profile.layout.general.barAlpha)
+	bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.layout.general.backgroundAlpha)
 end
 
 local function setGradient(healthBar, unit)
@@ -36,7 +36,7 @@ end
 
 function Health.UpdateColor(self)
 	local color
-	local unit = self.unit
+	local unit = self:GetAttribute("unit")
 	-- Tapped by a non-party member
 	if( not UnitIsTappedByPlayer(unit) and UnitIsTapped(unit) ) then
 		color = ShadowUF.db.profile.layout.healthColor.tapped
@@ -49,7 +49,7 @@ function Health.UpdateColor(self)
 		else
 			color = ShadowUF.db.profile.layout.healthColor.red
 		end
-	elseif( not UnitIsPlayer(unit) and ShadowUF.db.profile.units[unit].healthBar.colorBy == "reaction" ) then
+	elseif( not UnitIsPlayer(unit) and ShadowUF.db.profile.units[self.configUnit].healthBar.colorBy == "reaction" ) then
 		local reaction = UnitReaction(unit, "player")
 		if( reaction > 4 ) then
 			color = ShadowUF.db.profile.layout.healthColor.green
@@ -58,7 +58,7 @@ function Health.UpdateColor(self)
 		elseif( reaction < 4 ) then
 			color = ShadowUF.db.profile.layout.healthColor.red
 		end
-	elseif( ShadowUF.db.profile.units[unit].healthBar.colorBy == "class" and UnitIsPlayer(unit) ) then
+	elseif( ShadowUF.db.profile.units[self.configUnit].healthBar.colorBy == "class" and UnitIsPlayer(unit) ) then
 		local class = select(2, UnitClass(unit))
 		if( class and RAID_CLASS_COLORS[class] ) then
 			color = RAID_CLASS_COLORS[class]
@@ -72,15 +72,14 @@ function Health.UpdateColor(self)
 	end
 end
 
-function Health.Update(self)
-	local unit = self.unit
+function Health.Update(self, unit)
 	local max = UnitHealthMax(unit)
 	local current = UnitHealth(unit)
 	
 	self.healthBar:SetMinMaxValues(0, max)
 	self.healthBar:SetValue(current)
-	
-	if( ShadowUF.db.profile.units[unit].healthBar.colorBy == "percent" ) then
+		
+	if( ShadowUF.db.profile.units[self.configUnit].healthBar.colorBy == "percent" ) then
 		setGradient(self.healthBar, unit)
 	end
 end

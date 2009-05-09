@@ -5,7 +5,7 @@ function Mana:OnInitialize()
 end
 
 local function updateTimer(self, elapsed)
-	Mana.Update(self.parent, self.parent.unit)
+	Mana.Update(self.parent, self.unit)
 end
 
 
@@ -31,13 +31,15 @@ function Mana:UnitCreated(frame, unit)
 	-- If it's the player, we'll update it on OnUpdate to make the mana increase smoothly
 	if( unit == "player" ) then
 		frame.manaBar:SetScript("OnUpdate", updateTimer)
+		frame.manaBar.parent = frame
+		frame.manaBar.unit = frame:GetAttribute("unit")
 	end
 end
 
 function Mana.UpdateColor(self, unit)
 	local powerType = UnitPowerType(unit)
-	self.manaBar:SetStatusBarColor(ShadowUF.db.profile.layout.powerColor[powerType].r, ShadowUF.db.profile.layout.powerColor[powerType].g, ShadowUF.db.profile.layout.powerColor[powerType].b, 1.0)
-	self.manaBar.background:SetVertexColor(ShadowUF.db.profile.layout.powerColor[powerType].r, ShadowUF.db.profile.layout.powerColor[powerType].g, ShadowUF.db.profile.layout.powerColor[powerType].b, ShadowUF.db.profile.layout.general.backgroundFade)
+	self.manaBar:SetStatusBarColor(ShadowUF.db.profile.layout.powerColor[powerType].r, ShadowUF.db.profile.layout.powerColor[powerType].g, ShadowUF.db.profile.layout.powerColor[powerType].b, ShadowUF.db.profile.layout.general.barAlpha)
+	self.manaBar.background:SetVertexColor(ShadowUF.db.profile.layout.powerColor[powerType].r, ShadowUF.db.profile.layout.powerColor[powerType].g, ShadowUF.db.profile.layout.powerColor[powerType].b, ShadowUF.db.profile.layout.general.backgroundAlpha)
 end
 
 function Mana.Update(self, unit)

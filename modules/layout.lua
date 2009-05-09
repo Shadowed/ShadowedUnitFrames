@@ -41,6 +41,7 @@ function Layout:AnchorFrame(parent, frame, config)
 		scale = parent:GetEffectiveScale()
 	end
 
+	frame:ClearAllPoints()
 	frame:SetPoint(config.point, anchorTo, config.relativePoint, config.x / scale, config.y / scale)
 end
 
@@ -70,7 +71,10 @@ function Layout:Apply(frame, unit)
 	frame:SetClampedToScreen(true)
 	frame.barTexture = SML:Fetch(SML.MediaType.STATUSBAR, config.general.barTexture)
 	
-	self:AnchorFrame(UIParent, frame, config[unit])
+	-- Prevents raid and party frames from being anchored
+	if( not frame.isGroupHeaderUnit ) then
+		self:AnchorFrame(UIParent, frame, config[unit])
+	end
 	
 	-- We want it to be a pixel inside the frame, so inset + 1 * 2 gets us that
 	local clip = config.backdrop.inset + (config.general.clip or 1)
@@ -144,14 +148,21 @@ function Layout:Apply(frame, unit)
 	
 	-- Create text
 	if( ShadowUF.db.profile.units[unit].text ) then
-		for _, row in pairs(ShadowUF.db.profile.units[unit].text) do
+		frame.fontStrings = frame.fontStrings or {}
+		for _, fontString in pairs(frame.fontStrings) do
+			fontString:Hide()
+		end
+		
+		for id, row in pairs(ShadowUF.db.profile.units[unit].text) do
 			local bar = row.anchorTo == "$parent" and frame or frame[string.sub(row.anchorTo, 2)]
 			if( bar ) then
-				local fontString = bar:CreateFontString(nil, "ARTWORK")
+				local fontString = frame.fontStrings[id] or frame:CreateFontString(nil, "ARTWORK")
 				fontString:SetFont(SML:Fetch(SML.MediaType.FONT, config.font.name), config.font.size)
 				fontString:SetText(row.text)
+				fontString:SetParent(bar)
+				fontString:SetJustifyH(row.point)
 				self:AnchorFrame(frame, fontString, row)
-							
+											
 				if( row.widthPercent ) then
 					fontString:SetWidth(bar:GetWidth() * row.widthPercent)
 					fontString:SetHeight(config.font.size + 1)
@@ -169,7 +180,9 @@ function Layout:Apply(frame, unit)
 				
 				ShadowUF.modules.Tags:Register(frame, fontString, row.text)
 				fontString:UpdateTags()
+				fontString:Show()
 				
+				frame.fontStrings[id] = fontString
 				frame:RegisterUpdateFunc(fontString, "UpdateTags")
 			end
 		end
@@ -187,6 +200,13 @@ function Layout:Apply(frame, unit)
 		end
 	end
 	
+	self:SetupBars(frame, config)
+	
+	-- Layouts been fully set
+	ShadowUF:FireModuleEvent("LayoutApplied", frame, unit)
+end
+
+function Layout:SetupBars(frame, config)
 	-- Figure out the height of a few widgets, and set the size/positioning correctly
 	local totalWeight = 0
 	local totalBars = -1
@@ -198,7 +218,6 @@ function Layout:Apply(frame, unit)
 	end
 
 	for i=#(ordering), 1, -1 do table.remove(ordering, i) end
-
 	for key, data in pairs(config) do
 		if( data.order and frame[key] and frame[key]:IsShown() ) then
 			table.insert(ordering, key)
@@ -224,11 +243,7 @@ function Layout:Apply(frame, unit)
 		
 		lastFrame = bar
 	end
-	
-	-- Layouts been fully set
-	ShadowUF:FireModuleEvent("LayoutApplied", frame, unit)
 end
-
 
 
 

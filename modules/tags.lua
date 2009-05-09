@@ -92,7 +92,7 @@ end)
 function Tags:Register(parent, fontString, tags)
 	-- Unregister the font string first if we did register it already
 	if( fontString.UpdateTags ) then
-		self:Unregister(fs)
+	--	self:Unregister(fontString)
 	end
 	
 	fontString.parent = parent
@@ -140,7 +140,6 @@ function Tags:Register(parent, fontString, tags)
 		-- Create our update function now
 		updateFunc = function(fontString)
 			local unit = fontString.parent.unit
-			
 			for id, func in pairs(args) do
 				temp[id] = func(unit) or ""
 			end
