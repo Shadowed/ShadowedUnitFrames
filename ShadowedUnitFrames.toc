@@ -27,4 +27,5 @@ modules\health.lua
 modules\mana.lua
 modules\portrait.lua
 modules\indicators.lua
+modules\xp.lua
 modules\layout.lua

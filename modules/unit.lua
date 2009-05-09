@@ -146,6 +146,7 @@ end
 
 function Unit:CreateBar(parent, name)
 	local frame = CreateFrame("StatusBar", nil, parent)
+	frame:SetFrameLevel(1)
 	frame.parent = parent
 	frame.background = frame:CreateTexture(nil, "BORDER")
 	frame.background:SetHeight(1)

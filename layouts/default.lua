@@ -62,6 +62,7 @@ ShadowUF:RegisterLayout("Default", {
 			barTexture = "Smooth",
 			clip = 1,
 			barSpacing = -1.25,
+			backgroundFade = 0.20,
 		},
 		font = {
 			name = "Myriad Condensed Web",
@@ -85,6 +86,10 @@ ShadowUF:RegisterLayout("Default", {
 			green = {r = 0.20, g = 0.90, b = 0.20},
 			yellow = {r = 1.0, g = 1.0, b = 0.0},
 		},
+		xpColor = {
+			normal = {r = 0.58, g = 0.0, b = 0.55, a = 1.0},
+			rested = {r = 0.0, g = 0.39, b = 0.88, a = 0.60},
+		},
 		player = {
 			width = 200,
 			height = 60,
@@ -102,43 +107,15 @@ ShadowUF:RegisterLayout("Default", {
 			},
 			indicators = {
 				status = {height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
-				pvp = {height = 22, width = 22, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 0, y = 0},
-				
+				pvp = {height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
+				leader = {height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
+				masterLoot = {height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
 			--[[
-				rested = {point, anchorTo, relativePoint, x, y, height, width},
-				pvpFlag = {point, anchorTo, relativePoint, x, y, height, width},
-				leader = {point, anchorTo, relativePoint, x, y, height, width},
-				masterLoot = {point, anchorTo, relativePoint, x, y, height, width},
 				raidTarget = {point, anchorTo, relativePoint, x, y, height, width},
 				happiness = {point, anchorTo, relativePoint, x, y, height, width},
 			]]
 			},
 			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 100, y = -300,
-		},
-		pet = {
-			width = 200,
-			height = 60,
-			scale = 1.0,
-			applyEffective = true,
-			healthBar = {enabled = true},
-			manaBar = {enabled = true},
-			portrait = {enabled = true},
-			text = {
-					{name = L["Left text"], widthPercent = 0.60, text = "[raidcolor][name]|r", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -3, y = 0},
-					
-					{name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 3, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -3, y = 0},
-			},
-			--[[
-				rested = {point, anchorTo, relativePoint, x, y, height, width},
-				pvpFlag = {point, anchorTo, relativePoint, x, y, height, width},
-				leader = {point, anchorTo, relativePoint, x, y, height, width},
-				masterLoot = {point, anchorTo, relativePoint, x, y, height, width},
-				raidTarget = {point, anchorTo, relativePoint, x, y, height, width},
-				happiness = {point, anchorTo, relativePoint, x, y, height, width},
-			]]
-			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 100, y = -450,
 		},
 		target = {
 			width = 200,
@@ -148,6 +125,7 @@ ShadowUF:RegisterLayout("Default", {
 			healthBar = {enabled = true},
 			manaBar = {enabled = true},
 			portrait = {enabled = true},
+			xpBar = {enabled = true},
 			text = {
 					{name = L["Left text"], widthPercent = 0.60, text = "[raidcolor][name]|r", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 2, y = 0},
 					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -2, y = 0},
@@ -155,7 +133,31 @@ ShadowUF:RegisterLayout("Default", {
 					{name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 2, y = 0},
 					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -2, y = 0},
 			},
+			indicators = {
+				status = {height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
+				pvp = {height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
+				leader = {height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
+				masterLoot = {height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
+			},
 			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 350, y = -315,
+		},
+		pet = {
+			width = 200,
+			height = 60,
+			scale = 1.0,
+			applyEffective = true,
+			healthBar = {enabled = true},
+			manaBar = {enabled = true},
+			portrait = {enabled = true},
+			xpBar = {enabled = true},
+			text = {
+					{name = L["Left text"], widthPercent = 0.60, text = "[raidcolor][name]|r", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
+					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -3, y = 0},
+					
+					{name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 3, y = 0},
+					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -3, y = 0},
+			},
+			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 100, y = -450,
 		},
 		focus = {
 			width = 200,
@@ -215,6 +217,12 @@ ShadowUF:RegisterLayout("Default", {
 			heightWeight = 1.0,
 			width = 1.0,
 			order = 1,
+		},
+		xpBar = {
+			background = true,
+			heightWeight = 0.25,
+			width = 1.0,
+			order = 2,
 		},
 	},
 })

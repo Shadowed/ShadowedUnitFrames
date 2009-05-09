@@ -12,8 +12,8 @@ function Health:UnitCreated(frame, unit)
 end
 
 local function setBarColor(bar, r, g, b)
-	bar:SetStatusBarColor(r, g, b, 1)
-	bar.background:SetVertexColor(r, g, b, 0.20)
+	bar:SetStatusBarColor(r, g, b, 1.0)
+	bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.layout.general.backgroundFade)
 end
 
 local function setGradient(healthBar, unit)

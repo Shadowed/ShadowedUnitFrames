@@ -92,12 +92,12 @@ function Layout:Apply(frame, unit)
 			frame.portrait:SetPoint("TOPLEFT", frame, "TOPLEFT", clip, -clip)
 			frame.barFrame:SetPoint("RIGHT", frame.portrait)
 			frame.barFrame:SetPoint("RIGHT", frame, -clip, 0)
-			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - 3)
+			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - (config.general.clip or 1))
 		else
 			frame.portrait:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -clip, -clip)
 			frame.barFrame:SetPoint("LEFT", frame.portrait)
 			frame.barFrame:SetPoint("LEFT", frame, clip, 0)
-			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - ((config.general.clip or 1) * 2))
+			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - (config.general.clip or 1))
 		end
 	else
 		frame.barFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", clip, -clip)
@@ -126,6 +126,19 @@ function Layout:Apply(frame, unit)
 			frame.manaBar.background:Show()
 		else
 			frame.manaBar.background:Hide()
+		end
+	end
+	
+	-- Update XP bar
+	if( frame.xpBar and frame.xpBar:IsShown() ) then
+		frame.xpBar:SetStatusBarTexture(frame.barTexture)
+		frame.xpBar.rested:SetStatusBarTexture(frame.barTexture)
+		
+		if( config.xpBar.background ) then
+			frame.xpBar.background:SetTexture(frame.barTexture)
+			frame.xpBar.background:Show()
+		else
+			frame.xpBar.background:Hide()
 		end
 	end
 	
@@ -165,10 +178,12 @@ function Layout:Apply(frame, unit)
 	-- Position indicators
 	if( frame.indicators and config[unit].indicators ) then
 		for key, indicator in pairs(frame.indicators) do
-			indicator:SetHeight(config[unit].indicators[key].height)
-			indicator:SetWidth(config[unit].indicators[key].width)
-			
-			self:AnchorFrame(frame, indicator, config[unit].indicators[key])
+			if( config[unit].indicators[key] ) then
+				indicator:SetHeight(config[unit].indicators[key].height)
+				indicator:SetWidth(config[unit].indicators[key].width)
+				
+				self:AnchorFrame(frame, indicator, config[unit].indicators[key])
+			end
 		end
 	end
 	
@@ -185,7 +200,7 @@ function Layout:Apply(frame, unit)
 	for i=#(ordering), 1, -1 do table.remove(ordering, i) end
 
 	for key, data in pairs(config) do
-		if( data.order ) then
+		if( data.order and frame[key] and frame[key]:IsShown() ) then
 			table.insert(ordering, key)
 		end
 	end
