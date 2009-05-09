@@ -1,6 +1,6 @@
 -- Thanks to haste for the original tagging code, which I then mostly ripped apart and stole!
 local Tags = ShadowUF:NewModule("Tags")
-local eventlessUnits, events, tagPool, functionPool, temp = {}, {}, {}, {}, {}
+local eventlessUnits, events, tagPool, functionPool, fastTagUpdates, temp = {}, {}, {}, {}, {}, {}
 local frame
 local L = ShadowUFLocals
 
@@ -25,6 +25,11 @@ local function RegisterTagEvents(fontString, tags)
 		if( tagEvents ) then
 			for event in string.gmatch(tagEvents, "%S+") do
 				RegisterEvent(fontString, event)
+				
+				-- If it's for the player, and the tag uses a power event, flag it as needing to be OnUpdate monitored
+				if( fontString.parent.unit == "player" and Tags.powerEvents[event] ) then
+					fastTagUpdates[fontString] = true
+				end
 			end
 		end
 	end
@@ -59,6 +64,8 @@ frame:SetScript("OnUpdate", function(self, elapsed)
 				text:UpdateTags()
 			end
 		end
+		
+		timeElapsed = 0
 	end
 end)
 
@@ -68,10 +75,18 @@ frame:SetScript("OnEvent", function(self, event, unit)
 	end
 	
 	for _, fontString in pairs(events[event]) do
-		if( ( Tags.unitlessEvents[event] or ( not Tags.unitlessEvents[event] and fontString.parent.unit == unit ) ) and fontString:IsVisible() ) then
+		if( Tags.unitlessEvents[event] or ( not Tags.unitlessEvents[event] and fontString.parent.unit == unit ) ) then
 			fontString:UpdateTags()
 		end
 	end	
+end)
+
+-- Tag updating for power to make it smooth
+local fastFrame = CreateFrame("Frame")
+fastFrame:SetScript("OnUpdate", function(self, elapsed)
+	for fontString in pairs(fastTagUpdates) do
+		fontString:UpdateTags()
+	end
 end)
 
 function Tags:Register(parent, fontString, tags)
@@ -81,6 +96,8 @@ function Tags:Register(parent, fontString, tags)
 	end
 	
 	fontString.parent = parent
+	
+	fastTagUpdates[fontString] = nil
 	
 	local updateFunc = tagPool[tags]
 	if( not updateFunc ) then
@@ -93,12 +110,11 @@ function Tags:Register(parent, fontString, tags)
 			-- If they enter a tag such as "foo(|)" then we won't find a regular tag, meaning will go into our function pool code
 			local cachedFunc = functionPool[tag] or ShadowUF.tags[tag]
 			if( not cachedFunc ) then
-				-- ...
 				local pre, tagKey, ap = string.match(tag, "(%b())([%w]+)(%b())")
 				if( not pre ) then pre, tagKey = string.match(tag, "(%b())([%w]+)") end
 				if( not pre ) then tagKey, ap = string.match(tag, "([%w]+)(%b())") end
 				
-				local tag = ShadowUF.tags[tagKey]
+				local tag = tagKey and ShadowUF.tags[tagKey]
 				if( tag ) then
 					pre = pre and string.sub(pre, 2, -2) or ""
 					ap = ap and string.sub(ap, 2, -2) or ""
@@ -112,7 +128,7 @@ function Tags:Register(parent, fontString, tags)
 					
 					functionPool[tag] = cachedFunc
 				end
-			end
+			end			
 			
 			if( cachedFunc ) then
 				table.insert(args, cachedFunc)
@@ -167,6 +183,7 @@ function Tags:Unregister(fontString)
 		frame:Hide()
 	end
 	
+	fastTagUpdates[fontString] = nil
 	fontString.UpdateTags = nil
 end
 
@@ -184,40 +201,56 @@ function ShadowUF:Hex(r, g, b)
 	return string.format("|cff%02x%02x%02x", r * 255, g * 255, b * 255)
 end
 
+function ShadowUF:FormatLargeNumber(number)
+	if( number < 9999 ) then
+		return number
+	elseif( number < 999999 ) then
+		return string.format("%.1fk", number / 1000)
+	end
+	
+	return string.format("%.2fm", number / 1000000)
+end
+
 function Tags:LoadTags()
 	self.defaultTags = {
 		["class"]       = [[function(unit) return UnitClass(unit) end]],
 		["creature"]    = [[function(unit) return UnitCreatureFamily(unit) or UnitCreatureType(unit) end]],
-		["curhp"]       = "UnitHealth",
-		["curpp"]       = "UnitPower",
+		["curhp"]       = [[function(unit) return ShadowUF:FormatLargeNumber(UnitHealth(unit)) end]],
+		["curpp"]       = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPower(unit)) end]],
+		["curmaxhp"] = [[function(unit)
+			local dead = ShadowUF.tags.dead(unit)
+			if( dead ) then
+				return dead
+			end
+			
+			return string.format("%s/%s", ShadowUF.tags.curhp(unit), ShadowUF.tags.maxhp(unit))
+		end]],
+		["curmaxpp"] = [[function(unit)
+			local dead = ShadowUF.tags.dead(unit)
+			if( dead ) then
+				return string.format("0/%s", ShadowUF.tags.maxpp(unit))
+			end
+			
+			return string.format("%s/%s", ShadowUF.tags.curpp(unit), ShadowUF.tags.maxpp(unit))
+		end]],
 		["dead"]        = [[function(unit) return UnitIsDead(unit) and ShadowUFLocals["Dead"] or UnitIsGhost(unit) and ShadowUFLocals["Ghost"] end]],
 		["difficulty"]  = [[function(unit) if UnitCanAttack("player", unit) then local l = UnitLevel(unit); return ShadowUF:Hex(GetDifficultyColor((l > 0) and l or 99)) end end]],
 		["faction"]     = [[function(unit) return UnitFactionGroup(unit) end]],
 		["leader"]      = [[function(unit) return UnitIsPartyLeader(unit) and ShadowUFLocals["(L)"] end]],
 		["leaderlong"]  = [[function(unit) return UnitIsPartyLeader(unit) and ShadowUFLocals["(Leader)"] end]],
 		["level"]       = [[function(unit) local l = UnitLevel(unit) return (l > 0) and l or ShadowUFLocals["??"] end]],
-		["maxhp"]       = "UnitHealthMax",
-		["maxpp"]       = "UnitPowerMax",
+		["maxhp"]       = [[function(unit) return ShadowUF:FormatLargeNumber(UnitHealthMax(unit)) end]],
+		["maxpp"]       = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPowerMax(unit)) end]],
 		["missinghp"]   = [[function(unit) return UnitHealthMax(unit) - UnitHealth(unit) end]],
 		["missingpp"]   = [[function(unit) return UnitPowerMax(unit) - UnitPower(unit) end]],
 		["name"]        = [[function(unit) return UnitName(unit) end]],
-		["coloredname"] = [[function(unit)
-			local classToken = select(2, unit)
-			local name = UnitName(unit)
-			if( not RAID_CLASS_COLORS[classToken] ) then 
-				return name
-			end
-			
-			return string.format("%s%s|r", ShadowUF:Hex(RAID_CLASS_COLORS[classToken]), name)
-		end
-		]],
 		["offline"]     = [[function(unit) return  (not UnitIsConnected(unit) and ShadowUFLocals["Offline"]) end]],
 		["perhp"]       = [[function(unit) local m = UnitHealthMax(unit); return m == 0 and 0 or math.floor(UnitHealth(unit)/m*100+0.5) end]],
 		["perpp"]       = [[function(unit) local m = UnitPowerMax(unit); return m == 0 and 0 or math.floor(UnitPower(unit)/m*100+0.5) end]],
 		["plus"]        = [[function(unit) local c = UnitClassification(unit); return (c == "elite" or c == "rareelite") and "+" end]],
 		["pvp"]         = [[function(unit) return UnitIsPVP(unit) and ShadowUFLocals["PvP"] end]],
 		["race"]        = [[function(unit) return UnitRace(unit) end]],
-		["raidcolor"]   = [[function(unit) local _, x = UnitClass(unit); return x and ShadowUF:Hex(RAID_CLASS_COLORS[x]) end]],
+		["raidcolor"]   = [[function(unit) if( not UnitIsPlayer(unit) ) then return end local _, x = UnitClass(unit); return x and ShadowUF:Hex(RAID_CLASS_COLORS[x]) end]],
 		["rare"]        = [[function(unit) local c = UnitClassification(unit); return (c == "rare" or c == "rareelite") and ShadowUFLocals["Rare"] end]],
 		["resting"]     = [[function(unit) return u == "player" and IsResting() and ShadowUFLocals["zzz"] end]],
 		["sex"]         = [[function(unit) local s = UnitSex(unit) return s == 2 and ShadowUFLocals["Male"] or s == 3 and ShadowUFLocals["Female"] end]],
@@ -253,7 +286,9 @@ function Tags:LoadTags()
 	-- Default tag events
 	self.defaultEvents = {
 		["curhp"]               = "UNIT_HEALTH",
-		["curpp"]               = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER",
+		["curmaxhp"]			= "UNIT_HEALTH UNIT_MAXHEALTH",
+		["curpp"]               = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER",
+		["curmaxpp"]			= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
 		["dead"]                = "UNIT_HEALTH",
 		["leader"]              = "PARTY_LEADER_CHANGED",
 		["leaderlong"]          = "PARTY_LEADER_CHANGED",
@@ -263,6 +298,7 @@ function Tags:LoadTags()
 		["missinghp"]           = "UNIT_HEALTH UNIT_MAXHEALTH",
 		["missingpp"]           = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_MAXRUNIC_POWER UNIT_RUNIC_POWER",
 		["name"]                = "UNIT_NAME_UPDATE",
+		["coloredname"]			= "UNIT_NAME_UPDATE",
 		["offline"]             = "UNIT_HEALTH",
 		["perhp"]               = "UNIT_HEALTH UNIT_MAXHEALTH",
 		["perpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_MAXRUNIC_POWER UNIT_RUNIC_POWER",
@@ -276,6 +312,14 @@ function Tags:LoadTags()
 		["rare"]                = "UNIT_CLASSIFICATION_CHANGED",
 		["classification"]      = "UNIT_CLASSIFICATION_CHANGED",
 		["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
+	}
+	
+	self.powerEvents = {
+		["UNIT_ENERGY"] = true,
+		["UNIT_FOCUS"] = true,
+		["UNIT_MANA"] = true,
+		["UNIT_RAGE"] = true,
+		["UNIT_RUNIC_POWER"] = true,
 	}
 	
 	-- Events that should call every font string, and not bother checking for unit

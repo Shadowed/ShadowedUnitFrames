@@ -6,6 +6,7 @@ ShadowUF = LibStub("AceAddon-3.0"):NewAddon("ShadowUF", "AceEvent-3.0")
 
 local L = ShadowUFLocals
 local layoutQueue
+local modules = {}
 
 --[[
 		layoutInfo = stores information about the layout, this includes author, default layout config, ect
@@ -91,16 +92,6 @@ function ShadowUF:OnInitialize()
 			return tbl[index]
 		end,
 	})
-
-	-- Unit event monitor
-	self.unitEvents = {}
-	self.unitEvtFrame = CreateFrame("Frame")
-	self.unitEvtFrame:SetScript("OnEvent", function(self, event, ...)
-		local unit = select(1, ...)
-		if( ShadowUF.unitEvents[unit] and ShadowUF.unitEvents[unit][event] ) then
-			ShadowUF.unitEvents[unit][event](ShadowUF.unitEvents[unit].frame, ...)
-		end
-	end)
 	
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", function()
 		ShadowUF:UnregisterEvent("PLAYER_ENTERING_WORLD")
@@ -133,46 +124,22 @@ function ShadowUF:LoadUnits()
 	end
 end
 
--- "Module" thingys
-function ShadowUF:RegisterUnitEvent(event, frame, func)
-	local unit = frame.unit
-	
-	self.unitEvents[unit] = self.unitEvents[unit] or {}
-	self.unitEvents[unit][event] = func
-	self.unitEvents[unit].frame = frame
-	
-	self.unitEvtFrame:RegisterEvent(event)
-end
-
-function ShadowUF:UnregisterUnitEvent(event, frame)
-	local unit = frame.unit
-	self.unitEvents[unit][event] = nil
-	
-	-- Check if any others have this registered
-	for _, eventList in pairs(self.unitEvents) do
-		if( eventList[event] ) then
-			return
-		end
-	end
-	
-	self.unitEvents[unit].frame = nil
-	
-	-- They don't, we can stop monitoring it then
-	self.unitEvtFrame:UnregisterEvent(event)
-end
-
 -- Plugin APIs
 function ShadowUF:SetLayout(name)
 	if( self.layoutInfo[name] ) then
 		self.db.profile.activeLayout = name
 		self.db.profile.layout = CopyTable(self.layoutInfo[name].layout)
 		
-		local units = {"player", "target", "pet", "focus"}
+		local units = {"player", "target", "pet", "focus", "targettarget"}
 		for _, unit in pairs(units) do
 			self.db.profile.units[unit] = CopyTable(self.defaults.profile.unitDefault)
 			if( self.db.profile.layout[unit] ) then
 				for k, v in pairs(self.db.profile.layout[unit]) do
-					if( type(v) == "table" ) then
+					if( type(v) == "table" and self.db.profile.units[unit][k] ) then
+						for k2, v2 in pairs(v) do
+							self.db.profile.units[unit][k][k2] = v2
+						end
+					elseif( type(v) == "table" and not self.db.profile.units[unit][k] ) then
 						self.db.profile.units[unit][k] = CopyTable(v)
 					else
 						self.db.profile.units[unit][k] = v
@@ -203,6 +170,19 @@ function ShadowUF:RegisterLayout(name, data)
 		self.db.profile.layoutInfo[name] = self:WriteTable(data)
 	else
 		self.db.profile.layoutInfo[name] = data
+	end
+end
+
+-- Module APIs
+function ShadowUF:RegisterModule(module)
+	modules[module] = true
+end
+
+function ShadowUF:FireModuleEvent(event, frame, unit)
+	for module in pairs(modules) do
+		if( module[event] ) then
+			module[event](module, frame, unit)
+		end
 	end
 end
 

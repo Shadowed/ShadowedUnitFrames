@@ -1,41 +1,46 @@
-local Mana = ShadowUF:NewModule("Mana", "AceEvent-3.0")
+local Mana = ShadowUF:NewModule("Mana")
 
 function Mana:OnInitialize()
-	self:RegisterMessage("SUF_CREATED_UNIT")
-	self:RegisterMessage("SUF_LAYOUT_SET")
+	ShadowUF:RegisterModule(self)
 end
 
-function Mana:SUF_CREATED_UNIT(event, frame)
-	frame.manaBar = CreateFrame("StatusBar", nil, frame.barFrame)
-	
-	ShadowUF:RegisterUnitEvent("UNIT_HEALTH", frame, self.Update)
-	ShadowUF:RegisterUnitEvent("UNIT_MAXHEALTH", frame, self.Update)
-	ShadowUF:RegisterUnitEvent("UNIT_MANA", frame, self.Update)
-	ShadowUF:RegisterUnitEvent("UNIT_RAGE", frame, self.Update)
-	ShadowUF:RegisterUnitEvent("UNIT_ENERGY", frame, self.Update)
-	ShadowUF:RegisterUnitEvent("UNIT_FOCUS", frame, self.Update)
-	ShadowUF:RegisterUnitEvent("UNIT_RUNIC_POWER", frame, self.Update)
-
-	ShadowUF:RegisterUnitEvent("UNIT_MAXMANA", frame, self.Update)
-	ShadowUF:RegisterUnitEvent("UNIT_MAXRAGE", frame, self.Update)
-	ShadowUF:RegisterUnitEvent("UNIT_MAXENERGY", frame, self.Update)
-	ShadowUF:RegisterUnitEvent("UNIT_MAXFOCUS", frame, self.Update)
-	ShadowUF:RegisterUnitEvent("UNIT_MAXRUNIC_POWER", frame, self.Update)
-
-	ShadowUF:RegisterUnitEvent("UNIT_DISPLAYPOWER", frame, self.UpdateColor)
+local function updateTimer(self, elapsed)
+	Mana.Update(self.parent, self.parent.unit)
 end
 
-function Mana:SUF_LAYOUT_SET(event, frame)
-	self.Update(frame, frame.unit)
-	self.UpdateColor(frame, frame.unit)
+
+function Mana:UnitCreated(frame, unit)
+	frame.manaBar = ShadowUF.modules.Unit:CreateBar(frame, "ManaBar")
+		
+	frame:RegisterUnitEvent("UNIT_HEALTH", self.Update)
+	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self.Update)
+	frame:RegisterUnitEvent("UNIT_MANA", self.Update)
+	frame:RegisterUnitEvent("UNIT_RAGE", self.Update)
+	frame:RegisterUnitEvent("UNIT_ENERGY", self.Update)
+	frame:RegisterUnitEvent("UNIT_FOCUS", self.Update)
+	frame:RegisterUnitEvent("UNIT_RUNIC_POWER", self.Update)
+	frame:RegisterUnitEvent("UNIT_MAXMANA", self.Update)
+	frame:RegisterUnitEvent("UNIT_MAXRAGE", self.Update)
+	frame:RegisterUnitEvent("UNIT_MAXENERGY", self.Update)
+	frame:RegisterUnitEvent("UNIT_MAXFOCUS", self.Update)
+	frame:RegisterUnitEvent("UNIT_MAXRUNIC_POWER", self.Update)
+	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self.UpdateColor)
+	frame:RegisterUpdateFunc(self.Update)
+	frame:RegisterUpdateFunc(self.UpdateColor)
+
+	-- If it's the player, we'll update it on OnUpdate to make the mana increase smoothly
+	if( unit == "player" ) then
+		frame.manaBar:SetScript("OnUpdate", updateTimer)
+	end
 end
 
 function Mana.UpdateColor(self, unit)
-	self.powerType = UnitPowerType(unit)
-	self.manaBar:SetStatusBarColor(ShadowUF.db.profile.layout.powerColor[self.powerType].r, ShadowUF.db.profile.layout.powerColor[self.powerType].g, ShadowUF.db.profile.layout.powerColor[self.powerType].b)
+	local powerType = UnitPowerType(unit)
+	self.manaBar:SetStatusBarColor(ShadowUF.db.profile.layout.powerColor[powerType].r, ShadowUF.db.profile.layout.powerColor[powerType].g, ShadowUF.db.profile.layout.powerColor[powerType].b, 1.0)
+	self.manaBar.background:SetVertexColor(ShadowUF.db.profile.layout.powerColor[powerType].r, ShadowUF.db.profile.layout.powerColor[powerType].g, ShadowUF.db.profile.layout.powerColor[powerType].b, 0.20)
 end
 
 function Mana.Update(self, unit)
-	self.manaBar:SetMinMaxValues(0, UnitPowerMax(unit, self.powerType))
-	self.manaBar:SetValue(UnitPower(unit, self.powerType))
+	self.manaBar:SetMinMaxValues(0, UnitPowerMax(unit))
+	self.manaBar:SetValue(UnitPower(unit))
 end

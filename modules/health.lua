@@ -1,26 +1,25 @@
-local Health = ShadowUF:NewModule("Health", "AceEvent-3.0")
+local Health = ShadowUF:NewModule("Health")
 
 function Health:OnInitialize()
-	self:RegisterMessage("SUF_CREATED_UNIT")
-	self:RegisterMessage("SUF_LAYOUT_SET")
+	ShadowUF:RegisterModule(self)
 end
 
-function Health:SUF_CREATED_UNIT(event, frame)
-	frame.healthBar = CreateFrame("StatusBar", frame:GetName() .. "HealthBar", frame.barFrame)
-	
-	ShadowUF:RegisterUnitEvent("UNIT_HEALTH", frame, self.Update)
-	ShadowUF:RegisterUnitEvent("UNIT_MAXHEALTH", frame, self.Update)
+function Health:UnitCreated(frame, unit)
+	frame.healthBar = ShadowUF.modules.Unit:CreateBar(frame, "HealthBar")
+	frame:RegisterUnitEvent("UNIT_HEALTH", self.Update)
+	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self.Update)
+	frame:RegisterUpdateFunc(self.Update)
 end
 
-function Health:SUF_LAYOUT_SET(event, frame)
-	self.Update(frame, frame.unit)
-	self.UpdateColor(frame, frame.unit)
+local function setBarColor(bar, r, g, b)
+	bar:SetStatusBarColor(r, g, b, 1)
+	bar.background:SetVertexColor(r, g, b, 0.20)
 end
 
-function Health.setGradient(healthBar, unit)
+local function setGradient(healthBar, unit)
 		local current, max = UnitHealth(unit), UnitHealthMax(unit)
 		local percent = current / max
-		local r, g, b = 0.0, 0.0, 0.0
+		local r, g, b = 0, 0, 0
 		
 		if( percent == 1.0 ) then
 			r, g, b = ShadowUF.db.profile.layout.healthColor.green.r, ShadowUF.db.profile.layout.healthColor.green.g, ShadowUF.db.profile.layout.healthColor.green.b
@@ -32,11 +31,12 @@ function Health.setGradient(healthBar, unit)
 			g = percent * 2
 		end
 		
-		healthBar:SetStatusBarColor(r, g, b)
+		setBarColor(healthBar, r, g, b)
 end
 
-function Health.UpdateColor(self, unit)
+function Health.UpdateColor(self)
 	local color
+	local unit = self.unit
 	-- Tapped by a non-party member
 	if( not UnitIsTappedByPlayer(unit) and UnitIsTapped(unit) ) then
 		color = ShadowUF.db.profile.layout.healthColor.tapped
@@ -66,13 +66,14 @@ function Health.UpdateColor(self, unit)
 	end
 	
 	if( not color ) then
-		Health.setGradient(self.healthBar, unit)
+		setGradient(self.healthBar, unit)
 	else
-		self.healthBar:SetStatusBarColor(color.r, color.g, color.b)
+		setBarColor(healthBar, color.r, color.g, color.b)
 	end
 end
 
-function Health.Update(self, unit)
+function Health.Update(self)
+	local unit = self.unit
 	local max = UnitHealthMax(unit)
 	local current = UnitHealth(unit)
 	
@@ -80,6 +81,6 @@ function Health.Update(self, unit)
 	self.healthBar:SetValue(current)
 	
 	if( ShadowUF.db.profile.units[unit].healthBar.colorBy == "percent" ) then
-		Health.setGradient(self.healthBar, unit)
+		setGradient(self.healthBar, unit)
 	end
 end
