@@ -106,6 +106,10 @@ ShadowUF:RegisterLayout("Default", {
 					{name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 3, y = 0},
 					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -3, y = 0},
 			},
+			auras = {
+				HELPFUL = {position = "BOTTOM", size = 20, inColumn = 8, perRow = 4, enlargeSelf = true, filters = {HELPFUL = true}},
+				HARMFUL = {position = "BOTTOM", size = 20, inColumn = 8, perRow = 4, enlargeSelf = true, filters = {HARMFUL = true}},
+			},
 			indicators = {
 				status = {height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
 				pvp = {height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},

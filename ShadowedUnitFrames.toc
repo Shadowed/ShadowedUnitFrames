@@ -28,4 +28,5 @@ modules\mana.lua
 modules\portrait.lua
 modules\indicators.lua
 modules\xp.lua
+modules\auras.lua
 modules\layout.lua
