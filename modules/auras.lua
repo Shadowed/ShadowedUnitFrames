@@ -28,12 +28,12 @@ end
 
 function Auras:UnitCreated(frame, unit)
 	-- DEBUG DEBUG DEBUG!
-	if( not ShadowUF.db.profile.units[unit].auras ) then return end
+	if( not ShadowUF.db.profile.units[frame.configUnit].auras ) then return end
 	
 	frame:RegisterUnitEvent("UNIT_AURA", self.Update)
 	frame:RegisterUpdateFunc(self.Update)
 	
-	self.Create(frame, ShadowUF.db.profile.units[unit].auras)
+	self.Create(frame, ShadowUF.db.profile.units[frame.configUnit].auras)
 end
 
 function Auras.UpdateFilter(self, filter)

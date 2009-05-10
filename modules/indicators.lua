@@ -21,8 +21,10 @@ function Indicator:UnitCreated(frame, unit)
 	frame:RegisterNormalEvent("PARTY_LEADER_CHANGED", self.UpdateLeader)
 	frame:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", self.UpdateLeader)
 	frame:RegisterNormalEvent("PARTY_LOOT_METHOD_CHANGED", self.UpdateMasterLoot)
+	frame:RegisterNormalEvent("RAID_TARGET_UPDATE", self.UpdateRaidTarget)
 	frame:RegisterUnitEvent("PLAYER_FLAGS_CHANGED", self.UpdatePVPFlag)
 	frame:RegisterUnitEvent("UNIT_FACTION", self.UpdatePVPFlag)
+	frame:RegisterUpdateFunc(self.UpdateRaidTarget)
 	frame:RegisterUpdateFunc(self.UpdateStatus)
 	frame:RegisterUpdateFunc(self.UpdatePVPFlag)
 	frame:RegisterUpdateFunc(self.UpdateLeader)
@@ -41,6 +43,9 @@ function Indicator:UnitCreated(frame, unit)
 	
 	frame.indicators.masterLoot = frame.indicators:CreateTexture(nil, "OVERLAY")
 	frame.indicators.masterLoot:SetTexture("Interface\\GroupFrame\\UI-Group-MasterLooter")
+	
+	frame.indicators.raidTarget = frame.indicators:CreateTexture(nil, "OVERLAY")
+	frame.indicators.raidTarget:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
 end
 
 function Indicator.UpdateMasterLoot(self, unit)
@@ -51,6 +56,15 @@ function Indicator.UpdateMasterLoot(self, unit)
 		self.indicators.masterLoot:Show()
 	else
 		self.indicators.masterLoot:Hide()
+	end
+end
+			
+function Indicator.UpdateRaidTarget(self, unit)
+	if( UnitExists(unit) and GetRaidTargetIndex(unit) ) then
+		SetRaidTargetIconTexture(self.indicators.raidTarget, GetRaidTargetIndex(unit))
+		self.indicators.raidTarget:Show()
+	else
+		self.indicators.raidTarget:Hide()
 	end
 end
 			

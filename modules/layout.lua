@@ -72,7 +72,7 @@ function Layout:Apply(frame, unit)
 	frame.barTexture = SML:Fetch(SML.MediaType.STATUSBAR, config.general.barTexture)
 	
 	-- Prevents raid and party frames from being anchored
-	if( not frame.isGroupHeaderUnit ) then
+	if( not frame.ignoreAnchor ) then
 		self:AnchorFrame(UIParent, frame, config[unit])
 	end
 	

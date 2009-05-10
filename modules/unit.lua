@@ -101,20 +101,25 @@ end
 function Unit:LoadUnit(config, unit)
 	local mainFrame = CreateFrame("Button", "SSUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate")
 	self:CreateUnit(mainFrame)
-
+	
 	mainFrame:SetAttribute("unit", unit)
 
 	-- Annd lets get this going
 	RegisterUnitWatch(mainFrame)
 end
 
-function Unit:CreateUnit(frame)
+function Unit:CreateUnit(frame, hookShow)
 	frame.barFrame = CreateFrame("Frame", frame:GetName() .. "BarFrame", frame)
+	
+	if( hookShow ) then
+		frame:HookScript("OnShow", FullUpdate)
+	else
+		frame:SetScript("OnShow", FullUpdate)
+	end
 	
 	frame:RegisterForClicks("AnyUp")
 	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
 	frame:SetScript("OnEvent", FullUpdate)
-	frame:SetScript("OnShow", FullUpdate)
 	frame:SetAttribute("*type1", "target")
 	frame:SetAttribute("*type2", "menu")
 	frame.menu = Unit.ShowMenu
@@ -129,11 +134,11 @@ function Unit:CreateUnit(frame)
 end
 
 local function initUnit(frame)
-	frame.isGroupHeaderUnit = true
+	frame.ignoreAnchor = true
 	Unit:CreateUnit(frame)
 end
 
-function Unit:LoadPartyUnit(config, unit)
+function Unit:LoadPartyHeader(config, unit)
 	local headerFrame = CreateFrame("Frame", "SSUFHeader" .. unit, UIParent, "SecureGroupHeaderTemplate")
 	headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
 	headerFrame:SetAttribute("point", "TOP")
@@ -142,7 +147,6 @@ function Unit:LoadPartyUnit(config, unit)
 	headerFrame:SetAttribute("initial-height", config.height)
 	headerFrame:SetAttribute("initial-scale", config.scale)
 	headerFrame:SetAttribute("initial-unitWatch", true)
-	headerFrame:SetAttribute("showPlayer", true)
 	headerFrame:SetAttribute("showParty", true)
 	headerFrame.initialConfigFunction = initUnit
 	headerFrame:Show()
@@ -151,11 +155,44 @@ function Unit:LoadPartyUnit(config, unit)
 	headerFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
 end
 
+local petPoint = { "TOPRIGHT", "RIGHT", "BOTTOMRIGHT", "TOPLEFT", "LEFT", "BOTTOMLEFT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT", "TOPLEFT", "TOP", "TOPRIGHT"}
+local petRelative = { "TOPLEFT", "LEFT", "BOTTOMLEFT", "TOPRIGHT", "RIGHT", "BOTTOMRIGHT", "TOPLEFT", "TOP", "TOPRIGHT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT"}
+function Unit:LoadPetUnit(config, parentHeader, unit)
+	local frame = CreateFrame("Button", "SSUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate,SecureHandlerShowHideTemplate")
+	self:CreateUnit(frame, true)
+	
+	frame.ignoreAnchor = true
+	frame:SetAttribute("_onshow", [[
+		local children = table.new(self:GetFrameRef("partyHeader"):GetChildren())
+		for _, child in pairs(children) do
+			if( child:GetAttribute("unit") == self:GetAttribute("petOwner") ) then
+				self:SetParent(child)
+				self:ClearAllPoints()
+				self:SetPoint(self:GetAttribute("framePoint"), child, self:GetAttribute("frameRelative"), 0, 0)
+			end
+		end
+	]])
+	frame:SetAttribute("unit", unit)
+	frame:SetAttribute("petOwner", (string.gsub(unit, "(%w+)pet(%d+)", "%1%2")))
+	frame:SetAttribute("framePoint", petPoint[config.position])
+	frame:SetAttribute("frameRelative", petRelative[config.position])
+	frame:SetPoint("CENTER", UIParent, "CENTER", 150, -150)
+
+	frame:SetFrameRef("partyHeader",  parentHeader)
+	
+	-- Annd lets get this going
+	RegisterUnitWatch(frame)
+end
+
 function Unit:InitializeFrame(config, unit)
 	if( unit == "party" ) then
-		self:LoadPartyUnit(config, unit)
+		self:LoadPartyHeader(config, unit)
 	elseif( unit == "raid" ) then
-		
+	
+	elseif( unit == "partypet" ) then
+		for i=1, MAX_PARTY_MEMBERS do
+			self:LoadPetUnit(config, SSUFHeaderparty, unit .. i)
+		end
 	else
 		self:LoadUnit(config, unit)
 	end

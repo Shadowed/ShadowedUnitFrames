@@ -130,7 +130,7 @@ function ShadowUF:SetLayout(name)
 		self.db.profile.activeLayout = name
 		self.db.profile.layout = CopyTable(self.layoutInfo[name].layout)
 		
-		local units = {"player", "target", "party", "pet", "focus", "targettarget"}
+		local units = {"player", "target", "party", "pet", "focus", "targettarget", "partypet"}
 		for _, unit in pairs(units) do
 			self.db.profile.units[unit] = CopyTable(self.defaults.profile.unitDefault)
 			if( self.db.profile.layout[unit] ) then

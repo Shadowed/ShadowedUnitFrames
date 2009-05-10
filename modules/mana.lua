@@ -32,7 +32,7 @@ function Mana:UnitCreated(frame, unit)
 	if( unit == "player" ) then
 		frame.manaBar:SetScript("OnUpdate", updateTimer)
 		frame.manaBar.parent = frame
-		frame.manaBar.unit = frame:GetAttribute("unit")
+		frame.manaBar.unit = unit
 	end
 end
 

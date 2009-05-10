@@ -107,16 +107,16 @@ ShadowUF:RegisterLayout("Default", {
 					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -3, y = 0},
 			},
 			auras = {
-				HELPFUL = {position = "BOTTOM", size = 16, inColumn = 8, perRow = 4, enlargeSelf = true, filters = {HELPFUL = true}},
-				HARMFUL = {position = "BOTTOM", size = 16, inColumn = 8, perRow = 4, enlargeSelf = true, filters = {HARMFUL = true}},
+				HELPFUL = {position = "BOTTOM", size = 16, inColumn = 8, perRow = 4, x = 0, y = 0, enlargeSelf = true, filters = {HELPFUL = true}},
+				HARMFUL = {position = "BOTTOM", size = 16, inColumn = 8, perRow = 4, x = 0, y = 0, enlargeSelf = true, filters = {HARMFUL = true}},
 			},
 			indicators = {
 				status = {height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
 				pvp = {height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
 				leader = {height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
 				masterLoot = {height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
+				raidTarget = {height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
 			--[[
-				raidTarget = {point, anchorTo, relativePoint, x, y, height, width},
 				happiness = {point, anchorTo, relativePoint, x, y, height, width},
 			]]
 			},
@@ -148,6 +148,20 @@ ShadowUF:RegisterLayout("Default", {
 			]]
 			},
 			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 100, y = -300,
+		},
+		partypet = {
+			width = 125,
+			height = 30,
+			scale = 1.0,
+			groupWith = "parent",
+			position = 6,
+			healthBar = {enabled = true},
+			manaBar = {enabled = false},
+			portrait = {enabled = false},
+			text = {
+					{name = L["Left text"], widthPercent = 1.0, text = "[raidcolor][name]|r [curmaxhp]", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
+			},
+			indicators = {},
 		},
 		target = {
 			width = 200,

@@ -24,8 +24,6 @@ function XP:UnitCreated(frame, unit)
 	else
 		frame:RegisterEvent("UNIT_PET_EXPERIENCE", self.Update)
 	end
-
-	self.Update(frame, unit)
 end
 
 function XP.SetColor(self, unit)
