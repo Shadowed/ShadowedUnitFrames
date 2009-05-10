@@ -77,7 +77,7 @@ function Layout:Apply(frame, unit)
 	end
 	
 	-- We want it to be a pixel inside the frame, so inset + 1 * 2 gets us that
-	local clip = config.backdrop.inset + (config.general.clip or 1)
+	local clip = config.backdrop.inset + config.general.clip
 
 	-- Position portrait, this is the "important" one
 	if( frame.portrait and frame.portrait:IsShown() ) then
@@ -96,12 +96,12 @@ function Layout:Apply(frame, unit)
 			frame.portrait:SetPoint("TOPLEFT", frame, "TOPLEFT", clip, -clip)
 			frame.barFrame:SetPoint("RIGHT", frame.portrait)
 			frame.barFrame:SetPoint("RIGHT", frame, -clip, 0)
-			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - (config.general.clip or 1))
+			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - config.general.clip)
 		else
 			frame.portrait:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -clip, -clip)
 			frame.barFrame:SetPoint("LEFT", frame.portrait)
 			frame.barFrame:SetPoint("LEFT", frame, clip, 0)
-			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - (config.general.clip or 1))
+			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - config.general.clip)
 		end
 	else
 		frame.barFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", clip, -clip)

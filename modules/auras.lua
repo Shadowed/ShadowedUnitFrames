@@ -77,7 +77,7 @@ function Auras.Create(self)
 				
 				button.stack = button:CreateFontString(nil, "OVERLAY")
 				button.stack:SetFont("Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf", 10, "OUTLINE")
-				button.stack:SetShadowColor(0, 0, 0, 1)
+				button.stack:SetShadowColor(0, 0, 0, 1.0)
 				button.stack:SetShadowOffset(0.8, -0.8)
 				button.stack:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 1, 0)
 				button.stack:SetWidth(18)
@@ -87,10 +87,7 @@ function Auras.Create(self)
 				button.border = button:CreateTexture(nil, "ARTWORK")
 				button.border:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays")
 				button.border:SetTexCoord(0.296875, 0.5703125, 0, 0.515625)
-				button.border:SetPoint("TOPLEFT", -1, 1)
-				button.border:SetPoint("BOTTOMRIGHT", 1, -1)
-				button.border:SetHeight(1)
-				button.border:SetWidth(1)
+				button.border:SetPoint("CENTER", button)
 				
 				button.icon = button:CreateTexture(nil, "BACKGROUND")
 				button.icon:SetAllPoints(button)
@@ -122,39 +119,43 @@ function Auras.Position(self, config)
 	for id, button in pairs(self.buttons) do
 		button:SetHeight(config.size)
 		button:SetWidth(config.size)
+		button.border:SetHeight(config.size + 1)
+		button.border:SetWidth(config.size + 1)
 		button:ClearAllPoints()
-				
+		
+		-- If's ahoy
 		if( id > 1 ) then
-			if( config.position == "BOTTOM" or config.position == "TOP" ) then
+			if( config.position == "BOTTOM" or config.position == "TOP" or config.position == "INSIDE" ) then
 				if( id % config.inColumn == 1 ) then
-					if( config.position == "BOTTOM" ) then
-						button:SetPoint("BOTTOM", self.buttons[id - config.inColumn], "TOP", 0, 2)
+					if( config.position == "TOP" ) then
+						button:SetPoint("BOTTOM", self.buttons[id - config.inColumn], "TOP", 0, 3)
 					else
-						button:SetPoint("TOP", self.buttons[id - config.inColumn], "BOTTOM", 0, -2)
+						button:SetPoint("TOP", self.buttons[id - config.inColumn], "BOTTOM", 0, -3)
 					end
+				elseif( config.position == "INSIDE" ) then
+					button:SetPoint("RIGHT", self.buttons[id - 1], "LEFT", -3, 0)
 				else
-					button:SetPoint("LEFT", self.buttons[id - 1], "RIGHT", 2, 0)
+					button:SetPoint("LEFT", self.buttons[id - 1], "RIGHT", 3, 0)
+				end
+			elseif( config.perRow == 1 or id % config.perRow == 1 ) then
+				if( config.position == "RIGHT" ) then
+						button:SetPoint("LEFT", self.buttons[id - config.perRow], "RIGHT", 2, 0)
+				else
+					button:SetPoint("RIGHT", self.buttons[id - config.perRow], "LEFT", -2, 0)
 				end
 			else
-				if( config.perRow == 1 or id % config.perRow == 1 ) then
-					if( config.position == "RIGHT" ) then
-						button:SetPoint("RIGHT", self.buttons[id - config.perRow], "LEFT", -2, 0)
-					else
-						button:SetPoint("LEFT", self.buttons[id - config.perRow], "RIGHT", 2, 0)
-					end
-				else
-					button:SetPoint("TOP", self.buttons[id - 1], "BOTTOM", 0, -2)
-				end
+				button:SetPoint("TOP", self.buttons[id - 1], "BOTTOM", 0, -3)
 			end
-		else
-			if( config.position == "BOTTOM" or config.position == "RIGHT" ) then
-				--button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", 0, 0)
-				button:SetPoint("BOTTOMLEFT", self.parent, "BOTTOMLEFT", 0, 0)
-			elseif( config.position == "TOP" ) then
-				button:SetPoint("BOTTOMLEFT", self.parent, "BOTTOMLEFT", 0, 0)
-			elseif( config.position == "LEFT" ) then
-				button:SetPoint("TOPRIGHT", self.parent, "TOPRIGHT", 0, 0)
-			end
+		elseif( config.position == "INSIDE" ) then
+			button:SetPoint("TOPRIGHT", self.parent.healthBar, "TOPRIGHT", -ShadowUF.db.profile.layout.general.clip, -ShadowUF.db.profile.layout.general.clip)
+		elseif( config.position == "BOTTOM" ) then
+			button:SetPoint("BOTTOMLEFT", self.parent, "BOTTOMLEFT", ShadowUF.db.profile.layout.backdrop.inset, -(config.size + 2))
+		elseif( config.position == "TOP" ) then
+			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", ShadowUF.db.profile.layout.backdrop.inset, (config.size + 2))
+		elseif( config.position == "LEFT" ) then
+			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", -config.size, ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip)
+		elseif( config.position == "RIGHT" ) then
+			button:SetPoint("TOPRIGHT", self.parent, "TOPRIGHT", config.size, (ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip))
 		end
 	end
 end
@@ -238,8 +239,4 @@ function Auras.Update(self, unit)
 		Auras.UpdateDisplay(self.auras.HARMFUL)
 	end
 end
-
-
-
-
 
