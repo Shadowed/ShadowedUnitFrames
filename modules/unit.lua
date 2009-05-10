@@ -138,21 +138,30 @@ local function initUnit(frame)
 	Unit:CreateUnit(frame)
 end
 
-function Unit:LoadPartyHeader(config, unit)
-	local headerFrame = CreateFrame("Frame", "SSUFHeader" .. unit, UIParent, "SecureGroupHeaderTemplate")
+function Unit:LoadGroupHeader(config, type)
+	local headerFrame = CreateFrame("Frame", "SSUFHeader" .. type, UIParent, "SecureGroupHeaderTemplate")
 	headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
-	headerFrame:SetAttribute("point", "TOP")
-	headerFrame:SetAttribute("columnAnchorPoint", "TOP")
+	headerFrame:SetAttribute("point", config.attribPoint)
+	headerFrame:SetAttribute("columnAnchorPoint", config.attribAnchorPoint)
 	headerFrame:SetAttribute("initial-width", config.width)
 	headerFrame:SetAttribute("initial-height", config.height)
 	headerFrame:SetAttribute("initial-scale", config.scale)
 	headerFrame:SetAttribute("initial-unitWatch", true)
-	headerFrame:SetAttribute("showParty", true)
+	headerFrame:SetAttribute("showParty", config.showParty)
+	headerFrame:SetAttribute("showPlayer", config.showPlayer)
+	headerFrame:SetAttribute("showRaid", config.showRaid)
+	headerFrame:SetAttribute("showSolo", config.showSolo)
+	headerFrame:SetAttribute("groupBy", config.groupby)
+	headerFrame:SetAttribute("groupingOrder", config.groupingOrder)
+	headerFrame:SetAttribute("sortMethod", config.sortMethod)
+	headerFrame:SetAttribute("sortDir", config.sortDir)
+	headerFrame:SetAttribute("maxColumns", config.maxColumns)
+	headerFrame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
+	headerFrame:SetAttribute("columnSpacing", config.columnSpacing)
 	headerFrame.initialConfigFunction = initUnit
 	headerFrame:Show()
-
-	headerFrame:ClearAllPoints()
-	headerFrame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+	
+	ShadowUF.modules.Layout:AnchorFrame(UIParent, headerFrame, config)
 end
 
 local petPoint = { "TOPRIGHT", "RIGHT", "BOTTOMRIGHT", "TOPLEFT", "LEFT", "BOTTOMLEFT", "BOTTOMLEFT", "BOTTOM", "BOTTOMRIGHT", "TOPLEFT", "TOP", "TOPRIGHT"}
@@ -184,21 +193,19 @@ function Unit:LoadPetUnit(config, parentHeader, unit)
 	RegisterUnitWatch(frame)
 end
 
-function Unit:InitializeFrame(config, unit)
-	if( unit == "party" ) then
-		self:LoadPartyHeader(config, unit)
-	elseif( unit == "raid" ) then
-	
-	elseif( unit == "partypet" ) then
+function Unit:InitializeFrame(config, type)
+	if( type == "party" or type == "raid" ) then
+		self:LoadGroupHeader(config, type)
+	elseif( type == "partypet" ) then
 		for i=1, MAX_PARTY_MEMBERS do
-			self:LoadPetUnit(config, SSUFHeaderparty, unit .. i)
+			self:LoadPetUnit(config, SSUFHeaderparty, type .. i)
 		end
 	else
-		self:LoadUnit(config, unit)
+		self:LoadUnit(config, type)
 	end
 end
 
-function Unit:UninitializeFrame(unit)
+function Unit:UninitializeFrame(type)
 	
 end
 
@@ -220,18 +227,18 @@ function Unit.ShowMenu(frame)
 		menuFrame = FriendsDropDown
 		menuFrame.displayMode = "MENU"
 		menuFrame.initialize = RaidFrameDropDown_Initialize
+		menuFrame.userData = frame.unitID
 	end
-	
+		
 	if( not menuFrame ) then
 		return
 	end
 	
 	HideDropDownMenu(1)
-	ToggleDropDownMenu(1, nil, menuFrame, "cursor")
-	
 	menuFrame.unit = frame.unit
 	menuFrame.name = UnitName(frame.unit)
 	menuFrame.id = frame.unitID
+	ToggleDropDownMenu(1, nil, menuFrame, "cursor")
 end
 
 function Unit:CreateBar(parent, name)

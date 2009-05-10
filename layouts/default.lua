@@ -8,47 +8,132 @@ local L = ShadowUFLocals
 --[[
 		Layout format
 		
+		Any table tagged with <position arguments accepts the below, this are semi-directly based to SetPoint
+		See: http://www.wowwiki.com/API_Region_SetPoint for more information
+		point = "point", -- See above link
+		anchorTo = "<frame name>/$parent/$<widget name>", -- Where to anchor this, $healthBar anchors it to the health bar $parent anchors it to units frame, UIParent anchors it to UIParent
+		relativePoint = "relativePoint", -- See above link
+		x = #, -- X offset
+		y = #, -- Y offset
+		
 		{
-			texture
+			general = {
+				barTexture = "<name>", -- Texture name in SML  to use for all bars
+				clip = #, -- How close widgets should clip the edge, 1 is one pixel away from clipping
+				barSpacing = #, -- How much spacing to use between bars, --1.25 would space them out by 1.25 pixels
+				barAlpha = #.#, -- Alpha to use for all bars
+				backgroundAlpha = #.#, -- Alpha to use for the background of bars
+			},
+			font = {
+				name = "<name>", -- Font name in SML, to use for all fonts except the stack counter in auras
+				size = #, -- Font size
+				shadowColor = {r = #, g = #, b = #}, -- Shadow color for text
+				shadowX = #, -- X offset for shadows
+				shadowY = #, -- Y offset for shadows
+			},
+			-- See http://www.wowwiki.com/API_Frame_SetBackdrop for more information
 			backdrop = {
-				tileSize
-				edgeSize
-				inset
-
-				backgroundTexture 
-				backgroundColor
-				
-				borderTexture
-				borderColor
+				backgroundTexture = "<texture path>", -- Background graphic to use ("" for none)
+				backgroundColor = {r = #, g = #, b = #, a = #}, -- Background color/alpha
+				borderTexture = "<texture path>", -- Edge graphic to use ("" for none)
+				borderColor = {r = #, g = #, b = #, a = #}, -- Edge color/alpha
+				tileSize = #, -- How large each bgFile becomes, tiling is automatically enabled if tileSize is greater than one
+				edgeSize - #, -- How large each edge will be
+				inset = #, -- How thick the edges should be
 			},
+			powerColor = {
+				[0] = {r = #, g = #, b = #}, -- Power bar color for mana
+				[1] = {r = #, g = #, b = #}, -- Power bar color for rage
+				[2] = {r = #, g = #, b = #}, -- Power bar color for focus
+				[3] = {r = #, g = #, b = #}, -- Power bar color for energy
+				[4] = {r = #, g = #, b = #}, -- Power bar color for happiness
+				[5] = {r = #, g = #, b = #}, -- Power bar color for runes
+				[6] = {r = #, g = #, b = #}, -- Power bar color for runic power
+				[7] = {r = #, g = #, b = #}, -- Power bar color for ammo slot in vehicles
+				[8] = {r = #, g = #, b = #}, -- Power bar color for fuel in vehicles
+			},
+			healthColor = {
+				tapped = {r = #, g = #, b = #}, -- Health bar color when a mob is tapped by someone besides the player/party
+				red = {r = #, g = #, b = #}, -- Health bar color red
+				yellow = {r = #, g = #, b = #}, -- Health bar color yellow
+				green = {r = #, g = #, b = #}, -- Health bar color green
+			},
+			xpColor = {
+				normal = {r = #, g = #, b = #}, -- Normal Xp color
+				rested = {r = #, g = #, b = #}, -- Rested XP color
+			},
+			-- Accepts: party, raid, player, pet, partypet, focustarget, targettarget, targettargettarget
+			<unit configuration> = {
+				width = #, -- How wide the frame should be
+				height = #, -- How tall the frame should be
+				scale = #, -- Frame scaling
+				applyEffective = true/false, -- Apply the effective scaling when positioning it
+				healthBar = <see healthBar below>, -- Health bar configuration for this unit
+				manaBar = <see manaBar below>, -- Mana bar configuration for this unit
+				xpBar = <see xpBar below>, -- XP bar configuration for this unit
+				portrait = <see portrait below>, -- Portrait configuration for this unit
+				-- Font strings to use inside this unit
+				text = {
+					{
+					name = "<name>", -- Display name for this text
+					widthPercent = #.#, -- Percent of bars width to use for this
+					text = "<text>", -- Actual text with tags to use
+					<position arguments> -- See above
+				},
+				<position arguments> -- See above
+			},
+			<party/raid> = {
+				<unit configuration> -- See above
+				showRaid = true/false, -- Show the raid in this
+				showParty = true/false, -- Show players party in this
+				showPlayer = true/false, -- Show the player themselves in this
+				showSolo = true/false, -- Show this while solo
+				-- Accepts all attributes listed http://wowprogramming.com/docs/secure_template/Group_Headers by key
+				<position arguments>,
+			},
+			-- These tables listed in the main tree are automatically inherited to all units when the layout is applied
+			-- For example if you have {portrait = enabled, player = {portrait = {enabled = false}}} then portraits will be
+			-- enabled for all units EXCEPT for players. Users cannot configure inherited values.
 			portrait = {
-				point, anchorTo, relativePoint, x, y
-				heightPercent, widthPercent
+				enabled = true/false, -- Enable portraits
+				alignment = "LEFT/RIGHT", -- How to align the portraits, target units have it auto swapped so if this is LEFT, it'll be RIGHT for target automatically
+				width = #.#, -- Percentage of bar width to use, 0.25 will use 25% of the bars width.
 			},
 			healthBar = {
-				point, anchorTo, relativePoint, x, y
-				heightPercent, widthPercent,
+				heightWeight = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
+				width = #.#, -- How much of the available width should be used, 1.0 will use up all available width.
+				order = #, -- Ordering, lower number means it shows up higher on the list
+				background = true/false, -- Show a background behind the bar
 			},
-			healthBar = {
-				point, anchorTo, relativePoint, x, y
-				heightPercent, widthPercent,
+			manabar = {
+				heightWeight = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
+				width = #.#, -- How much of the available width should be used, 1.0 will use up all available width.
+				order = #, -- Ordering, lower number means it shows up higher on the list
+				background = true/false, -- Show a background behind the bar
 			},
 			xpBar = {
-				point, anchorTo, relativePoint, x, y
-				heightPercent, widthPercent,
+				heightWeight = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
+				width = #.#, -- How much of the available width should be used, 1.0 will use up all available width.
+				order = #, -- Ordering, lower number means it shows up higher on the list
+				background = true/false, -- Show a background behind the bar
 			},
-			castBar = {
-				point, anchorTo, relativePoint, x, y
-				heightPercent, widthPercent,
-			},
+			-- All indicators use the same format
 			indicators = {
-				rested = {point, anchorTo, relativePoint, x, y, height, width},
-				pvpFlag = {point, anchorTo, relativePoint, x, y, height, width},
-				leader = {point, anchorTo, relativePoint, x, y, height, width},
-				masterLoot = {point, anchorTo, relativePoint, x, y, height, width},
-				raidTarget = {point, anchorTo, relativePoint, x, y, height, width},
-				happiness = {point, anchorTo, relativePoint, x, y, height, width},
-			},
+				<indicator format> = {
+					enabled = true/false, -- Enable this indicator
+					width = #, -- Icon width
+					height = #, -- Icon height
+					
+					<position argumentS>, -- See above for these
+				},
+				
+				status = <indicator format>, -- Show status (Rested/In Combat)
+				pvpFlag = <indicator format>, -- Show PVP flag if any (Flagged PvP/Flagged FFA)
+				leader = <indicator format>, -- Show crown if the units party/raid leader
+				masterLoot = <indicator format>, -- Show master looter icon
+				raidTarget = <indicator format>, -- Show raid target icon
+				happiness = <indicator format>, -- Show pet happiness
+			}
 		}
 	]]
 
@@ -73,23 +158,43 @@ ShadowUF:RegisterLayout("Default", {
 			shadowY = -0.80,
 		},
 		powerColor = {
-			[0] = {r = 0.30, g = 0.50, b = 0.85, a = 1.0},
-			[1] = {r = 0.90, g = 0.20, b = 0.30, a = 1.0},
-			[2] = {r = 1.0, g = 0.85, b = 0, a = 1.0},
-			[3] = {r = 1.0, g = 0.85, b = 0.10, a = 1.0},
-			[4] = {r = 0, g = 1.0, b = 1.0, a = 1.0},
-			[5] = {r = 0.50, g = 0.50, b = 0.50, a = 1.0},
-			[6] = {b = 0.60, g = 0.45, r = 0.35, a = 1.0},
+			[0] = {r = 0.30, g = 0.50, b = 0.85},
+			[1] = {r = 0.90, g = 0.20, b = 0.30},
+			[2] = {r = 1.0, g = 0.85, b = 0},
+			[3] = {r = 1.0, g = 0.85, b = 0.10},
+			[4] = {r = 0, g = 1.0, b = 1.0},
+			[5] = {r = 0.50, g = 0.50, b = 0.50},
+			[6] = {b = 0.60, g = 0.45, r = 0.35},
 		},
 		healthColor = {
-			tapped = {r = 0.5, g = 0.5, b = 0.5, a = 1.0},
-			red = {r = 1.0, g = 0.0, b = 0.0, a = 1.0},
-			green = {r = 0.20, g = 0.90, b = 0.20}, a = 1.0,
-			yellow = {r = 1.0, g = 1.0, b = 0.0, a = 1.0},
+			tapped = {r = 0.5, g = 0.5, b = 0.5},
+			red = {r = 1.0, g = 0.0, b = 0.0},
+			green = {r = 0.20, g = 0.90, b = 0.20},
+			yellow = {r = 1.0, g = 1.0, b = 0.0},
 		},
 		xpColor = {
-			normal = {r = 0.58, g = 0.0, b = 0.55, a = 1.0},
+			normal = {r = 0.58, g = 0.0, b = 0.55},
 			rested = {r = 0.0, g = 0.39, b = 0.88, a = 0.80},
+		},
+		raid = {
+			width = 80,
+			height = 40,
+			scale = 1.0,
+			applyEffective = true,
+			showRaid = true,
+			showPlayer = true,
+			unitsPerColumn = 7,
+			maxColumns = 8,
+			columnSpacing = 30,
+			attribPoint = "TOP",
+			attribAnchorPoint = "RIGHT",
+			healthBar = {enabled = true},
+			manaBar = {enabled = true},
+			portrait = {enabled = false},
+			text = {
+					{name = L["Left text"], widthPercent = 1.0, text = "[raidcolor][name]|r [curmaxhp]", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
+			},
+			point = "CENTER", anchorTo = "UIParent", relativePoint = "CENTER", x = 200, y = 200,
 		},
 		player = {
 			width = 200,
@@ -116,9 +221,6 @@ ShadowUF:RegisterLayout("Default", {
 				leader = {height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
 				masterLoot = {height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
 				raidTarget = {height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
-			--[[
-				happiness = {point, anchorTo, relativePoint, x, y, height, width},
-			]]
 			},
 			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 100, y = -300,
 		},
@@ -130,6 +232,10 @@ ShadowUF:RegisterLayout("Default", {
 			healthBar = {enabled = true},
 			manaBar = {enabled = true},
 			portrait = {enabled = true},
+			attribPoint = "TOP",
+			attribAnchorPoint = "TOP",
+			showPlayer = true,
+			showParty = true,
 			text = {
 					{name = L["Left text"], widthPercent = 0.60, text = "[raidcolor][name]|r", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
 					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -3, y = 0},
@@ -147,7 +253,7 @@ ShadowUF:RegisterLayout("Default", {
 				happiness = {point, anchorTo, relativePoint, x, y, height, width},
 			]]
 			},
-			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 100, y = -300,
+			point = "CENTER", anchorTo = "UIParent", relativePoint = "CENTER", x = 200, y = -100,
 		},
 		partypet = {
 			width = 125,
@@ -202,6 +308,9 @@ ShadowUF:RegisterLayout("Default", {
 					
 					{name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 3, y = 0},
 					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -3, y = 0},
+			},
+			indicators = {
+				happiness = {height = 16, width = 16, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 2, y = -2},
 			},
 			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 100, y = -450,
 		},

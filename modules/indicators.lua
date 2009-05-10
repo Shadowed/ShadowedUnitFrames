@@ -24,11 +24,13 @@ function Indicator:UnitCreated(frame, unit)
 	frame:RegisterNormalEvent("RAID_TARGET_UPDATE", self.UpdateRaidTarget)
 	frame:RegisterUnitEvent("PLAYER_FLAGS_CHANGED", self.UpdatePVPFlag)
 	frame:RegisterUnitEvent("UNIT_FACTION", self.UpdatePVPFlag)
+	frame:RegisterUnitEvent("UNIT_HAPPINESS", self.UpdateHappiness)
 	frame:RegisterUpdateFunc(self.UpdateRaidTarget)
 	frame:RegisterUpdateFunc(self.UpdateStatus)
 	frame:RegisterUpdateFunc(self.UpdatePVPFlag)
 	frame:RegisterUpdateFunc(self.UpdateLeader)
 	frame:RegisterUpdateFunc(self.UpdateMasterLoot)
+	frame:RegisterUpdateFunc(self.UpdateHappiness)
 	
 	-- Forces the indicators to be above the bars/portraits/etc
 	frame.indicators = CreateFrame("Frame", frame:GetName() .. "IndicatorFrame", frame)
@@ -46,6 +48,25 @@ function Indicator:UnitCreated(frame, unit)
 	
 	frame.indicators.raidTarget = frame.indicators:CreateTexture(nil, "OVERLAY")
 	frame.indicators.raidTarget:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
+	
+	frame.indicators.happiness = frame.indicators:CreateTexture(nil, "OVERLAY")
+	frame.indicators.happiness:SetTexture("Interface\\PetPaperDollFrame\\UI-PetHappiness")
+end
+
+function Indicator.UpdateHappiness(self, unit)
+	local happyHappy = GetPetHappiness()
+	if( not happyHappy ) then
+		self.indicators.happiness:Hide()
+	elseif( happyHappy == 3 ) then
+		self.indicators.happiness:SetTexCoord(0, 0.1875, 0, 0.359375)
+		self.indicators.happiness:Show()
+	elseif( happyHappy == 2 ) then
+		self.indicators.happiness:SetTexCoord(0.1875, 0.375, 0, 0.359375)
+		self.indicators.happiness:Show()
+	elseif( happyHappy == 1 ) then
+		self.indicators.happiness:SetTexCoord(0.375, 0.5625, 0, 0.359375)
+		self.indicators.happiness:Show()
+	end
 end
 
 function Indicator.UpdateMasterLoot(self, unit)

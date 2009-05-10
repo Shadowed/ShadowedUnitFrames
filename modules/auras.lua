@@ -147,15 +147,15 @@ function Auras.Position(self, config)
 				button:SetPoint("TOP", self.buttons[id - 1], "BOTTOM", 0, -3)
 			end
 		elseif( config.position == "INSIDE" ) then
-			button:SetPoint("TOPRIGHT", self.parent.healthBar, "TOPRIGHT", -ShadowUF.db.profile.layout.general.clip, -ShadowUF.db.profile.layout.general.clip)
+			button:SetPoint("TOPRIGHT", self.parent.healthBar, "TOPRIGHT", config.x + -ShadowUF.db.profile.layout.general.clip, config.y + -ShadowUF.db.profile.layout.general.clip)
 		elseif( config.position == "BOTTOM" ) then
-			button:SetPoint("BOTTOMLEFT", self.parent, "BOTTOMLEFT", ShadowUF.db.profile.layout.backdrop.inset, -(config.size + 2))
+			button:SetPoint("BOTTOMLEFT", self.parent, "BOTTOMLEFT", config.x + ShadowUF.db.profile.layout.backdrop.inset, config.y + -(config.size + 2))
 		elseif( config.position == "TOP" ) then
-			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", ShadowUF.db.profile.layout.backdrop.inset, (config.size + 2))
+			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config + ShadowUF.db.profile.layout.backdrop.inset, config.y + (config.size + 2))
 		elseif( config.position == "LEFT" ) then
-			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", -config.size, ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip)
+			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + -config.size, config.y + ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip)
 		elseif( config.position == "RIGHT" ) then
-			button:SetPoint("TOPRIGHT", self.parent, "TOPRIGHT", config.size, (ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip))
+			button:SetPoint("TOPRIGHT", self.parent, "TOPRIGHT", config.x + config.size, config.y + ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip)
 		end
 	end
 end
