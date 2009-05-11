@@ -26,14 +26,19 @@ local function cancelBuff(self)
 	CancelUnitBuff(self.unit, self.aura.buffID, self.filter)
 end
 
-function Auras:UnitCreated(frame, unit)
-	-- DEBUG DEBUG DEBUG!
-	if( not ShadowUF.db.profile.units[frame.configUnit].auras ) then return end
+function Auras:UnitEnabled(frame, unit)
+	if( not frame.unitConfig.auras or not frame.unitConfig.auras.enabled ) then
+		return
+	end
 	
 	frame:RegisterUnitEvent("UNIT_AURA", self.Update)
 	frame:RegisterUpdateFunc(self.Update)
 	
-	self.Create(frame, ShadowUF.db.profile.units[frame.configUnit].auras)
+	self.CreateIcons(frame, frame.unitConfig.auras)
+end
+
+function Auras:UnitDisabled(frame, unit)
+	frame:UnregisterAll(self.Update)
 end
 
 function Auras.UpdateFilter(self, filter)
@@ -51,13 +56,13 @@ function Auras.UpdateFilter(self, filter)
 	self.filter = self.filter or self.defaultFilter
 end
 
-function Auras.Create(self)
+function Auras.CreateIcons(self)
 	self.auras = self.auras or {}
-	for key, config in pairs(ShadowUF.db.profile.units[self.unit].auras) do
+	for key, config in pairs(ShadowUF.db.profile.layout[self.unitType].auras) do
 			self.auras[key] = self.auras[key] or CreateFrame("Frame", nil, self)
 			local aura = self.auras[key]
 			aura.buttons = aura.buttons or {}
-			aura.maxIcons = config.inColumn * config.perRow
+			aura.maxIcons = config.inColumn * config.rows
 			aura.parent = self
 			aura.defaultFilter = key
 			
@@ -102,60 +107,11 @@ function Auras.Create(self)
 	end
 end
 
-function Auras:LayoutApplied(self, unit)
-	local auraConfig = ShadowUF.db.profile.units[unit].auras
-	-- DEBUG
-	if( not auraConfig ) then return end
-	
-	for key, config in pairs(auraConfig) do
-			Auras.UpdateFilter(self.auras[key], config.filters)
-			Auras.Position(self.auras[key], config)
-	end
-	
-	self.aurasShared = auraConfig.HELPFUL.location == auraConfig.HARMFUL.location
-end
-
-function Auras.Position(self, config)
-	for id, button in pairs(self.buttons) do
-		button:SetHeight(config.size)
-		button:SetWidth(config.size)
-		button.border:SetHeight(config.size + 1)
-		button.border:SetWidth(config.size + 1)
-		button:ClearAllPoints()
-		
-		-- If's ahoy
-		if( id > 1 ) then
-			if( config.position == "BOTTOM" or config.position == "TOP" or config.position == "INSIDE" ) then
-				if( id % config.inColumn == 1 ) then
-					if( config.position == "TOP" ) then
-						button:SetPoint("BOTTOM", self.buttons[id - config.inColumn], "TOP", 0, 3)
-					else
-						button:SetPoint("TOP", self.buttons[id - config.inColumn], "BOTTOM", 0, -3)
-					end
-				elseif( config.position == "INSIDE" ) then
-					button:SetPoint("RIGHT", self.buttons[id - 1], "LEFT", -3, 0)
-				else
-					button:SetPoint("LEFT", self.buttons[id - 1], "RIGHT", 3, 0)
-				end
-			elseif( config.perRow == 1 or id % config.perRow == 1 ) then
-				if( config.position == "RIGHT" ) then
-						button:SetPoint("LEFT", self.buttons[id - config.perRow], "RIGHT", 2, 0)
-				else
-					button:SetPoint("RIGHT", self.buttons[id - config.perRow], "LEFT", -2, 0)
-				end
-			else
-				button:SetPoint("TOP", self.buttons[id - 1], "BOTTOM", 0, -3)
-			end
-		elseif( config.position == "INSIDE" ) then
-			button:SetPoint("TOPRIGHT", self.parent.healthBar, "TOPRIGHT", config.x + -ShadowUF.db.profile.layout.general.clip, config.y + -ShadowUF.db.profile.layout.general.clip)
-		elseif( config.position == "BOTTOM" ) then
-			button:SetPoint("BOTTOMLEFT", self.parent, "BOTTOMLEFT", config.x + ShadowUF.db.profile.layout.backdrop.inset, config.y + -(config.size + 2))
-		elseif( config.position == "TOP" ) then
-			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config + ShadowUF.db.profile.layout.backdrop.inset, config.y + (config.size + 2))
-		elseif( config.position == "LEFT" ) then
-			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + -config.size, config.y + ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip)
-		elseif( config.position == "RIGHT" ) then
-			button:SetPoint("TOPRIGHT", self.parent, "TOPRIGHT", config.x + config.size, config.y + ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip)
+function Auras:LayoutUpdated(self, unit)
+	local auraConfig = ShadowUF.db.profile.layout[self.unitType].auras
+	if( auraConfig ) then
+		for key, config in pairs(auraConfig) do
+				Auras.UpdateFilter(self.auras[key], config.filters)
 		end
 	end
 end
@@ -223,20 +179,20 @@ end
 
 function Auras.Update(self, unit)
 	if( self.aurasShared ) then
-		self.auras.HELPFUL.totalAuras = 0
+		self.auras.buffs.totalAuras = 0
 		
-		Auras.Scan(self.auras.HELPFUL, self.auras.HELPFUL.filter, "buff", unit)
-		Auras.Scan(self.auras.HELPFUL, self.auras.HARMFUL.filter, "debuff", unit)
+		Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buff", unit)
+		Auras.Scan(self.auras.buffs, self.auras.debuffs.filter, "debuff", unit)
 		
-		Auras.UpdateDisplay(self.auras.HELPFUL)
+		Auras.UpdateDisplay(self.auras.buffs)
 	else
-		self.auras.HELPFUL.totalAuras = 0
-		Auras.Scan(self.auras.HELPFUL, self.auras.HELPFUL.filter, "buff", unit)
-		Auras.UpdateDisplay(self.auras.HELPFUL)
+		self.auras.buffs.totalAuras = 0
+		Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buff", unit)
+		Auras.UpdateDisplay(self.auras.buffs)
 
-		self.auras.HARMFUL.totalAuras = 0
-		Auras.Scan(self.auras.HARMFUL, self.auras.HARMFUL.filter, "buff", unit)
-		Auras.UpdateDisplay(self.auras.HARMFUL)
+		self.auras.debuffs.totalAuras = 0
+		Auras.Scan(self.auras.debuffs, self.auras.debuffs.filter, "debuff", unit)
+		Auras.UpdateDisplay(self.auras.debuffs)
 	end
 end
 

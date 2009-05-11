@@ -4,13 +4,13 @@ function XP:OnInitialize()
 	ShadowUF:RegisterModule(self)
 end
 
-function XP:UnitCreated(frame, unit)
-	if( unit ~= "player" and unit ~= "pet" ) then
+function XP:UnitEnabled(frame, unit)
+	if( not frame.unitConfig.xpBar or frame.unitConfig.xpBar.enabled or ( unit ~= "player" and unit ~= "pet" ) ) then
 		return
 	end
 	
-	frame.xpBar = ShadowUF.modules.Unit:CreateBar(frame, "XPBar")
-	frame.xpBar.rested = CreateFrame("StatusBar", nil, frame)
+	frame.xpBar = frame.xpBar or ShadowUF.Units:CreateBar(frame, "XPBar")
+	frame.xpBar.rested = frame.xpBar.rested or CreateFrame("StatusBar", nil, frame)
 	frame.xpBar.rested:SetAllPoints(frame.xpBar)
 	frame.xpBar:SetParent(frame.xpBar.rested)
 	frame.xpBar.background:SetParent(frame.xpBar.rested)
@@ -24,6 +24,10 @@ function XP:UnitCreated(frame, unit)
 	else
 		frame:RegisterEvent("UNIT_PET_EXPERIENCE", self.Update)
 	end
+end
+
+function XP:UnitDisabled(frame, unit)
+	frame:UnregisterAll(self.Update, self.UpdateRep)
 end
 
 function XP.SetColor(self, unit)
@@ -41,10 +45,6 @@ function XP.SetColor(self, unit)
 	end
 end
 
-function XP:LayoutApplied(frame, unit)
-	self.SetColor(frame, unit)
-end
-
 -- Handles updating the bar ordering if needed
 function XP.SetBarVisibility(self, shown)
 	local wasShown = self.xpBar:IsShown()
@@ -57,7 +57,7 @@ function XP.SetBarVisibility(self, shown)
 	end
 	
 	if( wasShown and not shown or not wasShown and shown ) then
-		ShadowUF.modules.Layout:SetupBars(self, ShadowUF.db.profile.layout)
+		ShadowUF.Layout:ApplyBars(self, ShadowUF.db.profile.layout[self.unitType])
 	end
 end
 

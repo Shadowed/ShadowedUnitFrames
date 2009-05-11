@@ -9,12 +9,16 @@ local function resetCamera(self)
 	self:SetCamera(0)
 end
 
-function Portrait:UnitCreated(frame, unit)
-	frame.portrait = CreateFrame("PlayerModel", frame:GetName() .. "PlayerModel", frame)
+function Portrait:UnitEnabled(frame, unit)
+	frame.portrait = frame.portrait or CreateFrame("PlayerModel", frame:GetName() .. "PlayerModel", frame)
 	frame.portrait:SetScript("OnShow", resetCamera)
 
 	frame:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", self.Update)
 	frame:RegisterUpdateFunc(self.Update)
+end
+
+function Portrait:UnitDisabled(frame, unit)
+	frame:UnregisterAll(self.Update)
 end
 
 function Portrait.Update(self, unit)

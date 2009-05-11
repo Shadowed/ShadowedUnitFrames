@@ -7,14 +7,7 @@ ShadowUF = LibStub("AceAddon-3.0"):NewAddon("ShadowUF", "AceEvent-3.0")
 local L = ShadowUFLocals
 local layoutQueue
 local modules = {}
-
---[[
-		layoutInfo = stores information about the layout, this includes author, default layout config, ect
-		layout = this is the current layouts configuration
-		tags = all custom tag functions, stored as strings
-		tagEvents = all custom tag events, stored as strings
-		units = all unit specific configuration
-]]
+local units = {"player", "pet", "target", "focus", "targettarget", "targettargettarget", "raid", "party", "partypet"}
 
 function ShadowUF:OnInitialize()
 	self.defaults = {
@@ -24,27 +17,13 @@ function ShadowUF:OnInitialize()
 			units = {},
 			layout = {},
 			layoutInfo = {},
-			unitDefault = {
-				enabled = true,
-				portrait = {
-					enabled = true,
-				},
-				healthBar = {
-					smoothUpdates = false,
-					colorBy = "percent",
-				},
-				manaBar = {
-					enabled = true,
-					smoothUpdates = false,
-				},
-			},
+			positions = {},
+			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true},
 		},
 	}
 	
-	-- Initialize default unit configuration
-	local units = {"target", "player", "pet", "focus"}
 	for _, unit in pairs(units) do
-		self.defaults.profile.units[unit] = CopyTable(self.defaults.profile.unitDefault)
+		self.defaults.profile.units[unit] = {enabled = true, healthBar = {colorBy = "percent"}}
 	end
 	
 	-- Initialize DB
@@ -54,12 +33,12 @@ function ShadowUF:OnInitialize()
 	-- Setup tag cache
 	self.tags = setmetatable({}, {
 		__index = function(tbl, index)
-			if( not ShadowUF.modules.Tags.defaultTags[index] and not ShadowUF.db.profile.tags[index] ) then
+			if( not ShadowUF.Tags.defaultTags[index] and not ShadowUF.db.profile.tags[index] ) then
 				tbl[index] = false
 				return false
 			end
 			
-			local funct, msg = loadstring("return " .. (ShadowUF.modules.Tags.defaultTags[index] or ShadowUF.db.profile.tags[index]))
+			local funct, msg = loadstring("return " .. (ShadowUF.Tags.defaultTags[index] or ShadowUF.db.profile.tags[index]))
 			if( funct ) then
 				funct = funct()
 			elseif( msg ) then
@@ -97,7 +76,7 @@ function ShadowUF:OnInitialize()
 		ShadowUF:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		ShadowUF:LoadUnits()
 	end)
-
+	
 	-- Load any layouts that were waiting
 	if( layoutQueue ) then
 		for name, data in pairs(layoutQueue) do
@@ -107,46 +86,134 @@ function ShadowUF:OnInitialize()
 		layoutQueue = nil
 	end
 	
+	self.Layout = self.modules.Layout
+	self.Units = self.modules.Units
+	self.Tags = self.modules.Tags
+
+	-- Hide any Blizzard frames
+	self:HideBlizzardFrames()
+	
 	-- Load SML info
-	self.modules.Layout:LoadSML()
+	self.Layout:LoadSML()
 	
 	-- Load all defaults that we need to with nothing being loaded yet
-	self:SetLayout("Default")
+	self:SetLayout("Default", true)
 end
 
 function ShadowUF:LoadUnits()
-	for unit, data in pairs(self.db.profile.units) do
-		if( data.enabled ) then
-			self.modules.Unit:InitializeFrame(data, unit)
+	for _, type in pairs(units) do
+		local config = self.db.profile.units[type]
+		if( config and config.enabled ) then
+			self.Units:InitializeFrame(config, type)
 		else
-			self.modules.Unit:UninitializeFrame(data, unit)
+			self.Units:UninitializeFrame(config, type)
+		end
+	end
+end
+
+-- Hiding Blizzard stuff (Stolen from haste)
+function ShadowUF:HideBlizzardFrames()
+	-- Hide Blizzard frames
+	for type, hidden in pairs(self.db.profile.hidden) do
+		if( hidden ) then
+			self:HideBlizzard(type)
+		end
+	end
+end
+
+local function dummy() end
+function ShadowUF:HideBlizzard(type)
+	if( type == "player" ) then
+		PlayerFrame:UnregisterAllEvents()
+		PlayerFrame.Show = dummy
+		PlayerFrame:Hide()
+
+		PlayerFrameHealthBar:UnregisterAllEvents()
+		PlayerFrameManaBar:UnregisterAllEvents()
+	elseif( type == "pet" ) then
+		PetFrame:UnregisterAllEvents()
+		PetFrame.Show = dummy
+		PetFrame:Hide()
+
+		PetFrameHealthBar:UnregisterAllEvents()
+		PetFrameManaBar:UnregisterAllEvents()
+	elseif( type == "target" ) then
+		TargetFrame:UnregisterAllEvents()
+		TargetFrame.Show = dummy
+		TargetFrame:Hide()
+
+		TargetFrameHealthBar:UnregisterAllEvents()
+		TargetFrameManaBar:UnregisterAllEvents()
+		TargetFrameSpellBar:UnregisterAllEvents()
+
+		ComboFrame:UnregisterAllEvents()
+		ComboFrame.Show = dummy
+		ComboFrame:Hide()
+	elseif( type == "focus" ) then
+		FocusFrame:UnregisterAllEvents()
+		FocusFrame.Show = dummy
+		FocusFrame:Hide()
+
+		FocusFrameHealthBar:UnregisterAllEvents()
+		FocusFrameManaBar:UnregisterAllEvents()
+		FocusFrameSpellBar:UnregisterAllEvents()
+	elseif( type == "targettarget" ) then
+		TargetofTargetFrame:UnregisterAllEvents()
+		TargetofTargetFrame.Show = dummy
+		TargetofTargetFrame:Hide()
+
+		TargetofTargetHealthBar:UnregisterAllEvents()
+		TargetofTargetManaBar:UnregisterAllEvents()
+	elseif( type == "party" ) then
+		for i=1, MAX_PARTY_MEMBERS do
+			local party = "PartyMemberFrame" .. i
+			local frame = getglobal(party)
+
+			frame:UnregisterAllEvents()
+			frame.Show = dummy
+			frame:Hide()
+
+			getglobal(party .. "HealthBar"):UnregisterAllEvents()
+			getglobal(party .. "ManaBar"):UnregisterAllEvents()
 		end
 	end
 end
 
 -- Plugin APIs
-function ShadowUF:SetLayout(name)
+local layoutKeys = {"portrait", "healthBar", "manaBar", "xpBar", "castBar", "indicators", "text", "auras"}
+function ShadowUF:SetLayout(name, importPositions)
 	if( self.layoutInfo[name] ) then
 		self.db.profile.activeLayout = name
 		self.db.profile.layout = CopyTable(self.layoutInfo[name].layout)
 		
-		local units = {"player", "target", "party", "pet", "focus", "targettarget", "partypet", "raid"}
+		-- Load all of the configuration, make units inherit everything etc etc
 		for _, unit in pairs(units) do
-			self.db.profile.units[unit] = CopyTable(self.defaults.profile.unitDefault)
-			if( self.db.profile.layout[unit] ) then
-				for k, v in pairs(self.db.profile.layout[unit]) do
-					if( type(v) == "table" and self.db.profile.units[unit][k] ) then
-						for k2, v2 in pairs(v) do
-							self.db.profile.units[unit][k][k2] = v2
+			self.db.profile.layout[unit] = self.db.profile.layout[unit] or {}
+			
+			for _, key in pairs(layoutKeys) do
+				if( not self.db.profile.layout[unit][key] and self.db.profile.layout[key] ) then
+					self.db.profile.layout[unit][key] = CopyTable(self.db.profile.layout[key])
+				elseif( self.db.profile.layout[unit][key] and not self.db.profile.layout[unit][key].enabled ) then
+					for subKey, subValue in pairs(self.db.profile.layout[key]) do
+						if( subKey ~= "enabled" ) then
+							self.db.profile.layout[unit][subKey] = subValue
 						end
-					elseif( type(v) == "table" and not self.db.profile.units[unit][k] ) then
-						self.db.profile.units[unit][k] = CopyTable(v)
-					else
-						self.db.profile.units[unit][k] = v
 					end
 				end
 			end
+
+			-- Import unit positioning as well
+			if( importPositions and self.db.profile.layout.positions and self.db.profile.layout.positions[unit] ) then
+				self.db.profile.positions[unit] = CopyTable(self.db.profile.layout.positions[unit])
+			end
 		end
+		
+		-- Remove settings that were only used for inheritance based options
+		for _, key in pairs(layoutKeys) do
+			self.db.profile.layout[key] = nil
+		end
+
+		self.db.profile.layout.positions = nil
 	end
 end
 
@@ -188,7 +255,7 @@ end
 
 -- Tag APIs
 function ShadowUF:IsTagReistered(name)
-	return self.db.profile.tags[name] or self.modules.Tags.defaultTags[name]
+	return self.db.profile.tags[name] or self.Tags.defaultTags[name]
 end
 
 function ShadowUF:RegisterTag(name, tag)

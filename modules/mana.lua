@@ -9,8 +9,12 @@ local function updateTimer(self, elapsed)
 end
 
 
-function Mana:UnitCreated(frame, unit)
-	frame.manaBar = ShadowUF.modules.Unit:CreateBar(frame, "ManaBar")
+function Mana:UnitEnabled(frame, unit)
+	if( not frame.unitConfig.manaBar or not frame.unitConfig.manaBar.enabled ) then
+		return
+	end
+	
+	frame.manaBar = frame.manaBar or ShadowUF.Units:CreateBar(frame, "ManaBar")
 		
 	frame:RegisterUnitEvent("UNIT_HEALTH", self.Update)
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self.Update)
@@ -34,6 +38,10 @@ function Mana:UnitCreated(frame, unit)
 		frame.manaBar.parent = frame
 		frame.manaBar.unit = unit
 	end
+end
+
+function Mana:UnitDisabled(frame, unit)
+	frame:UnregisterAll(self.Update, self.UpdateColor)
 end
 
 function Mana.UpdateColor(self, unit)

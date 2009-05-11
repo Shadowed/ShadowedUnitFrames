@@ -10,12 +10,22 @@ local L = ShadowUFLocals
 		
 		Any table tagged with <position arguments accepts the below, this are semi-directly based to SetPoint
 		See: http://www.wowwiki.com/API_Region_SetPoint for more information
-		point = "point", -- See above link
 		anchorTo = "<frame name>/$parent/$<widget name>", -- Where to anchor this, $healthBar anchors it to the health bar $parent anchors it to units frame, UIParent anchors it to UIParent
-		relativePoint = "relativePoint", -- See above link
 		x = #, -- X offset
 		y = #, -- Y offset
 		
+		point = "point", -- See above link
+		relativePoint = "relativePoint", -- See above link
+		
+		OR instead of setting a specific point/relative point, you can use a predefined one anchorPoint = "<point>", -- Predefined anchor point, see below
+		
+		RT = Right Top, RC = Right Center, RB = Right Bottom
+		LT = Left Top, LC = Left Center, LB = Left Bottom,
+		BL = Bottom Left, BC = Bottom Center, BR = Bottom Right
+		ICL = Inside Center Left, IC = Inside Center Center, ICR = Inside Center Right
+		TR = Top Right, TC = Top Center, TL = Top Left
+		ITR = Inside Top Right, ITL = Inside Top Left
+
 		{
 			general = {
 				barTexture = "<name>", -- Texture name in SML  to use for all bars
@@ -67,19 +77,12 @@ local L = ShadowUFLocals
 				width = #, -- How wide the frame should be
 				height = #, -- How tall the frame should be
 				scale = #, -- Frame scaling
-				applyEffective = true/false, -- Apply the effective scaling when positioning it
+				effectiveScale = true/false, -- Apply the effective scaling when positioning it
 				healthBar = <see healthBar below>, -- Health bar configuration for this unit
 				manaBar = <see manaBar below>, -- Mana bar configuration for this unit
 				xpBar = <see xpBar below>, -- XP bar configuration for this unit
 				portrait = <see portrait below>, -- Portrait configuration for this unit
-				-- Font strings to use inside this unit
-				text = {
-					{
-					name = "<name>", -- Display name for this text
-					widthPercent = #.#, -- Percent of bars width to use for this
-					text = "<text>", -- Actual text with tags to use
-					<position arguments> -- See above
-				},
+				text = <see text below>, -- Text configuration for this unit
 				<position arguments> -- See above
 			},
 			<party/raid> = {
@@ -117,6 +120,14 @@ local L = ShadowUFLocals
 				order = #, -- Ordering, lower number means it shows up higher on the list
 				background = true/false, -- Show a background behind the bar
 			},
+			-- Font strings to use inside this unit
+			text = {
+				{
+				name = "<name>", -- Display name for this text
+				widthPercent = #.#, -- Percent of bars width to use for this
+				text = "<text>", -- Actual text with tags to use
+				<position arguments> -- See above
+			},
 			-- All indicators use the same format
 			indicators = {
 				<indicator format> = {
@@ -124,7 +135,7 @@ local L = ShadowUFLocals
 					width = #, -- Icon width
 					height = #, -- Icon height
 					
-					<position argumentS>, -- See above for these
+					<position arguments>, -- See above for these
 				},
 				
 				status = <indicator format>, -- Show status (Rested/In Combat)
@@ -149,6 +160,15 @@ ShadowUF:RegisterLayout("Default", {
 			barSpacing = -1.25,
 			barAlpha = 1.0,
 			backgroundAlpha = 0.20,
+		},
+		backdrop = {
+			tileSize = 1,
+			edgeSize = 0,
+			inset = 3,
+			backgroundTexture = "Interface\\\\ChatFrame\\\\ChatFrameBackground",
+			backgroundColor = {r = 0, g = 0, b = 0, a = 0.80},
+			borderTexture = "",
+			borderColor = {r = 0.30, g = 0.30, b = 0.50, a = 1},
 		},
 		font = {
 			name = "Myriad Condensed Web",
@@ -176,208 +196,138 @@ ShadowUF:RegisterLayout("Default", {
 			normal = {r = 0.58, g = 0.0, b = 0.55},
 			rested = {r = 0.0, g = 0.39, b = 0.88, a = 0.80},
 		},
-		raid = {
-			width = 80,
-			height = 40,
-			scale = 1.0,
-			applyEffective = true,
-			showRaid = true,
-			showPlayer = true,
-			unitsPerColumn = 7,
-			maxColumns = 8,
-			columnSpacing = 30,
-			attribPoint = "TOP",
-			attribAnchorPoint = "RIGHT",
-			healthBar = {enabled = true},
-			manaBar = {enabled = true},
-			portrait = {enabled = false},
-			text = {
-					{name = L["Left text"], widthPercent = 1.0, text = "[raidcolor][name]|r [curmaxhp]", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
-			},
-			point = "CENTER", anchorTo = "UIParent", relativePoint = "CENTER", x = 200, y = 200,
+		-- Default unit options
+		text = {
+				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[raidcolor][name]|r", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
+				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -3, y = 0},
+				
+				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 3, y = 0},
+				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -3, y = 0},
 		},
-		player = {
-			width = 200,
-			height = 60,
-			scale = 1.0,
-			applyEffective = true,
-			healthBar = {enabled = true},
-			manaBar = {enabled = true},
-			portrait = {enabled = true},
-			text = {
-					{name = L["Left text"], widthPercent = 0.60, text = "[raidcolor][name]|r", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -3, y = 0},
-					
-					{name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 3, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -3, y = 0},
-			},
-			auras = {
-				HELPFUL = {position = "BOTTOM", size = 16, inColumn = 8, perRow = 4, x = 0, y = 0, enlargeSelf = true, filters = {HELPFUL = true}},
-				HARMFUL = {position = "BOTTOM", size = 16, inColumn = 8, perRow = 4, x = 0, y = 0, enlargeSelf = true, filters = {HARMFUL = true}},
-			},
-			indicators = {
-				status = {height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
-				pvp = {height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
-				leader = {height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
-				masterLoot = {height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
-				raidTarget = {height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
-			},
-			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 100, y = -300,
-		},
-		party = {
-			width = 200,
-			height = 60,
-			scale = 1.0,
-			applyEffective = true,
-			healthBar = {enabled = true},
-			manaBar = {enabled = true},
-			portrait = {enabled = true},
-			attribPoint = "TOP",
-			attribAnchorPoint = "TOP",
-			showPlayer = true,
-			showParty = true,
-			text = {
-					{name = L["Left text"], widthPercent = 0.60, text = "[raidcolor][name]|r", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -3, y = 0},
-					
-					{name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 3, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -3, y = 0},
-			},
-			indicators = {
-				status = {height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
-				pvp = {height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
-				leader = {height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
-				masterLoot = {height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
-			--[[
-				raidTarget = {point, anchorTo, relativePoint, x, y, height, width},
-				happiness = {point, anchorTo, relativePoint, x, y, height, width},
-			]]
-			},
-			point = "CENTER", anchorTo = "UIParent", relativePoint = "CENTER", x = 200, y = -100,
-		},
-		partypet = {
-			width = 125,
-			height = 30,
-			scale = 1.0,
-			groupWith = "parent",
-			position = 6,
-			healthBar = {enabled = true},
-			manaBar = {enabled = false},
-			portrait = {enabled = false},
-			text = {
-					{name = L["Left text"], widthPercent = 1.0, text = "[raidcolor][name]|r [curmaxhp]", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
-			},
-			indicators = {},
-		},
-		target = {
-			width = 200,
-			height = 60,
-			scale = 1.0,
-			appleEffective = true,
-			healthBar = {enabled = true},
-			manaBar = {enabled = true},
-			portrait = {enabled = true},
-			xpBar = {enabled = true},
-			text = {
-					{name = L["Left text"], widthPercent = 0.60, text = "[raidcolor][name]|r", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 2, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -2, y = 0},
-					
-					{name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 2, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -2, y = 0},
-			},
-			indicators = {
-				status = {height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
-				pvp = {height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
-				leader = {height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
-				masterLoot = {height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
-			},
-			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 350, y = -315,
-		},
-		pet = {
-			width = 200,
-			height = 60,
-			scale = 1.0,
-			applyEffective = true,
-			healthBar = {enabled = true},
-			manaBar = {enabled = true},
-			portrait = {enabled = true},
-			xpBar = {enabled = true},
-			text = {
-					{name = L["Left text"], widthPercent = 0.60, text = "[raidcolor][name]|r", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -3, y = 0},
-					
-					{name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 3, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -3, y = 0},
-			},
-			indicators = {
-				happiness = {height = 16, width = 16, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 2, y = -2},
-			},
-			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 100, y = -450,
-		},
-		focus = {
-			width = 200,
-			height = 60,
-			scale = 1.0,
-			appleEffective = true,
-			healthBar = {enabled = true},
-			manaBar = {enabled = true},
-			portrait = {enabled = true},
-			text = {
-					{name = L["Left text"], widthPercent = 0.60, text = "[raidcolor][name]|r", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 2, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -2, y = 0},
-					
-					{name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 2, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -2, y = 0},
-			},
-			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 350, y = -225,
-		},
-		targettarget = {
-			width = 200,
-			height = 60,
-			scale = 1.0,
-			appleEffective = true,
-			healthBar = {enabled = true},
-			manaBar = {enabled = true},
-			portrait = {enabled = true},
-			text = {
-					{name = L["Left text"], widthPercent = 0.60, text = "[raidcolor][name]|r", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 2, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -2, y = 0},
-					
-					{name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 2, y = 0},
-					{name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -2, y = 0},
-			},
-			point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 350, y = -500,
-		},
-		backdrop = {
-			tileSize = 1,
-			edgeSize = 0,
-			inset = 3,
-			backgroundTexture = "Interface\\\\ChatFrame\\\\ChatFrameBackground",
-			backgroundColor = {r = 0, g = 0, b = 0, a = 0.80},
-			borderTexture = "",
-			borderColor = {r = 0.30, g = 0.30, b = 0.50, a = 1},
+		auras = {
+			buffs = {enabled = true, position = "TOP", size = 16, inColumn = 8, rows = 4, x = 0, y = 0, enlargeSelf = true, filters = {HELPFUL = true}},
+			debuffs = {enabled = true, position = "BOTTOM", size = 16, inColumn = 8, rows = 4, x = 0, y = 0, enlargeSelf = true, filters = {HARMFUL = true}},
 		},
 		portrait = {
+			enabled = true,
 			alignment = "LEFT",
 			width = 0.22,
 		},
 		healthBar = {
+			enabled = true,
 			background = true,
 			heightWeight = 1.20,
 			width = 1.0,
 			order = 0,
 		},
 		manaBar = {
+			enabled = true,
 			background = true,
 			heightWeight = 1.0,
 			width = 1.0,
 			order = 1,
 		},
 		xpBar = {
+			enabled = true,
 			background = true,
 			heightWeight = 0.25,
 			width = 1.0,
 			order = 2,
+		},
+		castBar = {
+			enabled = false,
+			background = true,
+			heightWeight = 0.60,
+			width = 1.0,
+			order = 3,
+			castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0},
+			castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0},
+		},
+		indicators = {
+			status = {enabled = true, height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
+			pvp = {enabled = true, height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
+			leader = {enabled = true, height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
+			masterLoot = {enabled = true, height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
+			raidTarget = {enabled = true, height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
+			happiness = {enabled = true, height = 16, width = 16, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 2, y = -2},
+		},
+		positions = {
+			raid = {point = "CENTER", anchorTo = "UIParent", relativePoint = "CENTER", x = 100, y = -100},
+			party = {anchorPoint = "BL", anchorTo = "#SSUFUnitplayer", x = 0, y = -100},
+			player = {point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 50, y = -50},
+			target = {anchorPoint = "RT", anchorTo = "#SSUFUnitplayer", x = 50, y = 0},
+			pet = {anchorPoint = "BL", anchorTo = "#SSUFUnitplayer", x = 0, y = -100},
+			focus = {anchorPoint = "RT", anchorTo = "#SSUFUnittarget", x = 100, y = 0},
+			targettarget = {anchorPoint = "BL", anchorTo = "#SSUFUnittarget", x = 0, y = -75},
+		},
+		-- Units
+		raid = {
+			width = 80,
+			height = 40,
+			scale = 1.0,
+			effectiveScale = true,
+			showRaid = true,
+			showPlayer = true,
+			portrait = {enabled = false},
+			castBar = {enabled = false},
+			unitsPerColumn = 7,
+			maxColumns = 8,
+			columnSpacing = 25,
+			attribPoint = "TOP",
+			attribAnchorPoint = "RIGHT",
+		},
+		player = {
+			width = 200,
+			height = 60,
+			scale = 1.0,
+			effectiveScale = true,
+		},
+		party = {
+			width = 200,
+			height = 60,
+			scale = 1.0,
+			effectiveScale = true,
+			attribPoint = "TOP",
+			attribAnchorPoint = "TOP",
+			showPlayer = true,
+			showParty = true,
+		},
+		partypet = {
+			width = 125,
+			height = 30,
+			scale = 1.0,
+			groupWith = "parent",
+			position = "BR",
+			portrait = {enabled = false},
+			castBar = {enabled = false},
+		},
+		target = {
+			width = 200,
+			height = 60,
+			scale = 1.0,
+			appleEffective = true,
+		},
+		pet = {
+			width = 200,
+			height = 60,
+			scale = 1.0,
+			effectiveScale = true,
+		},
+		focus = {
+			width = 200,
+			height = 60,
+			scale = 1.0,
+			appleEffective = true,
+		},
+		targettarget = {
+			width = 200,
+			height = 60,
+			scale = 1.0,
+		},
+		targettargettarget = {
+			width = 200,
+			height = 60,
+			scale = 1.0,
 		},
 	},
 })

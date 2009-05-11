@@ -22,11 +22,12 @@ ShadowedUnitFrames.lua
 layouts\default.lua
 modules\tags.lua
 modules\config.lua
-modules\unit.lua
+modules\units.lua
 modules\health.lua
 modules\mana.lua
 modules\portrait.lua
 modules\indicators.lua
 modules\xp.lua
+modules\cast.lua
 modules\auras.lua
 modules\layout.lua
