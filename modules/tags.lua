@@ -108,13 +108,13 @@ function Tags:Register(parent, fontString, tags)
 		
 		for tag in string.gmatch(tags, "%[(.-)%]") do
 			-- If they enter a tag such as "foo(|)" then we won't find a regular tag, meaning will go into our function pool code
-			local cachedFunc = functionPool[tag] or ShadowUF.tags[tag]
+			local cachedFunc = functionPool[tag] or ShadowUF.tagFunc[tag]
 			if( not cachedFunc ) then
 				local pre, tagKey, ap = string.match(tag, "(%b())([%w]+)(%b())")
 				if( not pre ) then pre, tagKey = string.match(tag, "(%b())([%w]+)") end
 				if( not pre ) then tagKey, ap = string.match(tag, "([%w]+)(%b())") end
 				
-				local tag = tagKey and ShadowUF.tags[tagKey]
+				local tag = tagKey and ShadowUF.tagFunc[tagKey]
 				if( tag ) then
 					pre = pre and string.sub(pre, 2, -2) or ""
 					ap = ap and string.sub(ap, 2, -2) or ""
@@ -210,61 +210,115 @@ function ShadowUF:FormatLargeNumber(number)
 	return string.format("%.2fm", number / 1000000)
 end
 
+function ShadowUF:GetClassColor(unit)
+	if( not UnitIsPlayer(unit) ) then
+		return nil
+	end
+	
+	local class = select(2, UnitClass(unit))
+	return class and ShadowUF:Hex(RAID_CLASS_COLORS[class])
+end
+
 function Tags:LoadTags()
 	self.defaultTags = {
+		["colorname"] = [[function(unit)
+			local name = UnitName(unit)
+			if( not name or not UnitIsPlayer(unit) ) then
+				return name
+			end
+			
+			local color = ShadowUF:GetClassColor(unit)
+			if( not color ) then
+				return name
+			end
+			
+			return color .. name .. "|r"
+		end]],
 		["class"]       = [[function(unit) return UnitClass(unit) end]],
+		["classcolor"] = [[function(unit)
+			local color = ShadowUF:GetClassColor(unit)
+			local class = UnitClass(unit)
+			if( not color or not class ) then
+				return class
+			end
+			
+			return color .. class .. "|r"
+		end]],
 		["creature"]    = [[function(unit) return UnitCreatureFamily(unit) or UnitCreatureType(unit) end]],
 		["curhp"]       = [[function(unit) return ShadowUF:FormatLargeNumber(UnitHealth(unit)) end]],
 		["curpp"]       = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPower(unit)) end]],
 		["curmaxhp"] = [[function(unit)
-			local dead = ShadowUF.tags.dead(unit)
+			local offline = ShadowUF.tagFunc.offline(unit)
+			if( offline ) then
+				return offline
+			end
+
+			local dead = ShadowUF.tagFunc.dead(unit)
 			if( dead ) then
 				return dead
 			end
 			
-			return string.format("%s/%s", ShadowUF.tags.curhp(unit), ShadowUF.tags.maxhp(unit))
+			return string.format("%s/%s", ShadowUF.tagFunc.curhp(unit), ShadowUF.tagFunc.maxhp(unit))
 		end]],
 		["curmaxpp"] = [[function(unit)
-			local dead = ShadowUF.tags.dead(unit)
+			local dead = ShadowUF.tagFunc.dead(unit)
 			if( dead ) then
-				return string.format("0/%s", ShadowUF.tags.maxpp(unit))
+				return string.format("0/%s", ShadowUF.tagFunc.maxpp(unit))
 			end
 			
-			return string.format("%s/%s", ShadowUF.tags.curpp(unit), ShadowUF.tags.maxpp(unit))
+			return string.format("%s/%s", ShadowUF.tagFunc.curpp(unit), ShadowUF.tagFunc.maxpp(unit))
 		end]],
 		["dead"]        = [[function(unit) return UnitIsDead(unit) and ShadowUFLocals["Dead"] or UnitIsGhost(unit) and ShadowUFLocals["Ghost"] end]],
-		["difficulty"]  = [[function(unit) if UnitCanAttack("player", unit) then local l = UnitLevel(unit); return ShadowUF:Hex(GetDifficultyColor((l > 0) and l or 99)) end end]],
+		["levelcolor"]  = [[function(unit)
+			local level = UnitLevel(unit);
+			if( UnitCanAttack("player", unit) ) then
+				return ShadowUF:Hex(GetDifficultyColor(level > 0 and level or 99))
+			else
+				return level
+			end
+		end]],
 		["faction"]     = [[function(unit) return UnitFactionGroup(unit) end]],
-		["leader"]      = [[function(unit) return UnitIsPartyLeader(unit) and ShadowUFLocals["(L)"] end]],
-		["leaderlong"]  = [[function(unit) return UnitIsPartyLeader(unit) and ShadowUFLocals["(Leader)"] end]],
 		["level"]       = [[function(unit) local l = UnitLevel(unit) return (l > 0) and l or ShadowUFLocals["??"] end]],
 		["maxhp"]       = [[function(unit) return ShadowUF:FormatLargeNumber(UnitHealthMax(unit)) end]],
 		["maxpp"]       = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPowerMax(unit)) end]],
-		["missinghp"]   = [[function(unit) return UnitHealthMax(unit) - UnitHealth(unit) end]],
-		["missingpp"]   = [[function(unit) return UnitPowerMax(unit) - UnitPower(unit) end]],
+		["missinghp"]   = [[function(unit)
+			local missing = UnitHealthMax(unit) - UnitHealth(unit)
+			if( missing <= 0 ) then return "" end
+			return "-" .. ShadowUF:FormatLargeNumber(UnitHealthMax(unit) - UnitHealth(unit)) 
+		end]],
+		["missingpp"]   = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPowerMax(unit) - UnitPower(unit)) end]],
 		["name"]        = [[function(unit) return UnitName(unit) end]],
 		["offline"]     = [[function(unit) return  (not UnitIsConnected(unit) and ShadowUFLocals["Offline"]) end]],
-		["perhp"]       = [[function(unit) local m = UnitHealthMax(unit); return m == 0 and 0 or math.floor(UnitHealth(unit)/m*100+0.5) end]],
+		["perhp"]       = [[function(unit)
+			local offline = ShadowUF.tagFunc.offline(unit)
+			if( offline ) then
+				return offline
+			end
+
+			local dead = ShadowUF.tagFunc.dead(unit)
+			if( dead ) then
+				return dead
+			end
+			
+			local max = UnitHealthMax(unit);
+			
+			return max == 0 and 0 or math.floor(UnitHealth(unit) / max * 100 + 0.5)
+		end]],
 		["perpp"]       = [[function(unit) local m = UnitPowerMax(unit); return m == 0 and 0 or math.floor(UnitPower(unit)/m*100+0.5) end]],
 		["plus"]        = [[function(unit) local c = UnitClassification(unit); return (c == "elite" or c == "rareelite") and "+" end]],
-		["pvp"]         = [[function(unit) return UnitIsPVP(unit) and ShadowUFLocals["PvP"] end]],
 		["race"]        = [[function(unit) return UnitRace(unit) end]],
-		["raidcolor"]   = [[function(unit) if( not UnitIsPlayer(unit) ) then return end local _, x = UnitClass(unit); return x and ShadowUF:Hex(RAID_CLASS_COLORS[x]) end]],
 		["rare"]        = [[function(unit) local c = UnitClassification(unit); return (c == "rare" or c == "rareelite") and ShadowUFLocals["Rare"] end]],
-		["resting"]     = [[function(unit) return u == "player" and IsResting() and ShadowUFLocals["zzz"] end]],
 		["sex"]         = [[function(unit) local s = UnitSex(unit) return s == 2 and ShadowUFLocals["Male"] or s == 3 and ShadowUFLocals["Female"] end]],
-		["smartclass"]  = [[function(unit) return UnitIsPlayer(unit) and ShadowUF.tags.class(unit) or ShadowUF.tags.creature(unit) end]],
-		["status"]      = [[function(unit) return UnitIsDead(unit) and ShadowUFLocals["Dead"] or UnitIsGhost(unit) and ShadowUFLocals["Ghost"] or not UnitIsConnected(unit) and ShadowUFLocals["Offline"] or ShadowUF.tags.resting(unit) end]],
-		["threat"]      = [[function(unit) local s = UnitThreatSituation(unit) return s == 1 and "++" or s == 2 and "--" or s == 3 and ShadowUFLocals[""] end]],
-		["threatcolor"] = [[function(unit) return ShadowUF:Hex(GetThreatStatusColor(UnitThreatSituation(unit))) end]],
+		["smartclass"]  = [[function(unit) return UnitIsPlayer(unit) and ShadowUF.tagFunc.class(unit) or ShadowUF.tagFunc.creature(unit) end]],
+		["status"]      = [[function(unit) return UnitIsDead(unit) and ShadowUFLocals["Dead"] or UnitIsGhost(unit) and ShadowUFLocals["Ghost"] or not UnitIsConnected(unit) and ShadowUFLocals["Offline"] or ShadowUF.tagFunc.resting(unit) end]],
 		["cpoints"]     = [[function(unit) local cp = GetComboPoints(u, "target") return (cp > 0) and cp end]],
 		["smartlevel"] = [[function(unit)
 			local c = UnitClassification(unit)
 			if(c == "worldboss") then
-				return "Boss"
+				return ShadowUFLocals["Boss"]
 			else
-				local plus = ShadowUF.tags.plus(unit)
-				local level = ShadowUF.tags.level(unit)
+				local plus = ShadowUF.tagFunc.plus(unit)
+				local level = ShadowUF.tagFunc.level(unit)
 				if( plus ) then
 					return level .. plus
 				else
@@ -282,6 +336,39 @@ function Tags:LoadTags()
 		end]],
 	}
 
+	self.defaultHelp = {
+		["cpoints"] = L["Total number of combo points you have on your target."],
+		["smartlevel"] = L["Smart level, returns Boss for bosses, +50 for a level 50 elite mob, or just 80 for a level 80."],
+		["classification"] = L["Units classification, Rare, Rare Elite, Elite, Boss, nothing is shown if they aren't any of those."],
+		["shortclassification"] = L["Short classifications, R for Rare, R+ for Rare Elite, + for Elite, B for boss, nothing is shown if they aren't any of those."],
+		["rare"] = L["Returns Rare if the unit is a rare or rare elite mob."],
+		["plus"] = L["Returns + if the unit is an elite or rare elite mob."],
+		["sex"] = L["Returns the units sex."],
+		["smartclass"] = L["For players, it will return a class, for mobs than it will return their creature type."],
+		["status"] = L["Units status, Dead, Ghost, Offline, nothing is shown if they aren't any of those."],
+		["race"] = L["Unit race, for a Blood Elf then Blood Elf is returned, for a Night Elf than Night Elf is returned and so on."],
+		["level"] = L["Level without any coloring."],
+		["maxhp"] = L["Max health, uses a short format, 17750 is formatted as 17.7k, values below 10000 are formatted as is."],
+		["maxpp"] = L["Max power, uses a short format, 16000 is formatted as 16k, values below 10000 are formatted as is."],
+		["missinghp"] = L["Amount of health missing, if none is missing nothing is shown. Uses a short format, -18500 is shown as -18.5k, values below 10000 are formatted as is."],
+		["missingpp"] = L["Amount of power missing,  if none is missing nothing is shown. Uses a short format, -13850 is shown as 13.8k, values below 10000 are formatted as is."],
+		["name"] = L["Unit name"],
+		["offline"] = L["Returns Offline if the unit is offline, otherwise nothing is shown."],
+		["perhp"] = L["Returns current health as a percentage, if the unit is dead or offline than that is shown instead."],
+		["perpp"] = L["Returns current power as a percentage."],
+		["class"] = L["Class, use [classcolor] if you want a colored class name."],
+		["classcolor"] = L["Colored class, use [class] for just the class name without coloring."],
+		["creature"] = L["Create type, for example, if you're targeting a Felguard then this will return Felguard."],
+		["curhp"] = L["Current health, uses a short format, 11500 is formatted as 11.5k, values below 10000 are formatted as is."],
+		["curpp"] = L["Current power, uses a short format, 12750 is formatted as 12.7k, values below 10000 are formatted as is."],
+		["curmaxhp"] = L["Current and maximum health, formatted as [curhp]/[maxhp], if the unit is dead or offline then that is shown instead."],
+		["curmaxpp"] = L["Current and maximum power, formatted as [curpp]/[maxpp]."],
+		["dead"] = L["If the unit is dead, returns dead, if they are a ghost then ghost is returned, if they aren't either then nothing is shown."],
+		["levelcolor"] = L["Colored level by difficulty, no color used if you cannot attack the unit."],
+		["faction"] = L["Units alignment, Thrall will return Horde, Magni Bronzebeard will return Alliance."],
+		["colorname"] = L["Unit name colored by class."],
+	}
+
 	-- Default tag events
 	self.defaultEvents = {
 		["curhp"]               = "UNIT_HEALTH",
@@ -289,24 +376,18 @@ function Tags:LoadTags()
 		["curpp"]               = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER",
 		["curmaxpp"]			= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
 		["dead"]                = "UNIT_HEALTH",
-		["leader"]              = "PARTY_LEADER_CHANGED",
-		["leaderlong"]          = "PARTY_LEADER_CHANGED",
 		["level"]               = "UNIT_LEVEL PLAYER_LEVEL_UP",
 		["maxhp"]               = "UNIT_MAXHEALTH",
 		["maxpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
 		["missinghp"]           = "UNIT_HEALTH UNIT_MAXHEALTH",
 		["missingpp"]           = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_MAXRUNIC_POWER UNIT_RUNIC_POWER",
 		["name"]                = "UNIT_NAME_UPDATE",
-		["coloredname"]			= "UNIT_NAME_UPDATE",
+		["colorname"]			= "UNIT_NAME_UPDATE",
 		["offline"]             = "UNIT_HEALTH",
 		["perhp"]               = "UNIT_HEALTH UNIT_MAXHEALTH",
 		["perpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_MAXRUNIC_POWER UNIT_RUNIC_POWER",
-		["pvp"]                 = "UNIT_FACTION",
-		["resting"]             = "PLAYER_UPDATE_RESTING",
 		["status"]              = "UNIT_HEALTH PLAYER_UPDATE_RESTING",
 		["smartlevel"]          = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED",
-		["threat"]              = "UNIT_THREAT_SITUATION_UPDATE",
-		["threatcolor"]         = "UNIT_THREAT_SITUATION_UPDATE",
 		["cpoints"]             = "UNIT_COMBO_POINTS UNIT_TARGET",
 		["rare"]                = "UNIT_CLASSIFICATION_CHANGED",
 		["classification"]      = "UNIT_CLASSIFICATION_CHANGED",
@@ -327,4 +408,37 @@ function Tags:LoadTags()
 		["PLAYER_FOCUS_CHANGED"] = true,
 		["PLAYER_LEVEL_UP"] = true,
 	}
+end
+
+function Tags:Verify()
+	local fine = true
+	for tag, events in pairs(self.defaultEvents) do
+		if( not self.defaultTags[tag] ) then
+			print(string.format("Found event for %s, but no tag associated with it.", tag))
+			fine = nil
+		end
+	end
+	
+	for tag, data in pairs(self.defaultTags) do
+		if( not self.defaultTags[tag] ) then
+			print(string.format("Found tag for %s, but no event associated with it.", tag))
+			fine = nil
+		end
+		
+		if( not self.defaultHelp[tag] ) then
+			print(string.format("Found tag for %s, but no help text associated with it.", tag))
+			fine = nil
+		end
+		
+		local funct, msg = loadstring("return " .. data)
+		if( not funct and msg ) then
+			print(string.format("Failed to load tag %s.", tag))
+			print(msg)
+			fine = nil
+		end
+	end
+	
+	if( fine ) then
+		print("Verified tags, everything is fine.")
+	end
 end

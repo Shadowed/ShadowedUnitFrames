@@ -198,7 +198,7 @@ ShadowUF:RegisterLayout("Default", {
 		},
 		-- Default unit options
 		text = {
-				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[raidcolor][name]|r", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
+				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[colorname]", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
 				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -3, y = 0},
 				
 				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 3, y = 0},

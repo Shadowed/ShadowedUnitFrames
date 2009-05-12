@@ -14,6 +14,7 @@ function ShadowUF:OnInitialize()
 		profile = {
 			tags = {},
 			tagEvents = {},
+			tagHelp = {},
 			units = {},
 			layout = {},
 			layoutInfo = {},
@@ -31,7 +32,7 @@ function ShadowUF:OnInitialize()
 	self.db.RegisterCallback(self, "OnDatabaseShutdown", "OnDatabaseShutdown")
 			
 	-- Setup tag cache
-	self.tags = setmetatable({}, {
+	self.tagFunc = setmetatable({}, {
 		__index = function(tbl, index)
 			if( not ShadowUF.Tags.defaultTags[index] and not ShadowUF.db.profile.tags[index] ) then
 				tbl[index] = false
@@ -39,6 +40,7 @@ function ShadowUF:OnInitialize()
 			end
 			
 			local funct, msg = loadstring("return " .. (ShadowUF.Tags.defaultTags[index] or ShadowUF.db.profile.tags[index]))
+			
 			if( funct ) then
 				funct = funct()
 			elseif( msg ) then
@@ -50,8 +52,8 @@ function ShadowUF:OnInitialize()
 		end
 	})
 	
-	-- For consistency mostly
 	self.tagEvents = self.db.profile.tagEvents
+	self.tagHelp = self.db.profile.tagHelp
 	
 	-- Setup layout cache
 	self.layoutInfo = setmetatable({}, {
@@ -255,19 +257,21 @@ end
 
 -- Tag APIs
 function ShadowUF:IsTagReistered(name)
-	return self.db.profile.tags[name] or self.Tags.defaultTags[name]
+	return self.db.profile.tags[name] or self.tagFunc.defaultTags[name]
 end
 
 function ShadowUF:RegisterTag(name, tag)
 	if( not name ) then
 		error(L["Cannot register tag, no name passed."])
+	elseif( type(data) ~= "table" ) then
+		error(L["Cannot register tag, data should be a table got %s."])
+	elseif( not data.help or not data.events or not data.funct ) then
+		error(L["Cannot register tag, data should be passed as {help = \"help text\", events = \"EVENT_A EVENT_B\", funct = \"function(unit) return \"Foo\" end}"], 3)
 	end
 	
-	if( type(data) == "string" ) then
-		self.db.profile.tags[name] = tag
-	else
-		error(L["Cannot register tag %s, string expected got %s."], name, type(tag))
-	end
+	self.db.profile.tagHelp[name] = tag.help
+	self.db.profile.tagEvents[name] = tag.events
+	self.db.profile.tags[name] = tag.funct
 end
 
 -- Converts a table back to a format we can loadstring
