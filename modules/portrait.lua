@@ -6,16 +6,34 @@ local function resetCamera(self)
 	self:SetCamera(0)
 end
 
+local function resetGUID(self)
+	self.guid = nil
+end
+
 function Portrait:UnitEnabled(frame, unit)
+	if( not frame.unitConfig.portrait ) then
+		return
+	end
+	
 	frame.portrait = frame.portrait or CreateFrame("PlayerModel", frame:GetName() .. "PlayerModel", frame)
 	frame.portrait:SetScript("OnShow", resetCamera)
+	frame.portrait:SetScript("OnHide", resetGUID)
 
 	frame:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", self.Update)
-	frame:RegisterUpdateFunc(self.Update)
+	frame:RegisterUpdateFunc(self.UpdateFunc)
 end
 
 function Portrait:UnitDisabled(frame, unit)
 	frame:UnregisterAll(self.Update)
+end
+
+function Portrait.UpdateFunc(self, unit)
+	local guid = UnitGUID(unit)
+	if( self.guid ~= guid ) then
+		Portrait.Update(self, unit)
+	end
+	
+	self.guid = guid
 end
 
 function Portrait.Update(self, unit)

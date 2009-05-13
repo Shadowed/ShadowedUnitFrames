@@ -2,7 +2,7 @@ local Health = ShadowUF:NewModule("Health")
 ShadowUF:RegisterModule(Health, "healthBar", ShadowUFLocals["Health bar"])
 
 function Health:UnitEnabled(frame, unit)
-	if( not frame.unitConfig.healthBar or not frame.unitConfig.healthBar.enabled ) then
+	if( not frame.unitConfig.healthBar ) then
 		return
 	end
 	
@@ -54,7 +54,7 @@ function Health.UpdateColor(self)
 		else
 			color = ShadowUF.db.profile.layout.healthColor.red
 		end
-	elseif( not UnitIsPlayer(unit) and ShadowUF.db.profile.units[self.unitType].healthBar.colorBy == "reaction" ) then
+	elseif( not UnitIsPlayer(unit) and self.unitConfig.healthColor == "reaction" ) then
 		local reaction = UnitReaction(unit, "player")
 		if( reaction > 4 ) then
 			color = ShadowUF.db.profile.layout.healthColor.green
@@ -63,7 +63,7 @@ function Health.UpdateColor(self)
 		elseif( reaction < 4 ) then
 			color = ShadowUF.db.profile.layout.healthColor.red
 		end
-	elseif( ShadowUF.db.profile.units[self.unitType].healthBar.colorBy == "class" and UnitIsPlayer(unit) ) then
+	elseif( self.unitConfig.healthColor == "class" and UnitIsPlayer(unit) ) then
 		local class = select(2, UnitClass(unit))
 		if( class and RAID_CLASS_COLORS[class] ) then
 			color = RAID_CLASS_COLORS[class]
@@ -84,7 +84,7 @@ function Health.Update(self, unit)
 	self.healthBar:SetMinMaxValues(0, max)
 	self.healthBar:SetValue(current)
 		
-	if( ShadowUF.db.profile.units[self.unitType].healthBar.colorBy == "percent" ) then
+	if( self.unitConfig.healthColor == "percent" ) then
 		setGradient(self.healthBar, unit)
 	end
 end

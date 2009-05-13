@@ -13,6 +13,34 @@ local function selectDialogGroup(group, key)
 end
 
 ---------------------
+-- UNIT CONFIGURATION
+---------------------
+local function loadUnitOptions()
+	local function loadUnit(unit, order)
+		options.args.units[unit] = {
+			type = "group",
+			order = order,
+			name = L[unit],
+			args = {},
+		}
+	end
+	
+	
+	options.args.units = {
+		type = "group",
+		name = L["Units"],
+		args = {},
+	}
+	
+	-- Load units already enabled
+	for order, unit in pairs(ShadowUF.units) do
+		if( ShadowUF.db.profile.units[unit] and ShadowUF.db.profile.units[unit].enabled ) then
+			loadUnit(unit, order)
+		end
+	end
+end
+
+---------------------
 -- TAG CONFIGURATION
 ---------------------
 local function loadTagOptions()
@@ -415,12 +443,7 @@ local function loadOptions()
 		args = {}
 	}
 	
-	options.args.units = {
-		type = "group",
-		name = L["Units"],
-		args = {},
-	}
-	
+	loadUnitOptions()
 	loadTagOptions()
 	loadVisibilityOptions()	
 	
@@ -429,6 +452,12 @@ local function loadOptions()
 		name = L["Layout"],
 		args = {},
 	}
+	
+	-- Ordering
+	options.args.units.order = 1
+	options.args.layout.order = 2
+	options.args.visibility.order = 3
+	options.args.tags.order = 4
 	
 	-- Options finished loading, fire callback for any non-default modules that want to be included
 	ShadowUF:FireModuleEvent("ConfigurationLoaded", options)

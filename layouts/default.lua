@@ -205,16 +205,9 @@ ShadowUF:RegisterLayout("Default", {
 			rested = {r = 0.0, g = 0.39, b = 0.88, a = 0.80},
 		},
 		-- Default unit options
-		text = {
-				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[colorname]", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
-				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -3, y = 0},
-				
-				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$powerBar", relativePoint = "LEFT", x = 3, y = 0},
-				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$powerBar", relativePoint = "RIGHT", x = -3, y = 0},
-		},
 		auras = {
-			buffs = {enabled = true, position = "TOP", size = 16, inColumn = 8, rows = 4, x = 0, y = 0, enlargeSelf = true, filters = {HELPFUL = true}},
-			debuffs = {enabled = true, position = "BOTTOM", size = 16, inColumn = 8, rows = 4, x = 0, y = 0, enlargeSelf = true, filters = {HARMFUL = true}},
+			buffs = {position = "TOP", size = 16, x = 0, y = 0},
+			debuffs = {position = "BOTTOM", size = 16, x = 0, y = 0},
 		},
 		portrait = {
 			enabled = true,
@@ -251,14 +244,6 @@ ShadowUF:RegisterLayout("Default", {
 			castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0},
 			castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0},
 		},
-		indicators = {
-			status = {enabled = true, height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
-			pvp = {enabled = true, height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
-			leader = {enabled = true, height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
-			masterLoot = {enabled = true, height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
-			raidTarget = {enabled = true, height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
-			happiness = {enabled = true, height = 16, width = 16, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 2, y = -2},
-		},
 		positions = {
 			raid = {point = "CENTER", anchorTo = "UIParent", relativePoint = "CENTER", x = 100, y = -100},
 			party = {anchorPoint = "BL", anchorTo = "#SUFUnitplayer", x = 0, y = -100},
@@ -276,8 +261,6 @@ ShadowUF:RegisterLayout("Default", {
 			effectiveScale = true,
 			showRaid = true,
 			showPlayer = true,
-			portrait = {enabled = false},
-			castBar = {enabled = false},
 			unitsPerColumn = 7,
 			maxColumns = 8,
 			columnSpacing = 25,
@@ -306,8 +289,6 @@ ShadowUF:RegisterLayout("Default", {
 			scale = 1.0,
 			groupWith = "parent",
 			position = "BR",
-			portrait = {enabled = false},
-			castBar = {enabled = false},
 		},
 		target = {
 			width = 200,

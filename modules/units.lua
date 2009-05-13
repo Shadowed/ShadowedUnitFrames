@@ -75,11 +75,9 @@ end
 local function TargetUnitUpdate(self, elapsed)
 	self.timeElapsed = self.timeElapsed + elapsed
 	
-	if( self.unit and self.unitGuid ~= UnitGUID(self.unit) and self.timeElapsed >= 0.25 ) then
+	if( self.timeElapsed >= 0.50 ) then
 		self.timeElapsed = 0
 		self:FullUpdate()
-
-		self.unitGuid = UnitGUID(self.unit)
 	end
 end
 
@@ -89,21 +87,35 @@ local function SetVisibility(self, unit)
 
 	-- Selectively disable modules
 	for key in pairs(ShadowUF.moduleNames) do
-		if( ShadowUF.db.profile.layout[unit][key] ) then
-			local enabled = ShadowUF.db.profile.layout[unit][key].enabled
+		if( key == "auras" ) then
+			local buffs = self.unitConfig[key].buffs
+			local debuffs = self.unitConfig[key].debuffs
 			
+			if( zone ~= "none" ) then
+				if( ShadowUF.db.profile.visibility[zone][unit .. key] == false ) then
+					buffs = true
+					debuffs = true
+				elseif( ShadowUF.db.profile.visibility[zone][unit .. key] == true ) then
+					buffs = true
+					debuffs = true
+				end
+			end
+			
+			if( self.auras.buffs ) then self.auras.buffs.isEnabled = buffs end
+			if( self.auras.debuffs ) then self.auras.debuffs.isEnabled = debuffs end	
+		elseif( self[key] ) then
+			local enabled = self.unitConfig[key]
+		
 			-- nil == Use the regular value inside the layout / false == Disable it here / true == Enable it here
 			if( zone ~= "none" ) then
 				if( ShadowUF.db.profile.visibility[zone][unit .. key] == false ) then
 					enabled = false
-				else
+				elseif( ShadowUF.db.profile.visibility[zone][unit .. key] == true ) then
 					enabled = true
 				end
 			end
 
 			self[key].isEnabled = enabled
-		elseif( self[key] ) then
-			self[key].isEnabled = false
 		end
 	end
 end
@@ -117,13 +129,13 @@ local function OnAttributeChanged(self, name, value)
 	self.unit = value
 	self.unitID = tonumber(string.match(value, "([0-9]+)"))
 	self.unitType = string.gsub(value, "([0-9]+)", "")
-	self.unitConfig = ShadowUF.db.profile.layout[self.unitType]
+	self.unitConfig = ShadowUF.db.profile.units[self.unitType]
 	
 	-- Give all of the modules a chance to create what they need
 	ShadowUF:FireModuleEvent("UnitEnabled", self, value)
 	
 	-- Now set what is enabled
-	Units:SetVisibility(self, self.unitConfig)
+	SetVisibility(self, self.unitConfig)
 	
 	-- Apply our layout quickly
 	ShadowUF.Layout:ApplyAll(self, self.unitType)

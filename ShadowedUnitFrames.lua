@@ -26,9 +26,7 @@ function ShadowUF:OnInitialize()
 		},
 	}
 	
-	for _, unit in pairs(units) do
-		self.defaults.profile.units[unit] = {enabled = true, healthBar = {colorBy = "percent"}}
-	end
+	self:LoadUnitDefaults()
 	
 	-- Initialize DB
 	self.db = LibStub:GetLibrary("AceDB-3.0"):New("ShadowedUFDB", self.defaults)
@@ -115,7 +113,7 @@ function ShadowUF:LoadUnits()
 			if( zone ~= "none" ) then
 				if( self.db.profile.visibility[zone][type] == false ) then
 					enabled = false
-				else
+				elseif( self.db.profile.visibility[zone][type] == true ) then
 					enabled = true
 				end
 			end
@@ -129,6 +127,72 @@ function ShadowUF:LoadUnits()
 			self.Units:UninitializeFrame(config, type)
 		end
 	end
+end
+
+function ShadowUF:LoadUnitDefaults()
+	for _, unit in pairs(units) do
+		self.defaults.profile.units[unit] = {
+			enabled = false,
+			healthBar = true,
+			powerBar = true,
+			portrait = true,
+			castBar = false,
+			xpBar = false,
+			healthColor = "percent",
+			text = {
+				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[colorname]", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
+				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -3, y = 0},
+				
+				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$powerBar", relativePoint = "LEFT", x = 3, y = 0},
+				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$powerBar", relativePoint = "RIGHT", x = -3, y = 0},
+			},
+			auras = {
+				buffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = false, HELPFUL = true},
+				debuffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = true, HARMFUL = true},
+			},
+		}
+	end
+	
+	self.defaults.profile.units.player.enabled = true
+	self.defaults.profile.units.player.indicators = {
+		status = {enabled = true, height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
+		pvp = {enabled = true, height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
+		leader = {enabled = true, height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
+		masterLoot = {enabled = true, height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
+		raidTarget = {enabled = true, height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
+	}
+
+	self.defaults.profile.units.target.enabled = true
+	self.defaults.profile.units.target.indicators = {
+		pvp = {enabled = true, height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
+		leader = {enabled = true, height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
+		masterLoot = {enabled = true, height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
+		raidTarget = {enabled = true, height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
+	}
+
+	self.defaults.profile.units.party.enabled = true
+	self.defaults.profile.units.party.indicators = {
+		pvp = {enabled = true, height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
+		leader = {enabled = true, height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
+		masterLoot = {enabled = true, height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
+		raidTarget = {enabled = true, height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
+	}
+	
+	self.defaults.profile.units.party.enabled = true
+	self.defaults.profile.units.party.indicators = {
+		status = {enabled = true, height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
+		raidTarget = {enabled = true, height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
+		happiness = {enabled = true, height = 16, width = 16, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 2, y = -2},
+	}
+	
+	self.defaults.profile.units.focus.enabled = true
+	self.defaults.profile.units.targettarget.enabled = true
+		
+	self.defaults.profile.units.raid.portrait = false
+	self.defaults.profile.units.raid.powerBar = false
+
+	self.defaults.profile.units.partypet.portrait = false
+	self.defaults.profile.units.partypet.powerBar = false
 end
 
 -- Hiding Blizzard stuff (Stolen from haste)
@@ -201,7 +265,9 @@ end
 
 -- Plugin APIs
 function ShadowUF:CopyLayoutSettings(key, unit)
-	if( not self.db.profile.layout[unit][key] ) then
+	if( not self.db.profile.layout[key] ) then
+		return
+	elseif( not self.db.profile.layout[unit][key] ) then
 		self.db.profile.layout[unit][key] = CopyTable(self.db.profile.layout[key])
 		return
 	elseif( self.db.profile.layout[unit][key] and not self.db.profile.layout[unit][key].enabled ) then

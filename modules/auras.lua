@@ -24,44 +24,41 @@ local function cancelBuff(self)
 end
 
 function Auras:UnitEnabled(frame, unit)
-	if( not frame.unitConfig.auras or not frame.unitConfig.auras.enabled ) then
+	if( not frame.unitConfig.auras ) then
 		return
 	end
 	
 	frame:RegisterUnitEvent("UNIT_AURA", self.Update)
 	frame:RegisterUpdateFunc(self.Update)
 	
-	self.CreateIcons(frame, frame.unitConfig.auras)
+	self.CreateIcons(frame)
 end
 
 function Auras:UnitDisabled(frame, unit)
 	frame:UnregisterAll(self.Update)
 end
 
-function Auras.UpdateFilter(self, filter)
-	self.filter = nil
-	for key, enabled in pairs(filter) do
-		if( enabled ) then
-			if( self.filter ) then
-				self.filter = self.filter .. "|" .. key
-			else
-				self.filter = key
-			end
-		end
-	end
+local filterTable = {}
+function Auras.UpdateFilter(self, config)
+	for i=#(filterTable), 1, -1 do table.remove(filterTable, i) end
+	table.insert(filterTable, self.HELPFUL)
+	table.insert(filterTable, self.HARMFUL)
+	table.insert(filterTable, self.PLAYER)
+	table.insert(filterTable, self.RAID)
+	table.insert(filterTable, self.CANCELABLE)
+	table.insert(filterTable, self.NOT_CANCELABLE)
 	
-	self.filter = self.filter or self.defaultFilter
+	self.filters = table.concat(filterTable, "|") or ""
 end
 
 function Auras.CreateIcons(self)
 	self.auras = self.auras or {}
-	for key, config in pairs(ShadowUF.db.profile.layout[self.unitType].auras) do
+	for key, config in pairs(self.unitConfig.auras) do
 			self.auras[key] = self.auras[key] or CreateFrame("Frame", nil, self)
 			local aura = self.auras[key]
 			aura.buttons = aura.buttons or {}
 			aura.maxIcons = config.inColumn * config.rows
 			aura.parent = self
-			aura.defaultFilter = key
 			
 			for i=#(aura.buttons)+1, aura.maxIcons do
 				aura.buttons[i] = CreateFrame("Button", nil,aura)
@@ -108,7 +105,7 @@ function Auras:LayoutUpdated(self, unit)
 	local auraConfig = ShadowUF.db.profile.layout[self.unitType].auras
 	if( auraConfig ) then
 		for key, config in pairs(auraConfig) do
-				Auras.UpdateFilter(self.auras[key], config.filters)
+			Auras.UpdateFilter(self.auras[key], config.filters)
 		end
 	end
 end

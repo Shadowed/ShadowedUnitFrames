@@ -214,7 +214,7 @@ function Layout:ApplyPortrait(frame, config)
 	-- We want it to be a pixel inside the frame, so inset + clip gets us that
 	local clip = ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip
 	
-	self:ToggleVisibility(frame.portrait, frame.portrait.isEnabled)
+	self:ToggleVisibility(frame.portrait, frame.portrait and frame.portrait.isEnabled)
 	if( frame.portrait and frame.portrait:IsShown() ) then
 		frame.portrait:SetHeight(config.height - (clip * 2))
 		frame.portrait:SetWidth(config.width * config.portrait.width)
@@ -248,7 +248,7 @@ end
 -- Setup bars
 function Layout:ApplyBarVisuals(frame, config)
 	-- Update health bars
-	self:ToggleVisibility(frame.healthBar, frame.healthBar.isEnabled)
+	self:ToggleVisibility(frame.healthBar, frame.healthBar and frame.healthBar.isEnabled)
 	if( frame.healthBar and frame.healthBar:IsShown() ) then
 		frame.healthBar:SetStatusBarTexture(frame.barTexture)
 		
@@ -261,7 +261,7 @@ function Layout:ApplyBarVisuals(frame, config)
 	end
 	
 	-- Update mana bars
-	self:ToggleVisibility(frame.powerBar, frame.powerBar.isEnabled)
+	self:ToggleVisibility(frame.powerBar, frame.powerBar and frame.powerBar.isEnabled)
 	if( frame.powerBar and frame.powerBar:IsShown() ) then
 		frame.powerBar:SetStatusBarTexture(frame.barTexture)
 
@@ -274,7 +274,7 @@ function Layout:ApplyBarVisuals(frame, config)
 	end
 
 	-- Update cast bars
-	self:ToggleVisibility(frame.castBar, frame.castBar.isEnabled)
+	self:ToggleVisibility(frame.castBar, frame.castBar and frame.castBar.isEnabled)
 	if( frame.castBar and frame.castBar:IsShown() ) then
 		frame.castBar:SetStatusBarTexture(frame.barTexture)
 
@@ -287,7 +287,7 @@ function Layout:ApplyBarVisuals(frame, config)
 	end
 	
 	-- Update XP bar
-	self:ToggleVisibility(frame.xpBar, frame.xpBar.isEnabled)
+	self:ToggleVisibility(frame.xpBar, frame.xpBar and frame.xpBar.isEnabled)
 	if( frame.xpBar and frame.xpBar:IsShown() ) then
 		frame.xpBar:SetStatusBarTexture(frame.barTexture)
 		frame.xpBar.rested:SetStatusBarTexture(frame.barTexture)
@@ -333,7 +333,7 @@ function Layout:ApplyText(frame, config)
 	end
 
 	-- Update tag text
-	if( not config.text ) then
+	if( not frame.unitConfig.text ) then
 		if( frame.fontStrings ) then
 			for _, fontString in pairs(frame.fontStrings) do
 				fontString:Hide()
@@ -347,7 +347,7 @@ function Layout:ApplyText(frame, config)
 		fontString:Hide()
 	end
 	
-	for id, row in pairs(config.text) do
+	for id, row in pairs(frame.unitConfig.text) do
 		local parent = row.anchorTo == "$parent" and frame or frame[string.sub(row.anchorTo, 2)]
 		if( parent and row.enabled ) then
 			local fontString = frame.fontStrings[id] or frame:CreateFontString(nil, "ARTWORK")
@@ -379,26 +379,25 @@ end
 
 -- Setup indicators
 function Layout:ApplyIndicators(frame, config)
-	if( not frame.indicators or not config.indicators ) then
+	if( not frame.indicators or not frame.unitConfig.indicators ) then
 		if( frame.indicators ) then
-			for _, indicator in pairs(frame.indicators) do
-				indicator:Hide()
+			for _, indicator in pairs(frame.indicators.list) do
+				self:ToggleVisibility(frame.indicators[indicator], false)
 			end
 		end
 		return
 	end
 	
-	self:ToggleVisibility(frame.indicators, frame.indicators.isEnabled)
 	if( frame.indicators and frame.indicators:IsShown() ) then
 		for _, key in pairs(frame.indicators.list) do
 			local indicator = frame.indicators[key]
-			self:ToggleVisibility(indicator, config.indicators[key] and config.indicators[key].enabled or false)
+			self:ToggleVisibility(indicator, frame.unitConfig.indicators[key] and frame.unitConfig.indicators[key].enabled or false)
 			
-			if( indicator:IsShown() ) then
-				indicator:SetHeight(config.indicators[key].height)
-				indicator:SetWidth(config.indicators[key].width)
+			if( indicator and indicator:IsShown() ) then
+				indicator:SetHeight(frame.unitConfig.indicators[key].height)
+				indicator:SetWidth(frame.unitConfig.indicators[key].width)
 				
-				self:AnchorFrame(frame, indicator, config.indicators[key])
+				self:AnchorFrame(frame, indicator, frame.unitConfig.indicators[key])
 			end
 		end
 	end
@@ -451,18 +450,20 @@ local function positionAuras(self, config)
 end
 
 function Layout:ApplyAuras(frame, config)
-	if( not frame.auras or not frame.auras.isEnabled or not config.auras ) then
+	if( not frame.auras or not frame.auras.isEnabled or not config.auras or not frame.unitConfig.auras ) then
 		if( frame.auras ) then
-			for _, aura in pairs(frame.auras) do
-				aura:Hide()
+			for _, auras in pairs(frame.auras) do
+				for _, button in pairs(auras.buttons) do
+					button:Hide()
+				end
 			end
 		end
 		return
 	end
-	
+		
 	-- Update aura position
 	for key, aura in pairs(frame.auras) do
-		self:ToggleVisibility(aura, config.auras[key].enabled)
+		self:ToggleVisibility(aura, aura.isEnabled)
 		
 		if( aura:IsShown() ) then
 			positionAuras(aura, config.auras[key])
