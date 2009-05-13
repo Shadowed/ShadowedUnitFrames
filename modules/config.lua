@@ -319,7 +319,93 @@ end
 -- VISIBILITY OPTIONS
 ---------------------
 local function loadVisibilityOptions()
+	local function set(info, value, ...)
+		local key = info[#(info)]
+		local unit = info[#(info) - 1]
+		
+		if( key == unit ) then
+			key = ""
+		end
+		
+		ShadowUF.db.profile.visibility[info.arg][unit .. key] = value
+	end
+	
+	local function get(info)
+		local key = info[#(info)]
+		local unit = info[#(info) - 1]
 
+		if( key == unit ) then
+			key = ""
+		end
+		
+		return ShadowUF.db.profile.visibility[info.arg][unit .. key]
+	end
+	
+	local function loadArea(type, text)
+		options.args.visibility.args[type] = {
+			type = "group",
+			order = 1,
+			name = text,
+			get = get,
+			set = set,
+			args = {},
+		}
+		
+		for order, unit in pairs(ShadowUF.units) do
+			options.args.visibility.args[type].args[unit] = {
+				type = "group",
+				order = order,
+				inline = true,
+				name = L[unit],
+				args = {
+					[unit] = {
+						order = 0,
+						type = "toggle",
+						name = string.format(L["Enable %s frames"], L[unit]),
+						tristate = true,
+						arg = type,
+						width = "full",
+					}
+				},
+			}
+			
+			for key, name in pairs(ShadowUF.moduleNames) do
+				options.args.visibility.args[type].args[unit].args[key] = {
+					order = 1,
+					type = "toggle",
+					name = name,
+					tristate = true,
+					arg = type,
+				}
+			end
+		end
+	end
+	
+	options.args.visibility = {
+		type = "group",
+		childGroups = "tab",
+		name = L["Visibility"],
+		args = {
+			start = {
+				order = 0,
+				type = "group",
+				name = L["General"],
+				inline = true,
+				args = {
+					help = {
+						order = 0,
+						type = "description",
+						name = L["You can set certain units and modules to only be enabled or disabled in different instances, unchecked values are disabled, checked values are enabled, and greyed out ones are ignored."]
+					},
+				},
+			},
+		},
+	}
+	
+	loadArea("pvp", L["Battlegrounds"])
+	loadArea("arena", L["Arenas"])
+	loadArea("party", L["Party instances"])
+	loadArea("raid", L["Raid instances"])
 end
 
 local function loadOptions()

@@ -62,6 +62,26 @@ ShadowUFLocals = {
 	["Search"] = "Search",
 	["Search tags"] = "Search tags",
 	
+	-- Visibility
+	["Visibility"] = "Visibility",
+	["Battlegrounds"] = "Battlegrounds",
+	["Arenas"] = "Arenas",
+	["Party instances"] = "Party instances",
+	["Raid instances"] = "Raid instances",
+	["Enable %s frames"] = "Enable %s frames",
+	["You can set certain units and modules to only be enabled or disabled in different instances, unchecked values are disabled, checked values are enabled, and greyed out ones are ignored."] = "You can set certain units and modules to only be enabled or disabled in different instances, unchecked values are disabled, checked values are enabled, and greyed out ones are ignored.",
+	
+	-- Unit names
+	["player"] = "Player",
+	["pet"] = "Pet",
+	["target"] = "Target",
+	["targettarget"] = "Target of Target",
+	["targettargettarget"] = "Target of Target of Target",
+	["focus"] = "Focus",
+	["party"] = "Party",
+	["partypet"] = "Party pet",
+	["raid"] = "Raid",
+	
 	-- Module names
 	["Health bar"] = "Health bar",
 	["Cast bar"] = "Cast bar",

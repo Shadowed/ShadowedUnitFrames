@@ -1,48 +1,49 @@
-local Units = ShadowUF:NewModule("Units", "AceEvent-3.0")
+local Units = ShadowUF:NewModule("Units")
 local unitFrames = {}
 local unitEvents = {}
+local loadedUnits = {}
 
 ShadowUF:RegisterModule(Units)
 
 -- Frame shown, do a full update
 local function FullUpdate(self)
-	for handler, funct in pairs(self.fullUpdates) do
-		if( funct == true ) then
+	for handler, func in pairs(self.fullUpdates) do
+		if( func == true ) then
 			handler(self, self.unit)
 		else
-			handler[funct](handler, self.unit)
+			handler[func](handler, self.unit)
 		end
 	end
 end
 
 -- Register an event that should always call the frame
-local function RegisterNormalEvent(self, event, funct)
+local function RegisterNormalEvent(self, event, func)
 	self:RegisterEvent(event)
-	self.registeredEvents[event] = funct
-	self[event] = funct
+	self.registeredEvents[event] = func
+	self[event] = func
 end
 
 -- Register an event thats only called if it's for the actual unit
-local function RegisterUnitEvent(self, event, funct)
+local function RegisterUnitEvent(self, event, func)
 	unitEvents[event] = true
 
-	RegisterNormalEvent(self, event, funct)
+	RegisterNormalEvent(self, event, func)
 end
 
 -- Register a function to be called in an OnUpdate if it's an invalid unit (targettarget/etc)
-local function RegisterUpdateFunc(self, handler, funct)
-	self.fullUpdates[handler] = funct or true
+local function RegisterUpdateFunc(self, handler, func)
+	self.fullUpdates[handler] = func or true
 end
 
 -- Used when something is disabled, removes all callbacks etc to it
 local function UnregisterAll(self, ...)
 	for i=1, select("#", ...) do
-		local funct = select(i, ...)
+		local func = select(i, ...)
 		
-		self.fullUpdates[funct] = nil
+		self.fullUpdates[func] = nil
 		
 		for event, callback in pairs(self.registeredEvents) do
-			if( funct == callback ) then
+			if( func == callback ) then
 				self[event] = nil
 				self.registeredEvents[event] = nil
 
@@ -82,6 +83,31 @@ local function TargetUnitUpdate(self, elapsed)
 	end
 end
 
+-- Deal with enabling modules inside a zone
+local function SetVisibility(self, unit)
+	local zone = select(2, IsInInstance())
+
+	-- Selectively disable modules
+	for key in pairs(ShadowUF.moduleNames) do
+		if( ShadowUF.db.profile.layout[unit][key] ) then
+			local enabled = ShadowUF.db.profile.layout[unit][key].enabled
+			
+			-- nil == Use the regular value inside the layout / false == Disable it here / true == Enable it here
+			if( zone ~= "none" ) then
+				if( ShadowUF.db.profile.visibility[zone][unit .. key] == false ) then
+					enabled = false
+				else
+					enabled = true
+				end
+			end
+
+			self[key].isEnabled = enabled
+		elseif( self[key] ) then
+			self[key].isEnabled = false
+		end
+	end
+end
+
 -- Frame is now initialized with a unit
 local function OnAttributeChanged(self, name, value)
 	if( name ~= "unit" or not value ) then
@@ -93,10 +119,17 @@ local function OnAttributeChanged(self, name, value)
 	self.unitType = string.gsub(value, "([0-9]+)", "")
 	self.unitConfig = ShadowUF.db.profile.layout[self.unitType]
 	
+	-- Give all of the modules a chance to create what they need
 	ShadowUF:FireModuleEvent("UnitEnabled", self, value)
+	
+	-- Now set what is enabled
+	Units:SetVisibility(self, self.unitConfig)
 	
 	-- Apply our layout quickly
 	ShadowUF.Layout:ApplyAll(self, self.unitType)
+	
+	-- For handling visibility
+	self:RegisterNormalEvent("ZONE_CHANGED_NEW_AREA", SetVisibility)
 	
 	-- Is it an invalid unit?
 	if( string.match(value, "%w+target") ) then
@@ -250,6 +283,9 @@ function Units:LoadPetUnit(config, parentHeader, unit)
 end
 
 function Units:InitializeFrame(config, type)
+	if( loadedUnits[type] ) then return end
+	loadedUnits[type] = true
+	
 	if( type == "party" ) then
 		self:LoadGroupHeader(config, type)
 	elseif( type == "raid" ) then
@@ -264,6 +300,9 @@ function Units:InitializeFrame(config, type)
 end
 
 function Units:UninitializeFrame(type)
+	if( not loadedUnits[type] ) then return end
+	loadedUnits[type] = nil
+	
 	for _, frame in pairs(unitFrames) do
 		if( frame.unitType == type ) then
 			UnregisterUnitWatch(frame)

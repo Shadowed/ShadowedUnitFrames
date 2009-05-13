@@ -8,8 +8,11 @@ ShadowUF.moduleNames = {}
 local L = ShadowUFLocals
 local layoutQueue
 local modules = {}
-local units = {"player", "pet", "target", "focus", "targettarget", "targettargettarget", "raid", "party", "partypet"}
+local units = {"player", "pet", "target", "targettarget", "targettargettarget", "focus", "party", "partypet", "raid"}
 
+-- The layout table controls everything layout based, are portraits shown in X unit, size, etc. Basically, anything someone building a layout would care about.
+-- the units table controls things like unit visibility (Is party enabled period) or should aggro indicators be shown. Anything that someone building a layout
+-- does not need control over
 function ShadowUF:OnInitialize()
 	self.defaults = {
 		profile = {
@@ -18,7 +21,7 @@ function ShadowUF:OnInitialize()
 			layout = {},
 			layoutInfo = {},
 			positions = {},
-			visibility = {},
+			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
 			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true},
 		},
 	}
@@ -30,7 +33,10 @@ function ShadowUF:OnInitialize()
 	-- Initialize DB
 	self.db = LibStub:GetLibrary("AceDB-3.0"):New("ShadowedUFDB", self.defaults)
 	self.db.RegisterCallback(self, "OnDatabaseShutdown", "OnDatabaseShutdown")
-			
+	
+	-- List of units that SUF supports
+	self.units = units
+		
 	-- Setup tag cache
 	self.tagFunc = setmetatable({}, {
 		__index = function(tbl, index)
@@ -71,6 +77,7 @@ function ShadowUF:OnInitialize()
 		end,
 	})
 	
+	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "LoadUnits")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", function()
 		ShadowUF:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		ShadowUF:LoadUnits()
@@ -100,10 +107,24 @@ function ShadowUF:OnInitialize()
 end
 
 function ShadowUF:LoadUnits()
+	local zone = select(2, IsInInstance())
 	for _, type in pairs(units) do
 		local config = self.db.profile.units[type]
-		if( config and config.enabled ) then
-			self.Units:InitializeFrame(config, type)
+		if( config ) then
+			local enabled = config.enabled
+			if( zone ~= "none" ) then
+				if( self.db.profile.visibility[zone][type] == false ) then
+					enabled = false
+				else
+					enabled = true
+				end
+			end
+			
+			if( enabled ) then
+				self.Units:InitializeFrame(config, type)
+			else
+				self.Units:UninitializeFrame(config, type)
+			end
 		else
 			self.Units:UninitializeFrame(config, type)
 		end
@@ -259,6 +280,7 @@ end
 
 -- Module APIs
 function ShadowUF:RegisterModule(module, key, name)
+	module.moduleKey = key
 	modules[module] = true
 	
 	-- This lets the module indicate that it's adding something useful to the DB and needs to be listed for visibility
