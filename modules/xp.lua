@@ -1,8 +1,5 @@
 local XP = ShadowUF:NewModule("XP")
-
-function XP:OnInitialize()
-	ShadowUF:RegisterModule(self)
-end
+ShadowUF:RegisterModule(XP, "xpBar", ShadowUFLocals["XP/Rep bar"])
 
 function XP:UnitEnabled(frame, unit)
 	if( not frame.unitConfig.xpBar or frame.unitConfig.xpBar.enabled or ( unit ~= "player" and unit ~= "pet" ) ) then

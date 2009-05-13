@@ -1,9 +1,10 @@
-local Indicator = ShadowUF:NewModule("Indicator")
+local Indicators = ShadowUF:NewModule("Indicators")
 local raidUnits, partyUnits = {}, {}
 local indicatorList = {"status", "pvp", "leader", "masterLoot", "raidTarget", "happiness"}
 
-function Indicator:OnInitialize()
-	ShadowUF:RegisterModule(self)
+ShadowUF:RegisterModule(Indicators, "indicators", ShadowUFLocals["Indicatorss"])
+
+function Indicators:OnInitialize()
 	
 	for i=1, MAX_PARTY_MEMBERS do
 		partyUnits[i] = "party" .. i
@@ -14,7 +15,7 @@ function Indicator:OnInitialize()
 	end
 end
 
-function Indicator.UpdateHappiness(self, unit)
+function Indicators.UpdateHappiness(self, unit)
 	local happyHappy = GetPetHappiness()
 	if( not happyHappy ) then
 		self.indicators.happiness:Hide()
@@ -30,7 +31,7 @@ function Indicator.UpdateHappiness(self, unit)
 	end
 end
 
-function Indicator.UpdateMasterLoot(self, unit)
+function Indicators.UpdateMasterLoot(self, unit)
 	local unit = self:GetAttribute("unit")	local lootType, partyID, raidID = GetLootMethod()
 	if( lootType ~= "master" or not partyID or not raidID ) then
 		self.indicators.masterLoot:Hide()
@@ -41,7 +42,7 @@ function Indicator.UpdateMasterLoot(self, unit)
 	end
 end
 			
-function Indicator.UpdateRaidTarget(self, unit)
+function Indicators.UpdateRaidTarget(self, unit)
 	if( UnitExists(unit) and GetRaidTargetIndex(unit) ) then
 		SetRaidTargetIconTexture(self.indicators.raidTarget, GetRaidTargetIndex(unit))
 		self.indicators.raidTarget:Show()
@@ -50,7 +51,7 @@ function Indicator.UpdateRaidTarget(self, unit)
 	end
 end
 			
-function Indicator.UpdateLeader(self, unit)
+function Indicators.UpdateLeader(self, unit)
 	if( UnitIsPartyLeader(unit) ) then
 		self.indicators.leader:Show()
 	else
@@ -58,7 +59,7 @@ function Indicator.UpdateLeader(self, unit)
 	end
 end
 
-function Indicator.UpdatePVPFlag(self, unit)
+function Indicators.UpdatePVPFlag(self, unit)
 	if( UnitIsPVP(unit) and UnitFactionGroup(unit) ) then
 		self.indicators.pvp:SetTexture(string.format("Interface\\TargetingFrame\\UI-PVP-%s", UnitFactionGroup(unit)))
 		self.indicators.pvp:Show()
@@ -70,7 +71,7 @@ function Indicator.UpdatePVPFlag(self, unit)
 	end
 end
 
-function Indicator.UpdateStatus(self, unit)
+function Indicators.UpdateStatus(self, unit)
 	if( UnitAffectingCombat(unit) ) then
 		self.indicators.status:SetTexCoord(0.50, 1.0, 0.0, 0.49)
 		self.indicators.status:Show()
@@ -82,13 +83,13 @@ function Indicator.UpdateStatus(self, unit)
 	end
 end
 
-function Indicator:UnitEnabled(frame, unit)
+function Indicators:UnitEnabled(frame, unit)
 	if( not frame.unitConfig.indicators ) then
 		return
 	end
 	
 	-- Forces the indicators to be above the bars/portraits/etc
-	frame.indicators = CreateFrame("Frame", frame:GetName() .. "IndicatorFrame", frame)
+	frame.indicators = CreateFrame("Frame", frame:GetName() .. "IndicatorsFrame", frame)
 	frame.indicators.list = indicatorList
 	
 	if( frame.unitConfig.indicators.status and frame.unitConfig.indicators.status.enabled ) then
@@ -140,7 +141,7 @@ function Indicator:UnitEnabled(frame, unit)
 	end
 end
 
-function Indicator:UnitDisabled(frame, unit)
+function Indicators:UnitDisabled(frame, unit)
 	frame:UnregisterAll(self.UpdateStatus, self.UpdateMasterLoot, self.UpdateRaidTarget, self.UpdatePVPFlag, self.UpdateHappiness, self.UpdateLeader)
 end
 

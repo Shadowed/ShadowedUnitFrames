@@ -24,7 +24,7 @@ modules\tags.lua
 modules\config.lua
 modules\units.lua
 modules\health.lua
-modules\mana.lua
+modules\power.lua
 modules\portrait.lua
 modules\indicators.lua
 modules\xp.lua

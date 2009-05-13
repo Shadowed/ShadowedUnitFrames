@@ -2,9 +2,7 @@ local Units = ShadowUF:NewModule("Units", "AceEvent-3.0")
 local unitFrames = {}
 local unitEvents = {}
 
-function Units:OnInitialize()
-	ShadowUF:RegisterModule(self)
-end
+ShadowUF:RegisterModule(Units)
 
 -- Frame shown, do a full update
 local function FullUpdate(self)
@@ -125,7 +123,7 @@ function Units:LoadUnit(config, unit)
 		return
 	end
 	
-	local frame = CreateFrame("Button", "SSUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate")
+	local frame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate")
 	self:CreateUnit(frame)
 	frame:SetAttribute("unit", unit)
 
@@ -208,7 +206,7 @@ function Units:LoadGroupHeader(config, type)
 			return
 	end
 	
-	local headerFrame = CreateFrame("Frame", "SSUFHeader" .. type, UIParent, "SecureGroupHeaderTemplate")
+	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent, "SecureGroupHeaderTemplate")
 	self:SetFrameAttributes(config, headerFrame, type)
 	
 	headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
@@ -227,7 +225,7 @@ function Units:LoadPetUnit(config, parentHeader, unit)
 		return
 	end
 	
-	local frame = CreateFrame("Button", "SSUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate,SecureHandlerShowHideTemplate")
+	local frame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate,SecureHandlerShowHideTemplate")
 	self:SetFrameAttributes(config, frame, "partypet")
 
 	self:CreateUnit(frame, true)
@@ -258,7 +256,7 @@ function Units:InitializeFrame(config, type)
 		self:LoadGroupHeader(config, type)
 	elseif( type == "partypet" ) then
 		for i=1, MAX_PARTY_MEMBERS do
-			self:LoadPetUnit(config, SSUFHeaderparty, type .. i)
+			self:LoadPetUnit(config, SUFHeaderparty, type .. i)
 		end
 	else
 		self:LoadUnit(config, type)

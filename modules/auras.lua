@@ -1,8 +1,5 @@
 local Auras = ShadowUF:NewModule("Auras")
-
-function Auras:OnInitialize()
-	ShadowUF:RegisterModule(self)
-end
+ShadowUF:RegisterModule(Auras, "auras", ShadowUFLocals["Auras"])
 
 local function updateTooltip(self)
 	if( GameTooltip:IsOwned(self) ) then

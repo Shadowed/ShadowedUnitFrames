@@ -1,6 +1,6 @@
 -- Thanks to haste for the original tagging code, which I then mostly ripped apart and stole!
 local Tags = ShadowUF:NewModule("Tags")
-local eventlessUnits, events, tagPool, functionPool, fastTagUpdates, temp = {}, {}, {}, {}, {}, {}
+local eventlessUnits, events, tagPool, functionPool, fastTagUpdates, temp, regFontStrings = {}, {}, {}, {}, {}, {}, {}
 local frame
 local L = ShadowUFLocals
 
@@ -21,7 +21,7 @@ local function RegisterTagEvents(fontString, tags)
 	-- Strip parantheses and anything inside them
 	tags = string.gsub(tags, "%b()", "")
 	for tag in string.gmatch(tags, "%[(.-)%]") do
-		local tagEvents = Tags.defaultEvents[tag] or ShadowUF.tagEvents[tag]
+		local tagEvents = Tags.defaultEvents[tag] or ShadowUF.db.profile.tags[tag] and ShadowUF.db.profile.tags[tag].events
 		if( tagEvents ) then
 			for event in string.gmatch(tagEvents, "%S+") do
 				RegisterEvent(fontString, event)
@@ -89,15 +89,25 @@ fastFrame:SetScript("OnUpdate", function(self, elapsed)
 	end
 end)
 
+-- This pretty much means a tag was updated in some way (or deleted) so we have to do a full update to get the new values shown
+function Tags:FullUpdate()
+	for fontString in pairs(regFontStrings) do
+		if( fontString:IsVisible() ) then
+			fontString:UpdateTags()
+		end
+	end
+end
+
 function Tags:Register(parent, fontString, tags)
 	-- Unregister the font string first if we did register it already
 	if( fontString.UpdateTags ) then
-	--	self:Unregister(fontString)
+		self:Unregister(fontString)
 	end
 	
 	fontString.parent = parent
 	
 	fastTagUpdates[fontString] = nil
+	regFontStrings[fontString] = true
 	
 	local updateFunc = tagPool[tags]
 	if( not updateFunc ) then
@@ -183,6 +193,8 @@ function Tags:Unregister(fontString)
 	end
 	
 	fastTagUpdates[fontString] = nil
+	regFontStrings[fontString] = nil
+	
 	fontString.UpdateTags = nil
 end
 

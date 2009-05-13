@@ -261,15 +261,15 @@ function Layout:ApplyBarVisuals(frame, config)
 	end
 	
 	-- Update mana bars
-	self:ToggleVisibility(frame.manaBar, config.manaBar and config.manaBar.enabled or false)
-	if( frame.manaBar and frame.manaBar:IsShown() ) then
-		frame.manaBar:SetStatusBarTexture(frame.barTexture)
+	self:ToggleVisibility(frame.powerBar, config.powerBar and config.powerBar.enabled or false)
+	if( frame.powerBar and frame.powerBar:IsShown() ) then
+		frame.powerBar:SetStatusBarTexture(frame.barTexture)
 
-		if( config.manaBar.background ) then
-			frame.manaBar.background:SetTexture(frame.barTexture)
-			frame.manaBar.background:Show()
+		if( config.powerBar.background ) then
+			frame.powerBar.background:SetTexture(frame.barTexture)
+			frame.powerBar.background:Show()
 		else
-			frame.manaBar.background:Hide()
+			frame.powerBar.background:Hide()
 		end
 	end
 

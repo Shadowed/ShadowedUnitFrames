@@ -3,6 +3,7 @@
 ]]
 
 ShadowUF = LibStub("AceAddon-3.0"):NewAddon("ShadowUF", "AceEvent-3.0")
+ShadowUF.moduleNames = {}
 
 local L = ShadowUFLocals
 local layoutQueue
@@ -13,12 +14,11 @@ function ShadowUF:OnInitialize()
 	self.defaults = {
 		profile = {
 			tags = {},
-			tagEvents = {},
-			tagHelp = {},
 			units = {},
 			layout = {},
 			layoutInfo = {},
 			positions = {},
+			visibility = {},
 			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true},
 		},
 	}
@@ -39,7 +39,7 @@ function ShadowUF:OnInitialize()
 				return false
 			end
 			
-			local funct, msg = loadstring("return " .. (ShadowUF.Tags.defaultTags[index] or ShadowUF.db.profile.tags[index]))
+			local funct, msg = loadstring("return " .. (ShadowUF.Tags.defaultTags[index] or ShadowUF.db.profile.tags[index].func))
 			
 			if( funct ) then
 				funct = funct()
@@ -51,9 +51,6 @@ function ShadowUF:OnInitialize()
 			return tbl[index]
 		end
 	})
-	
-	self.tagEvents = self.db.profile.tagEvents
-	self.tagHelp = self.db.profile.tagHelp
 	
 	-- Setup layout cache
 	self.layoutInfo = setmetatable({}, {
@@ -182,8 +179,31 @@ function ShadowUF:HideBlizzard(type)
 end
 
 -- Plugin APIs
-local layoutKeys = {"portrait", "healthBar", "manaBar", "xpBar", "castBar", "indicators", "text", "auras"}
+function ShadowUF:CopyLayoutSettings(key, unit)
+	if( not self.db.profile.layout[unit][key] ) then
+		self.db.profile.layout[unit][key] = CopyTable(self.db.profile.layout[key])
+		return
+	elseif( self.db.profile.layout[unit][key] and not self.db.profile.layout[unit][key].enabled ) then
+		return
+	end
+	
+	for subKey, subValue in pairs(self.db.profile.layout[key]) do
+		if( type(subValue) == "table" ) then
+			self.db.profile.db.profile.layout[unit][subKey] = self.db.profile.db.profile.layout[unit][subKey] or {}
+			
+			for subKey2, subValue2 in pairs(subValue) do
+				if( subKey2 ~= "enabled" ) then
+					self.db.profile.layout[unit][subKey][subKey2] = subValue2
+				end
+			end
+		elseif( subKey ~= "enabled" ) then
+			self.db.profile.layout[unit][subKey] = subValue
+		end
+	end
+end
+
 function ShadowUF:SetLayout(name, importPositions)
+	
 	if( self.layoutInfo[name] ) then
 		self.db.profile.activeLayout = name
 		self.db.profile.layout = CopyTable(self.layoutInfo[name].layout)
@@ -192,16 +212,10 @@ function ShadowUF:SetLayout(name, importPositions)
 		for _, unit in pairs(units) do
 			self.db.profile.layout[unit] = self.db.profile.layout[unit] or {}
 			
-			for _, key in pairs(layoutKeys) do
-				if( not self.db.profile.layout[unit][key] and self.db.profile.layout[key] ) then
-					self.db.profile.layout[unit][key] = CopyTable(self.db.profile.layout[key])
-				elseif( self.db.profile.layout[unit][key] and not self.db.profile.layout[unit][key].enabled ) then
-					for subKey, subValue in pairs(self.db.profile.layout[key]) do
-						if( subKey ~= "enabled" ) then
-							self.db.profile.layout[unit][subKey] = subValue
-						end
-					end
-				end
+			-- Import the "module" settings in
+			self:CopyLayoutSettings("text", unit)
+			for key in pairs(self.moduleNames) do
+				self:CopyLayoutSettings(key, unit)
 			end
 
 			-- Import unit positioning as well
@@ -211,10 +225,11 @@ function ShadowUF:SetLayout(name, importPositions)
 		end
 		
 		-- Remove settings that were only used for inheritance based options
-		for _, key in pairs(layoutKeys) do
+		self.db.profile.layout.text = nil
+		for key in pairs(self.moduleNames) do
 			self.db.profile.layout[key] = nil
 		end
-
+		
 		self.db.profile.layout.positions = nil
 	end
 end
@@ -243,8 +258,14 @@ function ShadowUF:RegisterLayout(name, data)
 end
 
 -- Module APIs
-function ShadowUF:RegisterModule(module)
+function ShadowUF:RegisterModule(module, key, name)
 	modules[module] = true
+	
+	-- This lets the module indicate that it's adding something useful to the DB and needs to be listed for visibility
+	-- as well as being loaded from layout code
+	if( key and name ) then
+		self.moduleNames[key] = name
+	end
 end
 
 function ShadowUF:FireModuleEvent(event, frame, unit)
@@ -256,8 +277,8 @@ function ShadowUF:FireModuleEvent(event, frame, unit)
 end
 
 -- Tag APIs
-function ShadowUF:IsTagReistered(name)
-	return self.db.profile.tags[name] or self.tagFunc.defaultTags[name]
+function ShadowUF:IsTagRegistered(name)
+	return self.db.profile.tags[name] or self.Tags.defaultTags[name]
 end
 
 function ShadowUF:RegisterTag(name, tag)
@@ -265,13 +286,11 @@ function ShadowUF:RegisterTag(name, tag)
 		error(L["Cannot register tag, no name passed."])
 	elseif( type(data) ~= "table" ) then
 		error(L["Cannot register tag, data should be a table got %s."])
-	elseif( not data.help or not data.events or not data.funct ) then
+	elseif( not data.help or not data.events or not data.func ) then
 		error(L["Cannot register tag, data should be passed as {help = \"help text\", events = \"EVENT_A EVENT_B\", funct = \"function(unit) return \"Foo\" end}"], 3)
 	end
 	
-	self.db.profile.tagHelp[name] = tag.help
-	self.db.profile.tagEvents[name] = tag.events
-	self.db.profile.tags[name] = tag.funct
+	self.db.profile.tags[name] = CopyTable(tag)
 end
 
 -- Converts a table back to a format we can loadstring

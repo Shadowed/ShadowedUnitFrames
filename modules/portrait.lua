@@ -1,8 +1,5 @@
 local Portrait = ShadowUF:NewModule("Portrait")
-
-function Portrait:OnInitialize()
-	ShadowUF:RegisterModule(self)
-end
+ShadowUF:RegisterModule(Portrait, "portrait", ShadowUFLocals["Portrait"])
 
 -- If the camera isn't reset OnShow, it'll show the entire character instead of just the head, odd I know
 local function resetCamera(self)

@@ -79,19 +79,19 @@ local L = ShadowUFLocals
 				scale = #, -- Frame scaling
 				effectiveScale = true/false, -- Apply the effective scaling when positioning it
 				healthBar = <see healthBar below>, -- Health bar configuration for this unit
-				manaBar = <see manaBar below>, -- Mana bar configuration for this unit
+				powerBar = <see powerBar below>, -- Mana bar configuration for this unit
 				xpBar = <see xpBar below>, -- XP bar configuration for this unit
 				portrait = <see portrait below>, -- Portrait configuration for this unit
 				text = <see text below>, -- Text configuration for this unit
 				<position arguments> -- See above
 			},
+			-- Accepts all attributes listed http://wowprogramming.com/docs/secure_template/Group_Headers by key
 			<party/raid> = {
 				<unit configuration> -- See above
 				showRaid = true/false, -- Show the raid in this
 				showParty = true/false, -- Show players party in this
 				showPlayer = true/false, -- Show the player themselves in this
 				showSolo = true/false, -- Show this while solo
-				-- Accepts all attributes listed http://wowprogramming.com/docs/secure_template/Group_Headers by key
 				<position arguments>,
 			},
 			-- These tables listed in the main tree are automatically inherited to all units when the layout is applied
@@ -108,11 +108,19 @@ local L = ShadowUFLocals
 				order = #, -- Ordering, lower number means it shows up higher on the list
 				background = true/false, -- Show a background behind the bar
 			},
-			manabar = {
+			powerBar = {
 				heightWeight = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
 				width = #.#, -- How much of the available width should be used, 1.0 will use up all available width.
 				order = #, -- Ordering, lower number means it shows up higher on the list
 				background = true/false, -- Show a background behind the bar
+			},
+			castBar = {
+				heightWeight = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
+				width = #.#, -- How much of the available width should be used, 1.0 will use up all available width.
+				order = #, -- Ordering, lower number means it shows up higher on the list
+				background = true/false, -- Show a background behind the bar
+				castName = <position arguments>, -- How to position the cast name, see above for more info
+				castTime = <position arguments>, -- How to position the cast time, see above for more info
 			},
 			xpBar = {
 				heightWeight = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
@@ -201,8 +209,8 @@ ShadowUF:RegisterLayout("Default", {
 				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[colorname]", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
 				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -3, y = 0},
 				
-				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$manaBar", relativePoint = "LEFT", x = 3, y = 0},
-				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$manaBar", relativePoint = "RIGHT", x = -3, y = 0},
+				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$powerBar", relativePoint = "LEFT", x = 3, y = 0},
+				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$powerBar", relativePoint = "RIGHT", x = -3, y = 0},
 		},
 		auras = {
 			buffs = {enabled = true, position = "TOP", size = 16, inColumn = 8, rows = 4, x = 0, y = 0, enlargeSelf = true, filters = {HELPFUL = true}},
@@ -220,7 +228,7 @@ ShadowUF:RegisterLayout("Default", {
 			width = 1.0,
 			order = 0,
 		},
-		manaBar = {
+		powerBar = {
 			enabled = true,
 			background = true,
 			heightWeight = 1.0,
@@ -253,12 +261,12 @@ ShadowUF:RegisterLayout("Default", {
 		},
 		positions = {
 			raid = {point = "CENTER", anchorTo = "UIParent", relativePoint = "CENTER", x = 100, y = -100},
-			party = {anchorPoint = "BL", anchorTo = "#SSUFUnitplayer", x = 0, y = -100},
+			party = {anchorPoint = "BL", anchorTo = "#SUFUnitplayer", x = 0, y = -100},
 			player = {point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", x = 50, y = -50},
-			target = {anchorPoint = "RT", anchorTo = "#SSUFUnitplayer", x = 50, y = 0},
-			pet = {anchorPoint = "BL", anchorTo = "#SSUFUnitplayer", x = 0, y = -100},
-			focus = {anchorPoint = "RT", anchorTo = "#SSUFUnittarget", x = 100, y = 0},
-			targettarget = {anchorPoint = "BL", anchorTo = "#SSUFUnittarget", x = 0, y = -75},
+			target = {anchorPoint = "RT", anchorTo = "#SUFUnitplayer", x = 50, y = 0},
+			pet = {anchorPoint = "BL", anchorTo = "#SUFUnitplayer", x = 0, y = -100},
+			focus = {anchorPoint = "RT", anchorTo = "#SUFUnittarget", x = 100, y = 0},
+			targettarget = {anchorPoint = "BL", anchorTo = "#SUFUnittarget", x = 0, y = -75},
 		},
 		-- Units
 		raid = {
