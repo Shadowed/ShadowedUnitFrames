@@ -205,10 +205,6 @@ ShadowUF:RegisterLayout("Default", {
 			rested = {r = 0.0, g = 0.39, b = 0.88, a = 0.80},
 		},
 		-- Default unit options
-		auras = {
-			buffs = {position = "TOP", size = 16, x = 0, y = 0},
-			debuffs = {position = "BOTTOM", size = 16, x = 0, y = 0},
-		},
 		portrait = {
 			enabled = true,
 			alignment = "LEFT",

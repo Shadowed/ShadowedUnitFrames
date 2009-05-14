@@ -68,6 +68,8 @@ function Health.UpdateColor(self)
 		if( class and RAID_CLASS_COLORS[class] ) then
 			color = RAID_CLASS_COLORS[class]
 		end
+	elseif( self.unitConfig.healthColor == "static" ) then
+		color = ShadowUF.db.profile.layout.healthColor.green
 	end
 	
 	if( not color ) then

@@ -41,14 +41,14 @@ end
 local filterTable = {}
 function Auras.UpdateFilter(self, config)
 	for i=#(filterTable), 1, -1 do table.remove(filterTable, i) end
-	table.insert(filterTable, self.HELPFUL)
-	table.insert(filterTable, self.HARMFUL)
-	table.insert(filterTable, self.PLAYER)
-	table.insert(filterTable, self.RAID)
-	table.insert(filterTable, self.CANCELABLE)
-	table.insert(filterTable, self.NOT_CANCELABLE)
+	table.insert(filterTable, config.HELPFUL and "HELPFUL" or nil)
+	table.insert(filterTable, config.HARMFUL and "HARMFUL" or nil)
+	table.insert(filterTable, config.PLAYER and "PLAYER" or nil)
+	table.insert(filterTable, config.RAID and "RAID" or nil)
+	table.insert(filterTable, config.CANCELABLE and "CANCELABLE" or nil)
+	table.insert(filterTable, config.NOT_CANCELABLE and "NOT_CANCELABLE" or nil)
 	
-	self.filters = table.concat(filterTable, "|") or ""
+	self.filter = table.concat(filterTable, "|") or ""
 end
 
 function Auras.CreateIcons(self)
@@ -97,7 +97,7 @@ function Auras.CreateIcons(self)
 				button:Hide()
 			end
 			
-			Auras.UpdateFilter(aura, config.filters)
+			Auras.UpdateFilter(aura, config)
 	end
 end
 
@@ -105,7 +105,7 @@ function Auras:LayoutUpdated(self, unit)
 	local auraConfig = ShadowUF.db.profile.layout[self.unitType].auras
 	if( auraConfig ) then
 		for key, config in pairs(auraConfig) do
-			Auras.UpdateFilter(self.auras[key], config.filters)
+			Auras.UpdateFilter(self.auras[key], config)
 		end
 	end
 end
@@ -144,7 +144,7 @@ function Auras.Scan(self, filter, type, unit)
 	while( true ) do
 			local name, rank, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(unit, index, filter)
 			if( not name ) then break end
-
+			
 			self.totalAuras = self.totalAuras + 1
 			if( self.totalAuras >= self.maxIcons ) then
 				self.totalAuras = self.maxIcons

@@ -7,6 +7,26 @@ local L = ShadowUFLocals
 	10% bullshit, 15% tears, 15% hackery, 20% yelling at code, 40% magic
 ]]
 
+local positionList = {
+	["RT"] = L["Right Top"],
+	["RC"] = L["Right Center"],
+	["RB"] = L["Right Bottom"],
+	["LT"] = L["Left Top"],
+	["LC"] = L["Left Center"],
+	["LB"] = L["Left Bottom"],
+	["BL"] = L["Bottom Left"],
+	["BC"] = L["Bottom Center"],
+	["BR"] = L["Bottom Right"],
+	["ICL"] = L["Inside Center Left"],
+	["IC"] = L["Inside Center"],
+	["ICR"] = L["Inside Center Right"],
+	["TR"] = L["Top Right"],
+	["TC"] = L["Top Center"],
+	["TL"] = L["Top Left"],
+	["ITR"] = L["Inside Top Right"],
+	["ITL"] = L["Inside Top Left"],
+}
+
 local function selectDialogGroup(group, key)
 	AceDialog.Status.ShadowedUF.children[group].status.groups.selected = key
 	AceRegistry:NotifyChange("ShadowedUF")
@@ -97,15 +117,37 @@ local function loadGeneralOptions()
 				set = set,
 				get = get,
 				args = {
-					units = {
+					general = {
 						order = 0,
+						type = "group",
+						inline = true,
+						name = L["General"],
+						set = function(info, value) ShadowUF.db.profile[info[#(info)]] = value end,
+						args = {
+							locked = {
+								order = 0,
+								type = "toggle",
+								name = L["Lock frames"],
+							},
+							--[[
+							advanced = {
+								order = 1,
+								type = "toggle",
+								name = L["Advanced"],
+								desc = L["Enabling advanced settings will allow you to further tweak settings. This is meant for people who want to tweak every single thing, and should not be enabled by default as it increases the options."],
+							},
+							]]
+						},
+					},
+					units = {
+						order = 1,
 						type = "group",
 						inline = true,
 						name = L["Enable units"],
 						args = {},
 					},
 					backdrop = {
-						order = 1,
+						order = 2,
 						type = "group",
 						inline = true,
 						name = L["Background/border"],
@@ -151,7 +193,7 @@ local function loadGeneralOptions()
 						},
 					},
 					font = {
-						order = 2,
+						order = 3,
 						type = "group",
 						inline = true,
 						name = L["Font"],
@@ -175,7 +217,7 @@ local function loadGeneralOptions()
 						},
 					},
 					color = {
-						order = 3,
+						order = 4,
 						type = "group",
 						inline = true,
 						name = L["Bar colors"],
@@ -286,26 +328,248 @@ end
 ---------------------
 local function loadUnitOptions()
 	local modifyUnits = {}
+	local globalSettings
+	
+	local function isModifiersSet()
+		if( globalSettings ) then
+			return false
+		end
 		
+		for unit in pairs(modifyUnits) do
+			return false
+		end
+		
+		return true
+	end
+		
+	local function set(info, value)
+		if( info.arg == "global" ) then
+			for unit in pairs(modifyUnits) do
+				ShadowUF.db.profile.units[unit][info[#(info)]] = value
+			end
+			
+			globalSettings[info[#(info)]] = value
+		else
+			ShadowUF.db.profile.units[info.arg][info[#(info)]] = value
+		end
+		
+		ShadowUF.Layout:CheckMedia()
+		ShadowUF.Layout:ReloadAll()
+	end
+	
+	local function get(info)
+		if( info.arg == "global" ) then
+			return globalSettings[info[#(info)]]
+		end
+	
+		return ShadowUF.db.profile.units[info.arg][info[#(info)]]
+	end
+
+	local function loadAuras(unit, order, name)
+		return {
+		type = "group",
+		inline = true,
+		name = name,
+		order = order,
+		disabled = function(info)
+			if( info[#(info) - 1] == "buffs" ) then
+				return false
+			end
+			
+			if( ShadowUF.db.profile.units[info.arg].auras.buffs.position == ShadowUF.db.profile.units[info.arg].auras.debuffs.position ) then
+				return true
+			end
+			
+			return false
+		end,
+		args = {
+				enabled = {
+					order = 0,
+					type = "toggle",
+					name = string.format(L["Enable %s"], name),
+					arg = unit,
+				},
+				enlargeSelf = {
+					order = 0.50,
+					type = "toggle",
+					name = L["Enlarge your auras"],
+					desc = L["If you casted the aura, then the buff icon will be increased in size to make it more visible."],
+					arg = unit,
+				},
+				filters = {
+					order = 1,
+					type = "multiselect",
+					name = L["Filters"],
+					desc = L["Filters you want to use for this, when none are checked it will simply show all of the auras in this category for the unit."],
+					set = function(info, value, state)
+						if( info.arg == "global" ) then
+							for unit in pairs(modifyUnits) do
+								ShadowUF.db.profile.units[unit].auras[info[#(info) - 1]][value] = state
+							end
+							
+							globalSettings.auras = globalSettings.auras or {}
+							globalSettings.auras[info[#(info) - 1]][value] = state
+						else
+							ShadowUF.db.profile.units[info.arg].auras[info[#(info) - 1]][value] = state
+						end
+						
+						ShadowUF.Layout:ReloadAll()
+					end,
+					get = function(info, value)
+						if( info.arg == "global" ) then
+							return globalSettings.auras[info[#(info) - 1]][value]
+						end
+						
+						return ShadowUF.db.profile.units[info.arg].auras[info[#(info) - 1]][value]
+					end,
+					values = {["PLAYER"] = L["You casted"], ["RAID"] = L["Can cast on group"], ["CANCELABLE"] = L["Can cancel"], ["NOT_CANCELABLE"] = L["Cannot cancel"]},
+					arg = unit,
+				},
+				inColumn = {
+					order = 2,
+					type = "range",
+					name = L["Per column"],
+					desc = L["How many auras to show in a single row."],
+					min = 1, max = 50, step = 1,
+					arg = unit,
+				},
+				rows = {
+					order = 3,
+					type = "range",
+					name = L["Rows"],
+					desc = L["How many rows to use."],
+					min = 1, max = 5, step = 1,
+					arg = unit,
+				},
+				sep = {
+					order = 3.5,
+					type = "description",
+					name = "",
+					width = "full",
+				},
+				position = {
+					order = 4,
+					type = "select",
+					name = L["Position"],
+					desc = L["How you want this aura to be anchored to the unit frame."],
+					values = {["INSIDE"] = L["Inside"], ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
+					disabled = false,
+					arg = unit,
+				},
+				x = {
+					order = 5,
+					type = "range",
+					name = L["X Offset"],
+					min = -20, max = 20, step = 1,
+					arg = unit,
+				},
+				y = {
+					order = 6,
+					type = "range",
+					name = L["Y Offset"],
+					min = -20, max = 20, step = 1,
+					arg = unit,
+				},
+			},
+		}
+	end
+	
 	local function loadUnit(unit, order)
 		return {
 			type = "group",
 			childGroups = "tab",
 			order = order + 1,
-			hidden = isUnitHidden,
 			name = L[unit],
+			set = set,
+			get = get,
 			args = {
 				bars = {
 					order = 1,
-					name = "Bars",
+					name = L["Bars"],
 					type = "group",
-					args = {},
+					hidden = false,
+					set = set,
+					get = get,
+					args = {
+						health = {
+							order = 1,
+							type = "group",
+							inline = true,
+							name = L["Health bar"],
+							args = {
+								healthBar = {
+									order = 0,
+									type = "toggle",
+									name = string.format(L["Enable %s"], L["Health bar"]),
+									arg = unit
+								},
+								colorAggro = {
+									order = 1,
+									type = "toggle",
+									name = L["Color on aggro"],
+									arg = unit,
+								},
+								sep = {
+									order = 1.5,
+									type = "description",
+									name = "",
+									width = "full",
+								},
+								healthColor = {
+									order = 2,
+									type = "select",
+									name = L["Color health by"],
+									values = {["reaction"] = L["Reaction"], ["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"], ["threat"] = L["Threat"]},
+									arg = unit,
+								},
+							},
+						},
+						mana = {
+							order = 2,
+							type = "group",
+							inline = true,
+							name = L["Power bar"],
+							args = {
+								powerBar = {
+									order = 0,
+									type = "toggle",
+									name = string.format(L["Enable %s"], L["Power bar"]),
+									arg = unit,
+								},
+							},
+						},
+					},
 				},
 				auras = {
-					order = 1,
-					name = "Auras",
+					order = 2,
+					name = L["Auras"],
 					type = "group",
-					args = {},
+					hidden = false,
+					set = function(info, value)
+						if( info.arg == "global" ) then
+							for unit in pairs(modifyUnits) do
+								ShadowUF.db.profile.units[unit].auras[info[#(info) - 1]][info[#(info)]] = value
+							end
+							
+							globalSettings.auras[info[#(info) - 1]] = globalSettings.auras[info[#(info) - 1]] or {}
+							globalSettings.auras[info[#(info) - 1]][info[#(info)]] = value
+						else
+							ShadowUF.db.profile.units[info.arg].auras[info[#(info) - 1]][info[#(info)]] = value
+						end
+						
+						ShadowUF.Layout:ReloadAll()
+					end,
+					get = function(info)
+						if( info.arg == "global" ) then
+							return globalSettings.auras[info[#(info) - 1]][info[#(info)]]
+						end
+					
+						return ShadowUF.db.profile.units[info.arg].auras[info[#(info) - 1]][info[#(info)]]
+					end,
+					args = {
+						buffs = loadAuras(unit, 0, L["Buffs"]),
+						debuffs = loadAuras(unit, 1, L["Debuffs"]),
+					},
 				},
 			},
 		}
@@ -326,10 +590,16 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Units to modify"],
-						set = function(info, value) if( IsShiftKeyDown() ) then for unit in pairs(unitList) do modifyUnits[unit] = value end end modifyUnits[info[#(info)]] = value end,
+						set = function(info, value)
+							if( not globalSettings ) then
+								globalSettings = CopyTable(ShadowUF.db.profile.units[info[#(info)]])
+							end
+							modifyUnits[info[#(info)]] = value and true or nil
+						end,
 						get = function(info) return modifyUnits[info[#(info)]] end,
 						args = {},
 					},
+					
 				},
 			},
 		},
@@ -338,8 +608,24 @@ local function loadUnitOptions()
 	-- Load global unit
 	for k, v in pairs(loadUnit("global", 2).args) do
 		options.args.units.args.global.args[k] = v
+		options.args.units.args.global.args[k].hidden = isModifiersSet
 	end
-
+	
+	options.args.units.args.global.args.click = {
+		order = 0,
+		type = "group",
+		name = L["Help"],
+		hidden = function() return not isModifiersSet() end,
+		args = {
+			help = {
+				order = 0,
+				type = "description",
+				name = L["Select unit(s) to modify to access the global configuration, this will let you change settings quickly on all selected units at once."],
+			},
+		},
+	}
+	
+	-- Load all of the per unit settings
 	for order, unit in pairs(ShadowUF.units) do
 		options.args.units.args.global.args.units.args[unit] = {
 			order = order,
@@ -353,6 +639,7 @@ local function loadUnitOptions()
 	-- Load units already enabled
 	for order, unit in pairs(ShadowUF.units) do
 		options.args.units.args[unit] = loadUnit(unit, order)
+		options.args.units.args[unit].hidden = isUnitHidden
 	end
 end
 
@@ -402,7 +689,7 @@ local function loadLayoutOptions()
 						type = "group",
 						inline = true,
 						name = L["Units to modify"],
-						set = function(info, value) if( IsShiftKeyDown() ) then for unit in pairs(unitList) do modifyUnits[unit] = value end end modifyUnits[info[#(info)]] = value end,
+						set = function(info, value) modifyUnits[unit] = value and true or nil end,
 						get = function(info) return modifyUnits[info[#(info)]] end,
 						args = {},
 					},

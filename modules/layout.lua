@@ -54,6 +54,7 @@ end
 function Layout:ReloadAll()
 	for frame in pairs(frameList) do
 		if( frame:IsShown() ) then
+			frame:SetVisibility()
 			self:ApplyAll(frame)
 		end
 	end
@@ -65,7 +66,7 @@ function Layout:ApplyAll(frame)
 	if( not unitConfig ) then
 		return
 	end
-		
+			
 	self:ApplyUnitFrame(frame, unitConfig)
 	self:ApplyPortrait(frame, unitConfig)
 	self:ApplyBarVisuals(frame, unitConfig)
@@ -458,7 +459,7 @@ local function positionAuras(self, config)
 end
 
 function Layout:ApplyAuras(frame, config)
-	if( not frame.auras or not frame.auras.isEnabled or not config.auras or not frame.unitConfig.auras ) then
+	if( not frame.auras or not frame.unitConfig.auras ) then
 		if( frame.auras ) then
 			for _, auras in pairs(frame.auras) do
 				for _, button in pairs(auras.buttons) do
@@ -471,15 +472,15 @@ function Layout:ApplyAuras(frame, config)
 		
 	-- Update aura position
 	for key, aura in pairs(frame.auras) do
-		self:ToggleVisibility(aura, aura.isEnabled)
+		self:ToggleVisibility(aura, aura and aura.isEnabled)
 		
-		if( aura:IsShown() ) then
-			positionAuras(aura, config.auras[key])
+		if( aura and aura:IsShown() ) then
+			positionAuras(aura, frame.unitConfig.auras[key])
 		end
 	end
 	
 	-- Do the auras share the same location?
-	frame.aurasShared = config.auras.buffs.position == config.auras.debuffs.position
+	frame.aurasShared = frame.unitConfig.auras.buffs.position == frame.unitConfig.auras.debuffs.position
 end
 
 -- Setup the bar ordering/info

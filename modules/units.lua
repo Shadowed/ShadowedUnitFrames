@@ -82,7 +82,7 @@ local function TargetUnitUpdate(self, elapsed)
 end
 
 -- Deal with enabling modules inside a zone
-local function SetVisibility(self, unit)
+local function SetVisibility(self)
 	local zone = select(2, IsInInstance())
 
 	-- Selectively disable modules
@@ -92,10 +92,10 @@ local function SetVisibility(self, unit)
 			local debuffs = self.unitConfig[key].debuffs
 			
 			if( zone ~= "none" ) then
-				if( ShadowUF.db.profile.visibility[zone][unit .. key] == false ) then
+				if( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == false ) then
 					buffs = true
 					debuffs = true
-				elseif( ShadowUF.db.profile.visibility[zone][unit .. key] == true ) then
+				elseif( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == true ) then
 					buffs = true
 					debuffs = true
 				end
@@ -108,9 +108,9 @@ local function SetVisibility(self, unit)
 		
 			-- nil == Use the regular value inside the layout / false == Disable it here / true == Enable it here
 			if( zone ~= "none" ) then
-				if( ShadowUF.db.profile.visibility[zone][unit .. key] == false ) then
+				if( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == false ) then
 					enabled = false
-				elseif( ShadowUF.db.profile.visibility[zone][unit .. key] == true ) then
+				elseif( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == true ) then
 					enabled = true
 				end
 			end
@@ -135,7 +135,7 @@ local function OnAttributeChanged(self, name, value)
 	ShadowUF:FireModuleEvent("UnitEnabled", self, value)
 	
 	-- Now set what is enabled
-	SetVisibility(self, self.unitConfig)
+	self:SetVisibility()
 	
 	-- Apply our layout quickly
 	ShadowUF.Layout:ApplyAll(self, self.unitType)
@@ -164,10 +164,8 @@ end
 function Units:LoadUnit(config, unit)
 	-- Already be loaded, just enable
 	if( unitFrames[unit] ) then
-		unitFrames[unit]:SetAttribute(unit)
-		unitFrames[unit]:Show()
-		
-		--RegisterUnitWatch(unitFrames[unit])
+		unitFrames[unit]:SetAttribute("unit", unit)
+		RegisterUnitWatch(unitFrames[unit])
 		return
 	end
 	
@@ -184,6 +182,16 @@ end
 -- Create the generic things that we want in every secure frame regardless if it's a button or a header
 function Units:CreateUnit(frame,  hookVisibility)
 	frame.barFrame = CreateFrame("Frame", frame:GetName() .. "BarFrame", frame)
+
+	frame.fullUpdates = {}
+	frame.registeredEvents = {}
+	frame.RegisterNormalEvent = RegisterNormalEvent
+	frame.RegisterUnitEvent = RegisterUnitEvent
+	frame.RegisterUpdateFunc = RegisterUpdateFunc
+	frame.UnregisterUpdateFunc = UnregisterUpdateFunc
+	frame.UnregisterAll = UnregisterAll
+	frame.FullUpdate = FullUpdate
+	frame.SetVisibility = SetVisibility
 	
 	if( hookVisibility ) then
 		frame:HookScript("OnShow", OnShow)
@@ -199,15 +207,6 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame:SetAttribute("*type2", "menu")
 	frame.menu = Units.ShowMenu
 	frame:Hide()
-	
-	frame.fullUpdates = {}
-	frame.registeredEvents = {}
-	frame.RegisterNormalEvent = RegisterNormalEvent
-	frame.RegisterUnitEvent = RegisterUnitEvent
-	frame.RegisterUpdateFunc = RegisterUpdateFunc
-	frame.UnregisterUpdateFunc = UnregisterUpdateFunc
-	frame.UnregisterAll = UnregisterAll
-	frame.FullUpdate = FullUpdate
 end
 
 local function initUnit(frame)
@@ -269,6 +268,8 @@ end
 function Units:LoadPetUnit(config, parentHeader, unit)
 	if( unitFrames[unit] ) then
 		self:SetFrameAttributes(config, unitFrames[unit], unitFrames[unit].unitType)
+
+		unitFrames[unit]:SetAttribute("unit", unit)
 		RegisterUnitWatch(unitFrames[unit])
 		return
 	end
@@ -320,7 +321,7 @@ function Units:UninitializeFrame(config, type)
 	
 	for _, frame in pairs(unitFrames) do
 		if( frame.unitType == type ) then
-			--UnregisterUnitWatch(frame)
+			UnregisterUnitWatch(frame)
 			
 			ShadowUF:FireModuleEvent("UnitDisabled", frame, frame.unitType)
 			

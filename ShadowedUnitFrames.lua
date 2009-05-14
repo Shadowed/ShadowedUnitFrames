@@ -16,6 +16,8 @@ local units = {"player", "pet", "target", "targettarget", "targettargettarget", 
 function ShadowUF:OnInitialize()
 	self.defaults = {
 		profile = {
+			locked = true,
+			advanced = false,
 			tags = {},
 			units = {},
 			layout = {},
@@ -147,8 +149,8 @@ function ShadowUF:LoadUnitDefaults()
 				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$powerBar", relativePoint = "RIGHT", x = -3, y = 0},
 			},
 			auras = {
-				buffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = false, HELPFUL = true},
-				debuffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = true, HARMFUL = true},
+				buffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = false, position = "TOP", size = 16, x = 0, y = 0, HELPFUL = true},
+				debuffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = true, position = "BOTTOM", size = 16, x = 0, y = 0, HARMFUL = true},
 			},
 		}
 	end
