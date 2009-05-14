@@ -1,8 +1,46 @@
 local Layout = ShadowUF:NewModule("Layout", "AceEvent-3.0")
 local SML, config
-local ordering, backdropCache, anchoringQueued, mediaRequired = {}, {}, {}, {}
-local fontRequired, barRequired
+local ordering, backdropCache, anchoringQueued, mediaPath, frameList = {}, {}, {}, {}, {}
+local mediaRequired
 
+-- Deal with loading SML data we need
+function Layout:OnInitialize()
+	self:CheckMedia()
+end
+
+local function loadMedia(type, name, default)
+	if( name == "" ) then
+		return ""
+	end
+	
+	local media = SML:Fetch(type, name, true)
+	if( not media ) then
+		mediaRequired = mediaRequired or {}
+		mediaRequired[type] = name
+		return default
+	end
+	
+	return media
+end
+
+function Layout:CheckMedia()
+	mediaPath[SML.MediaType.STATUSBAR] = loadMedia(SML.MediaType.STATUSBAR, ShadowUF.db.profile.layout.general.barTexture, "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\Aluminium")
+	mediaPath[SML.MediaType.FONT] = loadMedia(SML.MediaType.FONT, ShadowUF.db.profile.layout.font.name, "Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf")
+	mediaPath[SML.MediaType.BACKGROUND] = loadMedia(SML.MediaType.BACKGROUND, ShadowUF.db.profile.layout.backdrop.backgroundTexture, "Interface\\ChatFrame\\ChatFrameBackground")
+	mediaPath[SML.MediaType.BORDER] = loadMedia(SML.MediaType.BORDER, ShadowUF.db.profile.layout.backdrop.borderTexture, "")
+end
+
+-- We might not have had a media we required at initial load, wait for it to load and then update everything when it does
+function Layout:MediaRegistered(event, mediaType, key)
+	if( mediaRequired and mediaRequired[mediaType] and mediaRequired[mediaType] == key ) then
+		mediaPath[mediaType] = SML:Fetch(mediaType, key)
+		mediaRequired[mediaType] = nil
+		
+		self:ReloadAll()
+	end
+end
+
+-- Help function
 function Layout:ToggleVisibility(frame, visible)
 	if( frame ) then
 		if( visible ) then
@@ -12,28 +50,11 @@ function Layout:ToggleVisibility(frame, visible)
 		end
 	end
 end	
-	
--- We didn't have a texture or font needed at application, so check again here to find out if it was loaded yet
--- SML calls this on every register, even if the media is registered.
-function Layout:MediaRegistered(event, mediaType, key)
-	if( mediaType == SML.MediaType.STATUSBAR and barRequired and barRequired == key ) then
-		barRequired = nil
-		
-		for frame in pairs(mediaRequired) do
-			self:ApplyAll(frame)
-		end
-		
-	elseif( mediaType == SML.MediaType.FONT and fontRequired and fontRequired == key ) then
-		fontRequired = nil
 
-		for frame in pairs(mediaRequired) do
+function Layout:ReloadAll()
+	for frame in pairs(frameList) do
+		if( frame:IsShown() ) then
 			self:ApplyAll(frame)
-		end
-	end
-	
-	if( not fontRequired and not barRequired ) then
-		for frame in pairs(mediaRequired) do
-			mediaRequired[frame] = nil
 		end
 	end
 end
@@ -62,6 +83,7 @@ function Layout:LoadSML()
 	SML.RegisterCallback(self, "LibSharedMedia_Registered", "MediaRegistered")
 
 	SML:Register(SML.MediaType.FONT, "Myriad Condensed Web", "Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf")
+	SML:Register(SML.MediaType.BACKGROUND, "Chat Frame", "Interface\\ChatFrame\\ChatFrameBackground")
 	SML:Register(SML.MediaType.STATUSBAR, "BantoBar", "Interface\\Addons\\ShadowedUnitFrames\\media\\textures\\banto")
 	SML:Register(SML.MediaType.STATUSBAR, "Smooth",   "Interface\\Addons\\ShadowedUnitFrames\\media\\textures\\smooth")
 	SML:Register(SML.MediaType.STATUSBAR, "Perl",     "Interface\\Addons\\ShadowedUnitFrames\\media\\textures\\perl")
@@ -161,14 +183,14 @@ function Layout:ApplyUnitFrame(frame, config)
 	local layout = ShadowUF.db.profile.layout
 	local id = layout.backdrop.backgroundTexture .. layout.backdrop.borderTexture .. layout.backdrop.tileSize .. layout.backdrop.edgeSize .. layout.backdrop.tileSize .. layout.backdrop.inset
 	local backdrop = backdropCache[id] or {
-			bgFile = layout.backdrop.backgroundTexture,
-			edgeFile = layout.backdrop.borderTexture,
+			bgFile = mediaPath.background,
+			edgeFile = mediaPath.border,
 			tile = layout.backdrop.tileSize > 0 and true or false,
 			edgeSize = layout.backdrop.edgeSize,
 			tileSize = layout.backdrop.tileSize,
 			insets = {left = layout.backdrop.inset, right = layout.backdrop.inset, top = layout.backdrop.inset, bottom = layout.backdrop.inset}
 	}
-	
+		
 	frame:SetHeight(config.height)
 	frame:SetWidth(config.width)
 	frame:SetScale(config.scale)
@@ -181,22 +203,8 @@ function Layout:ApplyUnitFrame(frame, config)
 		self:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[frame.unitType])
 	end
 	
-	-- Grab media needed for this layout, if we can't find the media then flag that we need it still
-	frame.barTexture = SML:Fetch(SML.MediaType.STATUSBAR, layout.general.barTexture, true)
-	if( not frame.barTexture ) then
-		frame.barTexture = "Interface\\Addons\\ShadowedUnitFrames\\media\\textures\\Aluminium"
-		barRequired = layout.general.barTexture
-		mediaRequired[frame] = true
-	end
-
-	frame.fontPath = SML:Fetch(SML.MediaType.font, layout.font.name, true)
-
-	if( not frame.fontPath ) then
-		frame.fontPath = "Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf"
-		fontRequired = layout.font.name
-		mediaRequired[frame] = true
-	end
-	
+	frameList[frame] = true
+		
 	-- Check our queue
 	for queuedFrame in pairs(anchoringQueued) do
 		if( queuedFrame.queuedName == frame:GetName() ) then
@@ -250,10 +258,10 @@ function Layout:ApplyBarVisuals(frame, config)
 	-- Update health bars
 	self:ToggleVisibility(frame.healthBar, frame.healthBar and frame.healthBar.isEnabled)
 	if( frame.healthBar and frame.healthBar:IsShown() ) then
-		frame.healthBar:SetStatusBarTexture(frame.barTexture)
+		frame.healthBar:SetStatusBarTexture(mediaPath.statusbar)
 		
 		if( config.healthBar.background ) then
-			frame.healthBar.background:SetTexture(frame.barTexture)
+			frame.healthBar.background:SetTexture(mediaPath.statusbar)
 			frame.healthBar.background:Show()
 		else
 			frame.healthBar.background:Hide()
@@ -263,10 +271,10 @@ function Layout:ApplyBarVisuals(frame, config)
 	-- Update mana bars
 	self:ToggleVisibility(frame.powerBar, frame.powerBar and frame.powerBar.isEnabled)
 	if( frame.powerBar and frame.powerBar:IsShown() ) then
-		frame.powerBar:SetStatusBarTexture(frame.barTexture)
+		frame.powerBar:SetStatusBarTexture(mediaPath.statusbar)
 
 		if( config.powerBar.background ) then
-			frame.powerBar.background:SetTexture(frame.barTexture)
+			frame.powerBar.background:SetTexture(mediaPath.statusbar)
 			frame.powerBar.background:Show()
 		else
 			frame.powerBar.background:Hide()
@@ -276,10 +284,10 @@ function Layout:ApplyBarVisuals(frame, config)
 	-- Update cast bars
 	self:ToggleVisibility(frame.castBar, frame.castBar and frame.castBar.isEnabled)
 	if( frame.castBar and frame.castBar:IsShown() ) then
-		frame.castBar:SetStatusBarTexture(frame.barTexture)
+		frame.castBar:SetStatusBarTexture(mediaPath.statusbar)
 
 		if( config.castBar.background ) then
-			frame.castBar.background:SetTexture(frame.barTexture)
+			frame.castBar.background:SetTexture(mediaPath.statusbar)
 			frame.castBar.background:Show()
 		else
 			frame.castBar.background:Hide()
@@ -289,11 +297,11 @@ function Layout:ApplyBarVisuals(frame, config)
 	-- Update XP bar
 	self:ToggleVisibility(frame.xpBar, frame.xpBar and frame.xpBar.isEnabled)
 	if( frame.xpBar and frame.xpBar:IsShown() ) then
-		frame.xpBar:SetStatusBarTexture(frame.barTexture)
-		frame.xpBar.rested:SetStatusBarTexture(frame.barTexture)
+		frame.xpBar:SetStatusBarTexture(mediaPath.statusbar)
+		frame.xpBar.rested:SetStatusBarTexture(mediaPath.statusbar)
 		
 		if( config.xpBar.background ) then
-			frame.xpBar.background:SetTexture(frame.barTexture)
+			frame.xpBar.background:SetTexture(mediaPath.statusbar)
 			frame.xpBar.background:Show()
 		else
 			frame.xpBar.background:Hide()
@@ -315,7 +323,7 @@ end
 function Layout:ApplyText(frame, config)
 	-- Update cast bar text
 	if( frame.castBar and frame.castBar:IsShown() ) then
-			frame.castBar.name:SetFont(frame.fontPath, ShadowUF.db.profile.layout.font.size)
+			frame.castBar.name:SetFont(mediaPath.font, ShadowUF.db.profile.layout.font.size)
 			frame.castBar.name:SetWidth(frame.castBar:GetWidth() * 0.80)
 			frame.castBar.name:SetHeight(ShadowUF.db.profile.layout.font.size + 1)
 			frame.castBar.name:SetJustifyH(self:GetJustify(config.castBar.castName))
@@ -323,7 +331,7 @@ function Layout:ApplyText(frame, config)
 
 			updateShadows(frame.castBar.name)
 			
-			frame.castBar.time:SetFont(frame.fontPath, ShadowUF.db.profile.layout.font.size)
+			frame.castBar.time:SetFont(mediaPath.font, ShadowUF.db.profile.layout.font.size)
 			frame.castBar.time:SetWidth(frame.castBar:GetWidth() * 0.20)
 			frame.castBar.time:SetHeight(ShadowUF.db.profile.layout.font.size + 1)
 			frame.castBar.time:SetJustifyH(self:GetJustify(config.castBar.castTime))
@@ -351,7 +359,7 @@ function Layout:ApplyText(frame, config)
 		local parent = row.anchorTo == "$parent" and frame or frame[string.sub(row.anchorTo, 2)]
 		if( parent and row.enabled ) then
 			local fontString = frame.fontStrings[id] or frame:CreateFontString(nil, "ARTWORK")
-			fontString:SetFont(frame.fontPath, ShadowUF.db.profile.layout.font.size)
+			fontString:SetFont(mediaPath.font, ShadowUF.db.profile.layout.font.size)
 			fontString:SetText(row.text)
 			fontString:SetParent(parent)
 			fontString:SetJustifyH(self:GetJustify(row))

@@ -1,5 +1,5 @@
 local Config = ShadowUF:NewModule("Config")
-local options, AceDialog, AceRegistry, registered
+local AceDialog, AceRegistry, SML, registered, options
 local L = ShadowUFLocals
 
 --[[
@@ -12,31 +12,420 @@ local function selectDialogGroup(group, key)
 	AceRegistry:NotifyChange("ShadowedUF")
 end
 
+local function isUnitHidden(info)
+	return not ShadowUF.db.profile.units[info[#(info)]].enabled
+end
+
+local function checkAdvancedStatus(info)
+	return not ShadowUF.db.profile.advanced
+end
+
+---------------------
+-- GENERAL CONFIGURATION
+---------------------
+local function loadGeneralOptions()
+	SML = SML or LibStub:GetLibrary("LibSharedMedia-3.0")
+	
+	local function set(info, value)
+		ShadowUF.db.profile.layout[info[#(info) - 1]][info[#(info)]] = value
+
+		ShadowUF.Layout:CheckMedia()
+		ShadowUF.Layout:ReloadAll()
+	end
+	
+	local function get(info)
+		return ShadowUF.db.profile.layout[info[#(info) - 1]][info[#(info)]]
+	end
+	
+	local function setColor(info, r, g, b, a)
+		local parent = info[#(info) - 1]
+		local key = info.arg or info[#(info)]
+		
+		if( parent == "color" ) then
+			parent = info.arg and "powerColor" or "healthColor"
+		end
+
+		ShadowUF.db.profile.layout[parent][key].r = r
+		ShadowUF.db.profile.layout[parent][key].g = g
+		ShadowUF.db.profile.layout[parent][key].b = b
+		ShadowUF.db.profile.layout[parent][key].a = a
+		
+		ShadowUF.Layout:ReloadAll()
+	end
+	
+	local function getColor(info)
+		local parent = info[#(info) - 1]
+		local key = info.arg or info[#(info)]
+		
+		if( parent == "color" ) then
+			parent = info.arg and "powerColor" or "healthColor"
+		end
+		
+		return ShadowUF.db.profile.layout[parent][key].r, ShadowUF.db.profile.layout[parent][key].g, ShadowUF.db.profile.layout[parent][key].b, ShadowUF.db.profile.layout[parent][key].a
+	end
+	
+	local MediaList = {}
+	local function getMediaData(info)
+		if( MediaList[info.arg] ) then
+			for k in pairs(MediaList[info.arg]) do
+				MediaList[info.arg][k] = nil
+			end
+		else
+			MediaList[info.arg] = {}
+		end
+		
+		if( info.arg ~= SML.MediaType.FONT ) then
+			MediaList[info.arg][""] = L["None"]
+		end
+		
+		for _, name in pairs(SML:List(info.arg)) do
+			MediaList[info.arg][name] = name
+		end
+		
+		return MediaList[info.arg]
+	end
+	
+	options.args.general = {
+		type = "group",
+		childGroups = "tab",
+		name = L["General"],
+		args = {
+			general = {
+				type = "group",
+				order = 1,
+				name = L["General"],
+				set = set,
+				get = get,
+				args = {
+					units = {
+						order = 0,
+						type = "group",
+						inline = true,
+						name = L["Enable units"],
+						args = {},
+					},
+					backdrop = {
+						order = 1,
+						type = "group",
+						inline = true,
+						name = L["Background/border"],
+						args = {
+							backgroundTexture = {
+								order = 1,
+								type = "select",
+								name = L["Background"],
+								dialogControl = "LSM30_Background",
+								values = getMediaData,
+								arg = SML.MediaType.BACKGROUND,
+							},
+							borderTexture = {
+								order = 2,
+								type = "select",
+								name = L["Border"],
+								dialogControl = "LSM30_Border",
+								values = getMediaData,
+								arg = SML.MediaType.BORDER,
+							},
+							sep = {
+								order = 2.5,
+								type = "description",
+								name = "",
+								width = "full",
+							},
+							backgroundColor = {
+								order = 3,
+								type = "color",
+								name = L["Background color"],
+								hasAlpha = true,
+								set = setColor,
+								get = getColor,
+							},
+							borderColor = {
+								order = 4,
+								type = "color",
+								name = L["Border color"],
+								hasAlpha = true,
+								set = setColor,
+								get = getColor,
+							},
+						},
+					},
+					font = {
+						order = 2,
+						type = "group",
+						inline = true,
+						name = L["Font"],
+						args = {
+							name = {
+								order = 1,
+								type = "select",
+								name = L["Font"],
+								dialogControl = "LSM30_Font",
+								values = getMediaData,
+								arg = SML.MediaType.FONT,
+							},
+							size = {
+								order = 2,
+								type = "range",
+								name = L["Size"],
+								min = 1,
+								max = 20,
+								step = 1,
+							},
+						},
+					},
+					color = {
+						order = 3,
+						type = "group",
+						inline = true,
+						name = L["Bar colors"],
+						set = setColor,
+						get = getColor,
+						args = {
+							mana = {
+								order = 0,
+								type = "color",
+								hasAlpha = true,
+								name = L["Mana"],
+								arg = 0,
+								width = "half",
+							},
+							rage = {
+								order = 1,
+								type = "color",
+								hasAlpha = true,
+								name = L["Mana"],
+								arg = 1,
+								width = "half",
+							},
+							focus = {
+								order = 2,
+								type = "color",
+								hasAlpha = true,
+								name = L["Focus"],
+								arg = 2,
+								width = "half",
+							},
+							energy = {
+								order = 3,
+								type = "color",
+								hasAlpha = true,
+								name = L["Energy"],
+								arg = 3,
+								width = "half",
+							},
+							runes = {
+								order = 4,
+								type = "color",
+								hasAlpha = true,
+								name = L["Runes"],
+								arg = 5,
+								width = "half",
+							},
+							happiness = {
+								order = 5,
+								type = "color",
+								hasAlpha = true,
+								name = L["Happiness"],
+								arg = 4,
+							},
+							rp = {
+								order = 6,
+								type = "color",
+								hasAlpha = true,
+								name = L["Runic Power"],
+								arg = 6,
+							},
+							green = {
+								order = 7,
+								type = "color",
+								name = L["Health color"],
+								desc = L["Standard health bar color"],
+							},
+						},
+					},
+				},
+			},
+			profile = {
+				type = "group",
+				order = 2,
+				name = L["Profiles"],
+				args = {},
+			},
+			layout = {
+				type = "group",
+				order = 3,
+				name = L["Layout management"],
+				args = {}
+			},
+			tags = {
+				type = "group",
+				order = 4,
+				name = L["Tag management"],
+				args = {},
+			},
+		},
+	}
+
+	for order, unit in pairs(ShadowUF.units) do
+		options.args.general.args.general.args.units.args[unit] = {
+			order = order,
+			type = "toggle",
+			name = L[unit],
+			set = function(info, value)
+				ShadowUF.db.profile.units[info[#(info)]].enabled = value
+				ShadowUF:LoadUnits()
+			end,
+			get = function(info) return ShadowUF.db.profile.units[info[#(info)]].enabled end,
+		}
+	end
+end
+
 ---------------------
 -- UNIT CONFIGURATION
 ---------------------
 local function loadUnitOptions()
+	local modifyUnits = {}
+		
 	local function loadUnit(unit, order)
-		options.args.units[unit] = {
+		return {
 			type = "group",
-			order = order,
+			childGroups = "tab",
+			order = order + 1,
+			hidden = isUnitHidden,
 			name = L[unit],
-			args = {},
+			args = {
+				bars = {
+					order = 1,
+					name = "Bars",
+					type = "group",
+					args = {},
+				},
+				auras = {
+					order = 1,
+					name = "Auras",
+					type = "group",
+					args = {},
+				},
+			},
 		}
 	end
-	
 	
 	options.args.units = {
 		type = "group",
 		name = L["Units"],
-		args = {},
+		args = {
+			global = {
+				type = "group",
+				childGroups = "tab",
+				order = 0,
+				name = L["Global"],
+				args = {
+					units = {
+						order = 0,
+						type = "group",
+						inline = true,
+						name = L["Units to modify"],
+						set = function(info, value) if( IsShiftKeyDown() ) then for unit in pairs(unitList) do modifyUnits[unit] = value end end modifyUnits[info[#(info)]] = value end,
+						get = function(info) return modifyUnits[info[#(info)]] end,
+						args = {},
+					},
+				},
+			},
+		},
 	}
 	
+	-- Load global unit
+	for k, v in pairs(loadUnit("global", 2).args) do
+		options.args.units.args.global.args[k] = v
+	end
+
+	for order, unit in pairs(ShadowUF.units) do
+		options.args.units.args.global.args.units.args[unit] = {
+			order = order,
+			type = "toggle",
+			name = L[unit],
+			hidden = isUnitHidden,
+			desc = string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], L[unit]),
+		}
+	end
+
 	-- Load units already enabled
 	for order, unit in pairs(ShadowUF.units) do
-		if( ShadowUF.db.profile.units[unit] and ShadowUF.db.profile.units[unit].enabled ) then
-			loadUnit(unit, order)
-		end
+		options.args.units.args[unit] = loadUnit(unit, order)
+	end
+end
+
+---------------------
+-- LAYOUT CONFIGURATION
+---------------------
+local function loadLayoutOptions()
+	local unitList = {}
+	local modifyUnits = {}
+		
+	local function loadUnit(unit, order)
+		return {
+			type = "group",
+			childGroups = "tab",
+			order = order + 1,
+			name = L[unit],
+			hidden = isUnitHidden,
+			args = {
+				bars = {
+					order = 1,
+					name = "Bars",
+					type = "group",
+					args = {},
+				},
+				auras = {
+					order = 1,
+					name = "Auras",
+					type = "group",
+					args = {},
+				},
+			},
+		}
+	end
+	
+	options.args.layout = {
+		type = "group",
+		name = L["Layout"],
+		args = {
+			global = {
+				type = "group",
+				childGroups = "tab",
+				order = 0,
+				name = L["Global"],
+				args = {
+					units = {
+						order = 0,
+						type = "group",
+						inline = true,
+						name = L["Units to modify"],
+						set = function(info, value) if( IsShiftKeyDown() ) then for unit in pairs(unitList) do modifyUnits[unit] = value end end modifyUnits[info[#(info)]] = value end,
+						get = function(info) return modifyUnits[info[#(info)]] end,
+						args = {},
+					},
+				},
+			},
+		},
+	}
+		
+	-- Load global unit
+	for k, v in pairs(loadUnit("global", 2).args) do
+		options.args.layout.args.global.args[k] = v
+	end
+
+	for order, unit in pairs(ShadowUF.units) do
+		options.args.layout.args.global.args.units.args[unit] = {
+			order = order,
+			type = "toggle",
+			name = L[unit],
+			hidden = isUnitHidden,
+			desc = string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], L[unit]),
+		}
+	
+		options.args.layout.args[unit] = loadUnit(unit, order)
 	end
 end
 
@@ -385,6 +774,7 @@ local function loadVisibilityOptions()
 				order = order,
 				inline = true,
 				name = L[unit],
+				hidden = isUnitHidden,
 				args = {
 					[unit] = {
 						order = 0,
@@ -443,21 +833,21 @@ local function loadOptions()
 		args = {}
 	}
 	
+	loadGeneralOptions()
+	loadLayoutOptions()
 	loadUnitOptions()
 	loadTagOptions()
 	loadVisibilityOptions()	
 	
-	options.args.layout = {
-		type = "group",
-		name = L["Layout"],
-		args = {},
-	}
-	
 	-- Ordering
+	options.args.general.order = 0
 	options.args.units.order = 1
 	options.args.layout.order = 2
 	options.args.visibility.order = 3
 	options.args.tags.order = 4
+	
+	-- Debug mostly
+	Config.options = options
 	
 	-- Options finished loading, fire callback for any non-default modules that want to be included
 	ShadowUF:FireModuleEvent("ConfigurationLoaded", options)
@@ -475,7 +865,7 @@ SlashCmdList["SSUF"] = function(msg)
 		loadOptions()
 		
 		LibStub("AceConfig-3.0"):RegisterOptionsTable("ShadowedUF", options)
-		AceDialog:SetDefaultSize("ShadowedUF", 725, 525)
+		AceDialog:SetDefaultSize("ShadowedUF", 810, 500)
 		registered = true
 	end
 

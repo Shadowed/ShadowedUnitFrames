@@ -298,7 +298,7 @@ function ShadowUF:SetLayout(name, importPositions)
 		-- Load all of the configuration, make units inherit everything etc etc
 		for _, unit in pairs(units) do
 			self.db.profile.layout[unit] = self.db.profile.layout[unit] or {}
-			
+						
 			-- Import the "module" settings in
 			self:CopyLayoutSettings("text", unit)
 			for key in pairs(self.moduleNames) do

@@ -173,7 +173,7 @@ ShadowUF:RegisterLayout("Default", {
 			tileSize = 1,
 			edgeSize = 0,
 			inset = 3,
-			backgroundTexture = "Interface\\\\ChatFrame\\\\ChatFrameBackground",
+			backgroundTexture = "Chat Frame",
 			backgroundColor = {r = 0, g = 0, b = 0, a = 0.80},
 			borderTexture = "",
 			borderColor = {r = 0.30, g = 0.30, b = 0.50, a = 1},
@@ -186,13 +186,13 @@ ShadowUF:RegisterLayout("Default", {
 			shadowY = -0.80,
 		},
 		powerColor = {
-			[0] = {r = 0.30, g = 0.50, b = 0.85},
-			[1] = {r = 0.90, g = 0.20, b = 0.30},
-			[2] = {r = 1.0, g = 0.85, b = 0},
-			[3] = {r = 1.0, g = 0.85, b = 0.10},
-			[4] = {r = 0, g = 1.0, b = 1.0},
-			[5] = {r = 0.50, g = 0.50, b = 0.50},
-			[6] = {b = 0.60, g = 0.45, r = 0.35},
+			[0] = {r = 0.30, g = 0.50, b = 0.85}, -- Mana
+			[1] = {r = 0.90, g = 0.20, b = 0.30}, -- Rage
+			[2] = {r = 1.0, g = 0.85, b = 0}, -- Focus (Hunter pets)
+			[3] = {r = 1.0, g = 0.85, b = 0.10}, -- Energy
+			[4] = {r = 0, g = 1.0, b = 1.0}, -- Happiness
+			[5] = {r = 0.50, g = 0.50, b = 0.50}, -- Runes
+			[6] = {b = 0.60, g = 0.45, r = 0.35}, -- Runic Power
 		},
 		healthColor = {
 			tapped = {r = 0.5, g = 0.5, b = 0.5},

@@ -33,6 +33,46 @@ ShadowUFLocals = {
 	["General"] = "General",
 	["Search tag"] = "Search tag",
 	
+	-- Units
+	["Global"] = "Global",
+	["global"] = "Global",
+	["Modify settings"] = "Modify settings",
+	["Units to modify"] = "Units to modify",
+	["Adds %s to the list of units to be modified when you change values in this tab."] = "Adds %s to the list of units to be modified when you change values in this tab.",
+	
+	-- General
+	["Layout management"] = "Layout management",
+	["Tag management"] = "Tag management",
+	["Profiles"] = "Profiles",
+	["Enable units"] = "Enable units",
+	["Bar colors"] = "Bar colors",
+	["Power bar"] = "Power bar",
+	["Mana"] = "Mana",
+	["Rage"] = "Rage",
+	["Focus"] = "Focus",
+	["Energy"] = "Energy",
+	["Happiness"] = "Happiness",
+	["Runes"] = "Runes",
+	["Runic Power"] = "Runic Power",
+	["Health bar"] = "Health bar",
+	["Color"] = "Color",
+	["Standard health bar color"] = "Standard health bar color",
+	["Color to use when a mob is tapped by someone besides yourself or your group."] = "Color to use when a mob is tapped by someone besides yourself or your group.",
+	["Background/border"] = "Background/border",
+	["Font"] = "Font",
+	["Size"] = "Size",
+	["Background"] = "Background",
+	["Border"] = "Border",
+	["Border color"] = "Border color",
+	["Background color"] = "Background color",
+	["Tapped"] = "Tapped",
+	["Tapped color"] = "Tapped color",
+	["Health color"] = "Health color",
+	["None"] = "None",
+	
+	-- Layout
+	["Layout"] = "Layout",
+	
 	-- Tags
 	["Events"] = "Events",
 	["Edit"] = "Edit",

@@ -164,7 +164,10 @@ end
 function Units:LoadUnit(config, unit)
 	-- Already be loaded, just enable
 	if( unitFrames[unit] ) then
-		RegisterUnitWatch(unitFrames[unit])
+		unitFrames[unit]:SetAttribute(unit)
+		unitFrames[unit]:Show()
+		
+		--RegisterUnitWatch(unitFrames[unit])
 		return
 	end
 	
@@ -311,15 +314,15 @@ function Units:InitializeFrame(config, type)
 	end
 end
 
-function Units:UninitializeFrame(type)
+function Units:UninitializeFrame(config, type)
 	if( not loadedUnits[type] ) then return end
 	loadedUnits[type] = nil
 	
 	for _, frame in pairs(unitFrames) do
 		if( frame.unitType == type ) then
-			UnregisterUnitWatch(frame)
+			--UnregisterUnitWatch(frame)
 			
-			ShadowUF:FireModuleEvent("UnitDisabled", self, self.unitType)
+			ShadowUF:FireModuleEvent("UnitDisabled", frame, frame.unitType)
 			
 			frame:SetAttribute("unit", nil)
 			frame:Hide()
