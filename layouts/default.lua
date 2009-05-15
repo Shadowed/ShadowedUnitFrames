@@ -82,8 +82,6 @@ local L = ShadowUFLocals
 				powerBar = <see powerBar below>, -- Mana bar configuration for this unit
 				xpBar = <see xpBar below>, -- XP bar configuration for this unit
 				portrait = <see portrait below>, -- Portrait configuration for this unit
-				text = <see text below>, -- Text configuration for this unit
-				<position arguments> -- See above
 			},
 			-- Accepts all attributes listed http://wowprogramming.com/docs/secure_template/Group_Headers by key
 			<party/raid> = {
@@ -98,7 +96,6 @@ local L = ShadowUFLocals
 			-- For example if you have {portrait = enabled, player = {portrait = {enabled = false}}} then portraits will be
 			-- enabled for all units EXCEPT for players. Users cannot configure inherited values.
 			portrait = {
-				enabled = true/false, -- Enable portraits
 				alignment = "LEFT/RIGHT", -- How to align the portraits, target units have it auto swapped so if this is LEFT, it'll be RIGHT for target automatically
 				width = #.#, -- Percentage of bar width to use, 0.25 will use 25% of the bars width.
 			},
@@ -119,8 +116,6 @@ local L = ShadowUFLocals
 				width = #.#, -- How much of the available width should be used, 1.0 will use up all available width.
 				order = #, -- Ordering, lower number means it shows up higher on the list
 				background = true/false, -- Show a background behind the bar
-				castName = <position arguments>, -- How to position the cast name, see above for more info
-				castTime = <position arguments>, -- How to position the cast time, see above for more info
 			},
 			xpBar = {
 				heightWeight = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
@@ -128,31 +123,6 @@ local L = ShadowUFLocals
 				order = #, -- Ordering, lower number means it shows up higher on the list
 				background = true/false, -- Show a background behind the bar
 			},
-			-- Font strings to use inside this unit
-			text = {
-				{
-				name = "<name>", -- Display name for this text
-				widthPercent = #.#, -- Percent of bars width to use for this
-				text = "<text>", -- Actual text with tags to use
-				<position arguments> -- See above
-			},
-			-- All indicators use the same format
-			indicators = {
-				<indicator format> = {
-					enabled = true/false, -- Enable this indicator
-					width = #, -- Icon width
-					height = #, -- Icon height
-					
-					<position arguments>, -- See above for these
-				},
-				
-				status = <indicator format>, -- Show status (Rested/In Combat)
-				pvpFlag = <indicator format>, -- Show PVP flag if any (Flagged PvP/Flagged FFA)
-				leader = <indicator format>, -- Show crown if the units party/raid leader
-				masterLoot = <indicator format>, -- Show master looter icon
-				raidTarget = <indicator format>, -- Show raid target icon
-				happiness = <indicator format>, -- Show pet happiness
-			}
 		}
 	]]
 
@@ -171,11 +141,11 @@ ShadowUF:RegisterLayout("Default", {
 		},
 		backdrop = {
 			tileSize = 1,
-			edgeSize = 0,
+			edgeSize = 5,
 			inset = 3,
 			backgroundTexture = "Chat Frame",
 			backgroundColor = {r = 0, g = 0, b = 0, a = 0.80},
-			borderTexture = "",
+			borderTexture = "None",
 			borderColor = {r = 0.30, g = 0.30, b = 0.50, a = 1},
 		},
 		font = {
@@ -206,37 +176,32 @@ ShadowUF:RegisterLayout("Default", {
 		},
 		-- Default unit options
 		portrait = {
-			enabled = true,
 			alignment = "LEFT",
 			width = 0.22,
 		},
 		healthBar = {
-			enabled = true,
 			background = true,
 			heightWeight = 1.20,
 			width = 1.0,
-			order = 0,
+			order = 10,
 		},
 		powerBar = {
-			enabled = true,
 			background = true,
 			heightWeight = 1.0,
 			width = 1.0,
-			order = 1,
+			order = 20,
 		},
 		xpBar = {
-			enabled = true,
 			background = true,
 			heightWeight = 0.25,
 			width = 1.0,
-			order = 2,
+			order = 30,
 		},
 		castBar = {
-			enabled = false,
 			background = true,
 			heightWeight = 0.60,
 			width = 1.0,
-			order = 3,
+			order = 40,
 		},
 		positions = {
 			raid = {point = "CENTER", anchorTo = "UIParent", relativePoint = "CENTER", x = 100, y = -100},

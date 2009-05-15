@@ -53,7 +53,7 @@ end
 
 function Layout:ReloadAll(unit)
 	for frame in pairs(frameList) do
-		if( frame:IsShown() and ( not unit or frame.unitType == unit ) ) then
+		if( not unit or frame.unitType == unit ) then
 			frame:SetVisibility()
 			self:ApplyAll(frame)
 		end
@@ -116,8 +116,8 @@ local preDefRelative = {ICL = "LEFT", RT = "TOPRIGHT", BC = "BOTTOM", ICR = "RIG
 
 -- Figures out how text should be justified based on where it's anchoring
 function Layout:GetJustify(config)
-	local point = config.anchorPoint and preDefPoint[config.anchorPoint] or config.point
-	if( point ) then
+	local point = config.anchorPoint and config.anchorPoint ~= "" and preDefPoint[config.anchorPoint] or config.point
+	if( point and point ~= "" ) then
 		if( string.match(point, "LEFT$") ) then
 			return "LEFT"
 		elseif( string.match(point, "RIGHT$") ) then
@@ -175,7 +175,7 @@ function Layout:AnchorFrame(parent, frame, config)
 
 	frame:ClearAllPoints()
 	
-	if( config.anchorPoint ) then
+	if( config.anchorPoint and config.anchorPoint ~= "" ) then
 		frame:SetPoint(preDefPoint[config.anchorPoint], anchorTo, preDefRelative[config.anchorPoint], config.x / scale, config.y / scale)
 	else
 		frame:SetPoint(config.point, anchorTo, config.relativePoint, config.x / scale, config.y / scale)
@@ -228,6 +228,7 @@ function Layout:ApplyPortrait(frame, config)
 	
 	self:ToggleVisibility(frame.portrait, frame.visibility.portrait)
 	if( frame.portrait and frame.portrait:IsShown() ) then
+		frame.portrait:ClearAllPoints()
 		frame.portrait:SetHeight(config.height - (clip * 2))
 		frame.portrait:SetWidth(config.width * config.portrait.width)
 

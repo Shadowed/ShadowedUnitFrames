@@ -34,6 +34,7 @@ ShadowUFLocals = {
 	["Search tag"] = "Search tag",
 	
 	-- Positions
+	["Center"] = "Center",
 	["Right Top"] = "Right Top",
 	["Right Center"] = "Right Center",
 	["Right Bottom"] = "Right Bottom",
@@ -107,8 +108,6 @@ ShadowUFLocals = {
 	["Text"] = "Text",
 	["Help"] = "Help",
 	["Tag wizard"] = "Tag wizard",
-	["healthBar"] = "Health bar",
-	["powerBar"] = "Power bar",
 	["Show your auras only"] = "Show your auras only",
 	["Filter out any auras that you did not cast yourself."] = "Filter out any auras that you did not cast yourself.",
 	["Show castable on other auras only"] = "Show castable on other auras only",
@@ -116,14 +115,34 @@ ShadowUFLocals = {
 	
 	-- Layout
 	["Layout"] = "Layout",
-	["Height"] = "Height",
+	["Point"] = "Point",
+	["Relative point"] = "Relative point",
 	["How much of the frames total height this bar should get, this is a weighted value, the higher it is the more it gets."] = "How much of the frames total height this bar should get, this is a weighted value, the higher it is the more it gets.",
+	["Anchor"] = "Anchor",
+	["%s frames"] = "%s frames",
+	["Offset"] = "Offset",
+	["Manual position"] = "Manual position",
+	["Anchor to another frame"] = "Anchor to another frame",
+	["Or you can set a position manually"] = "Or you can set a position manually",
+	["Widget size"] = "Widget size",
+	["Width percent"] = "Width percent",
+	["Percentage of width the portrait should use."] = "Percentage of width the portrait should use.",
+	["Order"] = "Order",
+	["Show background"] = "Show background",
+	["Show a background behind the bars with the same texture/color but faded out."] = "Show a background behind the bars with the same texture/color but faded out.",
+	["Alignment"] = "Alignment",
+	["Show background"] = "Show background",
 	
 	-- General
 	["Lock frames"] = "Lock frames",
 	["Advanced"] = "Advanced",
 	["Enabling advanced settings will allow you to further tweak settings. This is meant for people who want to tweak every single thing, and should not be enabled by default as it increases the options."] = "Enabling advanced settings will allow you to further tweak settings. This is meant for people who want to tweak every single thing, and should not be enabled by default as it increases the options.",
-
+	["Edge size"] = "Edge size",
+	["How large the edges should be."] = "How large the edges should be.",
+	["Tile size"] = "Tile size",
+	["How large the background should tile"] = "How large the background should tile",
+	["Inset"] = "Inset",
+	["How far into the frame the background will be shown"] = "How far into the frame the background will be shown",
 	["Layout management"] = "Layout management",
 	["Tag management"] = "Tag management",
 	["Profiles"] = "Profiles",
@@ -184,12 +203,12 @@ ShadowUFLocals = {
 	
 	-- Visibility
 	["Visibility"] = "Visibility",
-	["Battlegrounds"] = "Battlegrounds",
-	["Arenas"] = "Arenas",
-	["Party instances"] = "Party instances",
-	["Raid instances"] = "Raid instances",
 	["Enable %s frames"] = "Enable %s frames",
 	["You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone."] = "You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone.",
+	["pvp"] = "Battlegrounds",
+	["arena"] = "Arenas",
+	["party"] = "Party instances",
+	["raid"] = "Raid instances",
 	
 	-- Unit names
 	["player"] = "Player",
@@ -211,7 +230,7 @@ ShadowUFLocals = {
 	["Portrait"] = "Portrait",
 	["Power bar"] = "Power bar",
 	["Combat text"] = "Combat text",
-	
+
 	-- Tag help
 	["Unit name colored by class."] = "Unit name colored by class.",
 	["Units classification, Rare, Rare Elite, Elite, Boss, nothing is shown if they aren't any of those."] = "Units classification, Rare, Rare Elite, Elite, Boss, nothing is shown if they aren't any of those.",
