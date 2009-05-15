@@ -24,14 +24,14 @@ local function cancelBuff(self)
 end
 
 function Auras:UnitEnabled(frame, unit)
-	if( not frame.unitConfig.auras ) then
+	if( not frame.visibility.auras or not frame.unitConfig.auras ) then
 		return
 	end
 	
+	self.CreateIcons(frame)
+
 	frame:RegisterUnitEvent("UNIT_AURA", self.Update)
 	frame:RegisterUpdateFunc(self.Update)
-	
-	self.CreateIcons(frame)
 end
 
 function Auras:UnitDisabled(frame, unit)
@@ -51,62 +51,66 @@ function Auras.UpdateFilter(self, config)
 	self.filter = table.concat(filterTable, "|") or ""
 end
 
-function Auras.CreateIcons(self)
-	self.auras = self.auras or {}
-	for key, config in pairs(self.unitConfig.auras) do
-			self.auras[key] = self.auras[key] or CreateFrame("Frame", nil, self)
-			local aura = self.auras[key]
-			aura.buttons = aura.buttons or {}
-			aura.maxIcons = config.inColumn * config.rows
-			aura.parent = self
-			
-			for i=#(aura.buttons)+1, aura.maxIcons do
-				aura.buttons[i] = CreateFrame("Button", nil,aura)
-				local button = aura.buttons[i]
-				button.aura = {}
-				button:SetScript("OnEnter", showTooltip)
-				button:SetScript("OnLeave", hideTooltip)
-				button:SetScript("OnClick", cancelBuff)
-				button:RegisterForClicks("RightButtonUp")
-				
-				button.cooldown = CreateFrame("Cooldown", nil, button)
-				button.cooldown:SetAllPoints(button)
-				button.cooldown:SetReverse(true)
-				button.cooldown:Hide()			
-				
-				button.stack = button:CreateFontString(nil, "OVERLAY")
-				button.stack:SetFont("Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf", 10, "OUTLINE")
-				button.stack:SetShadowColor(0, 0, 0, 1.0)
-				button.stack:SetShadowOffset(0.8, -0.8)
-				button.stack:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 1, 0)
-				button.stack:SetWidth(18)
-				button.stack:SetHeight(10)
-				button.stack:SetJustifyH("RIGHT")
+local function createAnchor(self, key, config)
+	self.auras[key] = self.auras[key] or CreateFrame("Frame", nil, self)
+	local aura = self.auras[key]
+	aura.buttons = aura.buttons or {}
+	aura.maxIcons = config.inColumn * config.rows
+	aura.parent = self
+	
+	for i=#(aura.buttons)+1, aura.maxIcons do
+		aura.buttons[i] = CreateFrame("Button", nil,aura)
+		local button = aura.buttons[i]
+		button.aura = {}
+		button:SetScript("OnEnter", showTooltip)
+		button:SetScript("OnLeave", hideTooltip)
+		button:SetScript("OnClick", cancelBuff)
+		button:RegisterForClicks("RightButtonUp")
+		
+		button.cooldown = CreateFrame("Cooldown", nil, button)
+		button.cooldown:SetAllPoints(button)
+		button.cooldown:SetReverse(true)
+		button.cooldown:Hide()			
+		
+		button.stack = button:CreateFontString(nil, "OVERLAY")
+		button.stack:SetFont("Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf", 10, "OUTLINE")
+		button.stack:SetShadowColor(0, 0, 0, 1.0)
+		button.stack:SetShadowOffset(0.8, -0.8)
+		button.stack:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", 1, 0)
+		button.stack:SetWidth(18)
+		button.stack:SetHeight(10)
+		button.stack:SetJustifyH("RIGHT")
 
-				button.border = button:CreateTexture(nil, "ARTWORK")
-				button.border:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays")
-				button.border:SetTexCoord(0.296875, 0.5703125, 0, 0.515625)
-				button.border:SetPoint("CENTER", button)
-				
-				button.icon = button:CreateTexture(nil, "BACKGROUND")
-				button.icon:SetAllPoints(button)
-				button.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
-			end
-			
-			for _, button in pairs(aura.buttons) do
-				button:Hide()
-			end
-			
-			Auras.UpdateFilter(aura, config)
+		button.border = button:CreateTexture(nil, "ARTWORK")
+		button.border:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays")
+		button.border:SetTexCoord(0.296875, 0.5703125, 0, 0.515625)
+		button.border:SetPoint("CENTER", button)
+		
+		button.icon = button:CreateTexture(nil, "BACKGROUND")
+		button.icon:SetAllPoints(button)
+		button.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 	end
+	
+	for _, button in pairs(aura.buttons) do
+		button:Hide()
+	end
+	
+	Auras.UpdateFilter(aura, self.unitConfig.auras[key])
 end
 
-function Auras:LayoutUpdated(self, unit)
-	local auraConfig = ShadowUF.db.profile.layout[self.unitType].auras
-	if( auraConfig ) then
-		for key, config in pairs(auraConfig) do
-			Auras.UpdateFilter(self.auras[key], config)
-		end
+function Auras.CreateIcons(self)
+	self.auras = self.auras or {}
+
+	createAnchor(self, "buffs", self.unitConfig.auras.buffs)
+	createAnchor(self, "debuffs", self.unitConfig.auras.debuffs)
+end
+
+function Auras:LayoutApplied(self)
+	if( self.auras ) then
+		Auras.UpdateFilter(self.auras.buffs, self.unitConfig.auras.buffs)
+		Auras.UpdateFilter(self.auras.debuffs, self.unitConfig.auras.debuffs)
+		
+		Auras.Update(self, self.unit)
 	end
 end
 
@@ -114,6 +118,10 @@ function Auras.UpdateDisplay(self)
 	for i=self.totalAuras + 1, #(self.buttons) do
 		self.buttons[i].unit = nil
 		self.buttons[i]:Hide()
+	end
+	
+	if( self.totalAuras == 0 ) then
+		return
 	end
 	
 	for id, button in pairs(self.buttons) do
@@ -142,32 +150,32 @@ end
 function Auras.Scan(self, filter, type, unit)
 	local index = 1
 	while( true ) do
-			local name, rank, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(unit, index, filter)
-			if( not name ) then break end
-			
-			self.totalAuras = self.totalAuras + 1
-			if( self.totalAuras >= self.maxIcons ) then
-				self.totalAuras = self.maxIcons
-				return 0
-			end
-			
-			local button = self.buttons[self.totalAuras]
-			button.aura.name = name
-			button.aura.rank = rank
-			button.aura.texture = texture
-			button.aura.count = count
-			button.aura.debuffType = debuffType
-			button.aura.duration = duration
-			button.aura.endTime = endTime
-			button.aura.isStealable = isStealable
-			button.aura.caster = caster
-			button.aura.isPlayer = caster == "player"
-			button.aura.buffID = index
-			button.filter = filter
-			button.type = type
-			button.unit = unit
-			
-			index = index + 1
+		local name, rank, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(unit, index, filter)
+		if( not name ) then break end
+		
+		self.totalAuras = self.totalAuras + 1
+		if( self.totalAuras >= self.maxIcons ) then
+			self.totalAuras = self.maxIcons
+			return 0
+		end
+		
+		local button = self.buttons[self.totalAuras]
+		button.aura.name = name
+		button.aura.rank = rank
+		button.aura.texture = texture
+		button.aura.count = count
+		button.aura.debuffType = debuffType
+		button.aura.duration = duration
+		button.aura.endTime = endTime
+		button.aura.isStealable = isStealable
+		button.aura.caster = caster
+		button.aura.isPlayer = caster == "player"
+		button.aura.buffID = index
+		button.filter = filter
+		button.type = type
+		button.unit = unit
+		
+		index = index + 1
 	end
 end
 
@@ -175,18 +183,27 @@ function Auras.Update(self, unit)
 	if( self.aurasShared ) then
 		self.auras.buffs.totalAuras = 0
 		
-		Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buff", unit)
-		Auras.Scan(self.auras.buffs, self.auras.debuffs.filter, "debuff", unit)
+		if( self.unitConfig.auras.buffs.enabled ) then
+			Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buff", unit)
+		end
+		
+		if( self.unitConfig.auras.debuffs.enabled ) then
+			Auras.Scan(self.auras.buffs, self.auras.debuffs.filter, "debuff", unit)
+		end
 		
 		Auras.UpdateDisplay(self.auras.buffs)
 	else
-		self.auras.buffs.totalAuras = 0
-		Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buff", unit)
-		Auras.UpdateDisplay(self.auras.buffs)
+		if( self.unitConfig.auras.buffs.enabled ) then
+			self.auras.buffs.totalAuras = 0
+			Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buff", unit)
+			Auras.UpdateDisplay(self.auras.buffs)
+		end
 
-		self.auras.debuffs.totalAuras = 0
-		Auras.Scan(self.auras.debuffs, self.auras.debuffs.filter, "debuff", unit)
-		Auras.UpdateDisplay(self.auras.debuffs)
+		if( self.unitConfig.auras.debuffs.enabled ) then
+			self.auras.debuffs.totalAuras = 0
+			Auras.Scan(self.auras.debuffs, self.auras.debuffs.filter, "debuff", unit)
+			Auras.UpdateDisplay(self.auras.debuffs)
+		end
 	end
 end
 

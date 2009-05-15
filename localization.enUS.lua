@@ -95,7 +95,26 @@ ShadowUFLocals = {
 	["Help"] = "Help",
 	["Select unit(s) to modify to access the global configuration, this will let you change settings quickly on all selected units at once."] = "Select unit(s) to modify to access the global configuration, this will let you change settings quickly on all selected units at once.",
 	["Position"] = "Position",
-		
+	["XP/Reputation bar"] = "XP/Reputation bar",
+	["This bar will automatically hide when you are at the level cap, or you do not have any reputations tracked."] = "This bar will automatically hide when you are at the level cap, or you do not have any reputations tracked.",
+	["Anchor point"] = "Anchor point",
+	["Where to anchor the cast time text."] = "Where to anchor the cast time text.",
+	["Where to anchor the cast name text."] = "Where to anchor the cast name text.",
+	["Cast time"] = "Cast time",
+	["Cast name"] = "Cast name",
+	["General bars"] = "General bars",
+	["Height"] = "Height",
+	["Width"] = "Width",
+	["Scale"] = "Scale",
+	["Portrait type"] = "Portrait type",
+	["3D"] = "3D",
+	["2D"] = "2D",
+	["Text"] = "Text",
+	["Help"] = "Help",
+	["Tag wizard"] = "Tag wizard",
+	["healthBar"] = "Health bar",
+	["powerBar"] = "Power bar",
+	
 	-- Layout
 	["Layout"] = "Layout",
 	["Height"] = "Height",
@@ -171,7 +190,7 @@ ShadowUFLocals = {
 	["Party instances"] = "Party instances",
 	["Raid instances"] = "Raid instances",
 	["Enable %s frames"] = "Enable %s frames",
-	["You can set certain units and modules to only be enabled or disabled in different instances, unchecked values are disabled, checked values are enabled, and greyed out ones are ignored."] = "You can set certain units and modules to only be enabled or disabled in different instances, unchecked values are disabled, checked values are enabled, and greyed out ones are ignored.",
+	["You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone."] = "You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone.",
 	
 	-- Unit names
 	["player"] = "Player",
@@ -192,6 +211,7 @@ ShadowUFLocals = {
 	["Indicators"] = "Indicators",
 	["Portrait"] = "Portrait",
 	["Power bar"] = "Power bar",
+	["Combat text"] = "Combat text",
 	
 	-- Tag help
 	["Unit name colored by class."] = "Unit name colored by class.",

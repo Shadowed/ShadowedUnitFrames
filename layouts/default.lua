@@ -237,8 +237,6 @@ ShadowUF:RegisterLayout("Default", {
 			heightWeight = 0.60,
 			width = 1.0,
 			order = 3,
-			castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0},
-			castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0},
 		},
 		positions = {
 			raid = {point = "CENTER", anchorTo = "UIParent", relativePoint = "CENTER", x = 100, y = -100},

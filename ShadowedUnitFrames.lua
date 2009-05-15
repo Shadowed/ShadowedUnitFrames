@@ -36,6 +36,7 @@ function ShadowUF:OnInitialize()
 	
 	-- List of units that SUF supports
 	self.units = units
+	self.regModules = modules
 		
 	-- Setup tag cache
 	self.tagFunc = setmetatable({}, {
@@ -140,13 +141,16 @@ function ShadowUF:LoadUnitDefaults()
 			portrait = true,
 			castBar = false,
 			xpBar = false,
+			portraitType = "3D",
 			healthColor = "percent",
+			castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0},
+			castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0},
 			text = {
-				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[colorname]", point = "LEFT", anchorTo = "$healthBar", relativePoint = "LEFT", x = 3, y = 0},
-				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", point = "RIGHT", anchorTo = "$healthBar", relativePoint = "RIGHT", x = -3, y = 0},
+				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[colorname]", anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0},
+				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", anchorTo = "$healthBar", anchorPoint = "ICR", x = -3, y = 0},
 				
-				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", point = "LEFT", anchorTo = "$powerBar", relativePoint = "LEFT", x = 3, y = 0},
-				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", point = "RIGHT", anchorTo = "$powerBar", relativePoint = "RIGHT", x = -3, y = 0},
+				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0},
+				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", anchorTo = "$powerBar", anchorPoint = "ICR", x = -3, y = 0},
 			},
 			auras = {
 				buffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = false, position = "TOP", size = 16, x = 0, y = 0, HELPFUL = true},

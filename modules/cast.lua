@@ -11,7 +11,7 @@ end
 
 function Cast:UnitEnabled(frame, unit)
 	-- We won't get valid information from *target, while I could do an OnUpdate, but I don't want to
-	if( not frame.unitConfig.castBar or string.match(unit, "(%w+)target") ) then
+	if( not frame.visibility.castBar or string.match(unit, "(%w+)target") ) then
 		return
 	end
 

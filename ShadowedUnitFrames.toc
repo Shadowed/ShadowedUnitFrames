@@ -30,4 +30,5 @@ modules\indicators.lua
 modules\xp.lua
 modules\cast.lua
 modules\auras.lua
+modules\combattext.lua
 modules\layout.lua

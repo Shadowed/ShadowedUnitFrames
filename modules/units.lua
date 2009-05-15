@@ -81,41 +81,32 @@ local function TargetUnitUpdate(self, elapsed)
 	end
 end
 
+local function ZONE_CHANGED(self)
+	self:SetVisibility()
+end
+
 -- Deal with enabling modules inside a zone
 local function SetVisibility(self)
 	local zone = select(2, IsInInstance())
-
 	-- Selectively disable modules
 	for key in pairs(ShadowUF.moduleNames) do
-		if( key == "auras" ) then
-			local buffs = self.unitConfig[key].buffs
-			local debuffs = self.unitConfig[key].debuffs
-			
-			if( zone ~= "none" ) then
-				if( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == false ) then
-					buffs = true
-					debuffs = true
-				elseif( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == true ) then
-					buffs = true
-					debuffs = true
-				end
-			end
-			
-			if( self.auras.buffs ) then self.auras.buffs.isEnabled = buffs end
-			if( self.auras.debuffs ) then self.auras.debuffs.isEnabled = debuffs end	
-		elseif( self[key] ) then
-			local enabled = self.unitConfig[key]
+		local enabled = self.unitConfig[key]
+		local zoneEnabled = zone ~= "none" and ShadowUF.db.profile.visibility[zone][self.unitType .. key] or nil
+	
+		-- nil == Use the regular value inside the layout / false == Disable it here / true == Enable it here
+		if( zoneEnabled ~= nil ) then
+			enabled = zoneEnabled
+		end
 		
-			-- nil == Use the regular value inside the layout / false == Disable it here / true == Enable it here
-			if( zone ~= "none" ) then
-				if( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == false ) then
-					enabled = false
-				elseif( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == true ) then
-					enabled = true
+		self.visibility[key] = enabled
+		
+		-- Module isn't enabled all the time, only in this zone so we need to force it to be enabled
+		if( enabled and not self[key] ) then
+			for module in pairs(ShadowUF.regModules) do
+				if( module.moduleKey == key ) then
+					module:UnitEnabled(self, self.unitType)
 				end
 			end
-
-			self[key].isEnabled = enabled
 		end
 	end
 end
@@ -131,17 +122,17 @@ local function OnAttributeChanged(self, name, value)
 	self.unitType = string.gsub(value, "([0-9]+)", "")
 	self.unitConfig = ShadowUF.db.profile.units[self.unitType]
 	
-	-- Give all of the modules a chance to create what they need
-	ShadowUF:FireModuleEvent("UnitEnabled", self, value)
-	
 	-- Now set what is enabled
 	self:SetVisibility()
+
+	-- Give all of the modules a chance to create what they need
+	ShadowUF:FireModuleEvent("UnitEnabled", self, value)
 	
 	-- Apply our layout quickly
 	ShadowUF.Layout:ApplyAll(self, self.unitType)
 	
 	-- For handling visibility
-	self:RegisterNormalEvent("ZONE_CHANGED_NEW_AREA", SetVisibility)
+	self:RegisterNormalEvent("ZONE_CHANGED_NEW_AREA", ZONE_CHANGED)
 	
 	-- Is it an invalid unit?
 	if( string.match(value, "%w+target") ) then
@@ -185,6 +176,7 @@ function Units:CreateUnit(frame,  hookVisibility)
 
 	frame.fullUpdates = {}
 	frame.registeredEvents = {}
+	frame.visibility = {}
 	frame.RegisterNormalEvent = RegisterNormalEvent
 	frame.RegisterUnitEvent = RegisterUnitEvent
 	frame.RegisterUpdateFunc = RegisterUpdateFunc

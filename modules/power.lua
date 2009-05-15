@@ -7,7 +7,7 @@ end
 
 
 function Power:UnitEnabled(frame, unit)
-	if( not frame.unitConfig.powerBar ) then
+	if( not frame.visibility.powerBar ) then
 		return
 	end
 	

@@ -138,12 +138,16 @@ function Tags:Register(parent, fontString, tags)
 					
 					functionPool[tag] = cachedFunc
 				end
-			end			
+			end
+			
+			-- It's an invalid tag, simply return the tag itself
+			if( not cachedFunc ) then
+				functionPool[tag] = functionPool[tag] or function() return string.format("[%s]", tag) end
+				cachedFunc = functionPool[tag]
+			end
 			
 			if( cachedFunc ) then
 				table.insert(args, cachedFunc)
-			else
-				return error(string.format(L["Invalid tag used %s."], tag), 3)
 			end
 		end
 		
@@ -322,8 +326,17 @@ function Tags:LoadTags()
 		["rare"]        = [[function(unit) local c = UnitClassification(unit); return (c == "rare" or c == "rareelite") and ShadowUFLocals["Rare"] end]],
 		["sex"]         = [[function(unit) local s = UnitSex(unit) return s == 2 and ShadowUFLocals["Male"] or s == 3 and ShadowUFLocals["Female"] end]],
 		["smartclass"]  = [[function(unit) return UnitIsPlayer(unit) and ShadowUF.tagFunc.class(unit) or ShadowUF.tagFunc.creature(unit) end]],
-		["status"]      = [[function(unit) return UnitIsDead(unit) and ShadowUFLocals["Dead"] or UnitIsGhost(unit) and ShadowUFLocals["Ghost"] or not UnitIsConnected(unit) and ShadowUFLocals["Offline"] or ShadowUF.tagFunc.resting(unit) end]],
-		["cpoints"]     = [[function(unit) local cp = GetComboPoints(u, "target") return (cp > 0) and cp end]],
+		["status"]      = [[function(unit)
+			if( UnitIsDead(unit) ) then
+				return ShadowUFLocals["Dead"]
+			elseif( UnitIsGhost(unit) ) then
+				return ShadowUFLocals["Ghost"]
+			elseif( not UnitIsConnected(unit) ) then
+				return ShadowUFLocals["Offline"]
+			end
+			return ""
+		end]],
+		["cpoints"]     = [[function(unit) local cp = GetComboPoints(unit, "target") return (cp > 0) and cp end]],
 		["smartlevel"] = [[function(unit)
 			local c = UnitClassification(unit)
 			if(c == "worldboss") then

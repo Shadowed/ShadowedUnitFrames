@@ -66,6 +66,9 @@ function Layout:ApplyAll(frame)
 	if( not unitConfig ) then
 		return
 	end
+	
+	-- About to set layout
+	ShadowUF:FireModuleEvent("PreLayoutApplied", frame)
 			
 	self:ApplyUnitFrame(frame, unitConfig)
 	self:ApplyPortrait(frame, unitConfig)
@@ -223,11 +226,12 @@ function Layout:ApplyPortrait(frame, config)
 	-- We want it to be a pixel inside the frame, so inset + clip gets us that
 	local clip = ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip
 	
-	self:ToggleVisibility(frame.portrait, frame.portrait and frame.portrait.isEnabled)
+	self:ToggleVisibility(frame.portrait, frame.visibility.portrait)
 	if( frame.portrait and frame.portrait:IsShown() ) then
 		frame.portrait:SetHeight(config.height - (clip * 2))
 		frame.portrait:SetWidth(config.width * config.portrait.width)
 
+		frame.barFrame:ClearAllPoints()
 		frame.barFrame:SetHeight(frame:GetHeight() - (clip * 2))
 
 		-- Flip the alignment for targets to keep the same look as default
@@ -248,6 +252,7 @@ function Layout:ApplyPortrait(frame, config)
 			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - ShadowUF.db.profile.layout.general.clip)
 		end
 	else
+		frame.barFrame:ClearAllPoints()
 		frame.barFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", clip, -clip)
 		frame.barFrame:SetHeight(frame:GetHeight() - (clip * 2))
 		frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2))
@@ -257,7 +262,7 @@ end
 -- Setup bars
 function Layout:ApplyBarVisuals(frame, config)
 	-- Update health bars
-	self:ToggleVisibility(frame.healthBar, frame.healthBar and frame.healthBar.isEnabled)
+	self:ToggleVisibility(frame.healthBar, frame.visibility.healthBar)
 	if( frame.healthBar and frame.healthBar:IsShown() ) then
 		frame.healthBar:SetStatusBarTexture(mediaPath.statusbar)
 		
@@ -270,7 +275,7 @@ function Layout:ApplyBarVisuals(frame, config)
 	end
 	
 	-- Update mana bars
-	self:ToggleVisibility(frame.powerBar, frame.powerBar and frame.powerBar.isEnabled)
+	self:ToggleVisibility(frame.powerBar, frame.visibility.powerBar)
 	if( frame.powerBar and frame.powerBar:IsShown() ) then
 		frame.powerBar:SetStatusBarTexture(mediaPath.statusbar)
 
@@ -283,7 +288,7 @@ function Layout:ApplyBarVisuals(frame, config)
 	end
 
 	-- Update cast bars
-	self:ToggleVisibility(frame.castBar, frame.castBar and frame.castBar.isEnabled)
+	self:ToggleVisibility(frame.castBar, frame.visibility.castBar)
 	if( frame.castBar and frame.castBar:IsShown() ) then
 		frame.castBar:SetStatusBarTexture(mediaPath.statusbar)
 
@@ -296,7 +301,7 @@ function Layout:ApplyBarVisuals(frame, config)
 	end
 	
 	-- Update XP bar
-	self:ToggleVisibility(frame.xpBar, frame.xpBar and frame.xpBar.isEnabled)
+	self:ToggleVisibility(frame.xpBar, frame.visibility.xpBar)
 	if( frame.xpBar and frame.xpBar:IsShown() ) then
 		frame.xpBar:SetStatusBarTexture(mediaPath.statusbar)
 		frame.xpBar.rested:SetStatusBarTexture(mediaPath.statusbar)
@@ -327,16 +332,16 @@ function Layout:ApplyText(frame, config)
 			frame.castBar.name:SetFont(mediaPath.font, ShadowUF.db.profile.layout.font.size)
 			frame.castBar.name:SetWidth(frame.castBar:GetWidth() * 0.80)
 			frame.castBar.name:SetHeight(ShadowUF.db.profile.layout.font.size + 1)
-			frame.castBar.name:SetJustifyH(self:GetJustify(config.castBar.castName))
-			self:AnchorFrame(frame.castBar, frame.castBar.name, config.castBar.castName)
+			frame.castBar.name:SetJustifyH(self:GetJustify(frame.unitConfig.castName))
+			self:AnchorFrame(frame.castBar, frame.castBar.name, frame.unitConfig.castName)
 
 			updateShadows(frame.castBar.name)
 			
 			frame.castBar.time:SetFont(mediaPath.font, ShadowUF.db.profile.layout.font.size)
 			frame.castBar.time:SetWidth(frame.castBar:GetWidth() * 0.20)
 			frame.castBar.time:SetHeight(ShadowUF.db.profile.layout.font.size + 1)
-			frame.castBar.time:SetJustifyH(self:GetJustify(config.castBar.castTime))
-			self:AnchorFrame(frame.castBar, frame.castBar.time, config.castBar.castTime)
+			frame.castBar.time:SetJustifyH(self:GetJustify(frame.unitConfig.castTime))
+			self:AnchorFrame(frame.castBar, frame.castBar.time, frame.unitConfig.castTime)
 
 			updateShadows(frame.castBar.time)
 	end
@@ -388,7 +393,7 @@ end
 
 -- Setup indicators
 function Layout:ApplyIndicators(frame, config)
-	if( not frame.indicators or not frame.unitConfig.indicators ) then
+	if( not frame.indicators or not frame.visibility.indicators ) then
 		if( frame.indicators ) then
 			for _, indicator in pairs(frame.indicators.list) do
 				self:ToggleVisibility(frame.indicators[indicator], false)
@@ -397,12 +402,12 @@ function Layout:ApplyIndicators(frame, config)
 		return
 	end
 	
-	if( frame.indicators and frame.indicators:IsShown() ) then
-		for _, key in pairs(frame.indicators.list) do
-			local indicator = frame.indicators[key]
-			self:ToggleVisibility(indicator, frame.unitConfig.indicators[key] and frame.unitConfig.indicators[key].enabled or false)
+	for _, key in pairs(frame.indicators.list) do
+		local indicator = frame.indicators[key]
+		if( indicator ) then
+			self:ToggleVisibility(indicator, frame.unitConfig.indicators[key].enabled )
 			
-			if( indicator and indicator:IsShown() ) then
+			if( indicator:IsShown() ) then
 				indicator:SetHeight(frame.unitConfig.indicators[key].height)
 				indicator:SetWidth(frame.unitConfig.indicators[key].width)
 				
@@ -459,7 +464,7 @@ local function positionAuras(self, config)
 end
 
 function Layout:ApplyAuras(frame, config)
-	if( not frame.auras or not frame.unitConfig.auras ) then
+	if( not frame.auras or not frame.visibility.auras ) then
 		if( frame.auras ) then
 			for _, auras in pairs(frame.auras) do
 				for _, button in pairs(auras.buttons) do
@@ -472,9 +477,9 @@ function Layout:ApplyAuras(frame, config)
 		
 	-- Update aura position
 	for key, aura in pairs(frame.auras) do
-		self:ToggleVisibility(aura, aura and aura.isEnabled)
+		self:ToggleVisibility(aura, frame.unitConfig.auras[key].enabled)
 		
-		if( aura and aura:IsShown() ) then
+		if( aura:IsShown() ) then
 			positionAuras(aura, frame.unitConfig.auras[key])
 		end
 	end
@@ -496,12 +501,12 @@ function Layout:ApplyBars(frame, config)
 
 	for i=#(ordering), 1, -1 do table.remove(ordering, i) end
 	for key, data in pairs(config) do
-			if( type(data) == "table" and data.heightWeight and frame[key] and frame[key]:IsShown() ) then
-				totalWeight = totalWeight + data.heightWeight
-				totalBars = totalBars + 1
-				
-				table.insert(ordering, key)
-			end
+		if( type(data) == "table" and data.heightWeight and frame[key] and frame[key]:IsShown() ) then
+			totalWeight = totalWeight + data.heightWeight
+			totalBars = totalBars + 1
+			
+			table.insert(ordering, key)
+		end
 	end
 	
 	currentConfig = config
@@ -516,9 +521,9 @@ function Layout:ApplyBars(frame, config)
 		bar:SetHeight(availableHeight * (config[key].heightWeight / totalWeight))
 		
 		if( id > 1 ) then
-				bar:SetPoint("TOPLEFT", lastFrame, "BOTTOMLEFT", 0, ShadowUF.db.profile.layout.general.barSpacing)
+			bar:SetPoint("TOPLEFT", lastFrame, "BOTTOMLEFT", 0, ShadowUF.db.profile.layout.general.barSpacing)
 		else
-				bar:SetPoint("TOPLEFT", frame.barFrame, "TOPLEFT", 0, 0)
+			bar:SetPoint("TOPLEFT", frame.barFrame, "TOPLEFT", 0, 0)
 		end
 		
 		lastFrame = bar
