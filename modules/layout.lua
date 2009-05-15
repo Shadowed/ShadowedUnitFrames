@@ -224,7 +224,7 @@ end
 -- Setup portraits
 function Layout:ApplyPortrait(frame, config)
 	-- We want it to be a pixel inside the frame, so inset + clip gets us that
-	local clip = ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip
+	local clip = ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.backdrop.clip
 	
 	self:ToggleVisibility(frame.portrait, frame.visibility.portrait)
 	if( frame.portrait and frame.portrait:IsShown() ) then
@@ -245,12 +245,12 @@ function Layout:ApplyPortrait(frame, config)
 			frame.portrait:SetPoint("TOPLEFT", frame, "TOPLEFT", clip, -clip)
 			frame.barFrame:SetPoint("RIGHT", frame.portrait)
 			frame.barFrame:SetPoint("RIGHT", frame, -clip, 0)
-			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - ShadowUF.db.profile.layout.general.clip)
+			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - ShadowUF.db.profile.layout.backdrop.clip)
 		else
 			frame.portrait:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -clip, -clip)
 			frame.barFrame:SetPoint("LEFT", frame.portrait)
 			frame.barFrame:SetPoint("LEFT", frame, clip, 0)
-			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - ShadowUF.db.profile.layout.general.clip)
+			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - ShadowUF.db.profile.layout.backdrop.clip)
 		end
 	else
 		frame.barFrame:ClearAllPoints()
@@ -451,15 +451,15 @@ local function positionAuras(self, config)
 				button:SetPoint("TOP", self.buttons[id - 1], "BOTTOM", 0, -3)
 			end
 		elseif( config.position == "INSIDE" ) then
-			button:SetPoint("TOPRIGHT", self.parent.healthBar, "TOPRIGHT", config.x + -ShadowUF.db.profile.layout.general.clip, config.y + -ShadowUF.db.profile.layout.general.clip)
+			button:SetPoint("TOPRIGHT", self.parent.healthBar, "TOPRIGHT", config.x + -ShadowUF.db.profile.layout.backdrop.clip, config.y + -ShadowUF.db.profile.layout.backdrop.clip)
 		elseif( config.position == "BOTTOM" ) then
 			button:SetPoint("BOTTOMLEFT", self.parent, "BOTTOMLEFT", config.x + ShadowUF.db.profile.layout.backdrop.inset, config.y + -(config.size + 2))
 		elseif( config.position == "TOP" ) then
 			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + ShadowUF.db.profile.layout.backdrop.inset, config.y + (config.size + 2))
 		elseif( config.position == "LEFT" ) then
-			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + -config.size, config.y + ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip)
+			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + -config.size, config.y + ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.backdrop.clip)
 		elseif( config.position == "RIGHT" ) then
-			button:SetPoint("TOPRIGHT", self.parent, "TOPRIGHT", config.x + config.size, config.y + ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.general.clip)
+			button:SetPoint("TOPRIGHT", self.parent, "TOPRIGHT", config.x + config.size, config.y + ShadowUF.db.profile.layout.backdrop.inset + ShadowUF.db.profile.layout.backdrop.clip)
 		end
 	end
 end

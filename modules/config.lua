@@ -230,6 +230,14 @@ local function loadGeneralOptions()
 								hidden = hideAdvancedOption,
 								min = 0, max = 20, step = 1,
 							},
+							clip = {
+								order = 4.5,
+								type = "range",
+								name = L["Clip"],
+								desc = L["How close the frame should clip with the border."],
+								hidden = hideAdvancedOption,
+								min = 0, max = 20, step = 1,
+							},
 							sep2 = {
 								order = 5.5,
 								type = "description",
@@ -1580,26 +1588,13 @@ local function loadTagOptions()
 				
 		return ShadowUF.db.profile.tags[tagData.name] and ShadowUF.db.profile.tags[tagData.name][key] or ""
 	end
-	
-	local function getHelpText(info)
-		if( ShadowUF.Tags.defaultHelp[info.arg] ) then
-			local msg = ShadowUF.Tags.defaultHelp[info.arg] or ""
-			if( msg ~= "" ) then
-				msg = msg .. "\n\n"
-			end
-			
-			return msg .. L["This tag is included by default and cannot be deleted."]
-		end
 		
-		return ShadowUF.db.profile.tags[info.arg] and ShadowUF.db.profile.tags[info.arg].help or ""
-	end
-	
 	local function isSearchHidden(info)
 		return tagData.search ~= "" and not string.match(info.arg, tagData.search) or false
 	end
 	
 	local function editTag(info)
-		tagData.name = info.arg
+		tagData.name = info[#(info)]
 		
 		if( ShadowUF.Tags.defaultHelp[tagData.name] ) then
 			tagData.error = L["You cannot edit this tag because it is one of the default ones included in this mod. This function is here to provide an example for your own custom tags."]
@@ -1609,17 +1604,14 @@ local function loadTagOptions()
 	end
 				
 	-- Create all of the tag editor options, if it's a default tag will show it after any custom ones
-	local function createTagOptions(tag)
-		options.args.tags.args.general.args.list.args[tag .. "name"] = {
-			type = "execute",
-			order = ShadowUF.Tags.defaultTags[tag] and 100 or 1,
-			name = tag,
-			desc = getHelpText,
-			hidden = isSearchHidden,
-			func = editTag,
-			arg = tag,
-		}
-	end
+	local tagTable = {
+		type = "execute",
+		order = function(info) return ShadowUF.Tags.defaultTags[info[#(info)]] and 100 or 1 end,
+		name = function(info) return info[#(info)] end,
+		desc = getTagHelp,
+		hidden = isSearchHidden,
+		func = editTag,
+	}
 
 	-- Tag configuration
 	options.args.tags = {
@@ -1698,7 +1690,7 @@ local function loadTagOptions()
 							tagData.addError = nil
 							
 							ShadowUF.db.profile.tags[text] = {funct = "function(unit)\n\nend"}
-							createTagOptions(text)
+							options.args.tags.args.general.args.list.args[tag] = tagTable
 							
 							selectDialogGroup("tags", "edit")
 						end,
@@ -1816,8 +1808,7 @@ local function loadTagOptions()
 									ShadowUF.tagFunc[tagData.name] = nil
 									ShadowUF.Tags:FullUpdate()
 
-									options.args.tags.args.general.args.list.args[tagData.name .. "name"] = nil
-									options.args.tags.args.general.args.list.args[tagData.name .. "edit"] = nil
+									options.args.tags.args.general.args.list.args[tagData.name] = nil
 									tagData.name = nil
 									tagData.error = nil
 
@@ -1834,11 +1825,11 @@ local function loadTagOptions()
 	
 	-- Load the initial tag list
 	for tag in pairs(ShadowUF.Tags.defaultTags) do
-		createTagOptions(tag)
+		options.args.tags.args.general.args.list.args[tag] = tagTable
 	end
 	
 	for tag, data in pairs(ShadowUF.db.profile.tags) do
-		createTagOptions(tag)
+		options.args.tags.args.general.args.list.args[tag] = tagTable
 	end
 end
 

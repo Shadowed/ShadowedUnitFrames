@@ -171,7 +171,9 @@ ShadowUFLocals = {
 	["Tapped color"] = "Tapped color",
 	["Health color"] = "Health color",
 	["None"] = "None",
-		
+	["Clip"] = "Clip",
+	["How close the frame should clip with the border."] = "How close the frame should clip with the border.",
+	
 	-- Tags
 	["Events"] = "Events",
 	["Edit"] = "Edit",

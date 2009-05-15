@@ -29,7 +29,6 @@ local L = ShadowUFLocals
 		{
 			general = {
 				barTexture = "<name>", -- Texture name in SML  to use for all bars
-				clip = #, -- How close widgets should clip the edge, 1 is one pixel away from clipping
 				barSpacing = #, -- How much spacing to use between bars, --1.25 would space them out by 1.25 pixels
 				barAlpha = #.#, -- Alpha to use for all bars
 				backgroundAlpha = #.#, -- Alpha to use for the background of bars
@@ -47,6 +46,7 @@ local L = ShadowUFLocals
 				backgroundColor = {r = #, g = #, b = #, a = #}, -- Background color/alpha
 				borderTexture = "<texture path>", -- Edge graphic to use ("" for none)
 				borderColor = {r = #, g = #, b = #, a = #}, -- Edge color/alpha
+				clip = #, -- How close widgets should clip the edge, 1 is one pixel away from clipping
 				tileSize = #, -- How large each bgFile becomes, tiling is automatically enabled if tileSize is greater than one
 				edgeSize - #, -- How large each edge will be
 				inset = #, -- How thick the edges should be
@@ -134,7 +134,6 @@ ShadowUF:RegisterLayout("Default", {
 	layout = {
 		general = {
 			barTexture = "Smooth",
-			clip = 1,
 			barSpacing = -1.25,
 			barAlpha = 1.0,
 			backgroundAlpha = 0.20,
@@ -142,6 +141,7 @@ ShadowUF:RegisterLayout("Default", {
 		backdrop = {
 			tileSize = 1,
 			edgeSize = 5,
+			clip = 1,
 			inset = 3,
 			backgroundTexture = "Chat Frame",
 			backgroundColor = {r = 0, g = 0, b = 0, a = 0.80},
