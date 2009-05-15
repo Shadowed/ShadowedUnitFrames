@@ -10,11 +10,22 @@ local NYI = " (NYI)" -- Debug
 ]]
 
 -- This is a basic one for frame anchoring
-local positionList = { ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
+local positionList = {["CENTER"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
 
 local function selectDialogGroup(group, key)
 	AceDialog.Status.ShadowedUF.children[group].status.groups.selected = key
 	AceRegistry:NotifyChange("ShadowedUF")
+end
+
+local function hideClassWidget(info)
+	local class = select(2, UnitClass("player"))
+	if( info[#(info)] == "runeBar" and class ~= "DEATHKNIGHT" ) then
+		return true
+	elseif( info[#(info)] == "totems" and class ~= "SHAMAN" ) then
+		return true
+	end	
+	
+	return false
 end
 
 -- Misc help functions
@@ -27,7 +38,7 @@ local function hideAdvancedOption(info)
 end
 
 local function getName(info)
-	return ShadowUF.moduleNames[info[#(info)]] or L[info[#(info)]]
+	return ShadowUF.moduleNames[info[#(info)]] or L.units[info[#(info)]] or L[info[#(info)]]
 end
 
 
@@ -73,9 +84,12 @@ end
 local function hidePlayerOnly(info)
 	local key = info[#(info)]
 	local unit = info[(#info) - 1]
-	if( unit ~= "player" and unit ~= "pet" and key == "xpBar" ) then
-		return true
+	if( unit ~= "player" and unit ~= "pet" ) then
+		if( key == "xpBar" or key == "runeBar" or key == "totems" ) then
+			return true
+		end
 	end
+	
 	
 	return false
 end
@@ -169,7 +183,7 @@ local function loadGeneralOptions()
 							locked = {
 								order = 0,
 								type = "toggle",
-								name = L["Lock frames"],
+								name = L["Lock frames"] .. NYI,
 							},
 							advanced = {
 								order = 1,
@@ -402,7 +416,130 @@ end
 -- UNIT CONFIGURATION
 ---------------------
 local function loadUnitOptions()
-	local function set(info, value)
+	local pointPositions = {[""] = L["None"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["CENTER"] = L["Center"]}
+	
+	local anchorList = {}
+	local function getAnchorParents(info)
+		for k in pairs(anchorList) do anchorList[k] = nil end		
+		anchorList["UIParent"] = L["Screen"]
+		
+		for _, unit in pairs(ShadowUF.units) do
+			if( unit ~= info[#(info) - 3] and ShadowUF.db.profile.units[unit].enabled ) then
+				local name
+				if( unit == "raid" or unit == "party" ) then
+					name = string.format("#SUFHeader%s", unit)
+				else
+					name = string.format("#SUFUnit%s", unit)
+				end
+				
+				anchorList[name] = string.format(L["%s frames"], L[unit])
+			end
+		end
+		
+		return anchorList
+	end
+	
+	local function setWidget(info, value)
+		local key = info[#(info)]
+		local module = info[#(info) - 1]
+		local unit = info[#(info) - 3]
+		
+		if( unit == "global" ) then
+			for unit in pairs(modifyUnits) do
+				ShadowUF.db.profile.layout[unit][module][key] = value
+			end
+		else
+			ShadowUF.db.profile.layout[unit][module][key] = value
+		end
+		
+		ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
+	end
+	local function getWidget(info, value)
+		local key = info[#(info)]
+		local module = info[#(info) - 1]
+		local unit = info[#(info) - 3]
+		if( unit == "global" ) then
+			unit = masterUnit
+		end
+		
+		if( not ShadowUF.db.profile.layout[unit][module] ) then
+			return
+		end
+		
+		return ShadowUF.db.profile.layout[unit][module][key]
+	end
+
+				
+	-- This makes sure  we don't end up with any messed up positioning due to two different anchors being used
+	local function fixPositions(info)
+		local unit = info[#(info) - 3]
+		local type = info.arg or "layout"
+		if( info[#(info)] == "point" or info[#(info)] == "relativePoint" ) then
+			if( unit == "global" ) then
+				for unit in pairs(modifyUnits) do
+					ShadowUF.db.profile[type][unit].anchorPoint = nil
+					ShadowUF.db.profile[type][unit].anchorTo = "UIParent"
+				end
+			else
+				ShadowUF.db.profile[type][unit].anchorPoint = nil
+				ShadowUF.db.profile[type][unit].anchorTo = "UIParent"
+			end
+		elseif( info[#(info)] == "anchorPoint" ) then
+			if( unit == "global" ) then
+				for unit in pairs(modifyUnits) do
+					ShadowUF.db.profile[type][unit].point = nil
+					ShadowUF.db.profile[type][unit].relativePoint = nil
+				end
+			else
+				ShadowUF.db.profile[type][unit].point = nil
+				ShadowUF.db.profile[type][unit].relativePoint = nil
+			end
+		end
+	end
+	
+	local function setLayout(info, value)
+		fixPositions(info)
+		
+		local unit = info[#(info) - 3]
+		local key = info[#(info)]
+		local type = info.arg or "layout"
+		if( unit == "global" ) then
+			for unit in pairs(modifyUnits) do
+				ShadowUF.db.profile[type][unit][key] = value
+			end
+		else
+			ShadowUF.db.profile[type][unit][key] = value
+		end
+		
+		ShadowUF.Layout:CheckMedia()
+		ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
+	end
+	
+	local function getLayout(info)
+		local unit = info[#(info) - 3]
+		local key = info[#(info)]
+		if( unit == "global" ) then
+			unit = masterUnit
+		end
+	
+		return ShadowUF.db.profile[info.arg or "layout"][unit][key]
+	end
+	
+	-- Not every option should be changed via global settings
+	local function hideAdvancedAndGlobal(info)
+		if( info[#(info) - 3] == "global" ) then
+			return true
+		end
+		
+		return hideAdvancedOption(info)
+	end
+	
+	local function hideIfGlobal(info)
+		return info[#(info) - 3] == "global"
+	end
+							
+			
+	local function setUnit(info, value)
 		local unit = info[#(info) - 3]
 		local key = info[#(info)]
 		if( unit == "global" ) then
@@ -417,7 +554,7 @@ local function loadUnitOptions()
 		ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
 	end
 	
-	local function get(info)
+	local function getUnit(info)
 		local unit = info[#(info) - 3]
 		local key = info[#(info)]
 		if( unit == "global" ) then
@@ -451,6 +588,23 @@ local function loadUnitOptions()
 		return ShadowUF.db.profile.units[unit][type][key]
 	end
 	
+	local function checkNumber(info, value)
+		return tonumber(value)
+	end
+	
+	local function setNumber(info, value)
+		setLayout(info, tonumber(value))
+	end
+	
+	local function getString(info)
+		return tostring(getLayout(info))
+	end
+	
+	local function isNumber(info, value)
+		return tonumber(value)
+	end
+
+
 	-- TAG WIZARD
 	local tagWizard = {}
 	do
@@ -494,7 +648,7 @@ local function loadUnitOptions()
 					unit = masterUnit
 				end
 				
-				return ShadowUF.db.profile.units[unit].text[tonumber(info[#(info)])].anchorTo ~= info[#(info) - 1]
+				return string.sub(ShadowUF.db.profile.units[unit].text[tonumber(info[#(info)])].anchorTo, 2) ~= info[#(info) - 1]
 			end,
 			set = false,
 			get = false,
@@ -504,7 +658,7 @@ local function loadUnitOptions()
 					type = "input",
 					name = L["Text"],
 					width = "full",
-					hidden = hideAdvancedOption,
+					hidden = false,
 					set = function(info, value)
 						local unit = info[#(info) - 4]
 						local id = tonumber(info[#(info) - 1])
@@ -524,7 +678,6 @@ local function loadUnitOptions()
 						if( unit == "global" ) then
 							unit = masterUnit
 						end
-						
 						return ShadowUF.db.profile.units[unit].text[id].text
 					end,
 				},
@@ -825,6 +978,36 @@ local function loadUnitOptions()
 			},
 		},
 	}
+
+	local barTable = {
+		order = getModuleOrder,
+		name = getName,
+		type = "group",
+		inline = true,
+		hidden = hideClassWidget,
+		args = {
+			order = {
+				order = 0,
+				type = "range",
+				name = L["Order"],
+				min = 0, max = 100, step = 5,
+			},
+			heightWeight = {
+				order = 1,
+				type = "range",
+				name = L["Height"],
+				desc = L["How much of the frames total height this bar should get, this is a weighted value, the higher it is the more it gets."],
+				min = 0, max = 10, step = 0.1,
+			},
+			background = {
+				order = 2,
+				type = "toggle",
+				name = L["Show background"],
+				desc = L["Show a background behind the bars with the same texture/color but faded out."],
+				hidden = hideAdvancedOption,
+			},
+		},
+	}
 	
 	local unitTable = {
 		type = "group",
@@ -832,17 +1015,38 @@ local function loadUnitOptions()
 		order = getUnitOrder,
 		name = getName,
 		hidden = isUnitHidden,
-		set = set,
-		get = get,
 		args = {
 			general = {
 				order = 1,
 				name = L["General"],
 				type = "group",
 				hidden = isModifiersSet,
+				set = setUnit,
+				get = getUnit,
 				args = {
-					portrait = {
+					extra = {
 						order = 1,
+						type = "group",
+						inline = true,
+						name = L["Extra"],
+						hidden = function(info) local class = select(2, UnitClass("player")) if( class ~= "DEATHKNIGHT" and class ~= "SHAMAN" ) then return true end return false end,
+						args = {
+							runeBar = {
+								order = 0,
+								type = "toggle",
+								name = L["Rune bar"] .. NYI,
+								hidden = hideClassWidget,
+							},
+							totems = {
+								order = 0,
+								type = "toggle",
+								name = L["Totem indicators"] .. NYI,
+								hidden = hideClassWidget,
+							},
+						},
+					},
+					portrait = {
+						order = 2,
 						type = "group",
 						inline = true,
 						name = L["Portrait"],
@@ -858,10 +1062,18 @@ local function loadUnitOptions()
 								name = L["Portrait type"],
 								values = {["2D"] = L["2D"], ["3D"] = L["3D"]},
 							},
+							alignment = {
+								order = 2,
+								type = "select",
+								name = L["Alignment"],
+								values = {["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
+								set = setWidget,
+								get = getWidget,
+							},
 						},
 					},
 					combatText = {
-						order = 2,
+						order = 3,
 						type = "group",
 						inline = true,
 						name = L["Combat text"],
@@ -876,11 +1088,159 @@ local function loadUnitOptions()
 					},
 				},
 			},
-			bars = {
+			attributes = {
+				order = 1.5,
+				type = "group",
+				name = function(info) return L.units[info[#(info) - 1]] end,
+				hidden = function(info) if( info[#(info) - 1] ~= "raid" and info[#(info) - 1] ~= "party" ) then return true end return false end,
+				args = {
+				
+				},
+			},
+			frame = {
 				order = 2,
+				name = L["Frame"],
+				type = "group",
+				hidden = isModifiersSet,
+				set = setLayout,
+				get = getLayout,
+				args = {
+					size = {
+						order = 0,
+						type = "group",
+						inline = true,
+						name = L["Size"],
+						args = {
+							scale = {
+								order = 0,
+								type = "range",
+								name = L["Scale"],
+								min = 0.50, max = 1.50, step = 0.01,
+								isPercent = true,
+							},
+							height = {
+								order = 1,
+								type = "range",
+								name = L["Height"],
+								min = 0, max = 100, step = 1,
+							},
+							width = {
+								order = 2,
+								type = "range",
+								name = L["Width"],
+								min = 0, max = 300, step = 1,
+							},
+						},
+					},
+					anchor = {
+						order = 1,
+						type = "group",
+						inline = true,
+						hidden = hideIfGlobal,
+						name = L["Anchor to another frame"],
+						args = {
+							anchorPoint = {
+								order = 0,
+								type = "select",
+								name = L["Anchor point"],
+								values = positionList,
+								arg = "positions",
+							},
+							anchorTo = {
+								order = 1,
+								type = "select",
+								name = L["Anchor to"],
+								values = getAnchorParents,
+								arg = "positions",
+							},
+							sep = {
+								order = 2,
+								type = "description",
+								name = "",
+								width = "full",
+							},
+							x = {
+								order = 3,
+								type = "input",
+								name = L["X Offset"],
+								validate = isNumber,
+								set = setNumber,
+								get = getString,
+								arg = "positions",
+							},
+							y = {
+								order = 4,
+								type = "input",
+								name = L["Y Offset"],
+								validate = isNumber,
+								set = setNumber,
+								get = getString,
+								arg = "positions",
+							},
+						},
+					},
+					orHeader = {
+						order = 1.5,
+						type = "header",
+						name = L["Or you can set a position manually"],
+						hidden = hideAdvancedAndGlobal,
+					},
+					position = {
+						order = 2,
+						type = "group",
+						hidden = hideAdvancedAndGlobal,
+						inline = true,
+						name = L["Manual position"],
+						args = {
+							point = {
+								order = 0,
+								type = "select",
+								name = L["Point"],
+								values = pointPositions,
+								arg = "positions",
+							},
+							relativePoint = {
+								order = 1,
+								type = "select",
+								name = L["Relative point"],
+								values = pointPositions,
+								arg = "positions",
+							},
+							sep = {
+								order = 2,
+								type = "description",
+								name = "",
+								width = "full",
+							},
+							x = {
+								order = 3,
+								type = "input",
+								name = L["X Offset"],
+								validate = isNumber,
+								set = setNumber,
+								get = getString,
+								arg = "positions",
+							},
+							y = {
+								order = 4,
+								type = "input",
+								name = L["Y Offset"],
+								validate = isNumber,
+								set = setNumber,
+								get = getString,
+								arg = "positions",
+							},
+						},
+					},
+				},
+			},
+			bars = {
+				order = 3,
 				name = L["Bars"],
 				type = "group",
 				hidden = isModifiersSet,
+				set = setUnit,
+				get = getUnit,
 				args = {
 					health = {
 						order = 1,
@@ -1009,8 +1369,34 @@ s							},
 					},
 				},
 			},
+			widgetSize = {
+				order = 4,
+				name = L["Widget size"],
+				type = "group",
+				hidden = isModifiersSet,
+				set = setWidget,
+				get = getWidget,
+				args = {
+					portrait = {
+						order = 0,
+						type = "group",
+						name = L["Portrait"],
+						inline = true,
+						args = {
+							width = {
+								order = 1,
+								type = "range",
+								name = L["Width percent"],
+								desc = L["Percentage of width the portrait should use."],
+								min = 0, max = 1.0, step = 0.01,
+								isPercent = true,
+							},
+						},
+					},
+				},
+			},
 			auras = {
-				order = 3,
+				order = 5,
 				name = L["Auras"],
 				type = "group",
 				hidden = isModifiersSet,
@@ -1020,20 +1406,29 @@ s							},
 				},
 			},
 			text = {
-				order = 4,
+				order = 6,
 				name = L["Text"],
 				type = "group",
-				hidden = isModifiersSet,
+				set = setUnit,
+				get = getUnit,
+				hidden = function(info)
+					local hidden = isModifiersSet(info)
+					if( hidden ) then return true end
+					
+					return hideAdvancedOption(info)
+				end,
 				args = {
 					healthBar = textTable,
 					powerBar = textTable,
 				},
 			},
 			tag = {
-				order = 5,
+				order = 7,
 				name = L["Tag wizard"],
 				type = "group",
 				hidden = isModifiersSet,
+				set = setUnit,
+				get = getUnit,
 				childGroups = "tree",
 				args = tagWizard,
 			},
@@ -1044,6 +1439,18 @@ s							},
 		type = "group",
 		name = L["Units"],
 		args = {
+			help = {
+				type = "group",
+				inline = true,
+				name = L["Help"],
+				args = {
+					help = {
+						order = 0,
+						type = "description",
+						name = L["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText (Advanced only) - Allows changing how the text anchors and the offset, you can set tags here as well.\n\nTag Wizard - Quickly add and remove tags to text."],
+					},
+				},
+			},
 			global = {
 				type = "group",
 				childGroups = "tab",
@@ -1084,7 +1491,7 @@ s							},
 									help = {
 										order = 0,
 										type = "description",
-										name = L["Select unit(s) to modify to access the global configuration, this will let you change settings quickly on all selected units at once."],
+										name = L["Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options."],
 									},
 								},
 							},
@@ -1102,6 +1509,13 @@ s							},
 		},
 	}
 	
+	-- Load modules into the unit table
+	for module in pairs(ShadowUF.regModules) do
+		if( module.moduleType == "bar" ) then
+			unitTable.args.widgetSize.args[module.moduleKey] = barTable
+		end
+	end
+
 	-- Load global unit
 	for k, v in pairs(unitTable.args) do
 		options.args.units.args.global.args[k] = v
@@ -1114,436 +1528,17 @@ s							},
 		name = getName,
 		hidden = isUnitHidden,
 		desc = function(info)
-			return string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], L[info[#(info)]])
+			return string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], L.units[info[#(info)]])
 		end,
 	}
 	
 	for order, unit in pairs(ShadowUF.units) do
 		options.args.units.args.global.args.units.args.units.args[unit] = perUnitList
 	end
-
+	
 	-- Load units already enabled
 	for order, unit in pairs(ShadowUF.units) do
 		options.args.units.args[unit] = unitTable
-	end
-end
-
----------------------
--- LAYOUT CONFIGURATION
----------------------
-local function loadLayoutOptions()
-	local pointPositions = {[""] = L["None"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["CENTER"] = L["Center"]}
-	
-	local anchorList = {}
-	local function getAnchorParents(info)
-		for k in pairs(anchorList) do anchorList[k] = nil end		
-		anchorList[""] = L["None"]
-		
-		for _, unit in pairs(ShadowUF.units) do
-			if( unit ~= info[#(info) - 3] and ShadowUF.db.profile.units[unit].enabled ) then
-				local name
-				if( unit == "raid" or unit == "party" ) then
-					name = string.format("#SUFHeader%s", unit)
-				else
-					name = string.format("#SUFUnit%s", unit)
-				end
-				
-				anchorList[name] = string.format(L["%s frames"], L[unit])
-			end
-		end
-		
-		return anchorList
-	end
-	
-	-- This makes sure  we don't end up with any messed up positioning due to two different anchors being used
-	local function fixPositions(info)
-		local unit = info[#(info) - 3]
-		local type = info.arg or "layout"
-		if( info[#(info)] == "point" or info[#(info)] == "relativePoint" ) then
-			if( unit == "global" ) then
-				for unit in pairs(modifyUnits) do
-					ShadowUF.db.profile[type][unit].anchorPoint = nil
-					ShadowUF.db.profile[type][unit].anchorTo = "UIParent"
-				end
-			else
-				ShadowUF.db.profile[type][unit].anchorPoint = nil
-				ShadowUF.db.profile[type][unit].anchorTo = "UIParent"
-			end
-		elseif( info[#(info)] == "anchorPoint" ) then
-			if( unit == "global" ) then
-				for unit in pairs(modifyUnits) do
-					ShadowUF.db.profile[type][unit].point = nil
-					ShadowUF.db.profile[type][unit].relativePoint = nil
-				end
-			else
-				ShadowUF.db.profile[type][unit].point = nil
-				ShadowUF.db.profile[type][unit].relativePoint = nil
-			end
-		end
-	end
-	
-	local function set(info, value)
-		fixPositions(info)
-		
-		local unit = info[#(info) - 3]
-		local key = info[#(info)]
-		local type = info.arg or "layout"
-		if( unit == "global" ) then
-			for unit in pairs(modifyUnits) do
-				ShadowUF.db.profile[type][unit][key] = value
-			end
-		else
-			ShadowUF.db.profile[type][unit][key] = value
-		end
-		
-		ShadowUF.Layout:CheckMedia()
-		ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
-	end
-	
-	local function get(info)
-		local unit = info[#(info) - 3]
-		local key = info[#(info)]
-		if( unit == "global" ) then
-			unit = masterUnit
-		end
-	
-		return ShadowUF.db.profile[info.arg or "layout"][unit][key]
-	end
-	
-	local function checkNumber(info, value)
-		return tonumber(value)
-	end
-	
-	local function setNumber(info, value)
-		set(info, tonumber(value))
-	end
-	
-	local function getString(info)
-		return tostring(get(info))
-	end
-	
-	local function isNumber(info, value)
-		return tonumber(value)
-	end
-	
-	local barTable = {
-		order = getModuleOrder,
-		name = getName,
-		type = "group",
-		inline = true,
-		args = {
-			order = {
-				order = 0,
-				type = "range",
-				name = L["Order"],
-				min = 0, max = 100, step = 5,
-			},
-			heightWeight = {
-				order = 1,
-				type = "range",
-				name = L["Height"],
-				desc = L["How much of the frames total height this bar should get, this is a weighted value, the higher it is the more it gets."],
-				min = 0, max = 10, step = 0.1,
-			},
-			background = {
-				order = 2,
-				type = "toggle",
-				name = L["Show background"],
-				desc = L["Show a background behind the bars with the same texture/color but faded out."],
-				hidden = hideAdvancedOption,
-			},
-		},
-	}
-	
-	local unitTable = {
-		type = "group",
-		childGroups = "tab",
-		order = getUnitOrder,
-		name = getName,
-		hidden = isUnitHidden,
-		set = set,
-		get = get,
-		args = {
-			general = {
-				order = 1,
-				name = L["General"],
-				type = "group",
-				hidden = isModifiersSet,
-				args = {
-					size = {
-						order = 0,
-						type = "group",
-						inline = true,
-						name = L["Size"],
-						args = {
-							scale = {
-								order = 0,
-								type = "range",
-								name = L["Scale"],
-								min = 0.50, max = 1.50, step = 0.01,
-								isPercent = true,
-							},
-							height = {
-								order = 1,
-								type = "range",
-								name = L["Height"],
-								min = 0, max = 100, step = 1,
-							},
-							width = {
-								order = 2,
-								type = "range",
-								name = L["Width"],
-								min = 0, max = 300, step = 1,
-							},
-						},
-					},
-					anchor = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Anchor to another frame"],
-						args = {
-							anchorPoint = {
-								order = 0,
-								type = "select",
-								name = L["Anchor point"],
-								values = positionList,
-								arg = "positions",
-							},
-							anchorTo = {
-								order = 1,
-								type = "select",
-								name = L["Anchor to"],
-								values = getAnchorParents,
-								arg = "positions",
-							},
-							sep = {
-								order = 2,
-								type = "description",
-								name = "",
-								width = "full",
-							},
-							x = {
-								order = 3,
-								type = "input",
-								name = L["X Offset"],
-								validate = isNumber,
-								set = setNumber,
-								get = getString,
-								arg = "positions",
-							},
-							y = {
-								order = 4,
-								type = "input",
-								name = L["Y Offset"],
-								validate = isNumber,
-								set = setNumber,
-								get = getString,
-								arg = "positions",
-							},
-						},
-					},
-					orHeader = {
-						order = 1.5,
-						type = "header",
-						name = L["Or you can set a position manually"],
-						hidden = hideAdvancedOption,
-					},
-					position = {
-						order = 2,
-						type = "group",
-						hidden = hideAdvancedOption,
-						inline = true,
-						name = L["Manual position"],
-						args = {
-							point = {
-								order = 0,
-								type = "select",
-								name = L["Point"],
-								values = pointPositions,
-								arg = "positions",
-							},
-							relativePoint = {
-								order = 1,
-								type = "select",
-								name = L["Relative point"],
-								values = pointPositions,
-								arg = "positions",
-							},
-							sep = {
-								order = 2,
-								type = "description",
-								name = "",
-								width = "full",
-							},
-							x = {
-								order = 3,
-								type = "input",
-								name = L["X Offset"],
-								validate = isNumber,
-								set = setNumber,
-								get = getString,
-								arg = "positions",
-							},
-							y = {
-								order = 4,
-								type = "input",
-								name = L["Y Offset"],
-								validate = isNumber,
-								set = setNumber,
-								get = getString,
-								arg = "positions",
-							},
-						},
-					},
-				},
-			},
-			bars = {
-				order = 2,
-				name = L["Widget size"],
-				type = "group",
-				hidden = isModifiersSet,
-				set = function(info, value)
-					local key = info[#(info)]
-					local module = info[#(info) - 1]
-					local unit = info[#(info) - 3]
-					
-					if( unit == "global" ) then
-						for unit in pairs(modifyUnits) do
-							ShadowUF.db.profile.layout[unit][module][key] = value
-						end
-					else
-						ShadowUF.db.profile.layout[unit][module][key] = value
-					end
-					
-					ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
-				end,
-				get = function(info)
-					local key = info[#(info)]
-					local module = info[#(info) - 1]
-					local unit = info[#(info) - 3]
-					if( unit == "global" ) then
-						unit = masterUnit
-					end
-					
-					return ShadowUF.db.profile.layout[unit][module][key]
-				end,
-				args = {
-					portrait = {
-						order = 0,
-						type = "group",
-						name = L["Portrait"],
-						inline = true,
-						args = {
-							alignment = {
-								order = 0,
-								type = "select",
-								name = L["Alignment"],
-								values = {["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
-							},
-							width = {
-								order = 1,
-								type = "range",
-								name = L["Width percent"],
-								desc = L["Percentage of width the portrait should use."],
-								min = 0, max = 1.0, step = 0.01,
-								isPercent = true,
-							},
-						},
-					},
-					healthBar = barTable,
-					powerBar = barTable,
-					castBar = barTable,
-					xpBar = barTable,
-				},
-			},
-		},
-	}
-	
-	options.args.layout = {
-		type = "group",
-		name = L["Layout"],
-		args = {
-			global = {
-				type = "group",
-				childGroups = "tab",
-				order = 0,
-				name = L["Global"],
-				args = {
-					units = {
-						order = 0,
-						type = "group",
-						name = L["Units"],
-						set = function(info, value)
-							local unit = info[#(info)]
-							if( not masterUnit and value ) then
-								masterUnit = unit
-							end
-							
-							modifyUnits[unit] = value and true or nil
-							if( not modifyUnits[unit] and masterUnit == unit ) then
-								masterUnit = nil
-								for unit in pairs(modifyUnits) do
-									masterUnit = unit
-									break
-								end
-							end
-
-							AceRegistry:NotifyChange("ShadowedUF")
-						end,
-						get = function(info) return modifyUnits[info[#(info)]] end,
-						args = {
-							help = {
-								order = 0,
-								type = "group",
-								name = L["Help"],
-								inline = true,
-								args = {
-									help = {
-										order = 0,
-										type = "description",
-										name = L["Select unit(s) to modify to access the global configuration, this will let you change settings quickly on all selected units at once."],
-									},
-								},
-							},
-							units = {
-								order = 1,
-								type = "group",
-								name = L["Units"],
-								inline = true,
-								args = {},
-							},
-						},
-					},
-				},
-			},
-		},
-	}
-	
-	-- Load global unit
-	for k, v in pairs(unitTable.args) do
-		options.args.layout.args.global.args[k] = v
-	end
-
-	
-	-- Load all of the per unit settings
-	local perUnitList = {
-		order = getUnitOrder,
-		type = "toggle",
-		name = getName,
-		hidden = isUnitHidden,
-		desc = function(info)
-			return string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], L[info[#(info)]])
-		end,
-	}
-	
-	for order, unit in pairs(ShadowUF.units) do
-		options.args.layout.args.global.args.units.args.units.args[unit] = perUnitList
-	end
-
-	-- Load units already enabled
-	for order, unit in pairs(ShadowUF.units) do
-		options.args.layout.args[unit] = unitTable
 	end
 end
 
@@ -1873,10 +1868,30 @@ local function loadVisibilityOptions()
 		return ShadowUF.db.profile.visibility[area][unit .. key]
 	end
 	
+	local function getHelp(info)
+		local unit = info[#(info) - 1]
+		local area  = info[#(info) - 2]
+		local key = info[#(info)]
+		if( key == "enabled" ) then
+			key = ""
+		end
+		
+		local current = ShadowUF.db.profile.visibility[area][unit .. key]
+		if( current == false ) then
+			return string.format(L["Disabled in %s"], L.areas[area])
+		elseif( current == true ) then
+			return string.format(L["Enabled in %s"], L.areas[area])
+		end
+
+		return L["Using unit settings"]
+	end
+	
 	local areaTable = {
 		type = "group",
 		order = 1,
-		name = getName,
+		name = function(info)
+			return L.areas[info[#(info)]]
+		end,
 		get = get,
 		set = set,
 		args = {},
@@ -1892,11 +1907,18 @@ local function loadVisibilityOptions()
 			enabled = {
 				order = 0,
 				type = "toggle",
-				name = function(info) return string.format(L["Enable %s frames"], L[info[#(info) - 1]]) end,
+				name = function(info) return string.format(L["Enable %s frames"], L.units[info[#(info) - 1]]) end,
+				desc = getHelp,
 				tristate = true,
 				hidden = false,
+			},
+			sep = {
+				order = 0.5,
+				type = "description",
+				name = "",
 				width = "full",
-			}
+				hidden = false,
+			},
 		}
 	}
 	
@@ -1904,8 +1926,14 @@ local function loadVisibilityOptions()
 		order = getModuleOrder,
 		type = "toggle",
 		name = getName,
+		desc = getHelp,
 		tristate = true,
-		hidden = hidePlayerOnly,
+		hidden = function(info)
+			local hidden = hidePlayerOnly(info)
+			if( hidden ) then return true end
+			
+			return hideClassWidget(info)
+		end,
 	}
 		
 	for key, name in pairs(ShadowUF.moduleNames) do
@@ -1924,7 +1952,7 @@ local function loadVisibilityOptions()
 			start = {
 				order = 0,
 				type = "group",
-				name = L["General"],
+				name = L["Help"],
 				inline = true,
 				args = {
 					help = {
@@ -1950,7 +1978,6 @@ local function loadOptions()
 	}
 	
 	loadGeneralOptions()
-	loadLayoutOptions()
 	loadUnitOptions()
 	loadTagOptions()
 	loadVisibilityOptions()	
@@ -1958,9 +1985,8 @@ local function loadOptions()
 	-- Ordering
 	options.args.general.order = 0
 	options.args.units.order = 1
-	options.args.layout.order = 2
-	options.args.visibility.order = 3
-	options.args.tags.order = 4
+	options.args.visibility.order = 2
+	options.args.tags.order = 3
 	
 	-- Debug mostly
 	Config.options = options

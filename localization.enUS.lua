@@ -32,6 +32,12 @@ ShadowUFLocals = {
 	["Error"] = "Error",
 	["General"] = "General",
 	["Search tag"] = "Search tag",
+	["Screen"] = "Screen",
+	
+	-- Help
+	["Help"] = "Help",
+	["Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options."] = "Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.",
+	["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText (Advanced only) - Allows changing how the text anchors and the offset, you can set tags here as well.\n\nTag Wizard - Quickly add and remove tags to text."] = "In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText (Advanced only) - Allows changing how the text anchors and the offset, you can set tags here as well.\n\nTag Wizard - Quickly add and remove tags to text.",
 	
 	-- Positions
 	["Center"] = "Center",
@@ -88,8 +94,6 @@ ShadowUFLocals = {
 	["Debuffs"] = "Debuffs",
 	["Filters"] = "Filters",
 	["Auras"] = "Auras",
-	["Help"] = "Help",
-	["Select unit(s) to modify to access the global configuration, this will let you change settings quickly on all selected units at once."] = "Select unit(s) to modify to access the global configuration, this will let you change settings quickly on all selected units at once.",
 	["Position"] = "Position",
 	["XP/Reputation bar"] = "XP/Reputation bar",
 	["This bar will automatically hide when you are at the level cap, or you do not have any reputations tracked."] = "This bar will automatically hide when you are at the level cap, or you do not have any reputations tracked.",
@@ -106,7 +110,6 @@ ShadowUFLocals = {
 	["3D"] = "3D",
 	["2D"] = "2D",
 	["Text"] = "Text",
-	["Help"] = "Help",
 	["Tag wizard"] = "Tag wizard",
 	["Show your auras only"] = "Show your auras only",
 	["Filter out any auras that you did not cast yourself."] = "Filter out any auras that you did not cast yourself.",
@@ -173,6 +176,7 @@ ShadowUFLocals = {
 	["None"] = "None",
 	["Clip"] = "Clip",
 	["How close the frame should clip with the border."] = "How close the frame should clip with the border.",
+	["Extra"] = "Extra",
 	
 	-- Tags
 	["Events"] = "Events",
@@ -202,28 +206,40 @@ ShadowUFLocals = {
 	["This tag is included by default and cannot be deleted."] = "This tag is included by default and cannot be deleted.",
 	["Search"] = "Search",
 	["Search tags"] = "Search tags",
+	["Frame"] = "Frame",
 	
 	-- Visibility
 	["Visibility"] = "Visibility",
 	["Enable %s frames"] = "Enable %s frames",
 	["You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone."] = "You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone.",
-	["pvp"] = "Battlegrounds",
-	["arena"] = "Arenas",
-	["party"] = "Party instances",
-	["raid"] = "Raid instances",
+	["Enabled in %s"] = "Enabled in %s",
+	["Disabled in %s"] = "Disabled in %s",
+	["Using unit settings"] = "Using unit settings",
+	
+	-- Instance types
+	["areas"] = {
+		["pvp"] = "Battlegrounds",
+		["arena"] = "Arenas",
+		["party"] = "Party instances",
+		["raid"] = "Raid instances",
+	},
 	
 	-- Unit names
-	["player"] = "Player",
-	["pet"] = "Pet",
-	["target"] = "Target",
-	["targettarget"] = "Target of Target",
-	["targettargettarget"] = "Target of Target of Target",
-	["focus"] = "Focus",
-	["party"] = "Party",
-	["partypet"] = "Party pet",
-	["raid"] = "Raid",
-	
+	["units"] = {
+		["player"] = "Player",
+		["pet"] = "Pet",
+		["target"] = "Target",
+		["targettarget"] = "Target of Target",
+		["targettargettarget"] = "Target of Target of Target",
+		["focus"] = "Focus",
+		["party"] = "Party",
+		["partypet"] = "Party pet",
+		["raid"] = "Raid",
+	},
+		
 	-- Module names
+	["Totems"] = "Totems",
+	["Rune bar"] = "Rune bar",
 	["Health bar"] = "Health bar",
 	["Cast bar"] = "Cast bar",
 	["XP/Rep bar"] = "XP/Rep bar",
@@ -232,6 +248,8 @@ ShadowUFLocals = {
 	["Portrait"] = "Portrait",
 	["Power bar"] = "Power bar",
 	["Combat text"] = "Combat text",
+	["Rune bar"] = "Rune bar",
+	["Totem indicators"] = "Totem indicators",
 
 	-- Tag help
 	["Unit name colored by class."] = "Unit name colored by class.",

@@ -31,4 +31,6 @@ modules\xp.lua
 modules\cast.lua
 modules\auras.lua
 modules\combattext.lua
+modules\totems.lua
+modules\runes.lua
 modules\layout.lua

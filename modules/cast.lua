@@ -2,7 +2,7 @@ local Cast = ShadowUF:NewModule("Cast")
 local castFuncs = {["UNIT_SPELLCAST_START"] = UnitCastingInfo, ["UNIT_SPELLCAST_DELAYED"] = UnitCastingInfo, ["UNIT_SPELLCAST_CHANNEL_START"] = UnitChannelInfo, ["UNIT_SPELLCAST_CHANNEL_UPDATE"] = UnitChannelInfo}
 local FADE_TIME = 0.20
 
-ShadowUF:RegisterModule(Cast, "castBar", ShadowUFLocals["Cast bar"])
+ShadowUF:RegisterModule(Cast, "castBar", ShadowUFLocals["Cast bar"], "bar")
 
 local function setBarColor(self, r, g, b)
 	self:SetStatusBarColor(r, g, b, ShadowUF.db.profile.layout.general.barAlpha)

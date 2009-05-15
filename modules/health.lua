@@ -1,5 +1,5 @@
 local Health = ShadowUF:NewModule("Health")
-ShadowUF:RegisterModule(Health, "healthBar", ShadowUFLocals["Health bar"])
+ShadowUF:RegisterModule(Health, "healthBar", ShadowUFLocals["Health bar"], "bar")
 
 function Health:UnitEnabled(frame, unit)
 	if( not frame.visibility.healthBar ) then

@@ -351,12 +351,12 @@ function ShadowUF:RegisterLayout(name, data)
 end
 
 -- Module APIs
-function ShadowUF:RegisterModule(module, key, name)
+function ShadowUF:RegisterModule(module, key, name, type)
 	module.moduleKey = key
+	module.moduleType = type
 	modules[module] = true
 	
-	-- This lets the module indicate that it's adding something useful to the DB and needs to be listed for visibility
-	-- as well as being loaded from layout code
+	-- This lets the module indicate that it's adding something useful to the DB and needs to be listed for visibility as well as being loaded from layout code
 	if( key and name ) then
 		self.moduleNames[key] = name
 	end
