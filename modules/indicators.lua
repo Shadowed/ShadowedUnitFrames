@@ -2,7 +2,7 @@ local Indicators = ShadowUF:NewModule("Indicators")
 local raidUnits, partyUnits = {}, {}
 local indicatorList = {"status", "pvp", "leader", "masterLoot", "raidTarget", "happiness"}
 
-ShadowUF:RegisterModule(Indicators, "indicators", ShadowUFLocals["Indicatorss"])
+ShadowUF:RegisterModule(Indicators, "indicators", ShadowUFLocals["Indicators"])
 
 function Indicators:OnInitialize()
 	for i=1, MAX_PARTY_MEMBERS do

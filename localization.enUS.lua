@@ -77,11 +77,6 @@ ShadowUFLocals = {
 	["Per column"] = "Per column",
 	["Rows"] = "Rows",
 	["How many rows to use."] = "How many rows to use.",
-	["You casted"] = "You casted",
-	["Can cast on group"] = "Can cast on group",
-	["Can cancel"] = "Can cancel",
-	["Cannot cancel"] = "Cannot cancel",
-	["Filters you want to use for this, when none are checked it will simply show all of the auras in this category for the unit."] = "Filters you want to use for this, when none are checked it will simply show all of the auras in this category for the unit.",
 	["Enlarge your auras"] = "Enlarge your auras",
 	["If you casted the aura, then the buff icon will be increased in size to make it more visible."] = "If you casted the aura, then the buff icon will be increased in size to make it more visible.",
 	["Anchor to"] = "Anchor to",
@@ -114,6 +109,10 @@ ShadowUFLocals = {
 	["Tag wizard"] = "Tag wizard",
 	["healthBar"] = "Health bar",
 	["powerBar"] = "Power bar",
+	["Show your auras only"] = "Show your auras only",
+	["Filter out any auras that you did not cast yourself."] = "Filter out any auras that you did not cast yourself.",
+	["Show castable on other auras only"] = "Show castable on other auras only",
+	["Filter out any auras that you cannot cast on another player, or yourself."] = "Filter out any auras that you cannot cast on another player, or yourself.",
 	
 	-- Layout
 	["Layout"] = "Layout",

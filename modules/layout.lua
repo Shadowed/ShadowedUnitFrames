@@ -51,9 +51,9 @@ function Layout:ToggleVisibility(frame, visible)
 	end
 end	
 
-function Layout:ReloadAll()
+function Layout:ReloadAll(unit)
 	for frame in pairs(frameList) do
-		if( frame:IsShown() ) then
+		if( frame:IsShown() and ( not unit or frame.unitType == unit ) ) then
 			frame:SetVisibility()
 			self:ApplyAll(frame)
 		end

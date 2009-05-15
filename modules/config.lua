@@ -1,6 +1,7 @@
 local Config = ShadowUF:NewModule("Config")
 local AceDialog, AceRegistry, AceGUI, SML, registered, options
 local L = ShadowUFLocals
+local unitOrder
 local NYI = " (NYI)" -- Debug
 
 --[[
@@ -19,54 +20,41 @@ local function selectDialogGroup(group, key)
 	AceRegistry:NotifyChange("ShadowedUF")
 end
 
---[[
-local tempPath = {}
-local function pathMatches(passedPath)
-	if( not passedPath ) then return end
-	local total = #(tempPath)
-	local matched = 0
-
-	for id, key in pairs(tempPath) do
-		if( passedPath[id] and passedPath[id] == key ) then
-			matched = matched + 1
-		end
-	end
-		
-	return total == matched
-end
-
-local function pathScan(parent)
-	if( not parent.children ) then return false end
-	for id, child in pairs(parent.children) do
-		if( pathMatches(child.userdata) ) then
-			return child
-		end
-		
-		local found = pathScan(child)
-		if( found ) then
-			return found
-		end
-	end
-	
-	return false
-end
-
-local function getWidget(...)
-	for i=#(tempPath), 1, -1 do table.remove(tempPath, i) end
-	for i=1, select("#", ...) do
-		tempPath[i] = select(i, ...)
-	end
-	
-	return pathScan(AceDialog.OpenFrames.ShadowedUF)
-end
-]]
-
 local function isUnitHidden(info)
 	return not ShadowUF.db.profile.units[info[#(info)]].enabled
 end
 
 local function checkAdvancedStatus(info)
 	return not ShadowUF.db.profile.advanced
+end
+
+local function getUnitOrder(info)
+	if( not unitOrder ) then
+		unitOrder = {}
+		
+		for order, unit in pairs(ShadowUF.units) do
+			unitOrder[unit] = order
+		end
+	end
+	
+	return unitOrder[info[#(info)]]
+end
+
+local function getUnitName(info)
+	return L[info[#(info)]]
+end
+
+local function getTagName(info)
+	return string.format("[%s]", info[#(info)])
+end
+
+local function getTagHelp(info)
+	local tag = info[#(info)]
+	if( ShadowUF.db.profile.tags[tag] ) then
+		return ShadowUF.db.profile.tags[tag].help
+	end
+	
+	return ShadowUF.Tags.defaultHelp[tag]
 end
 
 ---------------------
@@ -337,18 +325,22 @@ local function loadGeneralOptions()
 			},
 		},
 	}
-
+		
+	local unitTable = {
+		order = getUnitOrder,
+		type = "toggle",
+		name = getUnitName,
+		set = function(info, value)
+			ShadowUF.db.profile.units[info[#(info)]].enabled = value
+			ShadowUF:LoadUnits()
+		end,
+		get = function(info)
+			return ShadowUF.db.profile.units[info[#(info)]].enabled
+		end,
+	}
+		
 	for order, unit in pairs(ShadowUF.units) do
-		options.args.general.args.general.args.units.args[unit] = {
-			order = order,
-			type = "toggle",
-			name = L[unit],
-			set = function(info, value)
-				ShadowUF.db.profile.units[info[#(info)]].enabled = value
-				ShadowUF:LoadUnits()
-			end,
-			get = function(info) return ShadowUF.db.profile.units[info[#(info)]].enabled end,
-		}
+		options.args.general.args.general.args.units.args[unit] = unitTable
 	end
 end
 
@@ -357,13 +349,11 @@ end
 ---------------------
 local function loadUnitOptions()
 	local modifyUnits = {}
-	local tagHelp = {}
-	local globalSettings
+	local masterUnit
 	
-	local function isModifiersSet()
-		if( globalSettings ) then
-			return false
-		end
+	-- GETTERS/SETTERS
+	local function isModifiersSet(info)
+		if( info[#(info) - 1] ~= "global" ) then return false end
 		
 		for unit in pairs(modifyUnits) do
 			return false
@@ -373,631 +363,641 @@ local function loadUnitOptions()
 	end
 		
 	local function set(info, value)
-		if( info[#(info) - 3] == "global" ) then
+		local unit = info[#(info) - 3]
+		local key = info[#(info)]
+		if( unit == "global" ) then
 			for unit in pairs(modifyUnits) do
-				ShadowUF.db.profile.units[unit][info[#(info)]] = value
+				ShadowUF.db.profile.units[unit][key] = value
 			end
-			
-			globalSettings[info[#(info)]] = value
 		else
-			ShadowUF.db.profile.units[info[#(info) - 3]][info[#(info)]] = value
+			ShadowUF.db.profile.units[unit][key] = value
 		end
 		
 		ShadowUF.Layout:CheckMedia()
-		ShadowUF.Layout:ReloadAll()
+		ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
 	end
 	
 	local function get(info)
-		if( info[#(info) - 3] == "global" ) then
-			return globalSettings[info[#(info)]]
+		local unit = info[#(info) - 3]
+		local key = info[#(info)]
+		if( unit == "global" ) then
+			unit = masterUnit
 		end
 	
-		return ShadowUF.db.profile.units[info[#(info) - 3]][info[#(info)]]
+		return ShadowUF.db.profile.units[unit][key]
 	end
 
 	local function setCast(info, value)
 		local type, key = string.split(".", info.arg)
-		if( info[#(info) - 3] == "global" ) then
+		local unit = info[#(info) - 3]
+		if( unit == "global" ) then
 			for unit in pairs(modifyUnits) do
 				ShadowUF.db.profile.units[unit][type][key] = value
 			end
-			
-			globalSettings[info.arg] = value
 		else
-			ShadowUF.db.profile.units[info[#(info) - 3]][type][key] = value
+			ShadowUF.db.profile.units[unit][type][key] = value
 		end
 		
-		ShadowUF.Layout:ReloadAll()
+		ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
 	end
 	
 	local function getCast(info, value)
 		local type, key = string.split(".", info.arg)
-		if( info[#(info) - 3] == "global" ) then
-			return globalSettings[info.arg]
+		local unit = info[#(info) - 3]
+		if( unit == "global" ) then
+			unit = masterUnit
 		end
 		
-		return ShadowUF.db.profile.units[info[#(info) - 3]][type][key]
+		return ShadowUF.db.profile.units[unit][type][key]
 	end
 	
-	local function setText(info, value)
-		local id, key = string.split(".", info.arg)
-		id = tonumber(id)
-
-		if( info[#(info) - 3] == "global" ) then
-			for unit in pairs(modifyUnits) do
-				ShadowUF.db.profile.units[unit].text[id][key] = value
-			end
+	-- TAG WIZARD
+	local tagWizard = {}
+	do
+		-- Load tag list
+		local tagTable = {
+			order = 0,
+			type = "toggle",
+			name = getTagName, 
+			desc = getTagHelp,
+		}
+		
+		local tagList = {}
+		for tag in pairs(ShadowUF.Tags.defaultTags) do
+			tagList[tag] = tagTable
+		end
 			
-			globalSettings.text[id][key] = value
+		for tag, data in pairs(ShadowUF.db.profile.tags) do
+			tagList[tag] = tagTable
+		end
+
+		local parentList = {
+			order = 0,
+			type = "group",
+			name = function(info) return L[string.sub(info[#(info)], 2)] end,
+			args = {}
+		}
+		
+		local textTbl = {
+			type = "group",
+			name = function(info)
+				local unit = info[#(info) - 3]
+				if( unit == "global" ) then
+					unit = masterUnit
+				end
+				
+				return ShadowUF.db.profile.units[unit].text[tonumber(info[#(info)])].name
+			end,
+			hidden = function(info)
+				local unit = info[#(info) - 3]
+				if( unit == "global" ) then
+					unit = masterUnit
+				end
+				
+				return ShadowUF.db.profile.units[unit].text[tonumber(info[#(info)])].anchorTo ~= info[#(info) - 1]
+			end,
+			set = false,
+			get = false,
+			args = {
+				text = {
+					order = 0,
+					type = "input",
+					name = L["Text"],
+					width = "full",
+					hidden = false,
+					set = function(info, value)
+						local unit = info[#(info) - 4]
+						local id = tonumber(info[#(info) - 1])
+						if( unit == "global" ) then
+							for unit in pairs(modifyUnits) do
+								ShadowUF.db.profile.units[unit].text[id].text = value
+							end
+						else
+							ShadowUF.db.profile.units[unit].text[id].text = value
+						end
+						
+						ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
+					end,
+					get = function(info)
+						local unit = info[#(info) - 4]
+						local id = tonumber(info[#(info) - 1])
+						if( unit == "global" ) then
+							unit = masterUnit
+						end
+						
+						return ShadowUF.db.profile.units[unit].text[id].text
+					end,
+				},
+				tags = {
+					order = 1,
+					type = "group",
+					inline = true,
+					hidden = false,
+					name = L["Tags"],
+					set = function(info, value)
+						local unit = info[#(info) - 5]
+						local id = tonumber(info[#(info) - 2])
+						local key = info[#(info)]
+						local text = ShadowUF.db.profile.units[unit == "global" and masterUnit or unit].text[id].text
+						local tag = string.format("[%s]", key)
+						
+						if( value ) then
+							if( text == "" ) then
+								text = tag
+							else
+								text = string.format("%s %s", text, tag)
+							end
+						else
+							text = string.gsub(text, string.format("%%[%s%%]", key), "")
+							text = string.gsub(text, "  ", "")
+							text = string.trim(text)
+						end
+						
+						if( unit == "global" ) then
+							for unit in pairs(modifyUnits) do
+								ShadowUF.db.profile.units[unit].text[id].text = text
+							end
+						else
+							ShadowUF.db.profile.units[unit].text[id].text = text
+						end
+						
+						ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
+					end,
+					get = function(info)
+						local unit = info[#(info) - 5]
+						local id = tonumber(info[#(info) - 2])
+						local key = info[#(info)]
+						if( unit == "global" ) then
+							unit = masterUnit
+						end
+						
+						return string.match(ShadowUF.db.profile.units[unit].text[id].text, string.format("%%[%s%%]", key))
+					end,
+					args = tagList,
+				},
+			},
+		}
+	
+		-- NTS: If I ever allow people to add more tag text, this has to be changed to a regular variable
+		for _, parent in pairs({"$healthBar", "$powerBar"}) do
+			tagWizard[parent] = parentList
+			
+			for id in pairs(ShadowUF.defaults.profile.units.player.text) do
+				tagWizard[parent].args[tostring(id)] = textTbl
+			end
+		end
+	end
+	
+	-- TEXT CONFIGURATION
+	local function setText(info, value)
+		local id, key = string.split(":", info[#(info)])
+		local unit = info[#(info) - 3]
+
+		if( unit == "global" ) then
+			for unit in pairs(modifyUnits) do
+				ShadowUF.db.profile.units[unit].text[tonumber(id)][key] = value
+			end
 		else
-			ShadowUF.db.profile.units[info[#(info) - 3]].text[id][key] = value
+			ShadowUF.db.profile.units[unit].text[tonumber(id)][key] = value
 		end
 		
-		ShadowUF.Layout:ReloadAll()
+		ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
 	end
 	
 	local function getText(info, value)
-		local id, key = string.split(".", info.arg)
-		id = tonumber(id)
+		local id, key = string.split(":", info[#(info)])
+		local unit = info[#(info) - 3]
 
-		if( info[#(info) - 3] == "global" ) then
-			return globalSettings.text[id][key]
+		if( unit == "global" ) then
+			unit = masterUnit
 		end
 		
-		return ShadowUF.db.profile.units[info[#(info) - 3]].text[id][key]
+		return ShadowUF.db.profile.units[unit].text[tonumber(id)][key]
 	end
-	
-	local function loadTagList()
-		local list = {}
-		
-		for tag in pairs(ShadowUF.Tags.defaultTags) do
-			list[tag] = {
-				order = 0,
-				type = "toggle",
-				name = string.format("[%s]", tag),
-				desc = ShadowUF.Tags.defaultHelp[tag],
-			}
-		end
-		
-		for tag, data in pairs(ShadowUF.db.profile.tags) do
-			list[tag] = {
-				order = 0,
-				type = "toggle",
-				name = string.format("[%s]", tag),
-				desc = data.help,
-			}
+
+	local function getTextOrder(info)
+		local key = info[#(info)]
+		if( key == "healthBar" ) then
+			return 0
+		elseif( key == "powerBar" ) then
+			return 1
 		end
 
-		return list
+		return tonumber((string.split(":", key)))
 	end
-	
-	local function loadTagWizard(unit)
-		local list = {}
-		local parents = {}
-		local textList = unit ~= "global" and ShadowUF.db.profile.units[unit].text or ShadowUF.defaults.profile.units.player.text
-			
-		for _, data in pairs(textList) do
-			parents[data.anchorTo] = true
+
+	local textTable = {
+		order = getTextOrder,
+		name = function(info) return L[info[#(info)]] end,
+		type = "group",
+		inline = true,
+		set = setText,
+		get = getText,
+		args = {}
+	}
+
+	do
+		local function getTextName(info)
+			local unit = info[#(info) - 3]
+			local id = tonumber((string.split(":", info[#(info)])))
+			unit = unit == "global" and masterUnit or unit			
+			return ShadowUF.db.profile.units[unit].text[id].name
 		end
 		
-		for parent in pairs(parents) do
-			list[parent] = {
-				order = 0,
-				type = "group",
-				name = L[string.sub(parent, 2)],
-				args = {},
-			}
-
-			for id, data in pairs(textList) do
-				if( data.anchorTo == parent ) then
-					list[parent].args[tostring(id)] = {
-						order = 0,
-						name = data.name,
-						type = "group",
-						set = false,
-						get = false,
-						args = {
-							text = {
-								order = 0,
-								type = "input",
-								name = L["Text"],
-								width = "full",
-								get = function(info)
-									local unit = info[#(info) - 4]
-									local id = tonumber(info[#(info) - 1])
-									if( unit == "global" ) then
-										return globalSettings.text[id].text
-									end
-									
-									return ShadowUF.db.profile.units[unit].text[id].text
-								end,
-								set = function(info, value)
-									local unit = info[#(info) - 4]
-									local id = tonumber(info[#(info) - 1])
-									
-									if( unit == "global" ) then
-										for unit in pairs(modifyUnits) do
-											ShadowUF.db.profile.units[unit].text[id].text = value
-										end
-										
-										globalSettings.text[id].text = value
-									else
-										ShadowUF.db.profile.units[unit].text[id].text = value
-									end
-									
-									ShadowUF.Layout:ReloadAll()
-								end
-							},
-							tags = {
-								order = 1,
-								type = "group",
-								inline = true,
-								name = L["Tags"],
-								set = function(info, value)
-									local unit = info[#(info) - 5]
-									local id = tonumber(info[#(info) - 2])
-									
-									if( value ) then
-										table.insert(tagHelp[unit .. id], info[#(info)])
-									else
-										for i=#(tagHelp[unit .. id]), 1, -1 do
-											if(tagHelp[unit .. id][i] == info[#(info)] ) then
-												table.remove(tagHelp[unit .. id], i)
-											end
-										end
-									end
-									
-									local tagString
-									for _, tag in pairs(tagHelp[unit .. id]) do
-										if( tagString ) then
-											tagString = string.format("%s [%s]", tagString, tag)
-										else
-											tagString = string.format("[%s]", tag)
-										end
-									end
-
-									tagString = tagString or ""
-									
-									if( unit == "global" ) then
-										for unit in pairs(modifyUnits) do
-											ShadowUF.db.profile.units[unit].text[id].text = tagString
-										end
-									else
-										ShadowUF.db.profile.units[unit].text[id].text = tagString
-									end
-									
-									ShadowUF.Layout:ReloadAll()
-								end,
-								get = function(info)
-									local id = info[#(info) - 5] .. info[#(info) - 2]
-									tagHelp[id] = tagHelp[id] or {}
-									for _, tag in pairs(tagHelp[id]) do
-										if( tag == info[#(info)] ) then
-											return true
-										end
-									end
-									
-									return false
-								end,
-								args = loadTagList(),
-							},
-						},
-					}
-				end
-			end
+		local function isFromParent(info)
+			local unit = info[#(info) - 3]
+			local id = tonumber((string.split(":", info[#(info)])))
+			unit = unit == "global" and masterUnit or unit
+			return string.sub(ShadowUF.db.profile.units[unit].text[id].anchorTo, 2) ~= info[#(info) - 1]
 		end
 		
-		return list
-	end
-	
-	local function loadText(unit, order, parent, text)
+		local header = {
+			order = getTextOrder,
+			name = getTextName,
+			hidden = isFromParent,
+			type = "header",
+		}
+		
 		local text = {
-			order = order,
-			name = text,
-			type = "group",
-			inline = true,
-			set = setText,
-			get = getText,
-			args = {},
+			order = function(info) return getTextOrder(info) + 0.05 end,
+			hidden = isFromParent,
+			name = L["Text"],
+			type = "input",
+			width = "double",
 		}
 		
-		local textList = unit ~= "global" and ShadowUF.db.profile.units[unit].text or ShadowUF.defaults.profile.units.player.text
+		local sep = {
+			order = function(info) return getTextOrder(info) + 0.10 end,
+			hidden = isFromParent,
+			name = "",
+			type = "description",
+			width = "full",
+		}
 		
-		for id, data in pairs(textList) do
-			if( data.anchorTo == parent ) then
-				text.args[id .. "header"] = {
-					order = id,
-					type = "header",
-					name = data.name,
-				}
-				text.args[id .. "text"] = {
-					order = id + 0.10,
-					type = "input",
-					name = L["Text"],
-					width = "double",
-					arg = string.format("%s.text", id),
-				}
-				text.args[id .. "sep"] = {
-					order = id + 0.15,
-					type = "description",
-					name = "",
-					width = "full",
-				}
-				text.args[id .. "anchorPoint"] = {
-					order = id + 0.20,
-					type = "select",
-					values = positionList,
-					name = L["Anchor point"],
-					arg = string.format("%s.anchorPoint", id),
-				}
-				text.args[id .. "x"] = {
-					order = id + 0.30,
-					type = "range",
-					name = L["X Offset"],
-					min = -20, max = 20, step = 1,
-					arg = string.format("%s.x", id)
-				}
-				text.args[id .. "y"] = {
-					order = id + 0.40,
-					type = "range",
-					name = L["Y Offset"],
-					min = -20, max = 20, step = 1,
-					arg = string.format("%s.y", id),
-				}
-			end
+		local anchorPoint = {
+			order = function(info) return getTextOrder(info) + 0.20 end,
+			hidden = isFromParent,
+			type = "select",
+			name = L["Anchor point"],
+			values = positionList,
+		}
+		
+		local x = {
+			order = function(info) return getTextOrder(info) + 0.30 end,
+			hidden = isFromParent,
+			type = "range",
+			name = L["X Offset"],
+			min = -20, max = 20, step = 1,
+		}
+		
+		local y = {
+			order = function(info) return getTextOrder(info) + 0.40 end,
+			hidden = isFromParent,
+			type = "range",
+			name = L["Y Offset"],
+			min = -20, max = 20, step = 1
+		}
+		
+		for id in pairs(ShadowUF.defaults.profile.units.player.text) do
+			textTable.args[id .. ":header"] = header
+			textTable.args[id .. ":text"] = text
+			textTable.args[id .. ":sep"] = sep
+			textTable.args[id .. ":anchorPoint"] = anchorPoint
+			textTable.args[id .. ":x"] = x
+			textTable.args[id .. ":y"] = y
 		end
-		
-		return text
 	end
 	
-	local function loadAuras(unit, order, type, name)
-		return {
-			type = "group",
-			inline = true,
-			name = name,
-			order = order,
-			disabled = function(info)
-				if( info[#(info) - 1] == "buffs" ) then
-					return false
-				elseif( info.arg == "global" and globalSettings.auras.buffs.position == globalSettings.auras.debuffs.position ) then
-					return true
-				elseif( info.arg ~= "global" and ShadowUF.db.profile.units[info.arg].auras.buffs.position == ShadowUF.db.profile.units[info.arg].auras.debuffs.position ) then
-					return true
-				end
-				
+	local auraTable = {
+		type = "group",
+		inline = true,
+		name = function(info) return info[#(info)] == "buffs" and L["Buffs"] or L["Debuffs"]
+		end,
+		order = function(info) return info[#(info)] == "buffs" and 0 or 1 end,
+		disabled = function(info)
+			local unit = info[#(info) - 3]
+			unit = unit == "global" and masterUnit or unit
+			if( info[#(info) - 1] == "buffs" ) then
 				return false
-			end,
-			args = {
-				enabled = {
-					order = 0,
-					type = "toggle",
-					name = string.format(L["Enable %s"], name),
-					arg = unit,
-				},
-				enlargeSelf = {
-					order = 0.50,
-					type = "toggle",
-					name = L["Enlarge your auras"] .. NYI,
-					desc = L["If you casted the aura, then the buff icon will be increased in size to make it more visible."],
-					arg = unit,
-				},
-				filters = {
-					order = 1,
-					type = "multiselect",
-					name = L["Filters"],
-					desc = L["Filters you want to use for this, when none are checked it will simply show all of the auras in this category for the unit."],
-					set = function(info, value, state)
-						if( info.arg == "global" ) then
-							for unit in pairs(modifyUnits) do
-								ShadowUF.db.profile.units[unit].auras[info[#(info) - 1]][value] = state
-							end
-							
-							globalSettings.auras = globalSettings.auras or {}
-							globalSettings.auras[info[#(info) - 1]][value] = state
-						else
-							ShadowUF.db.profile.units[info.arg].auras[info[#(info) - 1]][value] = state
-						end
-						
-						ShadowUF.Layout:ReloadAll()
-					end,
-					get = function(info, value)
-						if( info.arg == "global" ) then
-							return globalSettings.auras[info[#(info) - 1]][value]
-						end
-						
-						return ShadowUF.db.profile.units[info.arg].auras[info[#(info) - 1]][value]
-					end,
-					values = {["PLAYER"] = L["You casted"], ["RAID"] = L["Can cast on group"], ["CANCELABLE"] = L["Can cancel"], ["NOT_CANCELABLE"] = L["Cannot cancel"]},
-					arg = unit,
-				},
-				inColumn = {
-					order = 2,
-					type = "range",
-					name = L["Per column"],
-					desc = L["How many auras to show in a single row."],
-					min = 1, max = 50, step = 1,
-					arg = unit,
-				},
-				rows = {
-					order = 3,
-					type = "range",
-					name = L["Rows"],
-					desc = L["How many rows to use."],
-					min = 1, max = 5, step = 1,
-					arg = unit,
-				},
-				sep = {
-					order = 3.5,
-					type = "description",
-					name = "",
-					width = "full",
-				},
-				position = {
-					order = 4,
-					type = "select",
-					name = L["Position"],
-					desc = L["How you want this aura to be anchored to the unit frame."],
-					values = {["INSIDE"] = L["Inside"], ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
-					disabled = false,
-					arg = unit,
-				},
-				x = {
-					order = 5,
-					type = "range",
-					name = L["X Offset"],
-					min = -20, max = 20, step = 1,
-					arg = unit,
-				},
-				y = {
-					order = 6,
-					type = "range",
-					name = L["Y Offset"],
-					min = -20, max = 20, step = 1,
-					arg = unit,
-				},
+			elseif( ShadowUF.db.profile.units[unit].auras.buffs.position == ShadowUF.db.profile.units[unit].auras.debuffs.position ) then
+				return true
+			end
+			
+			return false
+		end,
+		set = function(info, value)
+			local unit = info[#(info) - 3]
+			local type = info[#(info) - 1]
+			local key = info[#(info)]
+			
+			if( unit == "global" ) then
+				for unit in pairs(ShadowUF.units) do
+					ShadowUF.db.profile.units[unit].auras[type][key] = value
+				end
+			else
+				ShadowUF.db.profile.units[unit].auras[type][key] = value
+			end
+			
+			ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
+		end,
+		get = function(info)
+			local unit = info[#(info) - 3]
+			unit = unit == "global" and masterUnit or unit			
+			return ShadowUF.db.profile.units[unit].auras[info[#(info) - 1]][info[#(info)]]
+		end,
+		args = {
+			enabled = {
+				order = 0,
+				type = "toggle",
+				name = function(info) if( info[#(info) - 1] == "buffs" ) then return L["Buffs"] end return L["Debuffs"] end,
 			},
-		}
-	end
+			enlargeSelf = {
+				order = 0.50,
+				type = "toggle",
+				name = L["Enlarge your auras"] .. NYI,
+				desc = L["If you casted the aura, then the buff icon will be increased in size to make it more visible."],
+			},
+			sep1 = {
+				order = 0.75,
+				type = "description",
+				name = "",
+				width = "full",
+			},
+			PLAYER = {
+				order = 1.0,
+				type = "toggle",
+				name = L["Show your auras only"],
+				desc = L["Filter out any auras that you did not cast yourself."],
+			},
+			RAID = {
+				order = 1.5,
+				type = "toggle",
+				name = L["Show castable on other auras only"],
+				desc = L["Filter out any auras that you cannot cast on another player, or yourself."],
+				width = "double",
+			},
+			sep2 = {
+				order = 1.75,
+				type = "description",
+				name = "",
+				width = "full",
+			},
+			inColumn = {
+				order = 2,
+				type = "range",
+				name = L["Per column"],
+				desc = L["How many auras to show in a single row."],
+				min = 1, max = 50, step = 1,
+			},
+			rows = {
+				order = 3,
+				type = "range",
+				name = L["Rows"],
+				desc = L["How many rows to use."],
+				min = 1, max = 5, step = 1,
+			},
+			sep3 = {
+				order = 3.5,
+				type = "description",
+				name = "",
+				width = "full",
+			},
+			position = {
+				order = 4,
+				type = "select",
+				name = L["Position"],
+				desc = L["How you want this aura to be anchored to the unit frame."],
+				values = {["INSIDE"] = L["Inside"], ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
+				disabled = false,
+			},
+			x = {
+				order = 5,
+				type = "range",
+				name = L["X Offset"],
+				min = -20, max = 20, step = 1,
+			},
+			y = {
+				order = 6,
+				type = "range",
+				name = L["Y Offset"],
+				min = -20, max = 20, step = 1,
+			},
+		},
+	}
 	
-	local function loadUnit(unit, order)
-		return {
-			type = "group",
-			childGroups = "tab",
-			order = order + 1,
-			name = L[unit],
-			set = set,
-			get = get,
-			args = {
-				general = {
-					order = 1,
-					name = L["General"],
-					type = "group",
-					hidden = false,
-					set = set,
-					get = get,
-					args = {
-						portrait = {
-							order = 1,
-							type = "group",
-							inline = true,
-							name = L["Portrait"],
-							args = {
-								portrait = {
-									order = 0,
-									type = "toggle",
-									name = string.format(L["Enable %s"], L["Portrait"]),
-								},
-								portraitType = {
-									order = 1,
-									type = "select",
-									name = L["Portrait type"],
-									values = {["2D"] = L["2D"], ["3D"] = L["3D"]},
-								},
+	local unitTable = {
+		type = "group",
+		childGroups = "tab",
+		order = getUnitOrder,
+		name = getUnitName,
+		hidden = isUnitHidden,
+		set = set,
+		get = get,
+		args = {
+			general = {
+				order = 1,
+				name = L["General"],
+				type = "group",
+				hidden = isModifiersSet,
+				args = {
+					portrait = {
+						order = 1,
+						type = "group",
+						inline = true,
+						name = L["Portrait"],
+						args = {
+							portrait = {
+								order = 0,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Portrait"]),
 							},
-						},
-						combatText = {
-							order = 2,
-							type = "group",
-							inline = true,
-							name = L["Combat text"],
-							args = {
-								combatText = {
-									order = 0,
-									type = "toggle",
-									name = string.format(L["Enable %s"], L["Combat text"]) .. NYI,
-									width = "full",
-								},
+							portraitType = {
+								order = 1,
+								type = "select",
+								name = L["Portrait type"],
+								values = {["2D"] = L["2D"], ["3D"] = L["3D"]},
 							},
 						},
 					},
-				},
-				bars = {
-					order = 2,
-					name = L["Bars"],
-					type = "group",
-					hidden = false,
-					set = set,
-					get = get,
-					args = {
-						health = {
-							order = 1,
-							type = "group",
-							inline = true,
-							name = L["Health bar"],
-							args = {
-								healthBar = {
-									order = 0,
-									type = "toggle",
-									name = string.format(L["Enable %s"], L["Health bar"]),
-								},
-								colorAggro = {
-									order = 1,
-									type = "toggle",
-									name = L["Color on aggro"] .. NYI,
-								},
-								healthColor = {
-									order = 2,
-									type = "select",
-									name = L["Color health by"] .. NYI,
-									values = {["reaction"] = L["Reaction"], ["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"], ["threat"] = L["Threat"]},
-								},
-							},
-						},
-						bar = {
-							order = 2,
-							type = "group",
-							inline = true,
-							name = L["General bars"],
-							width = "half",
-							args = {
-								powerBar = {
-									order = 0,
-									type = "toggle",
-									name = string.format(L["Enable %s"], L["Power bar"]),
-								},
-								xpBar = {
-									order = 1,
-									type = "toggle",
-									name = string.format(L["Enable %s"], L["XP/Rep bar"]),
-									desc = L["This bar will automatically hide when you are at the level cap, or you do not have any reputations tracked."],
-									hidden = function(info) if( info[#(info) - 3] ~= "player" and info[#(info) - 3] ~= "pet" ) then return true else return false end end,
-								},
-							},
-						},
-						cast = {
-							order = 4,
-							type = "group",
-							inline = true,
-							name = L["Cast bar"],
-							args = {
-								castBar = {
-									order = 0,
-									type = "toggle",
-									name = string.format(L["Enable %s"], L["Cast bar"]),
-									arg = unit
-								},
-								castName = {
-									order = 0.50,
-									type = "header",
-									name = L["Cast name"],
-								},
-								nameAnchor = {
-									order = 1,
-									type = "select",
-									name = L["Anchor point"],
-									desc = L["Where to anchor the cast name text."],
-									values = {["ICL"] = L["Inside Center Left"], ["ICR"] = L["Inside Center Right"]},
-									set = setCast,
-									get = getCast,
-									arg = "castName.anchorPoint",
-								},
-								nameX = {
-									order = 2,
-									type = "range",
-									name = L["X Offset"],
-									min = -20, max = 20, step = 1,
-									set = setCast,
-									get = getCast,
-									arg = "castName.x",
-								},
-								nameY = {
-									order = 3,
-									type = "range",
-									name = L["Y Offset"],
-									min = -20, max = 20, step = 1,
-									set = setCast,
-									get = getCast,
-									arg = "castName.y",
-								},
-								castTime = {
-									order = 3.50,
-									type = "header",
-									name = L["Cast time"],
-								},
-								timeAnchor = {
-									order = 4,
-									type = "select",
-									name = L["Anchor point"],
-									desc = L["Where to anchor the cast time text."],
-									values = {["ICL"] = L["Inside Center Left"], ["ICR"] = L["Inside Center Right"]},
-									set = setCast,
-									get = getCast,
-									arg = "castTime.anchorPoint",
-								},
-								timeX = {
-									order = 5,
-									type = "range",
-									name = L["X Offset"],
-									min = -20, max = 20, step = 1,
-									set = setCast,
-									get = getCast,
-									arg = "castTime.x",
-								},
-								timeY = {
-									order = 6,
-									type = "range",
-									name = L["Y Offset"],
-									min = -20, max = 20, step = 1,
-									set = setCast,
-									get = getCast,
-									arg = "castTime.y",
-								},
+					combatText = {
+						order = 2,
+						type = "group",
+						inline = true,
+						name = L["Combat text"],
+						args = {
+							combatText = {
+								order = 0,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Combat text"]) .. NYI,
+								width = "full",
 							},
 						},
 					},
-				},
-				auras = {
-					order = 3,
-					name = L["Auras"],
-					type = "group",
-					hidden = false,
-					set = function(info, value)
-						if( info.arg == "global" ) then
-							for unit in pairs(modifyUnits) do
-								ShadowUF.db.profile.units[unit].auras[info[#(info) - 1]][info[#(info)]] = value
-							end
-							
-							globalSettings.auras[info[#(info) - 1]] = globalSettings.auras[info[#(info) - 1]] or {}
-							globalSettings.auras[info[#(info) - 1]][info[#(info)]] = value
-						else
-							ShadowUF.db.profile.units[info.arg].auras[info[#(info) - 1]][info[#(info)]] = value
-						end
-						
-						ShadowUF.Layout:ReloadAll()
-					end,
-					get = function(info)
-						if( info.arg == "global" ) then
-							return globalSettings.auras[info[#(info) - 1]][info[#(info)]]
-						end
-					
-						return ShadowUF.db.profile.units[info.arg].auras[info[#(info) - 1]][info[#(info)]]
-					end,
-					args = {
-						buffs = loadAuras(unit, 0, "buffs", L["Buffs"]),
-						debuffs = loadAuras(unit, 1, "debuffs", L["Debuffs"]),
-					},
-				},
-				text = {
-					order = 4,
-					name = L["Text"],
-					type = "group",
-					hidden = false,
-					args = {
-						healthBar = loadText(unit, 1, "$healthBar", L["Health bar"]),
-						powerBar = loadText(unit, 2, "$powerBar", L["Power bar"]),
-					},
-				},
-				tag = {
-					order = 5,
-					name = L["Tag wizard"],
-					type = "group",
-					hidden = false,
-					childGroups = "tree",
-					args = loadTagWizard(unit),
 				},
 			},
-		}
-	end
+			bars = {
+				order = 2,
+				name = L["Bars"],
+				type = "group",
+				hidden = isModifiersSet,
+				args = {
+					health = {
+						order = 1,
+						type = "group",
+						inline = true,
+						name = L["Health bar"],
+						args = {
+							healthBar = {
+								order = 0,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Health bar"]),
+							},
+							colorAggro = {
+								order = 1,
+								type = "toggle",
+								name = L["Color on aggro"] .. NYI,
+s							},
+							healthColor = {
+								order = 2,
+								type = "select",
+								name = L["Color health by"] .. NYI,
+								values = {["reaction"] = L["Reaction"], ["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"], ["threat"] = L["Threat"]},
+							},
+						},
+					},
+					bar = {
+						order = 2,
+						type = "group",
+						inline = true,
+						name = L["General bars"],
+						width = "half",
+						args = {
+							powerBar = {
+								order = 0,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Power bar"]),
+							},
+							xpBar = {
+								order = 1,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["XP/Rep bar"]),
+								desc = L["This bar will automatically hide when you are at the level cap, or you do not have any reputations tracked."],
+								hidden = function(info) if( info[#(info) - 3] ~= "player" and info[#(info) - 3] ~= "pet" ) then return true else return false end end,
+							},
+						},
+					},
+					cast = {
+						order = 4,
+						type = "group",
+						inline = true,
+						name = L["Cast bar"],
+						args = {
+							castBar = {
+								order = 0,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Cast bar"]),
+								arg = unit
+							},
+							castName = {
+								order = 0.50,
+								type = "header",
+								name = L["Cast name"],
+							},
+							nameAnchor = {
+								order = 1,
+								type = "select",
+								name = L["Anchor point"],
+								desc = L["Where to anchor the cast name text."],
+								values = {["ICL"] = L["Inside Center Left"], ["ICR"] = L["Inside Center Right"]},
+								set = setCast,
+								get = getCast,
+								arg = "castName.anchorPoint",
+							},
+							nameX = {
+								order = 2,
+								type = "range",
+								name = L["X Offset"],
+								min = -20, max = 20, step = 1,
+								set = setCast,
+								get = getCast,
+								arg = "castName.x",
+							},
+							nameY = {
+								order = 3,
+								type = "range",
+								name = L["Y Offset"],
+								min = -20, max = 20, step = 1,
+								set = setCast,
+								get = getCast,
+								arg = "castName.y",
+							},
+							castTime = {
+								order = 3.50,
+								type = "header",
+								name = L["Cast time"],
+							},
+							timeAnchor = {
+								order = 4,
+								type = "select",
+								name = L["Anchor point"],
+								desc = L["Where to anchor the cast time text."],
+								values = {["ICL"] = L["Inside Center Left"], ["ICR"] = L["Inside Center Right"]},
+								set = setCast,
+								get = getCast,
+								arg = "castTime.anchorPoint",
+							},
+							timeX = {
+								order = 5,
+								type = "range",
+								name = L["X Offset"],
+								min = -20, max = 20, step = 1,
+								set = setCast,
+								get = getCast,
+								arg = "castTime.x",
+							},
+							timeY = {
+								order = 6,
+								type = "range",
+								name = L["Y Offset"],
+								min = -20, max = 20, step = 1,
+								set = setCast,
+								get = getCast,
+								arg = "castTime.y",
+							},
+						},
+					},
+				},
+			},
+			auras = {
+				order = 3,
+				name = L["Auras"],
+				type = "group",
+				hidden = isModifiersSet,
+				args = {
+					buffs = auraTable,
+					debuffs = auraTable,
+				},
+			},
+			text = {
+				order = 4,
+				name = L["Text"],
+				type = "group",
+				hidden = isModifiersSet,
+				args = {
+					healthBar = textTable,
+					powerBar = textTable,
+				},
+			},
+			tag = {
+				order = 5,
+				name = L["Tag wizard"],
+				type = "group",
+				hidden = isModifiersSet,
+				childGroups = "tree",
+				args = tagWizard,
+			},
+		},
+	}
 	
 	options.args.units = {
 		type = "group",
@@ -1014,19 +1014,19 @@ local function loadUnitOptions()
 						type = "group",
 						name = L["Units"],
 						set = function(info, value)
-							if( not globalSettings ) then
-								globalSettings = CopyTable(ShadowUF.db.profile.units[info[#(info)]])
+							if( not masterUnit ) then
+								masterUnit = info[#(info)]
 							end
+
 							modifyUnits[info[#(info)]] = value and true or nil
 						end,
 						get = function(info) return modifyUnits[info[#(info)]] end,
 						args = {
 							help = {
-								order = 1000,
+								order = 0,
 								type = "group",
 								name = L["Help"],
 								inline = true,
-								hidden = function() return not isModifiersSet() end,
 								args = {
 									help = {
 										order = 0,
@@ -1034,6 +1034,13 @@ local function loadUnitOptions()
 										name = L["Select unit(s) to modify to access the global configuration, this will let you change settings quickly on all selected units at once."],
 									},
 								},
+							},
+							units = {
+								order = 1,
+								type = "group",
+								name = L["Units"],
+								inline = true,
+								args = {},
 							},
 						},
 					},
@@ -1043,26 +1050,29 @@ local function loadUnitOptions()
 	}
 	
 	-- Load global unit
-	for k, v in pairs(loadUnit("global", 2).args) do
+	for k, v in pairs(unitTable.args) do
 		options.args.units.args.global.args[k] = v
-		options.args.units.args.global.args[k].hidden = isModifiersSet
 	end
-		
+
+	
 	-- Load all of the per unit settings
+	local perUnitList = {
+		order = getUnitOrder,
+		type = "toggle",
+		name = getUnitName,
+		hidden = isUnitHidden,
+		desc = function(info)
+			return string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], L[info[#(info)]])
+		end,
+	}
+	
 	for order, unit in pairs(ShadowUF.units) do
-		options.args.units.args.global.args.units.args[unit] = {
-			order = order + 1,
-			type = "toggle",
-			name = L[unit],
-			hidden = isUnitHidden,
-			desc = string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], L[unit]),
-		}
+		options.args.units.args.global.args.units.args.units.args[unit] = perUnitList
 	end
 
 	-- Load units already enabled
 	for order, unit in pairs(ShadowUF.units) do
-		options.args.units.args[unit] = loadUnit(unit, order)
-		options.args.units.args[unit].hidden = isUnitHidden
+		options.args.units.args[unit] = unitTable
 	end
 end
 
@@ -1070,169 +1080,11 @@ end
 -- LAYOUT CONFIGURATION
 ---------------------
 local function loadLayoutOptions()
-	local modifyUnits = {}
-	local globalSettings
-	
-	local function isModifiersSet()
-		if( globalSettings ) then
-			return false
-		end
-		
-		for unit in pairs(modifyUnits) do
-			return false
-		end
-		
-		return true
-	end
-		
-	local function set(info, value)
-		if( info[#(info) - 3] == "global" ) then
-			for unit in pairs(modifyUnits) do
-				ShadowUF.db.profile.layout[unit][info[#(info)]] = value
-			end
-			
-			globalSettings[info[#(info)]] = value
-		else
-			ShadowUF.db.profile.layout[info[#(info) - 3]][info[#(info)]] = value
-		end
-		
-		ShadowUF.Layout:CheckMedia()
-		ShadowUF.Layout:ReloadAll()
-	end
-	
-	local function get(info)
-		if( info[#(info) - 3] == "global" ) then
-			return globalSettings[info[#(info)]]
-		end
-	
-		return ShadowUF.db.profile.layout[info[#(info) - 3]][info[#(info)]]
-	end
-	
-	local function loadUnit(unit, order)
-		return {
-			type = "group",
-			childGroups = "tab",
-			order = order + 1,
-			name = L[unit],
-			set = set,
-			get = get,
-			args = {
-				general = {
-					order = 1,
-					name = L["General"],
-					type = "group",
-					hidden = false,
-					set = set,
-					get = get,
-					args = {
-						size = {
-							order = 0,
-							type = "group",
-							inline = true,
-							name = L["Size"],
-							args = {
-								scale = {
-									order = 1,
-									type = "range",
-									name = L["Scale"],
-									min = 0.50, max = 1.50, step = 0.01,
-									isPercent = true,
-								},
-								height = {
-									order = 2,
-									type = "range",
-									name = L["Height"],
-									min = 0, max = 200, step = 1,
-								},
-								width = {
-									order = 3,
-									type = "range",
-									name = L["Width"],
-									min = 0, max = 300, step = 1,
-								},
-							},
-						},
-					},
-				},
-				bars = {
-					order = 2,
-					name = L["Bars"],
-					type = "group",
-					hidden = false,
-					set = set,
-					get = get,
-					args = {
-					},
-				},
-			},
-		}
-	end
-	
 	options.args.layout = {
-		type = "group",
 		name = L["Layout"],
-		args = {
-			global = {
-				type = "group",
-				childGroups = "tab",
-				order = 0,
-				name = L["Global"],
-				args = {
-					units = {
-						order = 0,
-						type = "group",
-						name = L["Units"],
-						set = function(info, value)
-							if( not globalSettings ) then
-								globalSettings = CopyTable(ShadowUF.db.profile.layout[info[#(info)]])
-							end
-							modifyUnits[info[#(info)]] = value and true or nil
-						end,
-						get = function(info) return modifyUnits[info[#(info)]] end,
-						args = {
-							help = {
-								order = 1000,
-								type = "group",
-								name = L["Help"],
-								inline = true,
-								hidden = function() return not isModifiersSet() end,
-								args = {
-									help = {
-										order = 0,
-										type = "description",
-										name = L["Select unit(s) to modify to access the global configuration, this will let you change settings quickly on all selected units at once."],
-									},
-								},
-							},
-						},
-					},
-				},
-			},
-		},
+		type = "group",
+		args = {},
 	}
-	
-	-- Load global unit
-	for k, v in pairs(loadUnit("global", 2).args) do
-		options.args.layout.args.global.args[k] = v
-		options.args.layout.args.global.args[k].hidden = isModifiersSet
-	end
-	
-	-- Load all of the per unit settings
-	for order, unit in pairs(ShadowUF.units) do
-		options.args.layout.args.global.args.units.args[unit] = {
-			order = order + 1,
-			type = "toggle",
-			name = L[unit],
-			hidden = isUnitHidden,
-			desc = string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], L[unit]),
-		}
-	end
-
-	-- Load units already enabled
-	for order, unit in pairs(ShadowUF.units) do
-		options.args.layout.args[unit] = loadUnit(unit, order)
-		options.args.layout.args[unit].hidden = isUnitHidden
-	end
 end
 
 ---------------------
