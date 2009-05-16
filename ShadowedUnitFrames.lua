@@ -32,6 +32,9 @@ function ShadowUF:OnInitialize()
 	
 	-- Initialize DB
 	self.db = LibStub:GetLibrary("AceDB-3.0"):New("ShadowedUFDB", self.defaults)
+	self.db.RegisterCallback(self, "OnProfileChanged", "ProfilesChanged")
+	self.db.RegisterCallback(self, "OnProfileCopied", "ProfilesChanged")
+	self.db.RegisterCallback(self, "OnProfileReset", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnDatabaseShutdown", "OnDatabaseShutdown")
 	
 	-- List of units that SUF supports
@@ -421,6 +424,18 @@ function ShadowUF:WriteTable(tbl)
 	end
 	
 	return "{" .. data .. "}"
+end
+
+-- Profiles changed
+function ShadowUF:ProfilesChanged()
+	-- Check if we need to reimport the layout
+	if( not self.db.profile.activeLayout ) then
+		self:SetLayout("Default", true)
+	end
+
+	ShadowUF.Units:ProfileChanged()
+	ShadowUF:LoadUnits()
+	ShadowUF.Layout:ReloadAll()
 end
 
 -- Database is getting ready to be written, we need to convert any changed data back into text

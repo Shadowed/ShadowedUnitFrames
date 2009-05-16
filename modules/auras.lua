@@ -24,7 +24,7 @@ local function cancelBuff(self)
 end
 
 function Auras:UnitEnabled(frame, unit)
-	if( not frame.visibility.auras or not frame.unitConfig.auras ) then
+	if( not frame.visibility.auras or not ShadowUF.db.profile.units[frame.unitType].auras ) then
 		return
 	end
 	
@@ -96,20 +96,20 @@ local function createAnchor(self, key, config)
 		button:Hide()
 	end
 	
-	Auras.UpdateFilter(aura, self.unitConfig.auras[key])
+	Auras.UpdateFilter(aura, ShadowUF.db.profile.units[self.unitType].auras[key])
 end
 
 function Auras.CreateIcons(self)
 	self.auras = self.auras or {}
 
-	createAnchor(self, "buffs", self.unitConfig.auras.buffs)
-	createAnchor(self, "debuffs", self.unitConfig.auras.debuffs)
+	createAnchor(self, "buffs", ShadowUF.db.profile.units[self.unitType].auras.buffs)
+	createAnchor(self, "debuffs", ShadowUF.db.profile.units[self.unitType].auras.debuffs)
 end
 
 function Auras:LayoutApplied(self)
-	if( self.auras ) then
-		Auras.UpdateFilter(self.auras.buffs, self.unitConfig.auras.buffs)
-		Auras.UpdateFilter(self.auras.debuffs, self.unitConfig.auras.debuffs)
+	if( self.auras and ShadowUF.db.profile.units[self.unitType].auras ) then
+		Auras.UpdateFilter(self.auras.buffs, ShadowUF.db.profile.units[self.unitType].auras.buffs)
+		Auras.UpdateFilter(self.auras.debuffs, ShadowUF.db.profile.units[self.unitType].auras.debuffs)
 		
 		Auras.Update(self, self.unit)
 	end
@@ -190,23 +190,23 @@ function Auras.Update(self, unit)
 	if( self.aurasShared ) then
 		self.auras.buffs.totalAuras = 0
 		
-		if( self.unitConfig.auras.buffs.enabled ) then
+		if( ShadowUF.db.profile.units[self.unitType].auras.buffs.enabled ) then
 			Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buff", unit)
 		end
 		
-		if( self.unitConfig.auras.debuffs.enabled ) then
+		if( ShadowUF.db.profile.units[self.unitType].auras.debuffs.enabled ) then
 			Auras.Scan(self.auras.buffs, self.auras.debuffs.filter, "debuff", unit)
 		end
 		
 		Auras.UpdateDisplay(self.auras.buffs)
 	else
-		if( self.unitConfig.auras.buffs.enabled ) then
+		if( ShadowUF.db.profile.units[self.unitType].auras.buffs.enabled ) then
 			self.auras.buffs.totalAuras = 0
 			Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buff", unit)
 			Auras.UpdateDisplay(self.auras.buffs)
 		end
 
-		if( self.unitConfig.auras.debuffs.enabled ) then
+		if( ShadowUF.db.profile.units[self.unitType].auras.debuffs.enabled ) then
 			self.auras.debuffs.totalAuras = 0
 			Auras.Scan(self.auras.debuffs, self.auras.debuffs.filter, "debuff", unit)
 			Auras.UpdateDisplay(self.auras.debuffs)

@@ -136,6 +136,11 @@ ShadowUFLocals = {
 	["Hides the cooldown ring for any auras that you did not cast."] = "Hides the cooldown ring for any auras that you did not cast.",
 	["Filter out irrelevant debuffs"] = "Filter out irrelevant debuffs",
 	["Automatically filters out debuffs that you don't care about, if you're a magic class you won't see Rend/Deep Wounds, physical classes won't see Curse of the Elements and so on."] = "Automatically filters out debuffs that you don't care about, if you're a magic class you won't see Rend/Deep Wounds, physical classes won't see Curse of the Elements and so on.",
+	["Combat alpha"] = "Combat alpha",
+	["Alpha to use when you are in combat for this unit."] = "Alpha to use when you are in combat for this unit.",
+	["Inactive alpha"] = "Inactive alpha",
+	["Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%."] = "Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%.",
+	
 	
 	-- Layout
 	["Layout"] = "Layout",
@@ -271,6 +276,7 @@ ShadowUFLocals = {
 	},
 		
 	-- Module names
+	["Combat fader"] = "Combat fader",
 	["Totems"] = "Totems",
 	["Rune bar"] = "Rune bar",
 	["Health bar"] = "Health bar",

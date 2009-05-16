@@ -33,4 +33,5 @@ modules\auras.lua
 modules\combattext.lua
 modules\totems.lua
 modules\runes.lua
+modules\fader.lua
 modules\layout.lua

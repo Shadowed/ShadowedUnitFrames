@@ -373,26 +373,23 @@ local function loadGeneralOptions()
 					},
 				},
 			},
-			profile = {
-				type = "group",
-				order = 2,
-				name = L["Profiles"],
-				args = {},
-			},
+			profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(ShadowUF.db),
 			layout = {
 				type = "group",
 				order = 3,
-				name = L["Layout management"],
+				name = L["Layout management"] .. NYI,
 				args = {}
 			},
 			tags = {
 				type = "group",
 				order = 4,
-				name = L["Tag management"],
+				name = L["Tag management"] .. NYI,
 				args = {},
 			},
 		},
 	}
+	
+	options.args.general.args.profile.order = 2
 		
 	local unitTable = {
 		order = getUnitOrder,
@@ -1154,7 +1151,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Extra"],
-						hidden = function(info) local class = select(2, UnitClass("player")) if( class ~= "DEATHKNIGHT" and class ~= "SHAMAN" ) then return true end return false end,
+						hidden = function(info) if( info[#(info) - 2] ~= "player" ) then return true end local class = select(2, UnitClass("player")) if( class ~= "DEATHKNIGHT" and class ~= "SHAMAN" ) then return true end return false end,
 						args = {
 							runeBar = {
 								order = 0,
@@ -1197,8 +1194,37 @@ local function loadUnitOptions()
 							},
 						},
 					},
-					combatText = {
+					fader = {
 						order = 3,
+						type = "group",
+						inline = true,
+						name = L["Combat fader"],
+						args = {
+							fader = {
+								order = 0,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Combat fader"])
+							},
+							combatAlpha = {
+								order = 1,
+								type = "range",
+								name = L["Combat alpha"],
+								desc = L["Alpha to use when you are in combat for this unit."],
+								min = 0, max = 1.0, step = 0.1,
+								isPercent = true,
+							},
+							inactiveAlpha = {
+								order = 2,
+								type = "range",
+								name = L["Inactive alpha"],
+								desc = L["Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%."],
+								min = 0, max = 1.0, step = 0.1,
+								isPercent = true,
+							},
+						}
+					},
+					combatText = {
+						order = 3.5,
 						type = "group",
 						inline = true,
 						name = L["Combat text"],
@@ -1503,13 +1529,13 @@ local function loadUnitOptions()
 							colorAggro = {
 								order = 1,
 								type = "toggle",
-								name = L["Color on aggro"] .. NYI,
-s							},
+								name = L["Color on aggro"],
+							},
 							healthColor = {
 								order = 2,
 								type = "select",
-								name = L["Color health by"] .. NYI,
-								values = {["reaction"] = L["Reaction"], ["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"], ["threat"] = L["Threat"]},
+								name = L["Color health by"],
+								values = {["reaction"] = L["Reaction"], ["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"]},
 							},
 						},
 					},

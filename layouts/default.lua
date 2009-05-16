@@ -165,6 +165,7 @@ ShadowUF:RegisterLayout("Default", {
 			red = {r = 1.0, g = 0.0, b = 0.0},
 			green = {r = 0.20, g = 0.90, b = 0.20},
 			yellow = {r = 1.0, g = 1.0, b = 0.0},
+			enemyUnattack = {r = 0.60, g = 0.20, b = 0.20},
 		},
 		xpColor = {
 			normal = {r = 0.58, g = 0.0, b = 0.55},
@@ -198,6 +199,12 @@ ShadowUF:RegisterLayout("Default", {
 			heightWeight = 0.60,
 			width = 1.0,
 			order = 40,
+		},
+		runeBar = {
+			background = false,
+			heightWeight = 0.80,
+			width = 1.0,
+			order = 50,
 		},
 		positions = {
 			raid = {point = "CENTER", anchorTo = "UIParent", relativePoint = "CENTER", x = 100, y = -100},

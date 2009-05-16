@@ -36,11 +36,11 @@ function Portrait:PreLayoutApplied(frame)
 		return
 	end
 	
-	if( frame.unitConfig.portraitType == "2D" ) then
+	if( ShadowUF.db.profile.units[frame.unitType].portraitType == "2D" ) then
 		frame.portrait = frame.portraitTexture
 		frame.portraitModel:Hide()
 		frame.portrait:Show()
-	elseif( frame.unitConfig.portraitType == "3D" ) then
+	elseif( ShadowUF.db.profile.units[frame.unitType].portraitType == "3D" ) then
 		frame.portrait = frame.portraitModel
 		frame.portraitTexture:Hide()
 		frame.portrait:Show()
@@ -57,7 +57,7 @@ function Portrait.UpdateFunc(self, unit)
 end
 
 function Portrait.Update(self, unit)
-	if( self.unitConfig.portraitType == "2D" ) then
+	if( ShadowUF.db.profile.units[self.unitType].portraitType == "2D" ) then
 		self.portraitTexture:SetTexCoord(0.10, 0.90, 0.10, 0.90)
 		SetPortraitTexture(self.portraitTexture, unit)
 	elseif( UnitIsVisible(unit) and UnitIsConnected(unit) ) then

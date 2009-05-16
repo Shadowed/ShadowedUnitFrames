@@ -18,8 +18,15 @@ end
 -- Register an event that should always call the frame
 local function RegisterNormalEvent(self, event, func)
 	self:RegisterEvent(event)
-	self.registeredEvents[event] = func
-	self[event] = func
+	self.registeredEvents[event] = self.registeredEvents[event] or {}
+	
+	for _, regFunc in pairs(self.registeredEvents[event]) do
+		if( regFunc == func ) then
+			return
+		end
+	end
+	
+	table.insert(self.registeredEvents[event], func)
 end
 
 -- Register an event thats only called if it's for the actual unit
@@ -41,11 +48,15 @@ local function UnregisterAll(self, ...)
 		
 		self.fullUpdates[func] = nil
 		
-		for event, callback in pairs(self.registeredEvents) do
-			if( func == callback ) then
-				self[event] = nil
-				self.registeredEvents[event] = nil
-
+		for event, list in pairs(self.registeredEvents) do
+			for _, callback in pairs(list) do
+				if( callback == func ) then
+					list[callback] = nil
+					break
+				end
+			end
+			
+			if( #(list) == 0 ) then
 				self:UnregisterEvent(event)
 			end
 		end
@@ -56,7 +67,10 @@ end
 local function OnEvent(self, event, ...)
 	if( not unitEvents[event] or self.unit == (...) ) then
 		self.event = event
-		self[event](self, self.unit, ...)
+		
+		for _, funct in pairs(self.registeredEvents[event]) do
+			funct(self, self.unit, ...)
+		end
 	end
 end
 
@@ -86,12 +100,12 @@ local function SetVisibility(self)
 	local zone = select(2, IsInInstance())
 	-- Selectively disable modules
 	for key in pairs(ShadowUF.moduleNames) do
-		local enabled = self.unitConfig[key]
+		local enabled = ShadowUF.db.profile.units[self.unitType][key]
 		
 		-- Make sure at least one option is enabled if it's an aura or indicator
 		if( enabled and ( key == "auras" or key == "indicators" ) ) then
 			enabled = false
-			for _, option in pairs(self.unitConfig[key]) do
+			for _, option in pairs(ShadowUF.db.profile.units[self.unitType][key]) do
 				if( option.enabled ) then
 					enabled = true
 					break
@@ -108,6 +122,7 @@ local function SetVisibility(self)
 		end
 		
 		-- Options changed, will need to do a layout update
+		local wasEnabled = self.visibility[key]
 		if( self.visibility[key] ~= enabled ) then
 			layoutUpdate = true
 		end
@@ -119,6 +134,12 @@ local function SetVisibility(self)
 			for module in pairs(ShadowUF.regModules) do
 				if( module.moduleKey == key ) then
 					module:UnitEnabled(self, self.unit)
+				end
+			end
+		elseif( not enabled and wasEnabled ) then
+			for module in pairs(ShadowUF.regModules) do
+				if( module.moduleKey == key ) then
+					module:UnitDisabled(self, self.unit)
 				end
 			end
 		end
@@ -140,18 +161,11 @@ local function OnAttributeChanged(self, name, value)
 	self.unit = value
 	self.unitID = tonumber(string.match(value, "([0-9]+)"))
 	self.unitType = string.gsub(value, "([0-9]+)", "")
-	self.unitConfig = ShadowUF.db.profile.units[self.unitType]
 	
 	unitList[value] = self
 
 	-- Now set what is enabled
 	self:SetVisibility()
-	
-	-- Give all of the modules a chance to create what they need
-	--ShadowUF:FireModuleEvent("UnitEnabled", self, value)
-	
-	-- Apply our layout quickly
-	--ShadowUF.Layout:ApplyAll(self, self.unitType)
 	
 	-- Is it an invalid unit?
 	if( string.match(value, "%w+target") ) then
@@ -270,7 +284,9 @@ function Units:ReloadAttributes(type)
 end
 
 function Units:ReanchorHeader(type)
-	ShadowUF.Layout:AnchorFrame(UIParent, unitFrames[type], ShadowUF.db.profile.positions[type])
+	if( unitFrames[type] ) then
+		ShadowUF.Layout:AnchorFrame(UIParent, unitFrames[type], ShadowUF.db.profile.positions[type])
+	end
 end
 
 function Units:ReloadVisibility(type)
@@ -279,8 +295,26 @@ function Units:ReloadVisibility(type)
 	end	
 end
 
+function Units:ProfileChanged()
+	for _, frame in pairs(unitList) do
+		if( frame:GetAttribute("unit") ) then
+			frame:SetVisibility()
+		end
+	end
+	
+	self:ReloadAttributes("raid")
+	self:ReanchorHeader("raid")
+
+	self:ReloadAttributes("party")
+	self:ReanchorHeader("party")
+end
+
 function Units:SetFrameAttributes(frame, type)
 	local config = ShadowUF.db.profile.layout[type]
+	if( not config ) then
+		return
+	end
+	
 	if( type == "raid" or type == "party" ) then
 		frame:SetAttribute("point", config.attribPoint)
 		frame:SetAttribute("initial-width", config.width)
