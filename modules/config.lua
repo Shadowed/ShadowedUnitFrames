@@ -10,7 +10,7 @@ local NYI = " (NYI)" -- Debug
 ]]
 
 -- This is a basic one for frame anchoring
-local positionList = {["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
+local positionList = {[""] = L["None"], ["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
 
 local function selectDialogGroup(group, key)
 	AceDialog.Status.ShadowedUF.children[group].status.groups.selected = key
@@ -38,7 +38,8 @@ local function hideAdvancedOption(info)
 end
 
 local function getName(info)
-	return ShadowUF.moduleNames[info[#(info)]] or L.units[info[#(info)]] or L[info[#(info)]]
+	local key = info[#(info)]
+	return ShadowUF.moduleNames[key] or L.indicators[key] or L.units[key] or L[key]
 end
 
 
@@ -89,7 +90,6 @@ local function hidePlayerOnly(info)
 			return true
 		end
 	end
-	
 	
 	return false
 end
@@ -183,7 +183,7 @@ local function loadGeneralOptions()
 							locked = {
 								order = 0,
 								type = "toggle",
-								name = L["Lock frames"] .. NYI,
+								name = L["Lock frames"],
 							},
 							advanced = {
 								order = 1,
@@ -429,7 +429,7 @@ local function loadUnitOptions()
 	local anchorList = {}
 	local function getAnchorParents(info)
 		for k in pairs(anchorList) do anchorList[k] = nil end
-		if( info[#(info) - 3] ) then
+		if( info[#(info) - 3] == "partypets" ) then
 			anchorList["$parent"] = L["Party member"]
 			return anchorList
 		end
@@ -504,7 +504,7 @@ local function loadUnitOptions()
 		end
 	end
 	
-	local function setLayout(info, value)
+	local function setLayout(info, value, killEvents)
 		fixPositions(info)
 		
 		local unit = info[#(info) - 3]
@@ -518,8 +518,14 @@ local function loadUnitOptions()
 			ShadowUF.db.profile[type][unit][key] = value
 		end
 		
-		ShadowUF.Layout:CheckMedia()
-		ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
+		if( not killEvents ) then
+			ShadowUF.Layout:CheckMedia()
+			ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
+		end
+		
+		if( info.arg == "positions" and ( unit == "raid" or unit == "party" ) ) then
+			ShadowUF.Units:ReanchorHeader(unit)
+		end
 	end
 	
 	local function getLayout(info)
@@ -829,9 +835,19 @@ local function loadUnitOptions()
 			type = "input",
 			width = "double",
 		}
+
+		local text = {
+			order = function(info) return getTextOrder(info) + 0.10 end,
+			hidden = isFromParent,
+			name = L["Width"],
+			desc = L["Percentage of the frames width that this text should use."],
+			type = "range",
+			min = 0, max = 1, step = 0.01,
+			isPercent = true,
+		}
 		
 		local sep = {
-			order = function(info) return getTextOrder(info) + 0.10 end,
+			order = function(info) return getTextOrder(info) + 0.15 end,
 			hidden = isFromParent,
 			name = "",
 			type = "description",
@@ -916,59 +932,86 @@ local function loadUnitOptions()
 				name = function(info) if( info[#(info) - 1] == "buffs" ) then return L["Enable buffs"] end return L["Enable debuffs"] end,
 				disabled = false,
 			},
-			enlargeSelf = {
-				order = 0.50,
+			autoFilter = {
+				order = 1,
 				type = "toggle",
-				name = L["Enlarge your auras"] .. NYI,
-				desc = L["If you casted the aura, then the buff icon will be increased in size to make it more visible."],
+				name = L["Filter out irrelevant debuffs"] .. NYI,
+				desc = L["Automatically filters out debuffs that you don't care about, if you're a magic class you won't see Rend/Deep Wounds, physical classes won't see Curse of the Elements and so on."],
+				hidden = function(info) return info[#(info) - 1] == "buffs" end,
+				width = "double",
 			},
 			sep1 = {
-				order = 0.75,
+				order = 2,
 				type = "description",
 				name = "",
 				width = "full",
 			},
 			PLAYER = {
-				order = 1.0,
+				order = 3,
 				type = "toggle",
 				name = L["Show your auras only"],
 				desc = L["Filter out any auras that you did not cast yourself."],
 			},
 			RAID = {
-				order = 1.5,
+				order = 4,
 				type = "toggle",
 				name = L["Show castable on other auras only"],
 				desc = L["Filter out any auras that you cannot cast on another player, or yourself."],
 				width = "double",
 			},
 			sep2 = {
-				order = 1.75,
+				order = 5,
+				type = "description",
+				name = "",
+				width = "full",
+			},
+			enlargeSelf = {
+				order = 6,
+				type = "toggle",
+				name = L["Enlarge your auras"],
+				desc = L["If you casted the aura, then the buff icon will be increased in size to make it more visible."],
+			},
+			selfTimers = {
+				order = 7,
+				type = "toggle",
+				name = L["Timers for self auras only"],
+				desc = L["Hides the cooldown ring for any auras that you did not cast."],
+				width = "double",
+			},
+			sep3 = {
+				order = 8,
 				type = "description",
 				name = "",
 				width = "full",
 			},
 			inColumn = {
-				order = 2,
+				order = 9,
 				type = "range",
 				name = L["Per column"],
 				desc = L["How many auras to show in a single row."],
 				min = 1, max = 50, step = 1,
 			},
 			rows = {
-				order = 3,
+				order = 10,
 				type = "range",
 				name = L["Rows"],
 				desc = L["How many rows to use."],
 				min = 1, max = 5, step = 1,
 			},
-			sep3 = {
-				order = 3.5,
+			size = {
+				order = 11,
+				type = "range",
+				name = L["Size"],
+				min = 1, max = 30, step = 1,
+			},
+			sep4 = {
+				order = 12,
 				type = "description",
 				name = "",
 				width = "full",
 			},
 			position = {
-				order = 4,
+				order = 13,
 				type = "select",
 				name = L["Position"],
 				desc = L["How you want this aura to be anchored to the unit frame."],
@@ -976,16 +1019,18 @@ local function loadUnitOptions()
 				disabled = false,
 			},
 			x = {
-				order = 5,
+				order = 14,
 				type = "range",
 				name = L["X Offset"],
 				min = -20, max = 20, step = 1,
+				hidden = hideAdvancedOption,
 			},
 			y = {
-				order = 6,
+				order = 15,
 				type = "range",
 				name = L["Y Offset"],
 				min = -20, max = 20, step = 1,
+				hidden = hideAdvancedOption,
 			},
 		},
 	}
@@ -1016,6 +1061,75 @@ local function loadUnitOptions()
 				name = L["Show background"],
 				desc = L["Show a background behind the bars with the same texture/color but faded out."],
 				hidden = hideAdvancedOption,
+			},
+		},
+	}
+	
+	local indicatorTable = {
+		order = 0,
+		name = getName,
+		type = "group",
+		inline = true,
+		hidden = function(info)
+			if( info[#(info) - 3] == "global" ) then return true end
+			return not ShadowUF.db.profile.units[info[#(info) - 3]].indicators or not ShadowUF.db.profile.units[info[#(info) - 3]].indicators[info[#(info)]]
+		end,
+		set = function(info, value)
+			local unit = info[#(info) - 4]
+			local type = info[#(info) - 1]
+			local key = info[#(info)]
+				
+			ShadowUF.db.profile.units[unit].indicators[type][key] = value
+			ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
+		end,
+		get = function(info)
+			local unit = info[#(info) - 4]
+			local type = info[#(info) - 1]
+			local key = info[#(info)]
+			
+			return ShadowUF.db.profile.units[unit].indicators[type][key]
+		end,
+		args = {
+			enabled = {
+				order = 0,
+				type = "toggle",
+				name = L["Enable indicator"],
+				hidden = false,
+			},
+			anchorPoint = {
+				order = 1,
+				type = "select",
+				name = L["Anchor point"],
+				values = positionList,
+				hidden = false,
+			},
+			sep = {
+				order = 1.5,
+				type = "description",
+				name = "",
+				width = "full",
+				hidden = false,
+			},
+			size = {
+				order = 2,
+				type = "range",
+				name = L["Size"],
+				min = 0, max = 40, step = 1,
+				hidden = false,
+			},
+			x = {
+				order = 3,
+				type = "range",
+				name = L["X Offset"],
+				min = -50, max = 50, step = 1,
+				hidden = false,
+			},
+			y = {
+				order = 4,
+				type = "range",
+				name = L["Y Offset"],
+				min = -50, max = 50, step = 1,
+				hidden = false,
 			},
 		},
 	}
@@ -1092,9 +1206,35 @@ local function loadUnitOptions()
 							combatText = {
 								order = 0,
 								type = "toggle",
-								name = string.format(L["Enable %s"], L["Combat text"]) .. NYI,
+								name = string.format(L["Enable %s"], L["Combat text"]),
 								width = "full",
 							},
+						},
+					},
+					indicators = {
+						order = 4,
+						type = "group",
+						inline = true,
+						name = L["Indicators"],
+						hidden = function(info)
+							local unit = info[#(info) - 2]
+							if( unit ~= "global" and ShadowUF.db.profile.units[unit].indicators ) then
+								for _, indicator in pairs(ShadowUF.db.profile.units[unit].indicators) do
+									if( indicator.enabled ) then
+										return false
+									end
+								end
+							end
+							
+							return true
+						end,
+						args = {
+							status = indicatorTable,
+							pvp = indicatorTable,
+							leader = indicatorTable,
+							masterLoot = indicatorTable,
+							raidTarget = indicatorTable,
+							happiness = indicatorTable,
 						},
 					},
 				},
@@ -1105,7 +1245,7 @@ local function loadUnitOptions()
 				name = function(info) return L.units[info[#(info) - 1]] end,
 				hidden = function(info) if( info[#(info) - 1] ~= "raid" and info[#(info) - 1] ~= "party" ) then return true end return false end,
 				set = function(info, value)
-					setLayout(info, value)
+					setLayout(info, value, true)
 					
 					ShadowUF.Units:ReloadAttributes(info[#(info) - 3])
 				end,
@@ -1131,7 +1271,6 @@ local function loadUnitOptions()
 								name = L["X Offset"],
 								min = -50, max = 50, step = 1,
 								hidden = function(info)
-									if( info[#(info) - 3] == "raid" ) then return true end
 									local point = ShadowUF.db.profile.layout[info[#(info) - 3]].attribPoint
 									return point ~= "LEFT" and point ~= "RIGHT"
 								end,
@@ -1142,7 +1281,6 @@ local function loadUnitOptions()
 								name = L["Y Offset"],
 								min = -50, max = 50, step = 1,
 								hidden = function(info)
-									if( info[#(info) - 3] == "raid" ) then return true end
 									local point = ShadowUF.db.profile.layout[info[#(info) - 3]].attribPoint
 									return point ~= "TOP" and point ~= "BOTTOM"
 								end,
@@ -1299,6 +1437,13 @@ local function loadUnitOptions()
 								type = "select",
 								name = L["Point"],
 								values = pointPositions,
+								arg = "positions",
+							},
+							anchorTo = {
+								order = 0.50,
+								type = "select",
+								name = L["Anchor to"],
+								values = getAnchorParents,
 								arg = "positions",
 							},
 							relativePoint = {
@@ -1959,6 +2104,7 @@ local function loadVisibilityOptions()
 		end
 		
 		ShadowUF.db.profile.visibility[area][unit .. key] = value
+		ShadowUF.Units:ReloadVisibility(unit)
 	end
 	
 	local function get(info)
@@ -2013,7 +2159,6 @@ local function loadVisibilityOptions()
 		order = getUnitOrder,
 		inline = true,
 		name = getName,
-		hidden = isUnitHidden,
 		args = {
 			enabled = {
 				order = 0,
@@ -2022,6 +2167,7 @@ local function loadVisibilityOptions()
 				desc = getHelp,
 				tristate = true,
 				hidden = false,
+				width = "double",
 			},
 			sep = {
 				order = 0.5,

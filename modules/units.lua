@@ -1,7 +1,6 @@
 local Units = ShadowUF:NewModule("Units")
-local unitFrames = {}
-local unitEvents = {}
-local loadedUnits = {}
+local unitList, unitFrames, unitEvents, loadedUnits, queuedCombat = {}, {}, {}, {}, {}
+local inCombat, needPartyFrame
 
 ShadowUF:RegisterModule(Units)
 
@@ -54,8 +53,8 @@ local function UnregisterAll(self, ...)
 end
 
 -- Event handling
-local function OnEvent(self, event, unit, ...)
-	if( not unitEvents[event] or self.unit == unit ) then
+local function OnEvent(self, event, ...)
+	if( not unitEvents[event] or self.unit == (...) ) then
 		self.event = event
 		self[event](self, self.unit, ...)
 	end
@@ -81,21 +80,36 @@ local function TargetUnitUpdate(self, elapsed)
 	end
 end
 
-local function ZONE_CHANGED(self)
-	self:SetVisibility()
-end
-
 -- Deal with enabling modules inside a zone
 local function SetVisibility(self)
+	local layoutUpdate
 	local zone = select(2, IsInInstance())
 	-- Selectively disable modules
 	for key in pairs(ShadowUF.moduleNames) do
 		local enabled = self.unitConfig[key]
-		local zoneEnabled = zone ~= "none" and ShadowUF.db.profile.visibility[zone][self.unitType .. key] or nil
-	
-		-- nil == Use the regular value inside the layout / false == Disable it here / true == Enable it here
-		if( zoneEnabled ~= nil ) then
-			enabled = zoneEnabled
+		
+		-- Make sure at least one option is enabled if it's an aura or indicator
+		if( enabled and ( key == "auras" or key == "indicators" ) ) then
+			enabled = false
+			for _, option in pairs(self.unitConfig[key]) do
+				if( option.enabled ) then
+					enabled = true
+					break
+				end
+			end
+		end
+				
+		if( zone ~= "none" ) then
+			if( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == false ) then
+				enabled = false
+			elseif( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == true ) then
+				enabled = true
+			end
+		end
+		
+		-- Options changed, will need to do a layout update
+		if( self.visibility[key] ~= enabled ) then
+			layoutUpdate = true
 		end
 		
 		self.visibility[key] = enabled
@@ -104,21 +118,22 @@ local function SetVisibility(self)
 		if( enabled and not self[key] ) then
 			for module in pairs(ShadowUF.regModules) do
 				if( module.moduleKey == key ) then
-					module:UnitEnabled(self, self.unitType)
+					module:UnitEnabled(self, self.unit)
 				end
 			end
 		end
+	end
+	
+	if( layoutUpdate ) then
+		ShadowUF.Layout:ApplyAll(self)
 	end
 end
 
 -- Frame is now initialized with a unit
 local function OnAttributeChanged(self, name, value)
-	if( name ~= "unit" ) then return end
-	if( not value and self.unit ) then
-		self.unit = nil
-		self:Hide()
-		return
-	elseif( not value or value == self.unit ) then
+	if( name ~= "unit" or not value or self.unit == value ) then return end
+	if( inCombat ) then
+		queuedCombat[self] = true
 		return
 	end
 	
@@ -127,17 +142,16 @@ local function OnAttributeChanged(self, name, value)
 	self.unitType = string.gsub(value, "([0-9]+)", "")
 	self.unitConfig = ShadowUF.db.profile.units[self.unitType]
 	
+	unitList[value] = self
+
 	-- Now set what is enabled
 	self:SetVisibility()
-
+	
 	-- Give all of the modules a chance to create what they need
-	ShadowUF:FireModuleEvent("UnitEnabled", self, value)
+	--ShadowUF:FireModuleEvent("UnitEnabled", self, value)
 	
 	-- Apply our layout quickly
-	ShadowUF.Layout:ApplyAll(self, self.unitType)
-	
-	-- For handling visibility
-	self:RegisterNormalEvent("ZONE_CHANGED_NEW_AREA", ZONE_CHANGED)
+	--ShadowUF.Layout:ApplyAll(self, self.unitType)
 	
 	-- Is it an invalid unit?
 	if( string.match(value, "%w+target") ) then
@@ -196,12 +210,14 @@ local function OnDragStop(self)
 	local scale = self:GetEffectiveScale()
 	local position = ShadowUF.db.profile.positions[self.unitType]
 	
+	local point, _, relativePoint, x, y = self:GetPoint()
+		
 	position.anchorPoint = ""
-	position.point = "TOPLEFT"
+	position.point = point
 	position.anchorTo = "UIParent"
-	position.relativePoint = "BOTTOMLEFT"
-	position.x = self:GetLeft() * scale
-	position.y = self:GetTop() * scale
+	position.relativePoint = relativePoint
+	position.x = x * scale
+	position.y = y * scale
 end
 
 -- Create the generic things that we want in every secure frame regardless if it's a button or a header
@@ -218,16 +234,20 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame.UnregisterAll = UnregisterAll
 	frame.FullUpdate = FullUpdate
 	frame.SetVisibility = SetVisibility
-	frame:SetMovable(true)
-	frame:RegisterForDrag("LeftButton")
-	frame:RegisterForClicks("AnyUp")	
+
 	frame:SetScript("OnDragStart", OnDragStart)
 	frame:SetScript("OnDragStop", OnDragStop)
 	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
+	frame:SetScript("OnEnter", 	UnitFrame_OnEnter)
+	frame:SetScript("OnLeave", 	UnitFrame_OnLeave)
+	frame:SetScript("OnEvent", OnEvent)
+
+	frame:SetMovable(true)
+	frame:RegisterForDrag("LeftButton")
+	frame:RegisterForClicks("AnyUp")	
 	frame:SetAttribute("*type1", "target")
 	frame:SetAttribute("*type2", "menu")
 	frame.menu = Units.ShowMenu
-	frame:Hide()
 
 	if( hookVisibility ) then
 		frame:HookScript("OnShow", OnShow)
@@ -238,15 +258,25 @@ function Units:CreateUnit(frame,  hookVisibility)
 	end
 end
 
-local function initUnit(frame)
-	frame.ignoreAnchor = true
-	Units:CreateUnit(frame)
+local function initUnit(self)
+	self.ignoreAnchor = true
+	Units:CreateUnit(self)
 end
 
-function Units:ReloadAttributes(unit)
-	if( unitFrames[unit] ) then
-		self:SetFrameAttributes(unitFrames[unit], unit)
+function Units:ReloadAttributes(type)
+	if( unitFrames[type] ) then
+		self:SetFrameAttributes(unitFrames[type], type)
 	end
+end
+
+function Units:ReanchorHeader(type)
+	ShadowUF.Layout:AnchorFrame(UIParent, unitFrames[type], ShadowUF.db.profile.positions[type])
+end
+
+function Units:ReloadVisibility(type)
+	if( unitFrames[type] ) then
+		unitFrames[type]:SetVisibility()
+	end	
 end
 
 function Units:SetFrameAttributes(frame, type)
@@ -302,10 +332,19 @@ function Units:LoadGroupHeader(config, type)
 
 	unitFrames[type] = headerFrame
 	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, ShadowUF.db.profile.positions[type])
+	
+	if( type == "party" and needPartyFrame ) then
+		needPartyFrame = nil
+		
+		Units:LoadPetUnit(ShadowUF.db.profile.units.partypet, headerFrame, "partypet")
+	end
 end
 
 function Units:LoadPetUnit(config, parentHeader, unit)
-	if( unitFrames[unit] ) then
+	if( not parentHeader ) then
+		needPartyFrame = true
+		return
+	elseif( unitFrames[unit] ) then
 		self:SetFrameAttributes(unitFrames[unit], unitFrames[unit].unitType)
 
 		unitFrames[unit]:SetAttribute("unit", unit)
@@ -429,4 +468,33 @@ function Units:CreateBar(parent, name)
 	return frame
 end
 
-
+-- Combat queuer
+local centralFrame = CreateFrame("Frame")
+centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
+centralFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
+centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+centralFrame:SetScript("OnEvent", function(self, event)
+	if( event == "ZONE_CHANGED_NEW_AREA" ) then
+		for _, frame in pairs(unitList) do
+			if( frame:GetAttribute("unit") ) then
+				frame:SetVisibility()
+			end
+		end
+		
+	elseif( event == "PLAYER_REGEN_ENABLED" ) then
+		inCombat = nil
+		
+		for frame in pairs(queuedCombat) do
+			OnAttributeChanged(frame, "unit", frame:GetAttribute("unit"))
+			queuedCombat[frame] = nil
+			
+			-- If the party was started while in combat (Nobody else in the group) the header might not have height/width set
+			if( frame.unitType ~= frame.unit ) then
+				unitFrames[frame.unitType]:SetHeight(0.1)
+				unitFrames[frame.unitType]:SetWidth(0.1)
+			end
+		end
+	elseif( event == "PLAYER_REGEN_DISABLED" ) then
+		inCombat = true
+	end
+end)

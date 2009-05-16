@@ -54,6 +54,7 @@ end
 local function createAnchor(self, key, config)
 	self.auras[key] = self.auras[key] or CreateFrame("Frame", nil, self)
 	local aura = self.auras[key]
+	aura.config = config
 	aura.buttons = aura.buttons or {}
 	aura.maxIcons = config.inColumn * config.rows
 	aura.parent = self
@@ -133,11 +134,17 @@ function Auras.UpdateDisplay(self)
 				button.border:SetVertexColor(0.60, 0.60, 0.60, 1.0)
 			end
 			
-			if( button.aura.duration > 0 and button.aura.endTime > 0 ) then
+			if( ( not self.config.selfTimers or ( self.config.selfTimers and button.aura.isPlayer ) ) and button.aura.duration > 0 and button.aura.endTime > 0 ) then
 				button.cooldown:SetCooldown(button.aura.endTime - button.aura.duration, button.aura.duration)
 				button.cooldown:Show()
 			else
 				button.cooldown:Hide()
+			end
+			
+			if( self.config.enlargeSelf and button.aura.isPlayer ) then
+				button:SetScale(1.30)
+			else
+				button:SetScale(1)
 			end
 		
 			button.icon:SetTexture(button.aura.texture)

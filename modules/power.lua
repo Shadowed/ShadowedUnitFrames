@@ -13,8 +13,6 @@ function Power:UnitEnabled(frame, unit)
 	
 	frame.powerBar = frame.powerBar or ShadowUF.Units:CreateBar(frame, "PowerBar")
 		
-	frame:RegisterUnitEvent("UNIT_HEALTH", self.Update)
-	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self.Update)
 	frame:RegisterUnitEvent("UNIT_MANA", self.Update)
 	frame:RegisterUnitEvent("UNIT_RAGE", self.Update)
 	frame:RegisterUnitEvent("UNIT_ENERGY", self.Update)

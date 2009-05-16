@@ -123,7 +123,7 @@ ShadowUFLocals = {
 	["Show player in frame"] = "Show player in frame",
 	["How the frame should grow when new group members are added."] = "How the frame should grow when new group members are added.",
 	["How the columns should grow when too many people are shown in a single group."] = "How the columns should grow when too many people are shown in a single group.",
-	
+	["Percentage of the frames width that this text should use."] = "Percentage of the frames width that this text should use.",
 	["Group number"] = "Group number",
 	["Group by"] = "Group by",
 	["Max columns"] = "Max columns",
@@ -132,7 +132,10 @@ ShadowUFLocals = {
 	["Column growth"] = "Column growth",
 	["Frame growth"] = "Frame growth",
 	["Groups"] = "Groups",
-	
+	["Timers for self auras only"] = "Timers for self auras only",
+	["Hides the cooldown ring for any auras that you did not cast."] = "Hides the cooldown ring for any auras that you did not cast.",
+	["Filter out irrelevant debuffs"] = "Filter out irrelevant debuffs",
+	["Automatically filters out debuffs that you don't care about, if you're a magic class you won't see Rend/Deep Wounds, physical classes won't see Curse of the Elements and so on."] = "Automatically filters out debuffs that you don't care about, if you're a magic class you won't see Rend/Deep Wounds, physical classes won't see Curse of the Elements and so on.",
 	
 	-- Layout
 	["Layout"] = "Layout",
@@ -195,6 +198,8 @@ ShadowUFLocals = {
 	["Clip"] = "Clip",
 	["How close the frame should clip with the border."] = "How close the frame should clip with the border.",
 	["Extra"] = "Extra",
+	["Aura size, this is the starting size they will resize once a row is filled up."] = "Aura size, this is the starting size they will resize once a row is filled up.",
+	["Enable indicator"] = "Enable indicator",
 	
 	-- Tags
 	["Events"] = "Events",
@@ -233,6 +238,16 @@ ShadowUFLocals = {
 	["Enabled in %s"] = "Enabled in %s",
 	["Disabled in %s"] = "Disabled in %s",
 	["Using unit settings"] = "Using unit settings",
+	
+	-- Indicators
+	["indicators"] = {
+		["status"] = "Status",
+		["pvp"] = "PvP Flag",
+		["leader"] = "Leader",
+		["masterLoot"] = "Master looter",
+		["raidTarget"] = "Raid target",
+		["happiness"] = "Happiness",
+	},
 	
 	-- Instance types
 	["areas"] = {

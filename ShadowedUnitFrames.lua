@@ -136,7 +136,7 @@ end
 
 function ShadowUF:LoadUnitDefaults()
 	for _, unit in pairs(units) do
-		self.defaults.profile.positions[unit] = {anchorTo = "UIParent", x = 0, y = 0}
+		self.defaults.profile.positions[unit] = {point = "", relativePoint = "", anchorPoint = "", anchorTo = "UIParent", x = 0, y = 0}
 		
 		self.defaults.profile.units[unit] = {
 			enabled = false,
@@ -166,34 +166,34 @@ function ShadowUF:LoadUnitDefaults()
 	
 	self.defaults.profile.units.player.enabled = true
 	self.defaults.profile.units.player.indicators = {
-		status = {enabled = true, height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
-		pvp = {enabled = true, height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
-		leader = {enabled = true, height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
-		masterLoot = {enabled = true, height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
-		raidTarget = {enabled = true, height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
+		status = {enabled = true, size = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
+		pvp = {enabled = true, size = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
+		leader = {enabled = true, size = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
+		masterLoot = {enabled = true, size = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
+		raidTarget = {enabled = true, size = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
 	}
 
 	self.defaults.profile.units.target.enabled = true
 	self.defaults.profile.units.target.indicators = {
-		pvp = {enabled = true, height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
-		leader = {enabled = true, height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
-		masterLoot = {enabled = true, height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
-		raidTarget = {enabled = true, height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
+		pvp = {enabled = true, size = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
+		leader = {enabled = true, size = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
+		masterLoot = {enabled = true, size = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
+		raidTarget = {enabled = true, size = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
 	}
 
 	self.defaults.profile.units.party.enabled = true
 	self.defaults.profile.units.party.indicators = {
-		pvp = {enabled = true, height = 22, width = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
-		leader = {enabled = true, height = 14, width = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
-		masterLoot = {enabled = true, height = 12, width = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
-		raidTarget = {enabled = true, height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
+		pvp = {enabled = true, size = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
+		leader = {enabled = true, size = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
+		masterLoot = {enabled = true, size = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
+		raidTarget = {enabled = true, size = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
 	}
 	
 	self.defaults.profile.units.party.enabled = true
 	self.defaults.profile.units.party.indicators = {
-		status = {enabled = true, height = 19, width = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
-		raidTarget = {enabled = true, height = 22, width = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
-		happiness = {enabled = true, height = 16, width = 16, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 2, y = -2},
+		status = {enabled = true, size = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
+		raidTarget = {enabled = true, size = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
+		happiness = {enabled = true, size = 16, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 2, y = -2},
 	}
 	
 	self.defaults.profile.units.focus.enabled = true

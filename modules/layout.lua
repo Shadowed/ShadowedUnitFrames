@@ -136,7 +136,7 @@ function Layout:GetRelative(key)
 	return preDefRelative[key]
 end
 
-function Layout:AnchorFrame(parent, frame, config)
+function Layout:AnchorFrame(parent, frame, config, isRecurse)
 	if( not config or not config.anchorTo ) then
 		return
 	end
@@ -162,11 +162,15 @@ function Layout:AnchorFrame(parent, frame, config)
 			frame.queuedName = anchorTo
 			anchoringQueued[frame] = true
 			
-			-- Default position until we find the frame we want, this is fallback mostly
-			-- so if you say, anchor targettarget to focus, then disable focus you'll see that targettarget
-			-- has to now be repositioned
-			frame:ClearAllPoints()
-			frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+			if( not isRecurse ) then
+				local unit = string.match(anchorTo, "SUFUnit(%a+)") or string.match(anchorTo, "SUFHeader(%a+)")
+				if( unit and ShadowUF.db.profile.positions[unit] ) then
+					self:AnchorFrame(parent, frame, ShadowUF.db.profile.positions[unit], isRecurse)
+				end
+			else
+				frame:ClearAllPoints()
+				frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+			end
 			return
 		end
 	else
@@ -240,7 +244,7 @@ function Layout:ApplyPortrait(frame, config)
 
 		-- Flip the alignment for targets to keep the same look as default
 		local position = config.portrait.alignment
-		if( not config.portrait.noAutoAlign and ( frame:GetAttribute("unit") == "target" or string.match(frame:GetAttribute("unit"), "%w+target") ) ) then
+		if( frame:GetAttribute("unit") and not config.portrait.noAutoAlign and ( frame:GetAttribute("unit") == "target" or string.match(frame:GetAttribute("unit"), "%w+target") ) ) then
 			position = config.portrait.alignment == "LEFT" and "RIGHT" or "LEFT"
 		end
 
@@ -349,6 +353,17 @@ function Layout:ApplyText(frame, config)
 
 			updateShadows(frame.castBar.time)
 	end
+	
+	-- Update feedback text
+	self:ToggleVisibility(frame.combatText, frame.unitConfig.combatText)
+	if( frame.combatText and frame.combatText:IsShown() ) then
+		frame.combatText.feedbackText:SetFont(mediaPath.font, ShadowUF.db.profile.layout.font.size + 1)
+		frame.combatText:SetPoint("CENTER", frame.barFrame, "CENTER")
+		frame.combatText.feedbackFontHeight = ShadowUF.db.profile.layout.font.size + 1
+		frame.combatText.fontPath = mediaPath.font
+		
+		updateShadows(frame.combatText.feedbackText)
+	end
 
 	-- Update tag text
 	if( not frame.unitConfig.text ) then
@@ -408,15 +423,14 @@ function Layout:ApplyIndicators(frame, config)
 	
 	for _, key in pairs(frame.indicators.list) do
 		local indicator = frame.indicators[key]
-		if( indicator ) then
-			self:ToggleVisibility(indicator, frame.unitConfig.indicators[key].enabled )
+		indicator.enabled = frame.unitConfig.indicators[key] and frame.unitConfig.indicators[key].enabled
+		self:ToggleVisibility(indicator, indicator.enabled)
+		
+		if( indicator.enabled ) then
+			indicator:SetHeight(frame.unitConfig.indicators[key].size)
+			indicator:SetWidth(frame.unitConfig.indicators[key].size)
 			
-			if( indicator:IsShown() ) then
-				indicator:SetHeight(frame.unitConfig.indicators[key].height)
-				indicator:SetWidth(frame.unitConfig.indicators[key].width)
-				
-				self:AnchorFrame(frame, indicator, frame.unitConfig.indicators[key])
-			end
+			self:AnchorFrame(frame, indicator, frame.unitConfig.indicators[key])
 		end
 	end
 end
@@ -435,23 +449,23 @@ local function positionAuras(self, config)
 			if( config.position == "BOTTOM" or config.position == "TOP" or config.position == "INSIDE" ) then
 				if( id % config.inColumn == 1 ) then
 					if( config.position == "TOP" ) then
-						button:SetPoint("BOTTOM", self.buttons[id - config.inColumn], "TOP", 0, 3)
+						button:SetPoint("BOTTOM", self.buttons[id - config.inColumn], "TOP", 0, 2)
 					else
-						button:SetPoint("TOP", self.buttons[id - config.inColumn], "BOTTOM", 0, -3)
+						button:SetPoint("TOP", self.buttons[id - config.inColumn], "BOTTOM", 0, -2)
 					end
 				elseif( config.position == "INSIDE" ) then
-					button:SetPoint("RIGHT", self.buttons[id - 1], "LEFT", -3, 0)
+					button:SetPoint("RIGHT", self.buttons[id - 1], "LEFT", -1, 0)
 				else
-					button:SetPoint("LEFT", self.buttons[id - 1], "RIGHT", 3, 0)
+					button:SetPoint("LEFT", self.buttons[id - 1], "RIGHT", 1, 0)
 				end
 			elseif( config.rows == 1 or id % config.rows == 1 ) then
 				if( config.position == "RIGHT" ) then
-						button:SetPoint("LEFT", self.buttons[id - config.rows], "RIGHT", 2, 0)
+					button:SetPoint("LEFT", self.buttons[id - config.rows], "RIGHT", 1, 0)
 				else
-					button:SetPoint("RIGHT", self.buttons[id - config.rows], "LEFT", -2, 0)
+					button:SetPoint("RIGHT", self.buttons[id - config.rows], "LEFT", -1, 0)
 				end
 			else
-				button:SetPoint("TOP", self.buttons[id - 1], "BOTTOM", 0, -3)
+				button:SetPoint("TOP", self.buttons[id - 1], "BOTTOM", 0, -2)
 			end
 		elseif( config.position == "INSIDE" ) then
 			button:SetPoint("TOPRIGHT", self.parent.healthBar, "TOPRIGHT", config.x + -ShadowUF.db.profile.layout.backdrop.clip, config.y + -ShadowUF.db.profile.layout.backdrop.clip)
@@ -471,6 +485,8 @@ function Layout:ApplyAuras(frame, config)
 	if( not frame.auras or not frame.visibility.auras ) then
 		if( frame.auras ) then
 			for _, auras in pairs(frame.auras) do
+				auras:Hide()
+				
 				for _, button in pairs(auras.buttons) do
 					button:Hide()
 				end
