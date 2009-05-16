@@ -10,7 +10,7 @@ local NYI = " (NYI)" -- Debug
 ]]
 
 -- This is a basic one for frame anchoring
-local positionList = {["CENTER"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
+local positionList = {["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
 
 local function selectDialogGroup(group, key)
 	AceDialog.Status.ShadowedUF.children[group].status.groups.selected = key
@@ -416,23 +416,30 @@ end
 -- UNIT CONFIGURATION
 ---------------------
 local function loadUnitOptions()
-	local pointPositions = {[""] = L["None"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["CENTER"] = L["Center"]}
+	local pointPositions = {[""] = L["None"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["C"] = L["Center"]}
 	
+	local function getFrameName(unit)
+		if( unit == "raid" or unit == "party" ) then
+			return string.format("#SUFHeader%s", unit)
+		end
+		
+		return string.format("#SUFUnit%s", unit)
+	end
+
 	local anchorList = {}
 	local function getAnchorParents(info)
-		for k in pairs(anchorList) do anchorList[k] = nil end		
+		for k in pairs(anchorList) do anchorList[k] = nil end
+		if( info[#(info) - 3] ) then
+			anchorList["$parent"] = L["Party member"]
+			return anchorList
+		end
+		
 		anchorList["UIParent"] = L["Screen"]
 		
+		local currentName = getFrameName(info[#(info) - 3])
 		for _, unit in pairs(ShadowUF.units) do
-			if( unit ~= info[#(info) - 3] and ShadowUF.db.profile.units[unit].enabled ) then
-				local name
-				if( unit == "raid" or unit == "party" ) then
-					name = string.format("#SUFHeader%s", unit)
-				else
-					name = string.format("#SUFUnit%s", unit)
-				end
-				
-				anchorList[name] = string.format(L["%s frames"], L[unit])
+			if( unit ~= info[#(info) - 3] and ShadowUF.db.profile.units[unit].enabled and ( not ShadowUF.db.profile.positions[unit] or ShadowUF.db.profile.positions[unit].anchorTo ~= currentName ) ) then
+				anchorList[getFrameName(unit)] = string.format(L["%s frames"], L.units[unit])
 			end
 		end
 		
@@ -477,22 +484,22 @@ local function loadUnitOptions()
 		if( info[#(info)] == "point" or info[#(info)] == "relativePoint" ) then
 			if( unit == "global" ) then
 				for unit in pairs(modifyUnits) do
-					ShadowUF.db.profile[type][unit].anchorPoint = nil
+					ShadowUF.db.profile[type][unit].anchorPoint = ""
 					ShadowUF.db.profile[type][unit].anchorTo = "UIParent"
 				end
 			else
-				ShadowUF.db.profile[type][unit].anchorPoint = nil
+				ShadowUF.db.profile[type][unit].anchorPoint = ""
 				ShadowUF.db.profile[type][unit].anchorTo = "UIParent"
 			end
 		elseif( info[#(info)] == "anchorPoint" ) then
 			if( unit == "global" ) then
 				for unit in pairs(modifyUnits) do
-					ShadowUF.db.profile[type][unit].point = nil
-					ShadowUF.db.profile[type][unit].relativePoint = nil
+					ShadowUF.db.profile[type][unit].point = ""
+					ShadowUF.db.profile[type][unit].relativePoint = ""
 				end
 			else
-				ShadowUF.db.profile[type][unit].point = nil
-				ShadowUF.db.profile[type][unit].relativePoint = nil
+				ShadowUF.db.profile[type][unit].point = ""
+				ShadowUF.db.profile[type][unit].relativePoint = ""
 			end
 		end
 	end
@@ -521,13 +528,18 @@ local function loadUnitOptions()
 		if( unit == "global" ) then
 			unit = masterUnit
 		end
-	
+		
 		return ShadowUF.db.profile[info.arg or "layout"][unit][key]
 	end
 	
+	-- Hide raid option in party config
+	local function hideRaidOption(info)
+		return info[#(info) - 3] == "party" or info[#(info) - 2] == "party"
+	end
+
 	-- Not every option should be changed via global settings
 	local function hideAdvancedAndGlobal(info)
-		if( info[#(info) - 3] == "global" ) then
+		if( info[#(info) - 3] == "global" or info[#(info) - 2] == "global" ) then
 			return true
 		end
 		
@@ -535,7 +547,7 @@ local function loadUnitOptions()
 	end
 	
 	local function hideIfGlobal(info)
-		return info[#(info) - 3] == "global"
+		return info[#(info) - 3] == "global" or info[#(info) - 2] == "global"
 	end
 							
 			
@@ -746,7 +758,6 @@ local function loadUnitOptions()
 	local function setText(info, value)
 		local id, key = string.split(":", info[#(info)])
 		local unit = info[#(info) - 3]
-
 		if( unit == "global" ) then
 			for unit in pairs(modifyUnits) do
 				ShadowUF.db.profile.units[unit].text[tonumber(id)][key] = value
@@ -761,7 +772,6 @@ local function loadUnitOptions()
 	local function getText(info, value)
 		local id, key = string.split(":", info[#(info)])
 		local unit = info[#(info) - 3]
-
 		if( unit == "global" ) then
 			unit = masterUnit
 		end
@@ -833,7 +843,7 @@ local function loadUnitOptions()
 			hidden = isFromParent,
 			type = "select",
 			name = L["Anchor point"],
-			values = positionList,
+			values = {["ITR"] = L["Inside Top Right"], ["ITL"] = L["Inside Top Left"], ["ICL"] = L["Inside Center Left"], ["IC"] = L["Inside Center"], ["ICR"] = L["Inside Center Right"]},
 		}
 		
 		local x = {
@@ -885,7 +895,7 @@ local function loadUnitOptions()
 			local key = info[#(info)]
 			
 			if( unit == "global" ) then
-				for unit in pairs(ShadowUF.units) do
+				for unit in pairs(modifyUnits) do
 					ShadowUF.db.profile.units[unit].auras[type][key] = value
 				end
 			else
@@ -903,7 +913,8 @@ local function loadUnitOptions()
 			enabled = {
 				order = 0,
 				type = "toggle",
-				name = function(info) if( info[#(info) - 1] == "buffs" ) then return L["Buffs"] end return L["Debuffs"] end,
+				name = function(info) if( info[#(info) - 1] == "buffs" ) then return L["Enable buffs"] end return L["Enable debuffs"] end,
+				disabled = false,
 			},
 			enlargeSelf = {
 				order = 0.50,
@@ -1093,8 +1104,99 @@ local function loadUnitOptions()
 				type = "group",
 				name = function(info) return L.units[info[#(info) - 1]] end,
 				hidden = function(info) if( info[#(info) - 1] ~= "raid" and info[#(info) - 1] ~= "party" ) then return true end return false end,
+				set = function(info, value)
+					setLayout(info, value)
+					
+					ShadowUF.Units:ReloadAttributes(info[#(info) - 3])
+				end,
+				get = getLayout,
 				args = {
-				
+					general = {
+						order = 0,
+						type = "group",
+						inline = true,
+						name = L["General"],
+						hidden = false,
+						args = {
+							--[[
+							showPlayer = {
+								order = 0,
+								type = "toggle",
+								name = L["Show player in frame"],
+							},
+							]]
+							xOffset = {
+								order = 0.15,
+								type = "range",
+								name = L["X Offset"],
+								min = -50, max = 50, step = 1,
+								hidden = function(info)
+									if( info[#(info) - 3] == "raid" ) then return true end
+									local point = ShadowUF.db.profile.layout[info[#(info) - 3]].attribPoint
+									return point ~= "LEFT" and point ~= "RIGHT"
+								end,
+							},
+							yOffset = {
+								order = 0.25,
+								type = "range",
+								name = L["Y Offset"],
+								min = -50, max = 50, step = 1,
+								hidden = function(info)
+									if( info[#(info) - 3] == "raid" ) then return true end
+									local point = ShadowUF.db.profile.layout[info[#(info) - 3]].attribPoint
+									return point ~= "TOP" and point ~= "BOTTOM"
+								end,
+							},
+							attribPoint = {
+								order = 1,
+								type = "select",
+								name = L["Frame growth"],
+								desc = L["How the frame should grow when new group members are added."],
+								values = {["TOP"] = L["Down"], ["LEFT"] = L["Right"], ["BOTTOM"] = L["Up"], ["RIGHT"] = L["Left"]},
+							},
+							attribAnchorPoint = {
+								order = 1,
+								type = "select",
+								name = L["Column growth"],
+								desc = L["How the columns should grow when too many people are shown in a single group."],
+								values = {["TOP"] = L["Up"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["BOTTOM"] = L["Down"]},
+								hidden = hideRaidOption,
+							},
+						},
+					},
+					raid = {
+						order = 1,
+						type = "group",
+						inline = true,
+						name = L["Groups"],
+						hidden = hideRaidOption,
+						args = {
+							groupBy = {
+								order = 0,
+								type = "select",
+								name = L["Group by"],
+								values = {["GROUP"] = L["Group number"], ["CLASS"] = L["Class"]},
+							},
+							maxColumns = {
+								order = 1,
+								type = "range",
+								name = L["Max columns"],
+								min = 1, max = 20, step = 1,
+							},
+							unitsPerColumn = {
+								order = 2,
+								type = "range",
+								name = L["Units per column"],
+								min = 1, max = 40, step = 1,
+							},
+							columnSpacing = {
+								order = 3,
+								type = "range",
+								name = L["Column spacing"],
+								min = 0, max = 100, step = 1,
+							},
+						},
+					},
 				},
 			},
 			frame = {
@@ -1469,7 +1571,16 @@ s							},
 								masterUnit = unit
 							end
 							
-							modifyUnits[unit] = value and true or nil
+							if( IsShiftKeyDown() ) then
+								for _, unit in pairs(ShadowUF.units) do
+									if( ShadowUF.db.profile.units[unit].enabled ) then
+										modifyUnits[unit] = value and true or nil
+									end
+								end
+							else
+								modifyUnits[unit] = value and true or nil
+							end
+							
 							if( not modifyUnits[unit] and masterUnit == unit ) then
 								masterUnit = nil
 								for unit in pairs(modifyUnits) do

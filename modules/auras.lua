@@ -141,7 +141,7 @@ function Auras.UpdateDisplay(self)
 			end
 		
 			button.icon:SetTexture(button.aura.texture)
-			button.stack:SetText(button.aura.count > 0 and button.aura.count or "")
+			button.stack:SetText(button.aura.count > 1 and button.aura.count or "")
 			button:Show()
 		end
 	end

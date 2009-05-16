@@ -15,6 +15,8 @@ function Indicators:OnInitialize()
 end
 
 function Indicators.UpdateHappiness(self, unit)
+	if( not self.indicators.happiness ) then return end
+	
 	local happyHappy = GetPetHappiness()
 	if( not happyHappy ) then
 		self.indicators.happiness:Hide()
@@ -31,6 +33,8 @@ function Indicators.UpdateHappiness(self, unit)
 end
 
 function Indicators.UpdateMasterLoot(self, unit)
+	if( not self.indicators.masterLoot ) then return end
+
 	local unit = self:GetAttribute("unit")	local lootType, partyID, raidID = GetLootMethod()
 	if( lootType ~= "master" or not partyID or not raidID ) then
 		self.indicators.masterLoot:Hide()
@@ -42,6 +46,8 @@ function Indicators.UpdateMasterLoot(self, unit)
 end
 			
 function Indicators.UpdateRaidTarget(self, unit)
+	if( not self.indicators.raidTarget ) then return end
+
 	if( UnitExists(unit) and GetRaidTargetIndex(unit) ) then
 		SetRaidTargetIconTexture(self.indicators.raidTarget, GetRaidTargetIndex(unit))
 		self.indicators.raidTarget:Show()
@@ -51,6 +57,8 @@ function Indicators.UpdateRaidTarget(self, unit)
 end
 			
 function Indicators.UpdateLeader(self, unit)
+	if( not self.indicators.leader ) then return end
+
 	if( UnitIsPartyLeader(unit) ) then
 		self.indicators.leader:Show()
 	else
@@ -59,6 +67,8 @@ function Indicators.UpdateLeader(self, unit)
 end
 
 function Indicators.UpdatePVPFlag(self, unit)
+	if( not self.indicators.pvp ) then return end
+
 	if( UnitIsPVP(unit) and UnitFactionGroup(unit) ) then
 		self.indicators.pvp:SetTexture(string.format("Interface\\TargetingFrame\\UI-PVP-%s", UnitFactionGroup(unit)))
 		self.indicators.pvp:Show()
@@ -71,6 +81,8 @@ function Indicators.UpdatePVPFlag(self, unit)
 end
 
 function Indicators.UpdateStatus(self, unit)
+	if( not self.indicators.status ) then return end
+
 	if( UnitAffectingCombat(unit) ) then
 		self.indicators.status:SetTexCoord(0.50, 1.0, 0.0, 0.49)
 		self.indicators.status:Show()

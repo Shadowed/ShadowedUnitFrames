@@ -113,7 +113,12 @@ end
 
 -- Frame is now initialized with a unit
 local function OnAttributeChanged(self, name, value)
-	if( name ~= "unit" or not value ) then
+	if( name ~= "unit" ) then return end
+	if( not value and self.unit ) then
+		self.unit = nil
+		self:Hide()
+		return
+	elseif( not value or value == self.unit ) then
 		return
 	end
 	
@@ -170,10 +175,39 @@ function Units:LoadUnit(config, unit)
 	RegisterUnitWatch(frame)
 end
 
+local function OnDragStart(self)
+	if( ShadowUF.db.profile.locked ) then return end
+	if( self.unitType == "party" or self.unitType == "raid" ) then
+		self = unitFrames[self.unitType]
+	end
+	
+	self.isMoving = true
+	self:StartMoving()
+end
+
+local function OnDragStop(self)
+	if( self.unitType == "party" or self.unitType == "raid" ) then
+		self = unitFrames[self.unitType]
+	end
+	
+	self.isMoving = nil
+	self:StopMovingOrSizing()
+	
+	local scale = self:GetEffectiveScale()
+	local position = ShadowUF.db.profile.positions[self.unitType]
+	
+	position.anchorPoint = ""
+	position.point = "TOPLEFT"
+	position.anchorTo = "UIParent"
+	position.relativePoint = "BOTTOMLEFT"
+	position.x = self:GetLeft() * scale
+	position.y = self:GetTop() * scale
+end
+
 -- Create the generic things that we want in every secure frame regardless if it's a button or a header
 function Units:CreateUnit(frame,  hookVisibility)
 	frame.barFrame = CreateFrame("Frame", frame:GetName() .. "BarFrame", frame)
-
+	
 	frame.fullUpdates = {}
 	frame.registeredEvents = {}
 	frame.visibility = {}
@@ -184,7 +218,17 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame.UnregisterAll = UnregisterAll
 	frame.FullUpdate = FullUpdate
 	frame.SetVisibility = SetVisibility
-	
+	frame:SetMovable(true)
+	frame:RegisterForDrag("LeftButton")
+	frame:RegisterForClicks("AnyUp")	
+	frame:SetScript("OnDragStart", OnDragStart)
+	frame:SetScript("OnDragStop", OnDragStop)
+	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
+	frame:SetAttribute("*type1", "target")
+	frame:SetAttribute("*type2", "menu")
+	frame.menu = Units.ShowMenu
+	frame:Hide()
+
 	if( hookVisibility ) then
 		frame:HookScript("OnShow", OnShow)
 		frame:HookScript("OnHide", OnHide)
@@ -192,13 +236,6 @@ function Units:CreateUnit(frame,  hookVisibility)
 		frame:SetScript("OnShow", OnShow)
 		frame:SetScript("OnHide", OnHide)
 	end
-	
-	frame:RegisterForClicks("AnyUp")
-	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
-	frame:SetAttribute("*type1", "target")
-	frame:SetAttribute("*type2", "menu")
-	frame.menu = Units.ShowMenu
-	frame:Hide()
 end
 
 local function initUnit(frame)
@@ -206,60 +243,70 @@ local function initUnit(frame)
 	Units:CreateUnit(frame)
 end
 
-function Units:SetFrameAttributes(config, frame, type)
-	if( type == "raid" ) then
+function Units:ReloadAttributes(unit)
+	if( unitFrames[unit] ) then
+		self:SetFrameAttributes(unitFrames[unit], unit)
+	end
+end
+
+function Units:SetFrameAttributes(frame, type)
+	local config = ShadowUF.db.profile.layout[type]
+	if( type == "raid" or type == "party" ) then
 		frame:SetAttribute("point", config.attribPoint)
-		frame:SetAttribute("columnAnchorPoint", config.attribAnchorPoint)
 		frame:SetAttribute("initial-width", config.width)
 		frame:SetAttribute("initial-height", config.height)
 		frame:SetAttribute("initial-scale", config.scale)
-		frame:SetAttribute("showPlayer", config.showPlayer)
-		frame:SetAttribute("showRaid", config.showRaid)
-		frame:SetAttribute("showSolo", config.showSolo)
-		frame:SetAttribute("groupBy", config.groupBy)
-		frame:SetAttribute("groupingOrder", config.groupingOrder)
-		frame:SetAttribute("sortMethod", config.sortMethod)
-		frame:SetAttribute("sortDir", config.sortDir)
-		frame:SetAttribute("maxColumns", config.maxColumns)
-		frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
-		frame:SetAttribute("columnSpacing", config.columnSpacing)
-	elseif( type == "party" ) then
-		frame:SetAttribute("point", config.attribPoint)
-		frame:SetAttribute("columnAnchorPoint", config.attribAnchorPoint)
-		frame:SetAttribute("initial-width", config.width)
-		frame:SetAttribute("initial-height", config.height)
-		frame:SetAttribute("initial-scale", config.scale)
-		frame:SetAttribute("showParty", config.showParty)
-		frame:SetAttribute("showPlayer", config.showPlayer)
-		frame:SetAttribute("showSolo", config.showSolo)
-	elseif( type == "partyPet" ) then
-		frame:SetAttribute("framePoint", ShadowUF.Layout:GetPoint(config.position))
-		frame:SetAttribute("frameRelative", ShadowUF.Layout:GetRelative(config.position))
+		--frame:SetAttribute("showPlayer", config.showPlayer)
+		frame:SetAttribute("showRaid", type == "raid" and true or false)
+		frame:SetAttribute("showParty", type == "party" and true or false)
+		frame:SetAttribute("xOffset", config.xOffset)
+		frame:SetAttribute("yOffset", config.yOffset)
+		
+		if( type == "raid" ) then
+			frame:SetAttribute("sortMethod", "INDEX")
+			frame:SetAttribute("sortDir", "ASC")
+			frame:SetAttribute("groupBy", config.groupBy)
+			frame:SetAttribute("maxColumns", config.maxColumns)
+			frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
+			frame:SetAttribute("columnSpacing", config.columnSpacing)
+			frame:SetAttribute("columnAnchorPoint", config.attribAnchorPoint)
+
+			if( config.groupBy == "GROUP" ) then
+				frame:SetAttribute("groupingOrder", "1,2,3,4,5,6,7,8")
+			elseif( config.groupBy == "CLASS" ) then
+				frame:SetAttribute("groupingOrder", "DEATHKNIGHT,DRUID,HUNTER,MAGE,PALADIN,PRIEST,ROGUE,SHAMAN,WARLOCK,WARRIOR")
+			end
+		end
+	elseif( type == "partypet" ) then
+		frame:SetAttribute("framePoint", ShadowUF.Layout:GetPoint(ShadowUF.db.profile.positions[type].anchorPoint))
+		frame:SetAttribute("frameRelative", ShadowUF.Layout:GetRelative(ShadowUF.db.profile.positions[type].anchorPoint))
 	end
 end
 
 function Units:LoadGroupHeader(config, type)
 	if( unitFrames[type] ) then
-			self:SetFrameAttributes(config, unitFrames[type], type)
+			self:SetFrameAttributes(unitFrames[type], type)
 			unitFrames[type]:Show()
 			return
 	end
 	
 	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent, "SecureGroupHeaderTemplate")
-	self:SetFrameAttributes(config, headerFrame, type)
+	self:SetFrameAttributes(headerFrame, type)
 	
 	headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
 	headerFrame:SetAttribute("initial-unitWatch", true)
 	headerFrame.initialConfigFunction = initUnit
+	headerFrame.unitType = type
+	headerFrame:SetMovable(true)
 	headerFrame:Show()
 
-	unitFrames[type] = frame
+	unitFrames[type] = headerFrame
 	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, ShadowUF.db.profile.positions[type])
 end
 
 function Units:LoadPetUnit(config, parentHeader, unit)
 	if( unitFrames[unit] ) then
-		self:SetFrameAttributes(config, unitFrames[unit], unitFrames[unit].unitType)
+		self:SetFrameAttributes(unitFrames[unit], unitFrames[unit].unitType)
 
 		unitFrames[unit]:SetAttribute("unit", unit)
 		RegisterUnitWatch(unitFrames[unit])
@@ -267,7 +314,9 @@ function Units:LoadPetUnit(config, parentHeader, unit)
 	end
 	
 	local frame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate,SecureHandlerShowHideTemplate")
-	self:SetFrameAttributes(config, frame, "partypet")
+	frame.ignoreAnchor = true
+
+	self:SetFrameAttributes(frame, "partypet")
 
 	self:CreateUnit(frame, true)
 	frame:SetFrameRef("partyHeader",  parentHeader)
@@ -307,6 +356,16 @@ function Units:InitializeFrame(config, type)
 	end
 end
 
+local function disableChildren(...)
+	for i=1, select("#", ...) do
+		local frame = select(i, ...)
+		if( frame.unit ) then
+			ShadowUF:FireModuleEvent("UnitDisabled", frame, frame.unitType)
+			frame:SetAttribute("unit", nil)
+		end
+	end
+end
+
 function Units:UninitializeFrame(config, type)
 	if( not loadedUnits[type] ) then return end
 	loadedUnits[type] = nil
@@ -315,9 +374,13 @@ function Units:UninitializeFrame(config, type)
 		if( frame.unitType == type ) then
 			UnregisterUnitWatch(frame)
 			
-			ShadowUF:FireModuleEvent("UnitDisabled", frame, frame.unitType)
-			
-			frame:SetAttribute("unit", nil)
+			if( frame.unit ~= type ) then
+				disableChildren(frame:GetChildren())
+			else
+				ShadowUF:FireModuleEvent("UnitDisabled", frame, frame.unitType)
+				frame:SetAttribute("unit", nil)
+			end
+
 			frame:Hide()
 		end
 	end

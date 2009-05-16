@@ -103,8 +103,10 @@ function ShadowUF:OnInitialize()
 	-- Load SML info
 	self.Layout:LoadSML()
 	
-	-- Load all defaults that we need to with nothing being loaded yet
-	self:SetLayout("Default", true)
+	-- No layout is loaded, so set this as our active one
+	if( not self.db.profile.activeLayout ) then
+		self:SetLayout("Default", true)
+	end
 end
 
 function ShadowUF:LoadUnits()
@@ -134,6 +136,8 @@ end
 
 function ShadowUF:LoadUnitDefaults()
 	for _, unit in pairs(units) do
+		self.defaults.profile.positions[unit] = {anchorTo = "UIParent", x = 0, y = 0}
+		
 		self.defaults.profile.units[unit] = {
 			enabled = false,
 			healthBar = true,
@@ -141,6 +145,7 @@ function ShadowUF:LoadUnitDefaults()
 			portrait = true,
 			castBar = false,
 			xpBar = false,
+			effectiveScale = true,
 			portraitType = "3D",
 			healthColor = "percent",
 			castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0},
@@ -199,6 +204,8 @@ function ShadowUF:LoadUnitDefaults()
 
 	self.defaults.profile.units.partypet.portrait = false
 	self.defaults.profile.units.partypet.powerBar = false
+	self.defaults.profile.positions.partypet.anchorTo = "$parent"
+	self.defaults.profile.positions.partypet.anchorPoint = "BR"
 end
 
 -- Hiding Blizzard stuff (Stolen from haste)
@@ -296,35 +303,36 @@ function ShadowUF:CopyLayoutSettings(key, unit)
 end
 
 function ShadowUF:SetLayout(name, importPositions)
-	
-	if( self.layoutInfo[name] ) then
-		self.db.profile.activeLayout = name
-		self.db.profile.layout = CopyTable(self.layoutInfo[name].layout)
-		
-		-- Load all of the configuration, make units inherit everything etc etc
-		for _, unit in pairs(units) do
-			self.db.profile.layout[unit] = self.db.profile.layout[unit] or {}
-						
-			-- Import the "module" settings in
-			self:CopyLayoutSettings("text", unit)
-			for key in pairs(self.moduleNames) do
-				self:CopyLayoutSettings(key, unit)
-			end
-
-			-- Import unit positioning as well
-			if( importPositions and self.db.profile.layout.positions and self.db.profile.layout.positions[unit] ) then
-				self.db.profile.positions[unit] = CopyTable(self.db.profile.layout.positions[unit])
-			end
-		end
-		
-		-- Remove settings that were only used for inheritance based options
-		self.db.profile.layout.text = nil
-		for key in pairs(self.moduleNames) do
-			self.db.profile.layout[key] = nil
-		end
-		
-		self.db.profile.layout.positions = nil
+	if( not self.layoutInfo[name] ) then
+		return
 	end
+	
+	self.db.profile.activeLayout = name
+	self.db.profile.layout = CopyTable(self.layoutInfo[name].layout)
+	
+	-- Load all of the configuration, make units inherit everything etc etc
+	for _, unit in pairs(units) do
+		self.db.profile.layout[unit] = self.db.profile.layout[unit] or {}
+					
+		-- Import the "module" settings in
+		self:CopyLayoutSettings("text", unit)
+		for key in pairs(self.moduleNames) do
+			self:CopyLayoutSettings(key, unit)
+		end
+
+		-- Import unit positioning as well
+		if( importPositions and self.db.profile.layout.positions and self.db.profile.layout.positions[unit] ) then
+			self.db.profile.positions[unit] = CopyTable(self.db.profile.layout.positions[unit])
+		end
+	end
+	
+	-- Remove settings that were only used for inheritance based options
+	self.db.profile.layout.text = nil
+	for key in pairs(self.moduleNames) do
+		self.db.profile.layout[key] = nil
+	end
+	
+	self.db.profile.layout.positions = nil
 end
 
 function ShadowUF:IsLayoutRegistered(name)

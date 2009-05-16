@@ -33,6 +33,7 @@ ShadowUFLocals = {
 	["General"] = "General",
 	["Search tag"] = "Search tag",
 	["Screen"] = "Screen",
+	["Party member"] = "Party member",
 	
 	-- Help
 	["Help"] = "Help",
@@ -40,7 +41,9 @@ ShadowUFLocals = {
 	["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText (Advanced only) - Allows changing how the text anchors and the offset, you can set tags here as well.\n\nTag Wizard - Quickly add and remove tags to text."] = "In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText (Advanced only) - Allows changing how the text anchors and the offset, you can set tags here as well.\n\nTag Wizard - Quickly add and remove tags to text.",
 	
 	-- Positions
+	["Up"] = "Up",
 	["Center"] = "Center",
+	["Down"] = "Down",
 	["Right Top"] = "Right Top",
 	["Right Center"] = "Right Center",
 	["Right Bottom"] = "Right Bottom",
@@ -115,6 +118,21 @@ ShadowUFLocals = {
 	["Filter out any auras that you did not cast yourself."] = "Filter out any auras that you did not cast yourself.",
 	["Show castable on other auras only"] = "Show castable on other auras only",
 	["Filter out any auras that you cannot cast on another player, or yourself."] = "Filter out any auras that you cannot cast on another player, or yourself.",
+	["Enable buffs"] = "Enable buffs",
+	["Enable debuffs"] = "Enable debuffs",
+	["Show player in frame"] = "Show player in frame",
+	["How the frame should grow when new group members are added."] = "How the frame should grow when new group members are added.",
+	["How the columns should grow when too many people are shown in a single group."] = "How the columns should grow when too many people are shown in a single group.",
+	
+	["Group number"] = "Group number",
+	["Group by"] = "Group by",
+	["Max columns"] = "Max columns",
+	["Units per column"] = "Units per column",
+	["Column spacing"] = "Column spacing",
+	["Column growth"] = "Column growth",
+	["Frame growth"] = "Frame growth",
+	["Groups"] = "Groups",
+	
 	
 	-- Layout
 	["Layout"] = "Layout",

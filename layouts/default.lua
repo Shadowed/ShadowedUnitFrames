@@ -77,7 +77,6 @@ local L = ShadowUFLocals
 				width = #, -- How wide the frame should be
 				height = #, -- How tall the frame should be
 				scale = #, -- Frame scaling
-				effectiveScale = true/false, -- Apply the effective scaling when positioning it
 				healthBar = <see healthBar below>, -- Health bar configuration for this unit
 				powerBar = <see powerBar below>, -- Mana bar configuration for this unit
 				xpBar = <see xpBar below>, -- XP bar configuration for this unit
@@ -86,10 +85,7 @@ local L = ShadowUFLocals
 			-- Accepts all attributes listed http://wowprogramming.com/docs/secure_template/Group_Headers by key
 			<party/raid> = {
 				<unit configuration> -- See above
-				showRaid = true/false, -- Show the raid in this
-				showParty = true/false, -- Show players party in this
 				showPlayer = true/false, -- Show the player themselves in this
-				showSolo = true/false, -- Show this while solo
 				<position arguments>,
 			},
 			-- These tables listed in the main tree are automatically inherited to all units when the layout is applied
@@ -217,8 +213,6 @@ ShadowUF:RegisterLayout("Default", {
 			width = 80,
 			height = 40,
 			scale = 1.0,
-			effectiveScale = true,
-			showRaid = true,
 			showPlayer = true,
 			unitsPerColumn = 7,
 			maxColumns = 8,
@@ -230,42 +224,34 @@ ShadowUF:RegisterLayout("Default", {
 			width = 200,
 			height = 60,
 			scale = 1.0,
-			effectiveScale = true,
 		},
 		party = {
 			width = 200,
 			height = 60,
 			scale = 1.0,
-			effectiveScale = true,
 			attribPoint = "TOP",
 			attribAnchorPoint = "TOP",
 			showPlayer = true,
-			showParty = true,
 		},
 		partypet = {
 			width = 125,
 			height = 30,
 			scale = 1.0,
-			groupWith = "parent",
-			position = "BR",
 		},
 		target = {
 			width = 200,
 			height = 60,
 			scale = 1.0,
-			appleEffective = true,
 		},
 		pet = {
 			width = 200,
 			height = 60,
 			scale = 1.0,
-			effectiveScale = true,
 		},
 		focus = {
 			width = 200,
 			height = 60,
 			scale = 1.0,
-			appleEffective = true,
 		},
 		targettarget = {
 			width = 200,

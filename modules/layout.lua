@@ -111,7 +111,7 @@ end
 	ITR = Inside Top Right, ITL = Inside Top Left
 ]]
 
-local preDefPoint = {C = "CENTER", ICL = "LEFT", RT = "TOPLEFT", BC = "TOP", ICR = "RIGHT", LT = "TOPRIGHT", TR = "BOTTOMRIGHT", BL = "TOPLEFT", LB = "BOTTOMRIGHT", LC = "RIGHT", RB = "BOTTOMLEFT", RC = "LEFT", TC = "BOTTOM", BR = "TOPRIGHT", TL = "BOTTOMLEFT", ITR = "BOTTOMRIGHT", ITL = "BOTTOM", IC = "CENTER"}
+local preDefPoint = {C = "CENTER", ICL = "LEFT", RT = "TOPLEFT", BC = "TOP", ICR = "RIGHT", LT = "TOPRIGHT", TR = "BOTTOMRIGHT", BL = "TOPLEFT", LB = "BOTTOMRIGHT", LC = "RIGHT", RB = "BOTTOMLEFT", RC = "LEFT", TC = "BOTTOM", BR = "TOPRIGHT", TL = "TOPLEFT", ITR = "BOTTOMRIGHT", ITL = "BOTTOM", IC = "CENTER"}
 local preDefRelative = {C = "CENTER", ICL = "LEFT", RT = "TOPRIGHT", BC = "BOTTOM", ICR = "RIGHT", LT = "TOPLEFT", TR = "TOPRIGHT", BL = "BOTTOMLEFT", LB = "BOTTOMLEFT", LC = "LEFT", RB = "BOTTOMRIGHT", RC = "RIGHT", TC = "TOP", BR = "BOTTOMRIGHT", TL = "TOPLEFT", ITR = "RIGHT", ITL = "LEFT", IC = "CENTER"}
 
 -- Figures out how text should be justified based on where it's anchoring
@@ -142,7 +142,7 @@ function Layout:AnchorFrame(parent, frame, config)
 	end
 	
 	local scale = 1
-	if( config.effectiveScale ) then
+	if( frame.unitConfig and frame.unitConfig.effectiveScale ) then
 		scale = parent:GetEffectiveScale()
 	end
 	
@@ -172,12 +172,12 @@ function Layout:AnchorFrame(parent, frame, config)
 	else
 		anchorTo = config.anchorTo
 	end
-
-	frame:ClearAllPoints()
 	
 	if( config.anchorPoint and config.anchorPoint ~= "" ) then
+		frame:ClearAllPoints()
 		frame:SetPoint(preDefPoint[config.anchorPoint], anchorTo, preDefRelative[config.anchorPoint], config.x / scale, config.y / scale)
 	else
+		frame:ClearAllPoints()
 		frame:SetPoint(config.point, anchorTo, config.relativePoint, config.x / scale, config.y / scale)
 	end
 end
@@ -202,6 +202,9 @@ function Layout:ApplyUnitFrame(frame, config)
 	frame:SetBackdropColor(layout.backdrop.backgroundColor.r, layout.backdrop.backgroundColor.g, layout.backdrop.backgroundColor.b, layout.backdrop.backgroundColor.a)
 	frame:SetBackdropBorderColor(layout.backdrop.borderColor.r, layout.backdrop.borderColor.g, layout.backdrop.borderColor.b, layout.backdrop.borderColor.a)
 	frame:SetClampedToScreen(true)
+	
+	local clip = layout.backdrop.inset + layout.backdrop.clip
+	frame:SetClampRectInsets(-clip, -clip, -clip, -clip)
 	
 	if( not frame.ignoreAnchor ) then
 		self:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[frame.unitType])
