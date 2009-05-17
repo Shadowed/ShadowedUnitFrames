@@ -197,7 +197,7 @@ function ShadowUF:LoadUnitDefaults()
 
 	self.defaults.profile.positions.partypet.anchorTo = "$parent"
 	self.defaults.profile.positions.partypet.anchorPoint = "BR"
-		
+			
 	-- Only can show one row for party without clipping
 	self.defaults.profile.units.party.auras.buffs.rows = 1
 	

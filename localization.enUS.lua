@@ -148,7 +148,7 @@ ShadowUFLocals = {
 	["Inactive alpha"] = "Inactive alpha",
 	["Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%."] = "Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%.",
 	["Growth"] = "Growth",
-	
+	["Spacing"] = "Spacing",
 	
 	-- Layout
 	["Layout"] = "Layout",

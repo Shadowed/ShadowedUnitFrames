@@ -1337,7 +1337,7 @@ local function loadUnitOptions()
 						order = 5,
 						type = "group",
 						inline = true,
-						name = L["Combo points"] .. NYI,
+						name = L["Combo points"],
 						hidden = function(info) return info[#(info) - 2] ~= "target"  end,
 						set = function(info, value)
 							ShadowUF.db.profile.units[info[#(info) - 3]].comboPoints[info[#(info)]] = value
@@ -1353,14 +1353,36 @@ local function loadUnitOptions()
 								name = string.format(L["Enable %s"], L["Combo points"]),
 								hidden = false,
 							},
+							-- Now, technically we can't pass a function to a width, but this works just as well!
+							sep1 = {
+								order = 0.50,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = function(info) return not ShadowUF.db.profile.advanced end,
+							},
 							growth = {
 								order = 1,
 								type = "select",
 								name = L["Growth"],
-								values = {["TOP"] = L["Up"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["BOTTOM"] = L["Down"]},
+								values = {["UP"] = L["Up"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["DOWN"] = L["Down"]},
 								hidden = false,
 							},
-							sep = {
+							size = {
+								order = 1.5,
+								type = "range",
+								name = L["Size"],
+								min = 0, max = 20, step = 1,
+								hidden = hideAdvancedOption,
+							},
+							spacing = {
+								order = 1.75,
+								type = "range",
+								name = L["Spacing"],
+								min = -10, max = 10, step = 1,
+								hidden = hideAdvancedOption,
+							},
+							sep2= {
 								order = 2,
 								type = "description",
 								name = "",

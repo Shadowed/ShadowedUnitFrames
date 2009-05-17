@@ -163,7 +163,7 @@ ShadowUF:RegisterLayout("Default", {
 			width = 190,
 			height = 55,
 			scale = 1.0,
-			comboPoints = {anchorTo = "$parent", anchorPoint = "BL", x = 0, y = 0, growth = "UP"},
+			comboPoints = {anchorTo = "$parent", anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -3, growth = "UP"},
 			indicators = {
 				happiness = {anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0},
 				raidTarget = {anchorTo = "$parent", anchorPoint = "TC", size = 20, y = -15},
