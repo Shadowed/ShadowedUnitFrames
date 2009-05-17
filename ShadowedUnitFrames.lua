@@ -8,12 +8,12 @@ ShadowUF.moduleNames = {}
 local L = ShadowUFLocals
 local layoutQueue
 local modules = {}
-local units = {"player", "pet", "target", "targettarget", "targettargettarget", "focus", "party", "partypet", "raid"}
+local units = {"player", "pet", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "raid"}
 
 -- Main layout keys, this does not include units or inherited module options
 local mainLayout = {["bars"] = true, ["backdrop"] = true, ["font"] = true, ["powerColor"] = true, ["healthColor"] = true, ["xpColor"] = true, ["positions"] = true}
 -- Sub layout keys inside layouts that are accepted
-local subLayout = {["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["groupBy"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
+local subLayout = {["growth"] = true, ["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["groupBy"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
 
 function ShadowUF:OnInitialize()
 	self.defaults = {
@@ -25,7 +25,7 @@ function ShadowUF:OnInitialize()
 			layoutInfo = {},
 			positions = {},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
-			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true},
+			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true, cast = false},
 		},
 	}
 	
@@ -143,57 +143,77 @@ function ShadowUF:LoadUnitDefaults()
 		self.defaults.profile.positions[unit] = {point = "", relativePoint = "", anchorPoint = "", anchorTo = "UIParent", x = 0, y = 0}
 		
 		self.defaults.profile.units[unit] = {
+			height = 0,
+			width = 0,
+			scale = 1.0,
 			enabled = false,
 			effectiveScale = true,
 			healthBar = {enabled = true, colorType = "percent"},
 			powerBar = {enabled = true},
-			portrait = {enabled = true, type = "3D"},
+			portrait = {enabled = false, type = "3D"},
 			castBar = {
 				enabled = false,
 				castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0},
 				castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0},
 			},
-			fader = {enabled = true, combatAlpha = 1.0, inactiveAlpha = 0.60},
+			fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60},
 			xpBar = {enabled = false},
 			comboPoints = {enabled = false, anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0},
 			combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0},
 			text = {
-				{enabled = true, name = L["Left text"], width = 0.60, text = "[colorname]", anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0},
+				{enabled = true, name = L["Left text"], width = 0.60, text = "[name]", anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0},
 				{enabled = true, name = L["Right text"], width = 0.40, text = "[curmaxhp]", anchorTo = "$healthBar", anchorPoint = "ICR", x = -3, y = 0},
 				
 				{enabled = true, name = L["Left text"], width = 0.60, text = "[level] [race]", anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0},
 				{enabled = true, name = L["Right text"], width = 0.40, text = "[curmaxpp]", anchorTo = "$powerBar", anchorPoint = "ICR", x = -3, y = 0},
 			},
 			indicators = {
-				status = {enabled = true, size = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
-				pvp = {enabled = true, size = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
-				leader = {enabled = true, size = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
-				masterLoot = {enabled = true, size = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
-				raidTarget = {enabled = true, size = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
-				happiness = {enabled = true, size = 16, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 2, y = -2},	
+				status = {enabled = false, size = 19, anchorTo = "$parent", x = 0, y = 0},
+				pvp = {enabled = false, size = 22, anchorTo = "$parent", x = 10, y = 2},
+				leader = {enabled = false, size = 14, anchorTo = "$parent", x = 3, y = 2},
+				masterLoot = {enabled = false, size = 12, anchorTo = "$parent",  x = 15, y = 2},
+				raidTarget = {enabled = true, size = 22, anchorTo = "$parent", x = 0, y = -8},
+				happiness = {enabled = false, size = 16, anchorTo = "$parent", x = 2, y = -2},	
 			},
 			auras = {
-				buffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = false, anchorPoint = "TOP", size = 16, x = 0, y = 0, HELPFUL = true},
-				debuffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = true, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0, HARMFUL = true},
+				buffs = {enabled = false, inColumn = 10, rows = 4, enlargeSelf = false, anchorPoint = "TOP", size = 16, x = 0, y = 0, HELPFUL = true},
+				debuffs = {enabled = false, inColumn = 10, rows = 4, enlargeSelf = true, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0, HARMFUL = true},
 			},
 		}
 	end
-	
+		
 	self.defaults.profile.units.player.enabled = true
+	self.defaults.profile.units.player.portrait.enabled = true
 	self.defaults.profile.units.focus.enabled = true
+	self.defaults.profile.units.focustarget.enabled = true
 	self.defaults.profile.units.target.enabled = true
+	self.defaults.profile.units.target.portrait.enabled = true
 	self.defaults.profile.units.targettarget.enabled = true
+	self.defaults.profile.units.targettargettarget.enabled = true
 	self.defaults.profile.units.pet.enabled = true
 	self.defaults.profile.units.party.enabled = true
-		
-	self.defaults.profile.units.raid.portrait.enabled = false
-	self.defaults.profile.units.raid.powerBar.enabled = false
-
-	self.defaults.profile.units.partypet.portrait.enabled = false
-	self.defaults.profile.units.partypet.powerBar.enabled = false
+	self.defaults.profile.units.party.portrait.enabled = true
 
 	self.defaults.profile.positions.partypet.anchorTo = "$parent"
 	self.defaults.profile.positions.partypet.anchorPoint = "BR"
+		
+	-- Only can show one row for party without clipping
+	self.defaults.profile.units.party.auras.buffs.rows = 1
+	
+	-- Disable all indicators quickly
+	for _, unit in pairs(units) do
+		if( unit == "player" or unit == "party" or unit == "target" ) then
+			self.defaults.profile.units[unit].indicators.status.enabled = true
+			self.defaults.profile.units[unit].indicators.pvp.enabled = true
+			self.defaults.profile.units[unit].indicators.leader.enabled = true
+			self.defaults.profile.units[unit].indicators.masterLoot.enabled = true
+
+			self.defaults.profile.units[unit].auras.buffs.enabled = false
+			self.defaults.profile.units[unit].auras.debuffs.enabled = false
+		elseif( unit == "pet" ) then
+			self.defaults.profile.units[unit].indicators.happiness.enabled = true
+		end
+	end
 end
 
 -- Hiding Blizzard stuff (Stolen from haste)
@@ -249,6 +269,9 @@ function ShadowUF:HideBlizzard(type)
 
 		TargetofTargetHealthBar:UnregisterAllEvents()
 		TargetofTargetManaBar:UnregisterAllEvents()
+	elseif( type == "cast" ) then
+		CastingBarFrame:UnregisterAllEvents()
+		PetCastingBarFrame:UnregisterAllEvents()
 	elseif( type == "party" ) then
 		for i=1, MAX_PARTY_MEMBERS do
 			local party = "PartyMemberFrame" .. i
@@ -265,9 +288,6 @@ function ShadowUF:HideBlizzard(type)
 end
 
 -- Plugin APIs
-function ShadowUF:CopyLayoutSettings(key, unit)
-end
-
 local function verifyTable(tbl)
 	for key, value in pairs(tbl) do
 		if( type(value) == "table" ) then

@@ -34,6 +34,7 @@ ShadowUFLocals = {
 	["Search tag"] = "Search tag",
 	["Screen"] = "Screen",
 	["Party member"] = "Party member",
+	["Bar texture"] = "Bar texture",
 	
 	-- Help
 	["Help"] = "Help",
@@ -67,6 +68,12 @@ ShadowUFLocals = {
 	["Top"] = "Top",
 	["Left"] = "Left",
 	["Right"] = "Right",
+	
+	-- Hiding
+	["Hide Blizzard"] = "Hide Blizzard",
+	["Hide %s"] = "Hide %s",
+	["Cast bars"] = "Cast bars",
+	["You must do a /console reloadui for an object to show up agian."] = "You must do a /console reloadui for an object to show up agian.",
 
 	-- Units
 	["Global"] = "Global",
@@ -271,6 +278,7 @@ ShadowUFLocals = {
 		["targettarget"] = "Target of Target",
 		["targettargettarget"] = "Target of Target of Target",
 		["focus"] = "Focus",
+		["focustarget"] = "Focus target",
 		["party"] = "Party",
 		["partypet"] = "Party pet",
 		["raid"] = "Raid",

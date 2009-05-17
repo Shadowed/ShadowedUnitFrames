@@ -13,6 +13,7 @@ function Combo:UnitEnabled(frame, unit)
 		
 		point:SetHeight(12)
 		point:SetWidth(12)
+		point:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\textures\\combo")
 		
 		if( i > 1 ) then
 			point:SetPoint("BOTTOMRIGHT", frame.comboPoints.points[i - 1], "BOTTOMLEFT")

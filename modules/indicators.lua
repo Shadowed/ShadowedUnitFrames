@@ -36,9 +36,9 @@ function Indicators.UpdateMasterLoot(self, unit)
 	if( not self.indicators.masterLoot.enabled ) then return end
 	
 	local lootType, partyID, raidID = GetLootMethod()
-	if( lootType ~= "master" or not partyID or not raidID ) then
+	if( lootType ~= "master" ) then
 		self.indicators.masterLoot:Hide()
-	elseif( ( partyID > 0 and UnitIsUnit(unit, partyUnits[partyID]) ) or ( raidID > 0 and UnitIsUnit(unit, raidUnits[raidID]) ) ) then
+	elseif( ( partyID and partyID == 0 and UnitIsUnit(unit, "player") ) or ( partyID and partyID > 0 and UnitIsUnit(unit, partyUnits[partyID]) ) or ( raidID and raidID > 0 and UnitIsUnit(unit, raidUnits[raidID]) ) ) then
 		self.indicators.masterLoot:Show()
 	else
 		self.indicators.masterLoot:Hide()
@@ -57,6 +57,7 @@ function Indicators.UpdateRaidTarget(self, unit)
 end
 			
 function Indicators.UpdateLeader(self, unit)
+	Indicators.UpdateMasterLoot(self, unit)
 	if( not self.indicators.leader.enabled ) then return end
 	
 	if( UnitIsPartyLeader(unit) ) then
@@ -102,13 +103,12 @@ function Indicators:UnitEnabled(frame, unit)
 	-- Forces the indicators to be above the bars/portraits/etc
 	frame.indicators = CreateFrame("Frame", frame:GetName() .. "IndicatorsFrame", frame)
 	frame.indicators.list = indicatorList
-	frame.indicators:Hide()
 	
 	-- Status
 	frame.indicators.status = frame.indicators.status or frame.indicators:CreateTexture(nil, "OVERLAY")
 	frame.indicators.status:SetTexture("Interface\\CharacterFrame\\UI-StateIcon")
-	frame.indicators:Show()
-
+	frame.indicators.status:Hide()
+	
 	frame:RegisterNormalEvent("PLAYER_REGEN_ENABLED", self.UpdateStatus)
 	frame:RegisterNormalEvent("PLAYER_REGEN_DISABLED", self.UpdateStatus)
 	frame:RegisterNormalEvent("PLAYER_UPDATE_RESTING", self.UpdateStatus)
@@ -117,8 +117,8 @@ function Indicators:UnitEnabled(frame, unit)
 
 	-- PVP
 	frame.indicators.pvp = frame.indicators.pvp or frame.indicators:CreateTexture(nil, "OVERLAY")
-	frame.indicators:Show()
-
+	frame.indicators.pvp:Hide()
+	
 	frame:RegisterUnitEvent("PLAYER_FLAGS_CHANGED", self.UpdatePVPFlag)
 	frame:RegisterUnitEvent("UNIT_FACTION", self.UpdatePVPFlag)
 	frame:RegisterUpdateFunc(self.UpdatePVPFlag)
@@ -126,8 +126,8 @@ function Indicators:UnitEnabled(frame, unit)
 	-- Leader
 	frame.indicators.leader = frame.indicators.leader or frame.indicators:CreateTexture(nil, "OVERLAY")
 	frame.indicators.leader:SetTexture("Interface\\GroupFrame\\UI-Group-LeaderIcon")
-	frame.indicators:Show()
-
+	frame.indicators.leader:Hide()
+	
 	frame:RegisterNormalEvent("PARTY_LEADER_CHANGED", self.UpdateLeader)
 	frame:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", self.UpdateLeader)
 	frame:RegisterUpdateFunc(self.UpdateLeader)
@@ -135,7 +135,7 @@ function Indicators:UnitEnabled(frame, unit)
 	-- Master looter
 	frame.indicators.masterLoot = frame.indicators.masterLoot or frame.indicators:CreateTexture(nil, "OVERLAY")
 	frame.indicators.masterLoot:SetTexture("Interface\\GroupFrame\\UI-Group-MasterLooter")
-	frame.indicators:Show()
+	frame.indicators.masterLoot:Hide()
 
 	frame:RegisterNormalEvent("PARTY_LOOT_METHOD_CHANGED", self.UpdateMasterLoot)
 	frame:RegisterUpdateFunc(self.UpdateMasterLoot)
@@ -143,16 +143,16 @@ function Indicators:UnitEnabled(frame, unit)
 	-- Raid target
 	frame.indicators.raidTarget = frame.indicators.raidTarget or frame.indicators:CreateTexture(nil, "OVERLAY")
 	frame.indicators.raidTarget:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
-	frame.indicators:Show()
-
+	frame.indicators.raidTarget:Hide()
+	
 	frame:RegisterNormalEvent("RAID_TARGET_UPDATE", self.UpdateRaidTarget)
 	frame:RegisterUpdateFunc(self.UpdateRaidTarget)
 		
 	-- Happiness
 	frame.indicators.happiness = frame.indicators.happiness or frame.indicators:CreateTexture(nil, "OVERLAY")
 	frame.indicators.happiness:SetTexture("Interface\\PetPaperDollFrame\\UI-PetHappiness")
-	frame.indicators:Show()
-
+	frame.indicators.happiness:Hide()
+	
 	frame:RegisterUnitEvent("UNIT_HAPPINESS", self.UpdateHappiness)
 	frame:RegisterUpdateFunc(self.UpdateHappiness)
 end

@@ -160,6 +160,22 @@ local function loadGeneralOptions()
 		return MediaList[info.arg]
 	end
 	
+	local hideTable = {
+		order = 0,
+		type = "toggle",
+		name = function(info) return string.format(L["Hide %s"], L.units[info[#(info)]] or L["Cast bars"]) end,
+		desc = L["You must do a /console reloadui for an object to show up agian."],
+		set = function(info, value)
+			ShadowUF.db.profile.hidden[info[#(info)]] = value
+			if( value ) then
+				ShadowUF:HideBlizzard(info[#(info)])
+			end
+		end,
+		get = function(info)
+			return ShadowUF.db.profile.hidden[info[#(info)]]
+		end
+	}
+	
 	options.args.general = {
 		type = "group",
 		childGroups = "tab",
@@ -190,6 +206,16 @@ local function loadGeneralOptions()
 								type = "toggle",
 								name = L["Advanced"],
 								desc = L["Enabling advanced settings will allow you to further tweak settings. This is meant for people who want to tweak every single thing, and should not be enabled by default as it increases the options."],
+							},
+							texture = {
+								order = 2,
+								type = "select",
+								name = L["Bar texture"],
+								dialogControl = "LSM30_Statusbar",
+								values = getMediaData,
+								arg = SML.MediaType.STATUSBAR,
+								set = function(info, value) ShadowUF.db.profile.bars.texture = value ShadowUF.Layout:CheckMedia() ShadowUF.Layout:ReloadAll() end,
+								get = function(info) return ShadowUF.db.profile.bars.texture end,
 							},
 						},
 					},
@@ -374,15 +400,29 @@ local function loadGeneralOptions()
 				},
 			},
 			profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(ShadowUF.db),
-			layout = {
+			hide = {
 				type = "group",
 				order = 3,
+				name = L["Hide Blizzard"],
+				args = {
+					player = hideTable,
+					pet = hideTable,
+					target = hideTable,
+					party = hideTable,
+					focus = hideTable,
+					targettarget = hideTable,
+					cast = hideTable,
+				},
+			},
+			layout = {
+				type = "group",
+				order = 4,
 				name = L["Layout management"] .. NYI,
 				args = {}
 			},
 			tags = {
 				type = "group",
-				order = 4,
+				order = 5,
 				name = L["Tag management"] .. NYI,
 				args = {},
 			},
@@ -426,8 +466,8 @@ local function loadUnitOptions()
 	local anchorList = {}
 	local function getAnchorParents(info)
 		for k in pairs(anchorList) do anchorList[k] = nil end
-		if( info[#(info) - 3] == "partypets" ) then
-			anchorList["$parent"] = L["Party member"]
+		if( info[#(info) - 3] == "partypet" ) then
+			anchorList["#SUFHeaderparty"] = L["Party member"]
 			return anchorList
 		end
 		
@@ -519,9 +559,9 @@ local function loadUnitOptions()
 			ShadowUF.Layout:CheckMedia()
 			ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
 		end
-		
-		if( info.arg == "positions" and ( unit == "raid" or unit == "party" ) ) then
-			ShadowUF.Units:ReanchorHeader(unit)
+			
+		if( info.arg == "positions" and ( unit == "raid" or unit == "party" or unit == "partypet" ) ) then
+			ShadowUF.Units:ReloadUnit(unit)
 		end
 	end
 	
@@ -542,7 +582,7 @@ local function loadUnitOptions()
 
 	-- Not every option should be changed via global settings
 	local function hideAdvancedAndGlobal(info)
-		if( info[#(info) - 3] == "global" or info[#(info) - 2] == "global" ) then
+		if( info[#(info) - 3] == "global" or info[#(info) - 2] == "global" or info[#(info) - 3] == "partypet" or info[#(info) - 2] == "partypet" ) then
 			return true
 		end
 		
@@ -896,6 +936,7 @@ local function loadUnitOptions()
 		for id in pairs(ShadowUF.defaults.profile.units.player.text) do
 			textTable.args[id .. ":header"] = header
 			textTable.args[id .. ":text"] = text
+			textTable.args[id .. ":width"] = width
 			textTable.args[id .. ":sep"] = sep
 			textTable.args[id .. ":anchorPoint"] = anchorPoint
 			textTable.args[id .. ":x"] = x
@@ -914,7 +955,7 @@ local function loadUnitOptions()
 			unit = unit == "global" and masterUnit or unit
 			if( info[#(info) - 1] == "buffs" ) then
 				return false
-			elseif( ShadowUF.db.profile.units[unit].auras.buffs.position == ShadowUF.db.profile.units[unit].auras.debuffs.position ) then
+			elseif( ShadowUF.db.profile.units[unit].auras.buffs.anchorPoint == ShadowUF.db.profile.units[unit].auras.debuffs.anchorPoint ) then
 				return true
 			end
 			
@@ -953,6 +994,7 @@ local function loadUnitOptions()
 				name = L["Filter out irrelevant debuffs"] .. NYI,
 				desc = L["Automatically filters out debuffs that you don't care about, if you're a magic class you won't see Rend/Deep Wounds, physical classes won't see Curse of the Elements and so on."],
 				hidden = function(info) return info[#(info) - 1] == "buffs" end,
+				disabled = false,
 				width = "double",
 			},
 			sep1 = {
@@ -1025,7 +1067,7 @@ local function loadUnitOptions()
 				name = "",
 				width = "full",
 			},
-			position = {
+			anchorPoint = {
 				order = 13,
 				type = "select",
 				name = L["Position"],
@@ -1085,22 +1127,27 @@ local function loadUnitOptions()
 		name = getName,
 		type = "group",
 		inline = true,
-		hidden = function(info)
-			if( info[#(info) - 2] == "global" ) then return true end
-			return not ShadowUF.db.profile.units[info[#(info) - 2]].indicators or not ShadowUF.db.profile.units[info[#(info) - 2]].indicators[info[#(info)]]
-		end,
+		hidden = false,
 		set = function(info, value)
 			local unit = info[#(info) - 3]
 			local type = info[#(info) - 1]
 			local key = info[#(info)]
 				
-			ShadowUF.db.profile.units[unit].indicators[type][key] = value
+			if( unit == "global" ) then
+				for unit in pairs(modifyUnits) do
+					ShadowUF.db.profile.units[unit].indicators[type][key] = value
+				end
+			else
+				ShadowUF.db.profile.units[unit].indicators[type][key] = value
+			end
+			
 			ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
 		end,
 		get = function(info)
 			local unit = info[#(info) - 3]
 			local type = info[#(info) - 1]
 			local key = info[#(info)]
+			unit = unit == "global" and masterUnit or unit
 			
 			return ShadowUF.db.profile.units[unit].indicators[type][key]
 		end,
@@ -1290,7 +1337,7 @@ local function loadUnitOptions()
 						order = 5,
 						type = "group",
 						inline = true,
-						name = L["Combo points"],
+						name = L["Combo points"] .. NYI,
 						hidden = function(info) return info[#(info) - 2] ~= "target"  end,
 						set = function(info, value)
 							ShadowUF.db.profile.units[info[#(info) - 3]].comboPoints[info[#(info)]] = value
@@ -1353,8 +1400,7 @@ local function loadUnitOptions()
 				hidden = function(info) if( info[#(info) - 1] ~= "raid" and info[#(info) - 1] ~= "party" ) then return true end return false end,
 				set = function(info, value)
 					setLayout(info, value, true)
-					
-					ShadowUF.Units:ReloadAttributes(info[#(info) - 3])
+					ShadowUF.Units:ReloadUnit(info[#(info) - 3])
 				end,
 				get = getLayout,
 				args = {
@@ -1422,6 +1468,12 @@ local function loadUnitOptions()
 								name = L["Group by"],
 								values = {["GROUP"] = L["Group number"], ["CLASS"] = L["Class"]},
 							},
+							sep = {
+								order = 0.5,
+								type = "description",
+								name = "",
+								width = "full",
+							},
 							maxColumns = {
 								order = 1,
 								type = "range",
@@ -1438,7 +1490,7 @@ local function loadUnitOptions()
 								order = 3,
 								type = "range",
 								name = L["Column spacing"],
-								min = 0, max = 100, step = 1,
+								min = -100, max = 100, step = 1,
 							},
 						},
 					},
@@ -1768,18 +1820,7 @@ local function loadUnitOptions()
 				order = 5.5,
 				type = "group",
 				name = L["Indicators"],
-				hidden = function(info)
-					local unit = info[#(info) - 1]
-					if( unit ~= "global" and ShadowUF.db.profile.units[unit].indicators ) then
-						for _, indicator in pairs(ShadowUF.db.profile.units[unit].indicators) do
-							if( indicator.enabled ) then
-								return false
-							end
-						end
-					end
-					
-					return true
-				end,
+				hidden = isModifiersSet,
 				args = {
 					status = indicatorTable,
 					pvp = indicatorTable,
@@ -2241,7 +2282,7 @@ local function loadVisibilityOptions()
 		end
 		
 		ShadowUF.db.profile.visibility[area][unit .. key] = value
-		ShadowUF.Units:ReloadVisibility(unit)
+		ShadowUF.Units:ReloadUnit(unit)
 	end
 	
 	local function get(info)

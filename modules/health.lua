@@ -111,6 +111,9 @@ end
 function Health.Update(self, unit)
 	local max = UnitHealthMax(unit)
 	local current = UnitHealth(unit)
+	if( current == 1 or UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) ) then
+		current = 0
+	end
 	
 	self.healthBar:SetMinMaxValues(0, max)
 	self.healthBar:SetValue(current)

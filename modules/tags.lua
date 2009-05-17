@@ -261,7 +261,13 @@ function Tags:LoadTags()
 			return color .. class .. "|r"
 		end]],
 		["creature"]    = [[function(unit) return UnitCreatureFamily(unit) or UnitCreatureType(unit) end]],
-		["curhp"]       = [[function(unit) return ShadowUF:FormatLargeNumber(UnitHealth(unit)) end]],
+		["curhp"]       = [[function(unit)
+			local health = UnitHealth(unit)
+			if( health == 1 or UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) ) then
+				health = 0
+			end
+			return ShadowUF:FormatLargeNumber(health)
+		end]],
 		["curpp"]       = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPower(unit)) end]],
 		["curmaxhp"] = [[function(unit)
 			local offline = ShadowUF.tagFunc.offline(unit)
@@ -318,9 +324,9 @@ function Tags:LoadTags()
 			
 			local max = UnitHealthMax(unit);
 			
-			return max == 0 and 0 or math.floor(UnitHealth(unit) / max * 100 + 0.5)
+			return max == 0 and 0 or math.floor(UnitHealth(unit) / max * 100 + 0.5) .. "%"
 		end]],
-		["perpp"]       = [[function(unit) local m = UnitPowerMax(unit); return m == 0 and 0 or math.floor(UnitPower(unit)/m*100+0.5) end]],
+		["perpp"]       = [[function(unit) local m = UnitPowerMax(unit); return m == 0 and 0 or math.floor(UnitPower(unit)/m*100+0.5) .. "%" end]],
 		["plus"]        = [[function(unit) local c = UnitClassification(unit); return (c == "elite" or c == "rareelite") and "+" end]],
 		["race"]        = [[function(unit) return UnitRace(unit) end]],
 		["rare"]        = [[function(unit) local c = UnitClassification(unit); return (c == "rare" or c == "rareelite") and ShadowUFLocals["Rare"] end]],

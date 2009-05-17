@@ -402,7 +402,7 @@ function Layout:ApplyIndicators(frame, config)
 	for _, key in pairs(frame.indicators.list) do
 		local indicator = frame.indicators[key]
 		indicator.enabled = config.indicators[key].enabled
-		self:ToggleVisibility(indicator, indicator.enabled)
+		--self:ToggleVisibility(indicator, indicator.enabled)
 		
 		if( indicator.enabled ) then
 			indicator:SetHeight(config.indicators[key].size)

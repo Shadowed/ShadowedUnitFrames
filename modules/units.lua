@@ -49,9 +49,9 @@ local function UnregisterAll(self, ...)
 		self.fullUpdates[func] = nil
 		
 		for event, list in pairs(self.registeredEvents) do
-			for _, callback in pairs(list) do
-				if( callback == func ) then
-					list[callback] = nil
+			for i=#(list), 1, -1 do
+				if( list[i] == func ) then
+					table.remove(list, i)
 					break
 				end
 			end
@@ -278,10 +278,22 @@ local function initUnit(self)
 end
 
 function Units:ReloadUnit(type)
+	-- Force any attribute changes to take affect.
+	if( type == "partypet" ) then
+		for i=1, MAX_PARTY_MEMBERS do
+			local frame = unitFrames["partypet" .. i]
+			if( frame ) then
+				self:SetFrameAttributes(frame, type)
+				if( UnitExists(frame.unit) ) then
+					frame:Hide()
+					frame:Show()
+				end
+			end
+		end
+	end
+	
 	local frame = unitFrames[type]
 	if( frame ) then
-		frame:SetVisibility()
-		
 		self:SetFrameAttributes(frame, type)
 		ShadowUF.Layout:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[type])
 	end
@@ -291,6 +303,7 @@ function Units:ProfileChanged()
 	for _, frame in pairs(unitList) do
 		if( frame:GetAttribute("unit") ) then
 			frame:SetVisibility()
+			frame:FullUpdate()
 		end
 	end
 	
@@ -333,6 +346,8 @@ function Units:SetFrameAttributes(frame, type)
 	elseif( type == "partypet" ) then
 		frame:SetAttribute("framePoint", ShadowUF.Layout:GetPoint(ShadowUF.db.profile.positions[type].anchorPoint))
 		frame:SetAttribute("frameRelative", ShadowUF.Layout:GetRelative(ShadowUF.db.profile.positions[type].anchorPoint))
+		frame:SetAttribute("frameX", ShadowUF.db.profile.positions[type].x)
+		frame:SetAttribute("frameY", ShadowUF.db.profile.positions[type].y)
 	end
 end
 
@@ -390,7 +405,7 @@ function Units:LoadPetUnit(config, parentHeader, unit)
 			if( child:GetAttribute("unit") == self:GetAttribute("petOwner") ) then
 				self:SetParent(child)
 				self:ClearAllPoints()
-				self:SetPoint(self:GetAttribute("framePoint"), child, self:GetAttribute("frameRelative"), 0, 0)
+				self:SetPoint(self:GetAttribute("framePoint"), child, self:GetAttribute("frameRelative"), self:GetAttribute("frameX"), self:GetAttribute("frameY"))
 			end
 		end
 	]])
