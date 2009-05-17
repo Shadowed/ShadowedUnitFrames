@@ -101,7 +101,8 @@ function ShadowUF:OnInitialize()
 	self.Layout = self.modules.Layout
 	self.Units = self.modules.Units
 	self.Tags = self.modules.Tags
-
+	self.Auras = self.modules.Auras
+	
 	-- Hide any Blizzard frames
 	self:HideBlizzardFrames()
 	
@@ -177,7 +178,7 @@ function ShadowUF:LoadUnitDefaults()
 				happiness = {enabled = false, size = 16, anchorTo = "$parent", x = 2, y = -2},	
 			},
 			auras = {
-				buffs = {enabled = false, inColumn = 10, rows = 4, enlargeSelf = false, anchorPoint = "TOP", size = 16, x = 0, y = 0, HELPFUL = true},
+				buffs = {enabled = false, inColumn = 10, rows = 4, prioritize = true, enlargeSelf = false, anchorPoint = "TOP", size = 16, x = 0, y = 0, HELPFUL = true},
 				debuffs = {enabled = false, inColumn = 10, rows = 4, enlargeSelf = true, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0, HARMFUL = true},
 			},
 		}
@@ -197,7 +198,7 @@ function ShadowUF:LoadUnitDefaults()
 
 	self.defaults.profile.positions.partypet.anchorTo = "$parent"
 	self.defaults.profile.positions.partypet.anchorPoint = "BR"
-			
+					
 	-- Only can show one row for party without clipping
 	self.defaults.profile.units.party.auras.buffs.rows = 1
 	

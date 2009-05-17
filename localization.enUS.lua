@@ -149,6 +149,8 @@ ShadowUFLocals = {
 	["Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%."] = "Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%.",
 	["Growth"] = "Growth",
 	["Spacing"] = "Spacing",
+	["Prioritize buffs"] = "Prioritize buffs",
+	["Show buffs before debuffs when sharing the same anchor point."] = "Show buffs before debuffs when sharing the same anchor point.",
 	
 	-- Layout
 	["Layout"] = "Layout",

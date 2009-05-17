@@ -414,15 +414,14 @@ function Layout:ApplyIndicators(frame, config)
 	end
 end
 
--- Setup auras
-local function positionAuras(self, config, layout)
+local function positionAuras(self, config)
 	for id, button in pairs(self.buttons) do
 		button:SetHeight(config.size)
 		button:SetWidth(config.size)
 		button.border:SetHeight(config.size + 1)
 		button.border:SetWidth(config.size + 1)
 		button:ClearAllPoints()
-		
+
 		-- If's ahoy
 		if( id > 1 ) then
 			if( config.anchorPoint == "BOTTOM" or config.anchorPoint == "TOP" or config.anchorPoint == "INSIDE" ) then
@@ -433,7 +432,7 @@ local function positionAuras(self, config, layout)
 						button:SetPoint("TOP", self.buttons[id - config.inColumn], "BOTTOM", 0, -2)
 					end
 				elseif( config.anchorPoint == "INSIDE" ) then
-					button:SetPoint("RIGHT", self.buttons[id - 1], "LEFT", -1, 0)
+						button:SetPoint("RIGHT", self.buttons[id - 1], "LEFT", -1, 0)
 				else
 					button:SetPoint("LEFT", self.buttons[id - 1], "RIGHT", 1, 0)
 				end
@@ -447,20 +446,21 @@ local function positionAuras(self, config, layout)
 				button:SetPoint("TOP", self.buttons[id - 1], "BOTTOM", 0, -2)
 			end
 		elseif( config.anchorPoint == "INSIDE" ) then
-			button:SetPoint("TOPRIGHT", self.parent.healthBar, "TOPRIGHT", config.x + -ShadowUF.db.profile.backdrop.clip, config.y + -ShadowUF.db.profile.backdrop.clip)
+				button:SetPoint("TOPRIGHT", self.parent.healthBar, "TOPRIGHT", config.x + -ShadowUF.db.profile.backdrop.clip, config.y + -ShadowUF.db.profile.backdrop.clip)
 		elseif( config.anchorPoint == "BOTTOM" ) then
-			button:SetPoint("BOTTOMLEFT", self.parent, "BOTTOMLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + -(config.size + 2))
+				button:SetPoint("BOTTOMLEFT", self.parent, "BOTTOMLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + -(config.size + 2))
 		elseif( config.anchorPoint == "TOP" ) then
-			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + (config.size + 2))
+				button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + (config.size + 2))
 		elseif( config.anchorPoint == "LEFT" ) then
-			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + -config.size, config.y + ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip)
+				button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + -config.size, config.y + ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip)
 		elseif( config.anchorPoint == "RIGHT" ) then
 			button:SetPoint("TOPRIGHT", self.parent, "TOPRIGHT", config.x + config.size, config.y + ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip)
 		end
 	end
-end
-
-function Layout:ApplyAuras(frame, config, layout)
+end			
+			
+-- Setup auras
+function Layout:ApplyAuras(frame, config)
 	if( not frame.auras or not frame.visibility.auras ) then
 		if( frame.auras ) then
 			for _, auras in pairs(frame.auras) do

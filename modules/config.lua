@@ -997,6 +997,22 @@ local function loadUnitOptions()
 				disabled = false,
 				width = "double",
 			},
+			prioritize = {
+				order = 1,
+				type = "toggle",
+				name = L["Prioritize buffs"],
+				desc = L["Show buffs before debuffs when sharing the same anchor point."],
+				hidden = function(info)
+					local unit = info[#(info) - 3]
+					if( ShadowUF.db.profile.units[unit].auras.buffs.anchorPoint ~= ShadowUF.db.profile.units[unit].auras.debuffs.anchorPoint ) then
+						return true
+					end
+					
+					return info[#(info) - 1] == "debuffs"
+				end,
+				disabled = false,
+				width = "double",
+			},
 			sep1 = {
 				order = 2,
 				type = "description",

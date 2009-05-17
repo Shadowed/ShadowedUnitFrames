@@ -3,7 +3,6 @@
 ## Notes: Simple unit frames. Original Concept, Original Naming Convention
 ## Author: Mayen/Selari
 ## SavedVariables: ShadowedUFDB
-## RequiredDeps: Spew
 
 libs\LibStub-1.0\LibStub-1.0.xml
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
