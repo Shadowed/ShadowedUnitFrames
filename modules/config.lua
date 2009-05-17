@@ -1174,6 +1174,13 @@ local function loadUnitOptions()
 				name = L["Enable indicator"],
 				hidden = false,
 			},
+			sep1 = {
+				order = 0.50,
+				type = "description",
+				name = "",
+				width = "full",
+				hidden = function() return ShadowUF.db.profile.advanced end,
+			},
 			anchorPoint = {
 				order = 1,
 				type = "select",
@@ -1181,19 +1188,19 @@ local function loadUnitOptions()
 				values = positionList,
 				hidden = false,
 			},
-			sep = {
+			sep2 = {
 				order = 1.5,
 				type = "description",
 				name = "",
 				width = "full",
-				hidden = false,
+				hidden = function() return not ShadowUF.db.profile.advanced end,
 			},
 			size = {
 				order = 2,
 				type = "range",
 				name = L["Size"],
 				min = 0, max = 40, step = 1,
-				hidden = false,
+				hidden = hideAdvancedOption,
 			},
 			x = {
 				order = 3,
@@ -1337,7 +1344,7 @@ local function loadUnitOptions()
 								name = L["X Offset"],
 								min = -20, max = 20, step = 1,
 								arg = "combatText.x",
-								hidden = false,
+								hidden = hideAdvancedOption,
 							},
 							y = {
 								order = 5,
@@ -1345,7 +1352,7 @@ local function loadUnitOptions()
 								name = L["Y Offset"],
 								min = -20, max = 20, step = 1,
 								arg = "combatText.y",
-								hidden = false,
+								hidden = hideAdvancedOption,
 							},
 						},
 					},
@@ -1752,6 +1759,7 @@ local function loadUnitOptions()
 								order = 0.50,
 								type = "header",
 								name = L["Cast name"],
+								hidden = hideAdvancedOption,
 							},
 							nameAnchor = {
 								order = 1,
@@ -1761,6 +1769,7 @@ local function loadUnitOptions()
 								values = {["ICL"] = L["Inside Center Left"], ["ICR"] = L["Inside Center Right"]},
 								set = setCast,
 								get = getCast,
+								hidden = hideAdvancedOption,
 								arg = "castName.anchorPoint",
 							},
 							nameX = {
@@ -1770,6 +1779,7 @@ local function loadUnitOptions()
 								min = -20, max = 20, step = 1,
 								set = setCast,
 								get = getCast,
+								hidden = hideAdvancedOption,
 								arg = "castName.x",
 							},
 							nameY = {
@@ -1779,12 +1789,14 @@ local function loadUnitOptions()
 								min = -20, max = 20, step = 1,
 								set = setCast,
 								get = getCast,
+								hidden = hideAdvancedOption,
 								arg = "castName.y",
 							},
 							castTime = {
 								order = 3.50,
 								type = "header",
 								name = L["Cast time"],
+								hidden = hideAdvancedOption,
 							},
 							timeAnchor = {
 								order = 4,
@@ -1794,6 +1806,7 @@ local function loadUnitOptions()
 								values = {["ICL"] = L["Inside Center Left"], ["ICR"] = L["Inside Center Right"]},
 								set = setCast,
 								get = getCast,
+								hidden = hideAdvancedOption,
 								arg = "castTime.anchorPoint",
 							},
 							timeX = {
@@ -1803,6 +1816,7 @@ local function loadUnitOptions()
 								min = -20, max = 20, step = 1,
 								set = setCast,
 								get = getCast,
+								hidden = hideAdvancedOption,
 								arg = "castTime.x",
 							},
 							timeY = {
@@ -1812,6 +1826,7 @@ local function loadUnitOptions()
 								min = -20, max = 20, step = 1,
 								set = setCast,
 								get = getCast,
+								hidden = hideAdvancedOption,
 								arg = "castTime.y",
 							},
 						},
