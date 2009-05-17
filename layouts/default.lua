@@ -227,7 +227,7 @@ ShadowUF:RegisterLayout("Default", {
 			scale = 1.0,
 			powerBar = {width = 1.0, height = 0.60},
 			text = {
-				{text = "[name]"},
+				{text = "[name]", width = 1.0},
 				{text = ""},
 				{text = ""},
 				{text = ""},
