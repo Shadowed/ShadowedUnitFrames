@@ -120,42 +120,39 @@ function Auras:LayoutApplied(self)
 end
 
 function Auras.UpdateDisplay(self, config)
-	for i=self.totalAuras + 1, #(self.buttons) do
-		self.buttons[i].unit = nil
-		self.buttons[i]:Hide()
+	for _, button in pairs(self.buttons) do
+		button:Hide()
 	end
-	
+
 	if( self.totalAuras == 0 ) then
 		return
 	end
 		
 	for i=1, self.totalAuras do
 		local button = self.buttons[i]
-		if( button.unit ) then
-			if( button.type == "debuff" ) then
-				local color = button.auraType and DebuffTypeColor[button.auraType] or DebuffTypeColor.none
-				button.border:SetVertexColor(color.r, color.g, color.b)
-			else
-				button.border:SetVertexColor(0.60, 0.60, 0.60, 1.0)
-			end
-			
-			if( ( not config.selfTimers or ( config.selfTimers and button.auraPlayers ) ) and button.auraDuration > 0 and button.auraEnd > 0 ) then
-				button.cooldown:SetCooldown(button.auraEnd - button.auraDuration, button.auraDuration)
-				button.cooldown:Show()
-			else
-				button.cooldown:Hide()
-			end
-			
-			if( config.enlargeSelf and button.auraPlayers ) then
-				button:SetScale(1.30)
-			else
-				button:SetScale(1)
-			end
-		
-			button.icon:SetTexture(button.auraTexture)
-			button.stack:SetText(button.auraCount > 1 and button.auraCount or "")
-			button:Show()
+		if( button.type == "debuff" ) then
+			local color = button.auraType and DebuffTypeColor[button.auraType] or DebuffTypeColor.none
+			button.border:SetVertexColor(color.r, color.g, color.b)
+		else
+			button.border:SetVertexColor(0.60, 0.60, 0.60, 1.0)
 		end
+		
+		if( ( not config.selfTimers or ( config.selfTimers and button.auraPlayers ) ) and button.auraDuration > 0 and button.auraEnd > 0 ) then
+			button.cooldown:SetCooldown(button.auraEnd - button.auraDuration, button.auraDuration)
+			button.cooldown:Show()
+		else
+			button.cooldown:Hide()
+		end
+		
+		if( config.enlargeSelf and button.auraPlayers ) then
+			button:SetScale(1.30)
+		else
+			button:SetScale(1)
+		end
+	
+		button.icon:SetTexture(button.auraTexture)
+		button.stack:SetText(button.auraCount > 1 and button.auraCount or "")
+		button:Show()
 	end
 end
 

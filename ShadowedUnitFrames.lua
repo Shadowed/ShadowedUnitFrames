@@ -33,11 +33,11 @@ function ShadowUF:OnInitialize()
 	self:LoadUnitDefaults()
 	
 	-- Initialize DB
-	self.db = LibStub:GetLibrary("AceDB-3.0"):New("ShadowedUFDB", self.defaults)
+	self.db = LibStub:GetLibrary("AceDB-3.0"):New("ShadowedUFDB", self.defaults, true)
 	self.db.RegisterCallback(self, "OnProfileChanged", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnProfileCopied", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "ProfilesChanged")
-	self.db.RegisterCallback(self, "OnDatabaseShutdown", "OnDatabaseShutdown")
+	self.db.RegisterCallback(self, "OnDatabaseShutdown", "OnDatabaseShutdown")	
 	
 	-- List of units that SUF supports
 	self.units = units
@@ -170,12 +170,12 @@ function ShadowUF:LoadUnitDefaults()
 				{enabled = true, name = L["Right text"], width = 0.40, text = "[curmaxpp]", anchorTo = "$powerBar", anchorPoint = "ICR", x = -3, y = 0},
 			},
 			indicators = {
-				status = {enabled = false, size = 19, anchorTo = "$parent", x = 0, y = 0},
-				pvp = {enabled = false, size = 22, anchorTo = "$parent", x = 10, y = 2},
-				leader = {enabled = false, size = 14, anchorTo = "$parent", x = 3, y = 2},
-				masterLoot = {enabled = false, size = 12, anchorTo = "$parent",  x = 15, y = 2},
-				raidTarget = {enabled = true, size = 22, anchorTo = "$parent", x = 0, y = -8},
-				happiness = {enabled = false, size = 16, anchorTo = "$parent", x = 2, y = -2},	
+				status = {enabled = false, size = 19, anchorPoint = "LB", anchorTo = "$parent", x = 0, y = 0},
+				pvp = {enabled = false, size = 22, anchorPoint = "BL", anchorTo = "$parent", x = 10, y = 2},
+				leader = {enabled = false, size = 14, anchorPoint = "TL", anchorTo = "$parent", x = 3, y = 2},
+				masterLoot = {enabled = false, size = 12, anchorPoint = "TL", anchorTo = "$parent",  x = 15, y = 2},
+				raidTarget = {enabled = true, size = 22, anchorPoint = "TC", anchorTo = "$parent", x = 0, y = -8},
+				happiness = {enabled = false, size = 16, anchorPoint = "BR", anchorTo = "$parent", x = 2, y = -2},	
 			},
 			auras = {
 				buffs = {enabled = false, inColumn = 10, rows = 4, prioritize = true, enlargeSelf = false, anchorPoint = "TOP", size = 16, x = 0, y = 0, HELPFUL = true},
@@ -186,6 +186,7 @@ function ShadowUF:LoadUnitDefaults()
 		
 	self.defaults.profile.units.player.enabled = true
 	self.defaults.profile.units.player.portrait.enabled = true
+	self.defaults.profile.units.player.indicators.status.enabled = true
 	self.defaults.profile.units.focus.enabled = true
 	self.defaults.profile.units.focustarget.enabled = true
 	self.defaults.profile.units.target.enabled = true
@@ -205,13 +206,12 @@ function ShadowUF:LoadUnitDefaults()
 	-- Disable all indicators quickly
 	for _, unit in pairs(units) do
 		if( unit == "player" or unit == "party" or unit == "target" ) then
-			self.defaults.profile.units[unit].indicators.status.enabled = true
 			self.defaults.profile.units[unit].indicators.pvp.enabled = true
 			self.defaults.profile.units[unit].indicators.leader.enabled = true
 			self.defaults.profile.units[unit].indicators.masterLoot.enabled = true
 
-			self.defaults.profile.units[unit].auras.buffs.enabled = false
-			self.defaults.profile.units[unit].auras.debuffs.enabled = false
+			self.defaults.profile.units[unit].auras.buffs.enabled = true
+			self.defaults.profile.units[unit].auras.debuffs.enabled = true
 		elseif( unit == "pet" ) then
 			self.defaults.profile.units[unit].indicators.happiness.enabled = true
 		end

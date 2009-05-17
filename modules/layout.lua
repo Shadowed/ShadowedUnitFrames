@@ -446,13 +446,13 @@ local function positionAuras(self, config)
 				button:SetPoint("TOP", self.buttons[id - 1], "BOTTOM", 0, -2)
 			end
 		elseif( config.anchorPoint == "INSIDE" ) then
-				button:SetPoint("TOPRIGHT", self.parent.healthBar, "TOPRIGHT", config.x + -ShadowUF.db.profile.backdrop.clip, config.y + -ShadowUF.db.profile.backdrop.clip)
+			button:SetPoint("TOPRIGHT", self.parent.healthBar, "TOPRIGHT", config.x + -ShadowUF.db.profile.backdrop.clip, config.y + -ShadowUF.db.profile.backdrop.clip)
 		elseif( config.anchorPoint == "BOTTOM" ) then
-				button:SetPoint("BOTTOMLEFT", self.parent, "BOTTOMLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + -(config.size + 2))
+			button:SetPoint("BOTTOMLEFT", self.parent, "BOTTOMLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + -(config.size + 2))
 		elseif( config.anchorPoint == "TOP" ) then
-				button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + (config.size + 2))
+			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + (config.size + 2))
 		elseif( config.anchorPoint == "LEFT" ) then
-				button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + -config.size, config.y + ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip)
+			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + -config.size, config.y + ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip)
 		elseif( config.anchorPoint == "RIGHT" ) then
 			button:SetPoint("TOPRIGHT", self.parent, "TOPRIGHT", config.x + config.size, config.y + ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip)
 		end
@@ -483,7 +483,7 @@ function Layout:ApplyAuras(frame, config)
 	end
 	
 	-- Do the auras share the same location?
-	frame.aurasShared = config.auras.buffs.position == config.auras.debuffs.position
+	frame.aurasShared = config.auras.buffs.anchorPoint == config.auras.debuffs.anchorPoint
 end
 
 -- Setup the bar ordering/info
