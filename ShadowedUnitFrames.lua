@@ -9,6 +9,7 @@ local L = ShadowUFLocals
 local layoutQueue
 local modules = {}
 local units = {"player", "pet", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "raid"}
+local defaultDB
 
 -- Main layout keys, this does not include units or inherited module options
 local mainLayout = {["bars"] = true, ["backdrop"] = true, ["font"] = true, ["powerColor"] = true, ["healthColor"] = true, ["xpColor"] = true, ["positions"] = true}
@@ -380,6 +381,11 @@ function ShadowUF:RegisterLayout(name, data)
 	else
 		self.db.profile.layoutInfo[name] = data
 	end
+	
+	-- Store a copy of the default DB, so if someone does a layout reset we can still keep data.
+	if( name == "Default" ) then
+		defaultDB = self.db.profile.layoutInfo[name]
+	end
 end
 
 -- Module APIs
@@ -449,6 +455,15 @@ end
 
 -- Profiles changed
 function ShadowUF:ProfilesChanged()
+	-- Reset any loaded caches
+	for k in pairs(self.tagFunc) do self.tagFunc[k] = nil end
+	for k in pairs(self.layoutInfo) do self.layoutInfo[k] = nil end
+	
+	if( not self.layoutInfo.Default ) then
+		self.layoutInfo.Default = nil
+		self.db.profile.layoutInfo.Default = defaultDB
+	end
+	
 	-- Check if we need to reimport the layout
 	if( not self.db.profile.activeLayout ) then
 		self:SetLayout("Default", true)

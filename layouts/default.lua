@@ -104,6 +104,7 @@ ShadowUF:RegisterLayout("Default", {
 			focus = {anchorPoint = "RB", anchorTo = "#SUFUnittarget", x = 40, y = 0}, 
 			target = {anchorPoint = "RC", anchorTo = "#SUFUnitplayer", x = 50, y = 0}, 
 			player = {point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", y = -25, x = 20}, 
+			pet = {anchorPoint = "TL", anchorTo = "#SUFUnitplayer", x = 0, y = 25}, 
 			partypet = {anchorPoint = "RB", anchorTo = "#SUFHeaderparty", x = 0, y = 0},
 			raid = {anchorPoint = "C", anchorTo = "UIParent", x = 0, y = 0},
 		},
@@ -173,14 +174,15 @@ ShadowUF:RegisterLayout("Default", {
 			},
 		},
 		pet = {
-			width = 200,
-			height = 60,
+			width = 190,
+			height = 30,
 			scale = 1.0,
+			powerBar = {width = 1.0, height = 0.70},
 			text = {
 				{text = "[name]"},
-				{text = "[curhp]"},
+				{text = "[curmaxhp]"},
 				{text = "[perpp]"},
-				{text = "[curpp]"},
+				{text = "[curmaxpp]"},
 			},
 		},
 		focus = {
