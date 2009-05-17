@@ -97,6 +97,7 @@ function Layout:LoadSML()
 	SML:Register(SML.MediaType.STATUSBAR, "Striped",  "Interface\\Addons\\ShadowedUnitFrames\\media\\textures\\striped")
 	SML:Register(SML.MediaType.STATUSBAR, "LiteStep", "Interface\\Addons\\ShadowedUnitFrames\\media\\textures\\LiteStep")
 	SML:Register(SML.MediaType.STATUSBAR, "Aluminium", "Interface\\Addons\\ShadowedUnitFrames\\media\\textures\\Aluminium")
+	SML:Register(SML.MediaType.STATUSBAR, "Minimalist", "Interface\\Addons\\ShadowedUnitFrames\\media\\textures\\Minimalist")
 end
 
 --[[

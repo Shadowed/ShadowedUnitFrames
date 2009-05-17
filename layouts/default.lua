@@ -7,7 +7,7 @@ ShadowUF:RegisterLayout("Default", {
 	description = "Default layout provided with sUF.",
 	layout = {
 		bars = {
-			texture = "Aluminium",
+			texture = "Minimalist",
 			spacing = -1.25,
 			alpha = 1.0,
 			backgroundAlpha = 0.20,
