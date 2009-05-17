@@ -10,9 +10,11 @@ local layoutQueue
 local modules = {}
 local units = {"player", "pet", "target", "targettarget", "targettargettarget", "focus", "party", "partypet", "raid"}
 
--- The layout table controls everything layout based, are portraits shown in X unit, size, etc. Basically, anything someone building a layout would care about.
--- the units table controls things like unit visibility (Is party enabled period) or should aggro indicators be shown. Anything that someone building a layout
--- does not need control over
+-- Main layout keys, this does not include units or inherited module options
+local mainLayout = {["bars"] = true, ["backdrop"] = true, ["font"] = true, ["powerColor"] = true, ["healthColor"] = true, ["xpColor"] = true, ["positions"] = true}
+-- Sub layout keys inside layouts that are accepted
+local subLayout = {["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["groupBy"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
+
 function ShadowUF:OnInitialize()
 	self.defaults = {
 		profile = {
@@ -20,7 +22,6 @@ function ShadowUF:OnInitialize()
 			advanced = false,
 			tags = {},
 			units = {},
-			layout = {},
 			layoutInfo = {},
 			positions = {},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
@@ -143,70 +144,54 @@ function ShadowUF:LoadUnitDefaults()
 		
 		self.defaults.profile.units[unit] = {
 			enabled = false,
-			healthBar = true,
-			powerBar = true,
-			portrait = true,
-			castBar = false,
-			xpBar = false,
 			effectiveScale = true,
-			portraitType = "3D",
-			healthColor = "percent",
-			castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0},
-			castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0},
+			healthBar = {enabled = true, colorType = "percent"},
+			powerBar = {enabled = true},
+			portrait = {enabled = true, type = "3D"},
+			castBar = {
+				enabled = false,
+				castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0},
+				castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0},
+			},
+			fader = {enabled = true, combatAlpha = 1.0, inactiveAlpha = 0.60},
+			xpBar = {enabled = false},
+			comboPoints = {enabled = false, anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0},
+			combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0},
 			text = {
-				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[colorname]", anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0},
-				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxhp]", anchorTo = "$healthBar", anchorPoint = "ICR", x = -3, y = 0},
+				{enabled = true, name = L["Left text"], width = 0.60, text = "[colorname]", anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0},
+				{enabled = true, name = L["Right text"], width = 0.40, text = "[curmaxhp]", anchorTo = "$healthBar", anchorPoint = "ICR", x = -3, y = 0},
 				
-				{enabled = true, name = L["Left text"], widthPercent = 0.60, text = "[level] [race]", anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0},
-				{enabled = true, name = L["Right text"], widthPercent = 0.40, text = "[curmaxpp]", anchorTo = "$powerBar", anchorPoint = "ICR", x = -3, y = 0},
+				{enabled = true, name = L["Left text"], width = 0.60, text = "[level] [race]", anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0},
+				{enabled = true, name = L["Right text"], width = 0.40, text = "[curmaxpp]", anchorTo = "$powerBar", anchorPoint = "ICR", x = -3, y = 0},
+			},
+			indicators = {
+				status = {enabled = true, size = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
+				pvp = {enabled = true, size = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
+				leader = {enabled = true, size = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
+				masterLoot = {enabled = true, size = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
+				raidTarget = {enabled = true, size = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
+				happiness = {enabled = true, size = 16, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 2, y = -2},	
 			},
 			auras = {
-				buffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = false, position = "TOP", size = 16, x = 0, y = 0, HELPFUL = true},
-				debuffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = true, position = "BOTTOM", size = 16, x = 0, y = 0, HARMFUL = true},
+				buffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = false, anchorPoint = "TOP", size = 16, x = 0, y = 0, HELPFUL = true},
+				debuffs = {enabled = true, inColumn = 8, rows = 4, enlargeSelf = true, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0, HARMFUL = true},
 			},
 		}
 	end
 	
 	self.defaults.profile.units.player.enabled = true
-	self.defaults.profile.units.player.indicators = {
-		status = {enabled = true, size = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
-		pvp = {enabled = true, size = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
-		leader = {enabled = true, size = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
-		masterLoot = {enabled = true, size = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
-		raidTarget = {enabled = true, size = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
-	}
-
-	self.defaults.profile.units.target.enabled = true
-	self.defaults.profile.units.target.indicators = {
-		pvp = {enabled = true, size = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
-		leader = {enabled = true, size = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
-		masterLoot = {enabled = true, size = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
-		raidTarget = {enabled = true, size = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
-	}
-
-	self.defaults.profile.units.party.enabled = true
-	self.defaults.profile.units.party.indicators = {
-		pvp = {enabled = true, size = 22, point = "TOPRIGHT", anchorTo = "$parent", relativePoint = "TOPRIGHT", x = 10, y = 2},
-		leader = {enabled = true, size = 14, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 3, y = 2},
-		masterLoot = {enabled = true, size = 12, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 15, y = 2},
-		raidTarget = {enabled = true, size = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
-	}
-	
-	self.defaults.profile.units.party.enabled = true
-	self.defaults.profile.units.party.indicators = {
-		status = {enabled = true, size = 19, point = "BOTTOMLEFT", anchorTo = "$parent", relativePoint = "BOTTOMLEFT", x = 0, y = 0},
-		raidTarget = {enabled = true, size = 22, point = "BOTTOM", anchorTo = "$parent", relativePoint = "TOP", x = 0, y = -8},
-		happiness = {enabled = true, size = 16, point = "TOPLEFT", anchorTo = "$parent", relativePoint = "TOPLEFT", x = 2, y = -2},
-	}
-	
 	self.defaults.profile.units.focus.enabled = true
+	self.defaults.profile.units.target.enabled = true
 	self.defaults.profile.units.targettarget.enabled = true
+	self.defaults.profile.units.pet.enabled = true
+	self.defaults.profile.units.party.enabled = true
 		
-	self.defaults.profile.units.raid.portrait = false
-	self.defaults.profile.units.raid.powerBar = false
+	self.defaults.profile.units.raid.portrait.enabled = false
+	self.defaults.profile.units.raid.powerBar.enabled = false
 
-	self.defaults.profile.units.partypet.portrait = false
-	self.defaults.profile.units.partypet.powerBar = false
+	self.defaults.profile.units.partypet.portrait.enabled = false
+	self.defaults.profile.units.partypet.powerBar.enabled = false
+
 	self.defaults.profile.positions.partypet.anchorTo = "$parent"
 	self.defaults.profile.positions.partypet.anchorPoint = "BR"
 end
@@ -281,28 +266,32 @@ end
 
 -- Plugin APIs
 function ShadowUF:CopyLayoutSettings(key, unit)
-	if( not self.db.profile.layout[key] ) then
-		return
-	elseif( not self.db.profile.layout[unit][key] ) then
-		self.db.profile.layout[unit][key] = CopyTable(self.db.profile.layout[key])
-		return
-	elseif( self.db.profile.layout[unit][key] and not self.db.profile.layout[unit][key].enabled ) then
-		return
-	end
-	
-	for subKey, subValue in pairs(self.db.profile.layout[key]) do
-		if( type(subValue) == "table" ) then
-			self.db.profile.db.profile.layout[unit][subKey] = self.db.profile.db.profile.layout[unit][subKey] or {}
-			
-			for subKey2, subValue2 in pairs(subValue) do
-				if( subKey2 ~= "enabled" ) then
-					self.db.profile.layout[unit][subKey][subKey2] = subValue2
-				end
-			end
-		elseif( subKey ~= "enabled" ) then
-			self.db.profile.layout[unit][subKey] = subValue
+end
+
+local function verifyTable(tbl)
+	for key, value in pairs(tbl) do
+		if( type(value) == "table" ) then
+			tbl[key] = verifyTable(value)
+		else
+			tbl[key] = nil
 		end
 	end
+	
+	return tbl
+end
+
+local function mergeTable(parent, child)
+	for key, value in pairs(child) do
+		if( type(parent[key]) == "table" ) then
+			parent[key] = mergeTable(parent[key], value)
+		elseif( type(value) == "table" ) then
+			parent[key] = CopyTable(value)
+		else
+			parent[key] = value
+		end
+	end
+	
+	return parent
 end
 
 function ShadowUF:SetLayout(name, importPositions)
@@ -311,31 +300,43 @@ function ShadowUF:SetLayout(name, importPositions)
 	end
 	
 	self.db.profile.activeLayout = name
-	self.db.profile.layout = CopyTable(self.layoutInfo[name].layout)
+	local layout = CopyTable(self.layoutInfo[name].layout)
 	
-	-- Load all of the configuration, make units inherit everything etc etc
+	-- Merge all parent module settings into the units module setting (If there are none)
+	for module in pairs(self.moduleNames) do
+		if( layout[module] ) then
+			for _, unit in pairs(units) do
+				layout[unit] = layout[unit] or {}
+				if( not layout[unit][module] ) then
+					layout[unit][module] = CopyTable(layout[module])
+				end
+			end
+		end
+	end
+	
+	-- Now go through and verify all of the unit settings
+	for unit in pairs(units) do
+		if( layout[unit] ) then
+			verifyTable(layout[unit])
+		end
+	end
+	
+	-- Don't overwrite positioning data
+	if( not importPositions ) then
+		layout.positions = nil
+	end
+	
+	-- Merge all the units now
 	for _, unit in pairs(units) do
-		self.db.profile.layout[unit] = self.db.profile.layout[unit] or {}
-					
-		-- Import the "module" settings in
-		self:CopyLayoutSettings("text", unit)
-		for key in pairs(self.moduleNames) do
-			self:CopyLayoutSettings(key, unit)
-		end
-
-		-- Import unit positioning as well
-		if( importPositions and self.db.profile.layout.positions and self.db.profile.layout.positions[unit] ) then
-			self.db.profile.positions[unit] = CopyTable(self.db.profile.layout.positions[unit])
+		if( layout[unit] ) then
+			ShadowUF.db.profile.units[unit] = mergeTable(ShadowUF.db.profile.units[unit], layout[unit])
 		end
 	end
 	
-	-- Remove settings that were only used for inheritance based options
-	self.db.profile.layout.text = nil
-	for key in pairs(self.moduleNames) do
-		self.db.profile.layout[key] = nil
+	-- Do a full merge on the main layout keys, nothing we want to save in them
+	for key in pairs(mainLayout) do
+		ShadowUF.db.profile[key] = layout[key]
 	end
-	
-	self.db.profile.layout.positions = nil
 end
 
 function ShadowUF:IsLayoutRegistered(name)

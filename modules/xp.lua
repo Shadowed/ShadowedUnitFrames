@@ -33,12 +33,12 @@ function XP.SetColor(self, unit)
 	end
 	
 	if( self.xpBar.type == "rep" ) then
-		self.xpBar:SetStatusBarColor(FACTION_BAR_COLORS[self.xpBar.reaction].r, FACTION_BAR_COLORS[self.xpBar.reaction].g, FACTION_BAR_COLORS[self.xpBar.reaction].b, ShadowUF.db.profile.layout.general.barAlpha)
-		self.xpBar.background:SetVertexColor(FACTION_BAR_COLORS[self.xpBar.reaction].r, FACTION_BAR_COLORS[self.xpBar.reaction].g, FACTION_BAR_COLORS[self.xpBar.reaction].b, ShadowUF.db.profile.layout.general.backgroundAlpha)
+		self.xpBar:SetStatusBarColor(FACTION_BAR_COLORS[self.xpBar.reaction].r, FACTION_BAR_COLORS[self.xpBar.reaction].g, FACTION_BAR_COLORS[self.xpBar.reaction].b, ShadowUF.db.profile.general.barAlpha)
+		self.xpBar.background:SetVertexColor(FACTION_BAR_COLORS[self.xpBar.reaction].r, FACTION_BAR_COLORS[self.xpBar.reaction].g, FACTION_BAR_COLORS[self.xpBar.reaction].b, ShadowUF.db.profile.general.backgroundAlpha)
 	else
-		self.xpBar:SetStatusBarColor(ShadowUF.db.profile.layout.xpColor.normal.r, ShadowUF.db.profile.layout.xpColor.normal.g, ShadowUF.db.profile.layout.xpColor.normal.b, ShadowUF.db.profile.layout.general.barAlpha)
-		self.xpBar.background:SetVertexColor(ShadowUF.db.profile.layout.xpColor.normal.r, ShadowUF.db.profile.layout.xpColor.normal.g, ShadowUF.db.profile.layout.xpColor.normal.b, ShadowUF.db.profile.layout.general.backgroundAlpha)
-		self.xpBar.rested:SetStatusBarColor(ShadowUF.db.profile.layout.xpColor.rested.r, ShadowUF.db.profile.layout.xpColor.rested.g, ShadowUF.db.profile.layout.xpColor.rested.b, ShadowUF.db.profile.layout.general.barAlpha)
+		self.xpBar:SetStatusBarColor(ShadowUF.db.profile.xpColor.normal.r, ShadowUF.db.profile.xpColor.normal.g, ShadowUF.db.profile.xpColor.normal.b, ShadowUF.db.profile.general.barAlpha)
+		self.xpBar.background:SetVertexColor(ShadowUF.db.profile.xpColor.normal.r, ShadowUF.db.profile.xpColor.normal.g, ShadowUF.db.profile.xpColor.normal.b, ShadowUF.db.profile.general.backgroundAlpha)
+		self.xpBar.rested:SetStatusBarColor(ShadowUF.db.profile.xpColor.rested.r, ShadowUF.db.profile.xpColor.rested.g, ShadowUF.db.profile.xpColor.rested.b, ShadowUF.db.profile.general.barAlpha)
 	end
 end
 
@@ -54,7 +54,7 @@ function XP.SetBarVisibility(self, shown)
 	end
 	
 	if( wasShown and not shown or not wasShown and shown ) then
-		ShadowUF.Layout:ApplyBars(self, ShadowUF.db.profile.layout[self.unitType])
+		ShadowUF.Layout:ApplyBars(self, ShadowUF.db.profile.units[self.unitType])
 	end
 end
 

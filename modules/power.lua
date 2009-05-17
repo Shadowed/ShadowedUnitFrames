@@ -41,8 +41,8 @@ end
 
 function Power.UpdateColor(self, unit)
 	local powerType = UnitPowerType(unit)
-	self.powerBar:SetStatusBarColor(ShadowUF.db.profile.layout.powerColor[powerType].r, ShadowUF.db.profile.layout.powerColor[powerType].g, ShadowUF.db.profile.layout.powerColor[powerType].b, ShadowUF.db.profile.layout.general.barAlpha)
-	self.powerBar.background:SetVertexColor(ShadowUF.db.profile.layout.powerColor[powerType].r, ShadowUF.db.profile.layout.powerColor[powerType].g, ShadowUF.db.profile.layout.powerColor[powerType].b, ShadowUF.db.profile.layout.general.backgroundAlpha)
+	self.powerBar:SetStatusBarColor(ShadowUF.db.profile.powerColor[powerType].r, ShadowUF.db.profile.powerColor[powerType].g, ShadowUF.db.profile.powerColor[powerType].b, ShadowUF.db.profile.bars.alpha)
+	self.powerBar.background:SetVertexColor(ShadowUF.db.profile.powerColor[powerType].r, ShadowUF.db.profile.powerColor[powerType].g, ShadowUF.db.profile.powerColor[powerType].b, ShadowUF.db.profile.bars.backgroundAlpha)
 end
 
 function Power.Update(self, unit)

@@ -2,6 +2,7 @@ local Fader = ShadowUF:NewModule("Fader")
 ShadowUF:RegisterModule(Fader, "fader", ShadowUFLocals["Combat fader"])
 
 function Fader:UnitEnabled(frame, unit)
+	if( not frame.visibility.fader ) then return end
 	if( unit ~= "player" and unit ~= "focus" and frame.unitType ~= "party" and frame.unitType ~= "raid" ) then return end
 	
 	frame:RegisterNormalEvent("PLAYER_REGEN_ENABLED", self.Update)
@@ -21,7 +22,7 @@ end
 
 function Fader.Update(self, unit)
 	if( InCombatLockdown() ) then
-		self:SetAlpha(ShadowUF.db.profile.units[self.unitType].combatAlpha)
+		self:SetAlpha(ShadowUF.db.profile.units[self.unitType].fader.combatAlpha)
 		return
 	end
 
@@ -34,6 +35,6 @@ function Fader.Update(self, unit)
 		inactive = false
 	end
 	
-	self:SetAlpha(inactive and ShadowUF.db.profile.units[self.unitType].inactiveAlpha or ShadowUF.db.profile.units[self.unitType].combatAlpha)
+	self:SetAlpha(inactive and ShadowUF.db.profile.units[self.unitType].fader.inactiveAlpha or ShadowUF.db.profile.units[self.unitType].fader.combatAlpha)
 end
 

@@ -5,8 +5,8 @@ local FADE_TIME = 0.20
 ShadowUF:RegisterModule(Cast, "castBar", ShadowUFLocals["Cast bar"], "bar")
 
 local function setBarColor(self, r, g, b)
-	self:SetStatusBarColor(r, g, b, ShadowUF.db.profile.layout.general.barAlpha)
-	self.background:SetVertexColor(r, g, b, ShadowUF.db.profile.layout.general.backgroundAlpha)
+	self:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.alpha)
+	self.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.backgroundAlpha)
 end
 
 function Cast:UnitEnabled(frame, unit)
@@ -128,10 +128,11 @@ end
 
 -- Cast finished
 function Cast.EventStopCast(self, unit)
-	if( self.castBar.fadeElapsed ) then
+	if( self.castBar.fadeElapsed or not self.castBar.hasCat ) then
 		return
 	end
 	
+	self.castBar.hasCast = nil
 	self.castBar.fadeElapsed = FADE_TIME
 	setBarColor(self.castBar, 1.0, 0.0, 0.0)
 	self.castBar:SetScript("OnUpdate", fadeOnUpdate)
@@ -141,10 +142,11 @@ end
 
 -- Cast interrupted
 function Cast.EventInterruptCast(self, unit)
-	if( self.castBar.fadeElapsed ) then
+	if( self.castBar.fadeElapsed or not self.castBar.hasCast ) then
 		return
 	end
 
+	self.castBar.hasCast = nil
 	self.castBar.fadeElapsed = FADE_TIME + 0.10
 	setBarColor(self.castBar, 1.0, 0.0, 0.0)
 	self.castBar:SetScript("OnUpdate", fadeOnUpdate)
@@ -156,7 +158,7 @@ end
 function Cast:UpdateCast(frame, unit, spell, rank, startTime, endTime)
 	local cast = frame.castBar
 	if( frame.event == "UNIT_SPELLCAST_DELAYED" or frame.event == "UNIT_SPELLCAST_CHANNEL_UPDATE" ) then
-		if( cast:IsVisible() ) then
+		if( cast.hasCast ) then
 			-- For a channel, delay is a negative value so using plus is fine here
 			local delay = ( startTime - cast.startTime ) / 1000
 			if( not cast.isChannelled ) then
@@ -192,7 +194,8 @@ function Cast:UpdateCast(frame, unit, spell, rank, startTime, endTime)
 	cast.lastUpdate = GetTime()
 	cast:SetMinMaxValues(0, cast.endSeconds)
 	cast:SetValue(cast.elapsed)
-	cast:SetAlpha(ShadowUF.db.profile.layout.general.barAlpha)
+	cast:SetAlpha(ShadowUF.db.profile.bars.alpha)
+	cast.hasCast = true
 	cast.name:Show()
 	cast.time:Show()
 

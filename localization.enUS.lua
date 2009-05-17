@@ -140,6 +140,7 @@ ShadowUFLocals = {
 	["Alpha to use when you are in combat for this unit."] = "Alpha to use when you are in combat for this unit.",
 	["Inactive alpha"] = "Inactive alpha",
 	["Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%."] = "Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%.",
+	["Growth"] = "Growth",
 	
 	
 	-- Layout
@@ -289,6 +290,7 @@ ShadowUFLocals = {
 	["Combat text"] = "Combat text",
 	["Rune bar"] = "Rune bar",
 	["Totem indicators"] = "Totem indicators",
+	["Combo points"] = "Combo points",
 
 	-- Tag help
 	["Unit name colored by class."] = "Unit name colored by class.",

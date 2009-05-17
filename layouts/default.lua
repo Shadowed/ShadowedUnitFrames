@@ -96,25 +96,25 @@ local L = ShadowUFLocals
 				width = #.#, -- Percentage of bar width to use, 0.25 will use 25% of the bars width.
 			},
 			healthBar = {
-				heightWeight = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
+				height = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
 				width = #.#, -- How much of the available width should be used, 1.0 will use up all available width.
 				order = #, -- Ordering, lower number means it shows up higher on the list
 				background = true/false, -- Show a background behind the bar
 			},
 			powerBar = {
-				heightWeight = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
+				height = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
 				width = #.#, -- How much of the available width should be used, 1.0 will use up all available width.
 				order = #, -- Ordering, lower number means it shows up higher on the list
 				background = true/false, -- Show a background behind the bar
 			},
 			castBar = {
-				heightWeight = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
+				height = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
 				width = #.#, -- How much of the available width should be used, 1.0 will use up all available width.
 				order = #, -- Ordering, lower number means it shows up higher on the list
 				background = true/false, -- Show a background behind the bar
 			},
 			xpBar = {
-				heightWeight = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
+				height = #.#, -- Weighting to use to figure out how much of the bar height this gets, higher number means it gets more of the height
 				width = #.#, -- How much of the available width should be used, 1.0 will use up all available width.
 				order = #, -- Ordering, lower number means it shows up higher on the list
 				background = true/false, -- Show a background behind the bar
@@ -128,10 +128,10 @@ ShadowUF:RegisterLayout("Default", {
 	author = "Shadowed",
 	description = "Default layout provided with sUF.",
 	layout = {
-		general = {
-			barTexture = "Smooth",
-			barSpacing = -1.25,
-			barAlpha = 1.0,
+		bars = {
+			texture = "Smooth",
+			spacing = -1.25,
+			alpha = 1.0,
 			backgroundAlpha = 0.20,
 		},
 		backdrop = {
@@ -178,31 +178,31 @@ ShadowUF:RegisterLayout("Default", {
 		},
 		healthBar = {
 			background = true,
-			heightWeight = 1.20,
+			height = 1.20,
 			width = 1.0,
 			order = 10,
 		},
 		powerBar = {
 			background = true,
-			heightWeight = 1.0,
+			height = 1.0,
 			width = 1.0,
 			order = 20,
 		},
 		xpBar = {
 			background = true,
-			heightWeight = 0.25,
+			height = 0.25,
 			width = 1.0,
 			order = 30,
 		},
 		castBar = {
 			background = true,
-			heightWeight = 0.60,
+			height = 0.60,
 			width = 1.0,
 			order = 40,
 		},
 		runeBar = {
 			background = false,
-			heightWeight = 0.80,
+			height = 0.80,
 			width = 1.0,
 			order = 50,
 		},

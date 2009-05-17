@@ -100,10 +100,10 @@ local function SetVisibility(self)
 	local zone = select(2, IsInInstance())
 	-- Selectively disable modules
 	for key in pairs(ShadowUF.moduleNames) do
-		local enabled = ShadowUF.db.profile.units[self.unitType][key]
+		local enabled = ShadowUF.db.profile.units[self.unitType][key] and ShadowUF.db.profile.units[self.unitType][key].enabled
 		
 		-- Make sure at least one option is enabled if it's an aura or indicator
-		if( enabled and ( key == "auras" or key == "indicators" ) ) then
+		if( key == "auras" or key == "indicators" ) then
 			enabled = false
 			for _, option in pairs(ShadowUF.db.profile.units[self.unitType][key]) do
 				if( option.enabled ) then
@@ -277,22 +277,14 @@ local function initUnit(self)
 	Units:CreateUnit(self)
 end
 
-function Units:ReloadAttributes(type)
-	if( unitFrames[type] ) then
-		self:SetFrameAttributes(unitFrames[type], type)
+function Units:ReloadUnit(type)
+	local frame = unitFrames[type]
+	if( frame ) then
+		frame:SetVisibility()
+		
+		self:SetFrameAttributes(frame, type)
+		ShadowUF.Layout:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[type])
 	end
-end
-
-function Units:ReanchorHeader(type)
-	if( unitFrames[type] ) then
-		ShadowUF.Layout:AnchorFrame(UIParent, unitFrames[type], ShadowUF.db.profile.positions[type])
-	end
-end
-
-function Units:ReloadVisibility(type)
-	if( unitFrames[type] ) then
-		unitFrames[type]:SetVisibility()
-	end	
 end
 
 function Units:ProfileChanged()
@@ -302,15 +294,12 @@ function Units:ProfileChanged()
 		end
 	end
 	
-	self:ReloadAttributes("raid")
-	self:ReanchorHeader("raid")
-
-	self:ReloadAttributes("party")
-	self:ReanchorHeader("party")
+	self:ReloadUnit("raid")
+	self:ReloadUnit("party")
 end
 
 function Units:SetFrameAttributes(frame, type)
-	local config = ShadowUF.db.profile.layout[type]
+	local config = ShadowUF.db.profile.units[type]
 	if( not config ) then
 		return
 	end

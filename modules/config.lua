@@ -106,14 +106,14 @@ local function loadGeneralOptions()
 	SML = SML or LibStub:GetLibrary("LibSharedMedia-3.0")
 	
 	local function set(info, value)
-		ShadowUF.db.profile.layout[info[#(info) - 1]][info[#(info)]] = value
+		ShadowUF.db.profile[info[#(info) - 1]][info[#(info)]] = value
 
 		ShadowUF.Layout:CheckMedia()
 		ShadowUF.Layout:ReloadAll()
 	end
 	
 	local function get(info)
-		return ShadowUF.db.profile.layout[info[#(info) - 1]][info[#(info)]]
+		return ShadowUF.db.profile[info[#(info) - 1]][info[#(info)]]
 	end
 	
 	local function setColor(info, r, g, b, a)
@@ -124,10 +124,10 @@ local function loadGeneralOptions()
 			parent = info.arg and "powerColor" or "healthColor"
 		end
 
-		ShadowUF.db.profile.layout[parent][key].r = r
-		ShadowUF.db.profile.layout[parent][key].g = g
-		ShadowUF.db.profile.layout[parent][key].b = b
-		ShadowUF.db.profile.layout[parent][key].a = a
+		ShadowUF.db.profile[parent][key].r = r
+		ShadowUF.db.profile[parent][key].g = g
+		ShadowUF.db.profile[parent][key].b = b
+		ShadowUF.db.profile[parent][key].a = a
 		
 		ShadowUF.Layout:ReloadAll()
 	end
@@ -140,7 +140,7 @@ local function loadGeneralOptions()
 			parent = info.arg and "powerColor" or "healthColor"
 		end
 		
-		return ShadowUF.db.profile.layout[parent][key].r, ShadowUF.db.profile.layout[parent][key].g, ShadowUF.db.profile.layout[parent][key].b, ShadowUF.db.profile.layout[parent][key].a
+		return ShadowUF.db.profile[parent][key].r, ShadowUF.db.profile[parent][key].g, ShadowUF.db.profile[parent][key].b, ShadowUF.db.profile[parent][key].a
 	end
 	
 	local MediaList = {}
@@ -450,10 +450,10 @@ local function loadUnitOptions()
 		
 		if( unit == "global" ) then
 			for unit in pairs(modifyUnits) do
-				ShadowUF.db.profile.layout[unit][module][key] = value
+				ShadowUF.db.profile.units[unit][module][key] = value
 			end
 		else
-			ShadowUF.db.profile.layout[unit][module][key] = value
+			ShadowUF.db.profile.units[unit][module][key] = value
 		end
 		
 		ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
@@ -466,18 +466,18 @@ local function loadUnitOptions()
 			unit = masterUnit
 		end
 		
-		if( not ShadowUF.db.profile.layout[unit][module] ) then
+		if( not ShadowUF.db.profile.units[unit][module] ) then
 			return
 		end
 		
-		return ShadowUF.db.profile.layout[unit][module][key]
+		return ShadowUF.db.profile.units[unit][module][key]
 	end
 
 				
 	-- This makes sure  we don't end up with any messed up positioning due to two different anchors being used
 	local function fixPositions(info)
 		local unit = info[#(info) - 3]
-		local type = info.arg or "layout"
+		local type = info.arg or "units"
 		if( info[#(info)] == "point" or info[#(info)] == "relativePoint" ) then
 			if( unit == "global" ) then
 				for unit in pairs(modifyUnits) do
@@ -506,7 +506,7 @@ local function loadUnitOptions()
 		
 		local unit = info[#(info) - 3]
 		local key = info[#(info)]
-		local type = info.arg or "layout"
+		local type = info.arg or "units"
 		if( unit == "global" ) then
 			for unit in pairs(modifyUnits) do
 				ShadowUF.db.profile[type][unit][key] = value
@@ -532,7 +532,7 @@ local function loadUnitOptions()
 			unit = masterUnit
 		end
 		
-		return ShadowUF.db.profile[info.arg or "layout"][unit][key]
+		return ShadowUF.db.profile[info.arg or "units"][unit][key]
 	end
 	
 	-- Hide raid option in party config
@@ -557,10 +557,21 @@ local function loadUnitOptions()
 	local function setUnit(info, value)
 		local unit = info[#(info) - 3]
 		local key = info[#(info)]
+		local module
+		if( info.arg ) then
+			module, key = string.split(".", info.arg)
+		end
+			
 		if( unit == "global" ) then
 			for unit in pairs(modifyUnits) do
-				ShadowUF.db.profile.units[unit][key] = value
+				if( module ) then
+					ShadowUF.db.profile.units[unit][module][key] = value
+				else
+					ShadowUF.db.profile.units[unit][key] = value
+				end
 			end
+		elseif( module ) then
+			ShadowUF.db.profile.units[unit][module][key] = value
 		else
 			ShadowUF.db.profile.units[unit][key] = value
 		end
@@ -575,7 +586,14 @@ local function loadUnitOptions()
 		if( unit == "global" ) then
 			unit = masterUnit
 		end
-	
+
+		if( info.arg ) then
+			local module, key = string.split(".", info.arg)
+			
+			return ShadowUF.db.profile.units[unit][module][key]
+		end
+
+		
 		return ShadowUF.db.profile.units[unit][key]
 	end
 
@@ -584,10 +602,10 @@ local function loadUnitOptions()
 		local unit = info[#(info) - 3]
 		if( unit == "global" ) then
 			for unit in pairs(modifyUnits) do
-				ShadowUF.db.profile.units[unit][type][key] = value
+				ShadowUF.db.profile.units[unit].castBar[type][key] = value
 			end
 		else
-			ShadowUF.db.profile.units[unit][type][key] = value
+			ShadowUF.db.profile.units[unit].castBar[type][key] = value
 		end
 		
 		ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
@@ -600,7 +618,7 @@ local function loadUnitOptions()
 			unit = masterUnit
 		end
 		
-		return ShadowUF.db.profile.units[unit][type][key]
+		return ShadowUF.db.profile.units[unit].castBar[type][key]
 	end
 	
 	local function checkNumber(info, value)
@@ -833,7 +851,7 @@ local function loadUnitOptions()
 			width = "double",
 		}
 
-		local text = {
+		local width = {
 			order = function(info) return getTextOrder(info) + 0.10 end,
 			hidden = isFromParent,
 			name = L["Width"],
@@ -1045,7 +1063,7 @@ local function loadUnitOptions()
 				name = L["Order"],
 				min = 0, max = 100, step = 5,
 			},
-			heightWeight = {
+			height = {
 				order = 1,
 				type = "range",
 				name = L["Height"],
@@ -1068,11 +1086,11 @@ local function loadUnitOptions()
 		type = "group",
 		inline = true,
 		hidden = function(info)
-			if( info[#(info) - 3] == "global" ) then return true end
-			return not ShadowUF.db.profile.units[info[#(info) - 3]].indicators or not ShadowUF.db.profile.units[info[#(info) - 3]].indicators[info[#(info)]]
+			if( info[#(info) - 2] == "global" ) then return true end
+			return not ShadowUF.db.profile.units[info[#(info) - 2]].indicators or not ShadowUF.db.profile.units[info[#(info) - 2]].indicators[info[#(info)]]
 		end,
 		set = function(info, value)
-			local unit = info[#(info) - 4]
+			local unit = info[#(info) - 3]
 			local type = info[#(info) - 1]
 			local key = info[#(info)]
 				
@@ -1080,7 +1098,7 @@ local function loadUnitOptions()
 			ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
 		end,
 		get = function(info)
-			local unit = info[#(info) - 4]
+			local unit = info[#(info) - 3]
 			local type = info[#(info) - 1]
 			local key = info[#(info)]
 			
@@ -1177,18 +1195,21 @@ local function loadUnitOptions()
 								order = 0,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Portrait"]),
+								arg = "portrait.enabled",
 							},
 							portraitType = {
 								order = 1,
 								type = "select",
 								name = L["Portrait type"],
 								values = {["2D"] = L["2D"], ["3D"] = L["3D"]},
+								arg = "portrait.type",
 							},
 							alignment = {
 								order = 2,
 								type = "select",
 								name = L["Alignment"],
 								values = {["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
+								arg = "portrait.alignment",
 								set = setWidget,
 								get = getWidget,
 							},
@@ -1203,7 +1224,8 @@ local function loadUnitOptions()
 							fader = {
 								order = 0,
 								type = "toggle",
-								name = string.format(L["Enable %s"], L["Combat fader"])
+								name = string.format(L["Enable %s"], L["Combat fader"]),
+								arg = "fader.enabled",
 							},
 							combatAlpha = {
 								order = 1,
@@ -1211,6 +1233,7 @@ local function loadUnitOptions()
 								name = L["Combat alpha"],
 								desc = L["Alpha to use when you are in combat for this unit."],
 								min = 0, max = 1.0, step = 0.1,
+								arg = "fader.combatAlpha",
 								isPercent = true,
 							},
 							inactiveAlpha = {
@@ -1219,12 +1242,13 @@ local function loadUnitOptions()
 								name = L["Inactive alpha"],
 								desc = L["Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%."],
 								min = 0, max = 1.0, step = 0.1,
+								arg = "fader.inactiveAlpha",
 								isPercent = true,
 							},
 						}
 					},
 					combatText = {
-						order = 3.5,
+						order = 4,
 						type = "group",
 						inline = true,
 						name = L["Combat text"],
@@ -1234,34 +1258,91 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Combat text"]),
 								width = "full",
+								arg = "combatText.enabled",
+							},
+							anchorPoint = {
+								order = 3,
+								type = "select",
+								name = L["Anchor point"],
+								values = positionList,
+								arg = "combatText.anchorPoint",
+								hidden = false,
+							},
+							x = {
+								order = 4,
+								type = "range",
+								name = L["X Offset"],
+								min = -20, max = 20, step = 1,
+								arg = "combatText.x",
+								hidden = false,
+							},
+							y = {
+								order = 5,
+								type = "range",
+								name = L["Y Offset"],
+								min = -20, max = 20, step = 1,
+								arg = "combatText.y",
+								hidden = false,
 							},
 						},
 					},
-					indicators = {
-						order = 4,
+					comboPoints = {
+						order = 5,
 						type = "group",
 						inline = true,
-						name = L["Indicators"],
-						hidden = function(info)
-							local unit = info[#(info) - 2]
-							if( unit ~= "global" and ShadowUF.db.profile.units[unit].indicators ) then
-								for _, indicator in pairs(ShadowUF.db.profile.units[unit].indicators) do
-									if( indicator.enabled ) then
-										return false
-									end
-								end
-							end
-							
-							return true
+						name = L["Combo points"],
+						hidden = function(info) return info[#(info) - 2] ~= "target"  end,
+						set = function(info, value)
+							ShadowUF.db.profile.units[info[#(info) - 3]].comboPoints[info[#(info)]] = value
+							ShadowUF.Layout:ReloadAll(info[#(info) - 3])
+						end,
+						get = function(info)
+							return ShadowUF.db.profile.units[info[#(info) - 3]].comboPoints[info[#(info)]]
 						end,
 						args = {
-							status = indicatorTable,
-							pvp = indicatorTable,
-							leader = indicatorTable,
-							masterLoot = indicatorTable,
-							raidTarget = indicatorTable,
-							happiness = indicatorTable,
-						},
+							enabled = {
+								order = 0,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Combo points"]),
+								hidden = false,
+							},
+							growth = {
+								order = 1,
+								type = "select",
+								name = L["Growth"],
+								values = {["TOP"] = L["Up"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["BOTTOM"] = L["Down"]},
+								hidden = false,
+							},
+							sep = {
+								order = 2,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = false,
+							},
+							anchorPoint = {
+								order = 3,
+								type = "select",
+								name = L["Anchor point"],
+								values = positionList,
+								arg = "positions",
+								hidden = false,
+							},
+							x = {
+								order = 4,
+								type = "range",
+								name = L["X Offset"],
+								min = -20, max = 20, step = 1,
+								hidden = false,
+							},
+							y = {
+								order = 5,
+								type = "range",
+								name = L["Y Offset"],
+								min = -20, max = 20, step = 1,
+								hidden = false,
+							},
+						}
 					},
 				},
 			},
@@ -1297,7 +1378,7 @@ local function loadUnitOptions()
 								name = L["X Offset"],
 								min = -50, max = 50, step = 1,
 								hidden = function(info)
-									local point = ShadowUF.db.profile.layout[info[#(info) - 3]].attribPoint
+									local point = ShadowUF.db.profile.units[info[#(info) - 3]].attribPoint
 									return point ~= "LEFT" and point ~= "RIGHT"
 								end,
 							},
@@ -1307,7 +1388,7 @@ local function loadUnitOptions()
 								name = L["Y Offset"],
 								min = -50, max = 50, step = 1,
 								hidden = function(info)
-									local point = ShadowUF.db.profile.layout[info[#(info) - 3]].attribPoint
+									local point = ShadowUF.db.profile.units[info[#(info) - 3]].attribPoint
 									return point ~= "TOP" and point ~= "BOTTOM"
 								end,
 							},
@@ -1515,27 +1596,30 @@ local function loadUnitOptions()
 				set = setUnit,
 				get = getUnit,
 				args = {
-					health = {
+					healthBar = {
 						order = 1,
 						type = "group",
 						inline = true,
 						name = L["Health bar"],
 						args = {
-							healthBar = {
+							enabled = {
 								order = 0,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Health bar"]),
+								arg = "healthBar.enabled",
 							},
 							colorAggro = {
 								order = 1,
 								type = "toggle",
 								name = L["Color on aggro"],
+								arg = "healthBar.colorAggro",
 							},
 							healthColor = {
 								order = 2,
 								type = "select",
 								name = L["Color health by"],
 								values = {["reaction"] = L["Reaction"], ["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"]},
+								arg = "healthBar.colorType",
 							},
 						},
 					},
@@ -1550,6 +1634,7 @@ local function loadUnitOptions()
 								order = 0,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Power bar"]),
+								arg = "powerBar.enabled",
 							},
 							xpBar = {
 								order = 1,
@@ -1557,6 +1642,7 @@ local function loadUnitOptions()
 								name = string.format(L["Enable %s"], L["XP/Rep bar"]),
 								desc = L["This bar will automatically hide when you are at the level cap, or you do not have any reputations tracked."],
 								hidden = function(info) if( info[#(info) - 4] ~= "player" and info[#(info) - 4] ~= "pet" ) then return true else return false end end,
+								arg = "xpBar.enabled",
 							},
 						},
 					},
@@ -1566,11 +1652,11 @@ local function loadUnitOptions()
 						inline = true,
 						name = L["Cast bar"],
 						args = {
-							castBar = {
+							enabled = {
 								order = 0,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Cast bar"]),
-								arg = unit
+								arg = "castBar.enabled",
 							},
 							castName = {
 								order = 0.50,
@@ -1676,6 +1762,31 @@ local function loadUnitOptions()
 				args = {
 					buffs = auraTable,
 					debuffs = auraTable,
+				},
+			},
+			indicators = {
+				order = 5.5,
+				type = "group",
+				name = L["Indicators"],
+				hidden = function(info)
+					local unit = info[#(info) - 1]
+					if( unit ~= "global" and ShadowUF.db.profile.units[unit].indicators ) then
+						for _, indicator in pairs(ShadowUF.db.profile.units[unit].indicators) do
+							if( indicator.enabled ) then
+								return false
+							end
+						end
+					end
+					
+					return true
+				end,
+				args = {
+					status = indicatorTable,
+					pvp = indicatorTable,
+					leader = indicatorTable,
+					masterLoot = indicatorTable,
+					raidTarget = indicatorTable,
+					happiness = indicatorTable,
 				},
 			},
 			text = {
