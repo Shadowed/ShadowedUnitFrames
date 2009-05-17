@@ -101,6 +101,7 @@ end
 
 function Auras:PreLayoutApplied(self)
 	Auras.CreateIcons(self)
+	Auras.Update(self, self.unit)
 end
 
 function Auras.CreateIcons(self)
