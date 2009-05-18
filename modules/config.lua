@@ -1125,7 +1125,6 @@ local function loadUnitOptions()
 				name = L["Position"],
 				desc = L["How you want this aura to be anchored to the unit frame."],
 				values = {["INSIDE"] = L["Inside"], ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
-				disabled = false,
 			},
 			x = {
 				order = 14,
@@ -1785,6 +1784,7 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = L["Color on aggro"],
 								arg = "healthBar.colorAggro",
+								hidden = function(info) return info[#(info) - 3] == "focustarget" or info[#(info) - 3] == "targettarget" or info[#(info) - 3] == "targettargettarget" end,
 							},
 							reaction = {
 								order = 1.5,
@@ -1812,6 +1812,7 @@ local function loadUnitOptions()
 								order = 5,
 								type = "toggle",
 								name = L["Show your heals"],
+								desc = L["When showing incoming heals, include your heals in the total incoming."],
 								arg = "incHeal.showSelf",
 								hidden = function(info) if( info[#(info) - 3] == "targettarget" or info[#(info) - 3] == "targettargettarget" or info[#(info) - 3] == "focustarget" ) then return true end return false end,
 							},

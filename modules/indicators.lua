@@ -157,4 +157,13 @@ end
 
 function Indicators:UnitDisabled(frame, unit)
 	frame:UnregisterAll(self.UpdateStatus, self.UpdateMasterLoot, self.UpdateRaidTarget, self.UpdatePVPFlag, self.UpdateHappiness, self.UpdateLeader)
+	
+	if( self.indicators ) then
+		for _, key in pairs(self.indicators.list) do
+			local indicator = self.indicators[key]
+			if( indicator and not indicator.enabled ) then
+				indicator:Hide()
+			end
+		end
+	end
 end

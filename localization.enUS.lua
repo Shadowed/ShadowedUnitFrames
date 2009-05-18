@@ -156,6 +156,7 @@ ShadowUFLocals = {
 	["Show buffs before debuffs when sharing the same anchor point."] = "Show buffs before debuffs when sharing the same anchor point.",
 	["Color by reaction"] = "Color by reaction",
 	["If the unit is hostile, the reaction color will override any color health by options."] = "If the unit is hostile, the reaction color will override any color health by options.",
+	["When showing incoming heals, include your heals in the total incoming."] = "When showing incoming heals, include your heals in the total incoming.",
 	
 	-- Layout
 	["Layout"] = "Layout",

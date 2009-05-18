@@ -504,7 +504,7 @@ function Units.ShowMenu(frame)
 end
 
 function Units:CreateBar(parent, name)
-	local frame = CreateFrame("StatusBar", parent:GetName() .. "HealthBar", parent)
+	local frame = CreateFrame("StatusBar", nil, parent)
 	frame.parent = parent
 	frame.background = frame:CreateTexture(nil, "BORDER")
 	frame.background:SetHeight(1)

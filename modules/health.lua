@@ -20,7 +20,7 @@ function Health:UnitEnabled(frame, unit)
 end
 
 function Health:UnitDisabled(frame, unit)
-	frame:UnregisterAll(self.Update)
+	frame:UnregisterAll(self.Update, self.UpdateColor, self.UpdateThreat)
 end
 
 local function setBarColor(bar, r, g, b)
@@ -56,13 +56,14 @@ end
 	3 = tanking, all others have less than 100% raw percentage threat (red indicator shown)
 ]]
 
+local invalidUnit = {["focustarget"] = true, ["targettarget"] = true, ["targettargettarget"] = true}
 function Health.UpdateThreat(self, unit)
-	if( ShadowUF.db.profile.units[self.unitType].healthBar.colorAggro and UnitThreatSituation(unit) == 3 ) then
+	-- This unit may contain adult siutations
+	if( not invalidUnit[unit] and ShadowUF.db.profile.units[self.unitType].healthBar.colorAggro and UnitThreatSituation(unit) == 3 ) then
 		setBarColor(self.healthBar, ShadowUF.db.profile.healthColor.red.r, ShadowUF.db.profile.healthColor.red.g, ShadowUF.db.profile.healthColor.red.b)
 		self.healthBar.hasAggro = true
 	elseif( self.healthBar.hasAggro ) then
 		self.healthBar.hasAggro = nil
-		Health.UpdateColor(self, unit)
 	end
 end
 
