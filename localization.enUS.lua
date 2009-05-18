@@ -24,6 +24,8 @@ ShadowUFLocals = {
 	["Elite"] = "Elite",
 	["Rare Elite"] = "Rare Elite",
 	["Boss"] = "Boss",
+	["(AFK)"] = "(AFK)",
+	["(DND)"] = "(DND)",
 	
 	-- GUI
 	["Tags"] = "Tags",
@@ -38,7 +40,7 @@ ShadowUFLocals = {
 	
 	-- Help
 	["Help"] = "Help",
-	["Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options."] = "Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.",
+	["Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.\n\nShift click a unit to select all/unselect all."] = "Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.\n\nShift click a unit to select all/unselect all.",
 	["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText (Advanced only) - Allows changing how the text anchors and the offset, you can set tags here as well.\n\nTag Wizard - Quickly add and remove tags to text."] = "In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText (Advanced only) - Allows changing how the text anchors and the offset, you can set tags here as well.\n\nTag Wizard - Quickly add and remove tags to text.",
 	
 	-- Positions
@@ -151,6 +153,8 @@ ShadowUFLocals = {
 	["Spacing"] = "Spacing",
 	["Prioritize buffs"] = "Prioritize buffs",
 	["Show buffs before debuffs when sharing the same anchor point."] = "Show buffs before debuffs when sharing the same anchor point.",
+	["Color by reaction"] = "Color by reaction",
+	["If the unit is hostile, the reaction color will override any color health by options."] = "If the unit is hostile, the reaction color will override any color health by options.",
 	
 	-- Layout
 	["Layout"] = "Layout",
@@ -187,6 +191,7 @@ ShadowUFLocals = {
 	["Profiles"] = "Profiles",
 	["Enable units"] = "Enable units",
 	["Bar colors"] = "Bar colors",
+	["Class colors"] = "Class colors",
 	["Power bar"] = "Power bar",
 	["Mana"] = "Mana",
 	["Rage"] = "Rage",
@@ -209,12 +214,22 @@ ShadowUFLocals = {
 	["Tapped"] = "Tapped",
 	["Tapped color"] = "Tapped color",
 	["Health color"] = "Health color",
+	["Incoming heal"] = "Incoming heal",
+	["Health bar color to use to show how much healing someone is about to receive."] = "Health bar color to use to show how much healing someone is about to receive.",
 	["None"] = "None",
 	["Clip"] = "Clip",
 	["How close the frame should clip with the border."] = "How close the frame should clip with the border.",
 	["Extra"] = "Extra",
 	["Aura size, this is the starting size they will resize once a row is filled up."] = "Aura size, this is the starting size they will resize once a row is filled up.",
 	["Enable indicator"] = "Enable indicator",
+	["Show your heals"] = "Show your heals",
+	["Red health"] = "Red health",
+	["Health bar color to use when health bars are showing red, hostile units, transitional color from green -> red and so on."] = "Health bar color to use when health bars are showing red, hostile units, transitional color from green -> red and so on.",
+	["Yellow health"] = "Yellow health",
+	["Health bar color to use when health bars are showing yellow, neutral units."] = "Health bar color to use when health bars are showing yellow, neutral units.",
+	["Unattackable health"] = "Unattackable health",
+	["Health bar color to use for hostile units who you cannot attack, used for reaction coloring."] = "Health bar color to use for hostile units who you cannot attack, used for reaction coloring.",
+	
 	
 	-- Tags
 	["Events"] = "Events",
@@ -264,6 +279,19 @@ ShadowUFLocals = {
 		["happiness"] = "Happiness",
 	},
 	
+	["classes"] = {
+		["HUNTER"] = "Hunter",
+		["WARLOCK"] = "Warlock",
+		["PRIEST"] = "Priest",
+		["PALADIN"] = "Paladin",
+		["MAGE"] = "Mage",
+		["ROGUE"] = "Rogue",
+		["DRUID"] = "Druid",
+		["SHAMAN"] = "Shaman",
+		["WARRIOR"] = "Warrior",
+		["DEATHKNIGHT"] = "Death Knight",
+	},
+	
 	-- Instance types
 	["areas"] = {
 		["pvp"] = "Battlegrounds",
@@ -301,8 +329,12 @@ ShadowUFLocals = {
 	["Rune bar"] = "Rune bar",
 	["Totem indicators"] = "Totem indicators",
 	["Combo points"] = "Combo points",
-
+	["Incoming heals"] = "Incoming heals",
+	
 	-- Tag help
+	["Shows AFK or DND flags if they are toggled."] = "Shows AFK or DND flags if they are toggled.",
+	["Absolute current/max health, without any formating so 17750 is still formatted as 17750."] = "Absolute current/max health, without any formating so 17750 is still formatted as 17750.",
+	["Absolute current/max power, without any formating so 17750 is still formatted as 17750."] = "Absolute current/max power, without any formating so 17750 is still formatted as 17750.",
 	["Unit name colored by class."] = "Unit name colored by class.",
 	["Units classification, Rare, Rare Elite, Elite, Boss, nothing is shown if they aren't any of those."] = "Units classification, Rare, Rare Elite, Elite, Boss, nothing is shown if they aren't any of those.",
 	["Returns Offline if the unit is offline, otherwise nothing is shown."] = "Returns Offline if the unit is offline, otherwise nothing is shown.",

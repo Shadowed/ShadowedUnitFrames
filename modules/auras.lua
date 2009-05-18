@@ -59,6 +59,7 @@ local function createAnchor(self, key, config)
 	aura.buttons = aura.buttons or {}
 	aura.maxAuras = config.inColumn * config.rows
 	aura.parent = self
+	aura.totalAuras = 0
 	
 	for i=1, aura.maxAuras do
 		if( not aura.buttons[i] ) then
@@ -92,8 +93,10 @@ local function createAnchor(self, key, config)
 			button.icon:SetAllPoints(button)
 			button.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 		end
-		
-		aura.buttons[i]:Hide()
+	end
+	
+	for _, button in pairs(aura.buttons) do
+		button:Hide()
 	end
 	
 	Auras.UpdateFilter(aura, ShadowUF.db.profile.units[self.unitType].auras[key])
@@ -101,6 +104,12 @@ end
 
 function Auras:PreLayoutApplied(self)
 	Auras.CreateIcons(self)
+
+	self.auras.anchor = "buffs"
+	if( not ShadowUF.db.profile.units[self.unitType].auras.buffs.enabled ) then
+		self.auras.anchor = "debuffs"
+	end
+
 	Auras.Update(self, self.unit)
 end
 
@@ -119,7 +128,7 @@ function Auras:LayoutApplied(self)
 	end
 end
 
-function Auras.UpdateDisplay(self, config)
+function Auras.UpdateDisplay(self, unitType)
 	for _, button in pairs(self.buttons) do
 		button:Hide()
 	end
@@ -130,29 +139,32 @@ function Auras.UpdateDisplay(self, config)
 		
 	for i=1, self.totalAuras do
 		local button = self.buttons[i]
-		if( button.type == "debuff" ) then
-			local color = button.auraType and DebuffTypeColor[button.auraType] or DebuffTypeColor.none
-			button.border:SetVertexColor(color.r, color.g, color.b)
-		else
-			button.border:SetVertexColor(0.60, 0.60, 0.60, 1.0)
-		end
+		if( button.auraDuration and button.auraEnd ) then
+			local config = ShadowUF.db.profile.units[unitType].auras[button.type]
+			if( button.type == "debuffs" ) then
+				local color = button.auraType and DebuffTypeColor[button.auraType] or DebuffTypeColor.none
+				button.border:SetVertexColor(color.r, color.g, color.b)
+			else
+				button.border:SetVertexColor(0.60, 0.60, 0.60, 1.0)
+			end
+			
+			if( ( not config.selfTimers or ( config.selfTimers and button.auraPlayers ) ) and button.auraDuration > 0 and button.auraEnd > 0 ) then
+				button.cooldown:SetCooldown(button.auraEnd - button.auraDuration, button.auraDuration)
+				button.cooldown:Show()
+			else
+				button.cooldown:Hide()
+			end
+			
+			if( config.enlargeSelf and button.auraPlayers ) then
+				button:SetScale(1.30)
+			else
+				button:SetScale(1)
+			end
 		
-		if( ( not config.selfTimers or ( config.selfTimers and button.auraPlayers ) ) and button.auraDuration > 0 and button.auraEnd > 0 ) then
-			button.cooldown:SetCooldown(button.auraEnd - button.auraDuration, button.auraDuration)
-			button.cooldown:Show()
-		else
-			button.cooldown:Hide()
+			button.icon:SetTexture(button.auraTexture)
+			button.stack:SetText(button.auraCount > 1 and button.auraCount or "")
+			button:Show()
 		end
-		
-		if( config.enlargeSelf and button.auraPlayers ) then
-			button:SetScale(1.30)
-		else
-			button:SetScale(1)
-		end
-	
-		button.icon:SetTexture(button.auraTexture)
-		button.stack:SetText(button.auraCount > 1 and button.auraCount or "")
-		button:Show()
 	end
 end
 
@@ -190,37 +202,37 @@ end
 
 function Auras.Update(self, unit)
 	local config = ShadowUF.db.profile.units[self.unitType].auras
-	if( self.aurasShared ) then
-		self.auras.buffs.totalAuras = 0
-		
+	if( config.buffs.anchorPoint == config.debuffs.anchorPoint ) then
+		self.auras[self.auras.anchor].totalAuras = 0
+				
 		if( config.buffs.prioritize ) then
 			if( config.buffs.enabled ) then
-				Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buff", unit)
+				Auras.Scan(self.auras[self.auras.anchor], self.auras.buffs.filter, "buffs", unit)
 			end
 			if( config.debuffs.enabled ) then
-				Auras.Scan(self.auras.buffs, self.auras.debuffs.filter, "debuff", unit)
+				Auras.Scan(self.auras[self.auras.anchor], self.auras.debuffs.filter, "debuffs", unit)
 			end
 		else
 			if( config.debuffs.enabled ) then
-				Auras.Scan(self.auras.buffs, self.auras.debuffs.filter, "debuff", unit)
+				Auras.Scan(self.auras[self.auras.anchor], self.auras.debuffs.filter, "debuffs", unit)
 			end
 			if( config.buffs.enabled ) then
-				Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buff", unit)
+				Auras.Scan(self.auras[self.auras.anchor], self.auras.buffs.filter, "buffs", unit)
 			end
 		end
 		
-		Auras.UpdateDisplay(self.auras.buffs, config.buffs)
+		Auras.UpdateDisplay(self.auras[self.auras.anchor], self.unitType)
 	else
 		if( config.buffs.enabled ) then
 			self.auras.buffs.totalAuras = 0
-			Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buff", unit)
-			Auras.UpdateDisplay(self.auras.buffs, config.buffs)
+			Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buffs", unit)
+			Auras.UpdateDisplay(self.auras.buffs, self.unitType)
 		end
 
 		if( config.debuffs.enabled ) then
 			self.auras.debuffs.totalAuras = 0
-			Auras.Scan(self.auras.debuffs, self.auras.debuffs.filter, "debuff", unit)
-			Auras.UpdateDisplay(self.auras.debuffs, config.debuffs)
+			Auras.Scan(self.auras.debuffs, self.auras.debuffs.filter, "debuffs", unit)
+			Auras.UpdateDisplay(self.auras.debuffs, self.unitType)
 		end
 	end
 end

@@ -172,6 +172,10 @@ local function OnAttributeChanged(self, name, value)
 		self.timeElapsed = 0
 		self:SetScript("OnUpdate", TargetUnitUpdate)
 		
+	-- Pet changed, going from pet -> vehicle for one
+	elseif( value == "pet" ) then
+		self:RegisterUnitEvent("UNIT_PET", FullUpdate)
+		
 	-- Automatically do a full update on target change
 	elseif( value == "target" ) then
 		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", FullUpdate)
@@ -331,16 +335,17 @@ function Units:SetFrameAttributes(frame, type)
 		if( type == "raid" ) then
 			frame:SetAttribute("sortMethod", "INDEX")
 			frame:SetAttribute("sortDir", "ASC")
-			frame:SetAttribute("groupBy", config.groupBy)
 			frame:SetAttribute("maxColumns", config.maxColumns)
 			frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
 			frame:SetAttribute("columnSpacing", config.columnSpacing)
 			frame:SetAttribute("columnAnchorPoint", config.attribAnchorPoint)
 
-			if( config.groupBy == "GROUP" ) then
-				frame:SetAttribute("groupingOrder", "1,2,3,4,5,6,7,8")
-			elseif( config.groupBy == "CLASS" ) then
+			if( config.groupBy == "CLASS" ) then
 				frame:SetAttribute("groupingOrder", "DEATHKNIGHT,DRUID,HUNTER,MAGE,PALADIN,PRIEST,ROGUE,SHAMAN,WARLOCK,WARRIOR")
+				frame:SetAttribute("groupBy", config.groupBy)
+			elseif( config.groupBy == "CLASS" ) then
+				frame:SetAttribute("groupingOrder", "1,2,3,4,5,6,7,8")
+				frame:SetAttribute("groupBy", config.groupBy)
 			end
 		end
 	elseif( type == "partypet" ) then

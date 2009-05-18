@@ -33,12 +33,12 @@ function XP.SetColor(self, unit)
 	end
 	
 	if( self.xpBar.type == "rep" ) then
-		self.xpBar:SetStatusBarColor(FACTION_BAR_COLORS[self.xpBar.reaction].r, FACTION_BAR_COLORS[self.xpBar.reaction].g, FACTION_BAR_COLORS[self.xpBar.reaction].b, ShadowUF.db.profile.general.barAlpha)
-		self.xpBar.background:SetVertexColor(FACTION_BAR_COLORS[self.xpBar.reaction].r, FACTION_BAR_COLORS[self.xpBar.reaction].g, FACTION_BAR_COLORS[self.xpBar.reaction].b, ShadowUF.db.profile.general.backgroundAlpha)
+		self.xpBar:SetStatusBarColor(FACTION_BAR_COLORS[self.xpBar.reaction].r, FACTION_BAR_COLORS[self.xpBar.reaction].g, FACTION_BAR_COLORS[self.xpBar.reaction].b, ShadowUF.db.profile.bars.alpha)
+		self.xpBar.background:SetVertexColor(FACTION_BAR_COLORS[self.xpBar.reaction].r, FACTION_BAR_COLORS[self.xpBar.reaction].g, FACTION_BAR_COLORS[self.xpBar.reaction].b, ShadowUF.db.profile.bars.backgroundAlpha)
 	else
-		self.xpBar:SetStatusBarColor(ShadowUF.db.profile.xpColor.normal.r, ShadowUF.db.profile.xpColor.normal.g, ShadowUF.db.profile.xpColor.normal.b, ShadowUF.db.profile.general.barAlpha)
+		self.xpBar:SetStatusBarColor(ShadowUF.db.profile.xpColor.normal.r, ShadowUF.db.profile.xpColor.normal.g, ShadowUF.db.profile.xpColor.normal.b, ShadowUF.db.profile.general.alpha)
 		self.xpBar.background:SetVertexColor(ShadowUF.db.profile.xpColor.normal.r, ShadowUF.db.profile.xpColor.normal.g, ShadowUF.db.profile.xpColor.normal.b, ShadowUF.db.profile.general.backgroundAlpha)
-		self.xpBar.rested:SetStatusBarColor(ShadowUF.db.profile.xpColor.rested.r, ShadowUF.db.profile.xpColor.rested.g, ShadowUF.db.profile.xpColor.rested.b, ShadowUF.db.profile.general.barAlpha)
+		self.xpBar.rested:SetStatusBarColor(ShadowUF.db.profile.xpColor.rested.r, ShadowUF.db.profile.xpColor.rested.g, ShadowUF.db.profile.xpColor.rested.b, ShadowUF.db.profile.general.alpha)
 	end
 end
 

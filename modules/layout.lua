@@ -5,6 +5,7 @@ local mediaRequired
 
 -- Deal with loading SML data we need
 function Layout:OnInitialize()
+	self.mediaPath = mediaPath
 	self:CheckMedia()
 end
 
@@ -21,6 +22,10 @@ local function loadMedia(type, name, default)
 	end
 	
 	return media
+end
+
+function Layout:MediaForced(mediaType, path)
+	mediaPath[mediaType] = path
 end
 
 function Layout:CheckMedia()
@@ -85,6 +90,7 @@ end
 function Layout:LoadSML()
 	SML = SML or LibStub:GetLibrary("LibSharedMedia-3.0")
 	SML.RegisterCallback(self, "LibSharedMedia_Registered", "MediaRegistered")
+	--SML.RegisterCallback(self, "LibSharedMedia_SetGlobal", "MediaForced")
 
 	SML:Register(SML.MediaType.FONT, "Myriad Condensed Web", "Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf")
 	SML:Register(SML.MediaType.BACKGROUND, "Chat Frame", "Interface\\ChatFrame\\ChatFrameBackground")
@@ -463,27 +469,20 @@ end
 function Layout:ApplyAuras(frame, config)
 	if( not frame.auras or not frame.visibility.auras ) then
 		if( frame.auras ) then
-			for _, auras in pairs(frame.auras) do
-				auras:Hide()
-				for _, button in pairs(auras.buttons) do
-					button:Hide()
-				end
-			end
+			frame.auras.buffs:Hide()
+			frame.auras.buffs.buttons[1]:Hide()
+			
+			frame.auras.debuffs:Hide()
+			frame.auras.debuffs.buttons[1]:Hide()
 		end
 		return
 	end
 		
 	-- Update aura position
-	for key, aura in pairs(frame.auras) do
-		self:ToggleVisibility(aura, config.auras[key].enabled)
-		
-		if( aura:IsShown() ) then
-			positionAuras(aura, config.auras[key])
-		end
-	end
-	
-	-- Do the auras share the same location?
-	frame.aurasShared = config.auras.buffs.anchorPoint == config.auras.debuffs.anchorPoint
+	self:ToggleVisibility(frame.auras.buffs, config.auras.buffs.enabled)
+	if( frame.auras.buffs:IsShown() ) then positionAuras(frame.auras.buffs, config.auras.buffs) end
+	self:ToggleVisibility(frame.auras.debuffs, config.auras.debuffs.enabled)
+	if( frame.auras.debuffs:IsShown() ) then positionAuras(frame.auras.debuffs, config.auras.debuffs) end
 end
 
 -- Setup the bar ordering/info

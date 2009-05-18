@@ -12,7 +12,7 @@ local units = {"player", "pet", "target", "targettarget", "targettargettarget", 
 local defaultDB
 
 -- Main layout keys, this does not include units or inherited module options
-local mainLayout = {["bars"] = true, ["backdrop"] = true, ["font"] = true, ["powerColor"] = true, ["healthColor"] = true, ["xpColor"] = true, ["positions"] = true}
+local mainLayout = {["classColors"] = true, ["bars"] = true, ["backdrop"] = true, ["font"] = true, ["powerColor"] = true, ["healthColor"] = true, ["xpColor"] = true, ["positions"] = true}
 -- Sub layout keys inside layouts that are accepted
 local subLayout = {["growth"] = true, ["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["groupBy"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
 
@@ -42,7 +42,7 @@ function ShadowUF:OnInitialize()
 	-- List of units that SUF supports
 	self.units = units
 	self.regModules = modules
-		
+	
 	-- Setup tag cache
 	self.tagFunc = setmetatable({}, {
 		__index = function(tbl, index)
@@ -113,6 +113,12 @@ function ShadowUF:OnInitialize()
 	if( not self.db.profile.activeLayout ) then
 		self:SetLayout("Default", true)
 	end
+	
+	-- Quick upgrade
+	if( not self.db.profile.healthColor.inc ) then
+		self.db.profile.classColors = CopyTable(RAID_CLASS_COLORS)
+		self.db.profile.healthColor.inc = {r = 0.20, g = 0.20, b = 1.0}
+	end
 end
 
 function ShadowUF:LoadUnits()
@@ -153,6 +159,7 @@ function ShadowUF:LoadUnitDefaults()
 			healthBar = {enabled = true, colorType = "percent"},
 			powerBar = {enabled = true},
 			portrait = {enabled = false, type = "3D"},
+			incHeal = {enabled = false, showSelf = true},
 			castBar = {
 				enabled = false,
 				castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0},

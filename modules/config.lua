@@ -39,7 +39,7 @@ end
 
 local function getName(info)
 	local key = info[#(info)]
-	return ShadowUF.moduleNames[key] or L.indicators[key] or L.units[key] or L[key]
+	return ShadowUF.moduleNames[key] or L.classes[key] or L.indicators[key] or L.units[key] or L[key]
 end
 
 
@@ -219,13 +219,6 @@ local function loadGeneralOptions()
 							},
 						},
 					},
-					units = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Enable units"],
-						args = {},
-					},
 					backdrop = {
 						order = 2,
 						type = "group",
@@ -381,6 +374,7 @@ local function loadGeneralOptions()
 								hasAlpha = true,
 								name = L["Happiness"],
 								arg = 4,
+								width = "half",
 							},
 							rp = {
 								order = 6,
@@ -395,7 +389,50 @@ local function loadGeneralOptions()
 								name = L["Health color"],
 								desc = L["Standard health bar color"],
 							},
+							inc = {
+								order = 8,
+								type = "color",
+								name = L["Incoming heal"],
+								desc = L["Health bar color to use to show how much healing someone is about to receive."],
+							},
+							sep = {
+								order = 9,
+								type = "description",
+								name = "",
+								width = "full",
+							},
+							red = {
+								order = 8,
+								type = "color",
+								name = L["Red health"],
+								desc = L["Health bar color to use when health bars are showing red, hostile units, transitional color from green -> red and so on."],
+								hidden = hideAdvancedOption,
+							},
+							yellow = {
+								order = 8,
+								type = "color",
+								name = L["Yellow health"],
+								desc = L["Health bar color to use when health bars are showing yellow, neutral units."],
+								hidden = hideAdvancedOption,
+							},
+							enemyUnattack = {
+								order = 8,
+								type = "color",
+								name = L["Unattackable health"],
+								desc = L["Health bar color to use for hostile units who you cannot attack, used for reaction coloring."],
+								hidden = hideAdvancedOption,
+							},
 						},
+					},
+					classColors = {
+						order = 5,
+						type = "group",
+						inline = true,
+						name = L["Class colors"],
+						set = setColor,
+						get = getColor,
+						args = {
+						}
 					},
 				},
 			},
@@ -429,24 +466,19 @@ local function loadGeneralOptions()
 		},
 	}
 	
-	options.args.general.args.profile.order = 2
-		
-	local unitTable = {
-		order = getUnitOrder,
-		type = "toggle",
+	local classTable = {
+		order = 0,
+		type = "color",
+		hasAlpha = true,
 		name = getName,
-		set = function(info, value)
-			ShadowUF.db.profile.units[info[#(info)]].enabled = value
-			ShadowUF:LoadUnits()
-		end,
-		get = function(info)
-			return ShadowUF.db.profile.units[info[#(info)]].enabled
-		end,
+		width = "half",
 	}
-		
-	for order, unit in pairs(ShadowUF.units) do
-		options.args.general.args.general.args.units.args[unit] = unitTable
+	
+	for classToken in pairs(RAID_CLASS_COLORS) do
+		options.args.general.args.general.args.classColors.args[classToken] = classTable
 	end
+	
+	options.args.general.args.profile.order = 2
 end
 
 ---------------------
@@ -953,9 +985,7 @@ local function loadUnitOptions()
 		disabled = function(info)
 			local unit = info[#(info) - 3]
 			unit = unit == "global" and masterUnit or unit
-			if( info[#(info) - 1] == "buffs" ) then
-				return false
-			elseif( ShadowUF.db.profile.units[unit].auras.buffs.anchorPoint == ShadowUF.db.profile.units[unit].auras.debuffs.anchorPoint ) then
+			if( not ShadowUF.db.profile.units[unit].auras[info[#(info) - 1]].enabled ) then
 				return true
 			end
 			
@@ -978,7 +1008,7 @@ local function loadUnitOptions()
 		end,
 		get = function(info)
 			local unit = info[#(info) - 3]
-			unit = unit == "global" and masterUnit or unit			
+			unit = unit == "global" and masterUnit or unit
 			return ShadowUF.db.profile.units[unit].auras[info[#(info) - 1]][info[#(info)]]
 		end,
 		args = {
@@ -1004,13 +1034,14 @@ local function loadUnitOptions()
 				desc = L["Show buffs before debuffs when sharing the same anchor point."],
 				hidden = function(info)
 					local unit = info[#(info) - 3]
+					unit = unit == "global" and masterUnit or unit
+
 					if( ShadowUF.db.profile.units[unit].auras.buffs.anchorPoint ~= ShadowUF.db.profile.units[unit].auras.debuffs.anchorPoint ) then
 						return true
 					end
 					
 					return info[#(info) - 1] == "debuffs"
 				end,
-				disabled = false,
 				width = "double",
 			},
 			sep1 = {
@@ -1711,12 +1742,36 @@ local function loadUnitOptions()
 								name = L["Color on aggro"],
 								arg = "healthBar.colorAggro",
 							},
+							reaction = {
+								order = 1.5,
+								type = "toggle",
+								name = L["Color by reaction"],
+								desc = L["If the unit is hostile, the reaction color will override any color health by options."],
+							},
+							sep = {
+								order = 3,
+								type = "description",
+								name = "",
+								width = "full",
+							},
 							healthColor = {
 								order = 2,
 								type = "select",
 								name = L["Color health by"],
-								values = {["reaction"] = L["Reaction"], ["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"]},
+								values = {["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"]},
 								arg = "healthBar.colorType",
+							},
+							enabledHeal = {
+								order = 4,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Incoming heals"]),
+								arg = "incHeal.enabled",
+							},
+							enabledSelf = {
+								order = 5,
+								type = "toggle",
+								name = L["Show your heals"],
+								arg = "incHeal.showSelf",
 							},
 						},
 					},
@@ -1738,7 +1793,7 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["XP/Rep bar"]),
 								desc = L["This bar will automatically hide when you are at the level cap, or you do not have any reputations tracked."],
-								hidden = function(info) if( info[#(info) - 4] ~= "player" and info[#(info) - 4] ~= "pet" ) then return true else return false end end,
+								hidden = function(info) if( info[#(info) - 3] ~= "player" and info[#(info) - 4] ~= "pet" ) then return true else return false end end,
 								arg = "xpBar.enabled",
 							},
 						},
@@ -1917,7 +1972,15 @@ local function loadUnitOptions()
 		type = "group",
 		name = L["Units"],
 		args = {
+			enabled = {
+				order = 0,
+				type = "group",
+				inline = true,
+				name = L["Enable units"],
+				args = {},
+			},
 			help = {
+				order = 1,
 				type = "group",
 				inline = true,
 				name = L["Help"],
@@ -1978,7 +2041,7 @@ local function loadUnitOptions()
 									help = {
 										order = 0,
 										type = "description",
-										name = L["Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options."],
+										name = L["Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.\n\nShift click a unit to select all/unselect all."],
 									},
 								},
 							},
@@ -2019,12 +2082,23 @@ local function loadUnitOptions()
 		end,
 	}
 	
+	-- Enabled units list
+	local enabledUnits = {
+		order = getUnitOrder,
+		type = "toggle",
+		name = getName,
+		set = function(info, value)
+			ShadowUF.db.profile.units[info[#(info)]].enabled = value
+			ShadowUF:LoadUnits()
+		end,
+		get = function(info)
+			return ShadowUF.db.profile.units[info[#(info)]].enabled
+		end,
+	}
+
 	for order, unit in pairs(ShadowUF.units) do
+		options.args.units.args.enabled.args[unit] = enabledUnits
 		options.args.units.args.global.args.units.args.units.args[unit] = perUnitList
-	end
-	
-	-- Load units already enabled
-	for order, unit in pairs(ShadowUF.units) do
 		options.args.units.args[unit] = unitTable
 	end
 end

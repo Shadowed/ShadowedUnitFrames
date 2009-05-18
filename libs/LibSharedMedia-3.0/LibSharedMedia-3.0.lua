@@ -1,17 +1,15 @@
 ﻿--[[
 Name: LibSharedMedia-3.0
-Revision: $Revision: 66370 $
+Revision: $Revision: 58 $
 Author: Elkano (elkano@gmx.de)
 Inspired By: SurfaceLib by Haste/Otravi (troeks@gmail.com)
-Website: http://
-Documentation: http://www.wowace.com/wiki/LibSharedMedia-3.0
-SVN: http://svn.wowace.com/wowace/trunk/LibSharedMedia-3.0/
+Website: http://www.wowace.com/projects/libsharedmedia-3-0/
 Description: Shared handling of media data (fonts, sounds, textures, ...) between addons.
 Dependencies: LibStub, CallbackHandler-1.0
 License: LGPL v2.1
 ]]
 
-local MAJOR, MINOR = "LibSharedMedia-3.0", "$Revision: 66370 $"
+local MAJOR, MINOR = "LibSharedMedia-3.0", 90000 + tonumber(("$Revision: 58 $"):match("(%d+)"))
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not lib then return end
@@ -30,8 +28,9 @@ local locale = GetLocale()
 local locale_is_western
 local LOCALE_MASK = 0
 lib.LOCALE_BIT_koKR		= 1
-lib.LOCALE_BIT_zhCN		= 2
-lib.LOCALE_BIT_zhTW		= 4
+lib.LOCALE_BIT_ruRU		= 2
+lib.LOCALE_BIT_zhCN		= 4
+lib.LOCALE_BIT_zhTW		= 8
 lib.LOCALE_BIT_western	= 128
 
 local CallbackHandler = LibStub:GetLibrary("CallbackHandler-1.0")
@@ -60,16 +59,23 @@ lib.MediaType.SOUND			= "sound"				-- sound files
 -- populate lib with default Blizzard data
 -- BACKGROUND
 if not lib.MediaTable.background then lib.MediaTable.background = {} end
+lib.MediaTable.background["Blizzard Dialog Background"]		= [[Interface\DialogFrame\UI-DialogBox-Background]]
 lib.MediaTable.background["Blizzard Low Health"]			= [[Interface\FullScreenTextures\LowHealth]]
 lib.MediaTable.background["Blizzard Out of Control"]		= [[Interface\FullScreenTextures\OutOfControl]]
+lib.MediaTable.background["Blizzard Parchment"]				= [[Interface\AchievementFrame\UI-Achievement-Parchment-Horizontal]]
+lib.MediaTable.background["Blizzard Parchment 2"]			= [[Interface\AchievementFrame\UI-Achievement-Parchment]]
 lib.MediaTable.background["Blizzard Tabard Background"]		= [[Interface\TabardFrame\TabardFrameBackground]]
-lib.MediaTable.background["Solid"]							= [[Interface\Buttons\WHITE8X8]]
 lib.MediaTable.background["Blizzard Tooltip"]				= [[Interface\Tooltips\UI-Tooltip-Background]]
+lib.MediaTable.background["Solid"]							= [[Interface\Buttons\WHITE8X8]]
 
 -- BORDER
 if not lib.MediaTable.border then lib.MediaTable.border = {} end
 lib.MediaTable.border["None"]								= [[Interface\None]]
+lib.MediaTable.border["Blizzard Achievement Wood"]			= [[Interface\AchievementFrame\UI-Achievement-WoodBorder]]
+lib.MediaTable.border["Blizzard Chat Bubble"]				= [[Interface\Tooltips\ChatBubble-Backdrop]]
 lib.MediaTable.border["Blizzard Dialog"]					= [[Interface\DialogFrame\UI-DialogBox-Border]]
+lib.MediaTable.border["Blizzard Dialog Gold"]				= [[Interface\DialogFrame\UI-DialogBox-Gold-Border]]
+lib.MediaTable.border["Blizzard Party"]						= [[Interface\CHARACTERFRAME\UI-Party-Border]]
 lib.MediaTable.border["Blizzard Tooltip"]					= [[Interface\Tooltips\UI-Tooltip-Border]]
 
 -- FONT
@@ -103,6 +109,17 @@ elseif locale == "zhTW" then
 	SML_MT_font["預設"]			= [[Fonts\bLEI00D.ttf]]
 --
 	lib.DefaultMedia["font"] = "預設" -- someone from zhTW please adjust if needed
+
+elseif locale == "ruRU" then
+	LOCALE_MASK = lib.LOCALE_BIT_ruRU
+--
+	SML_MT_font["Arial Narrow"]			= [[Fonts\ARIALN.TTF]]
+	SML_MT_font["Friz Quadrata TT"]		= [[Fonts\FRIZQT__.TTF]]
+	SML_MT_font["Morpheus"]				= [[Fonts\MORPHEUS.TTF]]
+	SML_MT_font["Nimrod MT"]			= [[Fonts\NIM_____.ttf]]
+	SML_MT_font["Skurri"]				= [[Fonts\SKURRI.TTF]]
+--
+	lib.DefaultMedia.font = "Friz Quadrata TT"
 --
 else
 	LOCALE_MASK = lib.LOCALE_BIT_western
@@ -142,6 +159,12 @@ local function rebuildMediaList(mediatype)
 end
 
 function lib:Register(mediatype, key, data, langmask)
+	if type(mediatype) ~= "string" then
+		error(MAJOR..":Register(mediatype, key, data, langmask) - mediatype must be string, got "..type(mediatype))
+	end
+	if type(key) ~= "string" then
+		error(MAJOR..":Register(mediatype, key, data, langmask) - key must be string, got "..type(key))
+	end
 	if mediatype == lib.MediaType.FONT  and ((langmask and band(langmask, LOCALE_MASK) == 0) or not (langmask or locale_is_western)) then return false end
 	mediatype = mediatype:lower()
 	if not mediaTable[mediatype] then mediaTable[mediatype] = {} end
