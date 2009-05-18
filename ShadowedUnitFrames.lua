@@ -14,7 +14,7 @@ local defaultDB
 -- Main layout keys, this does not include units or inherited module options
 local mainLayout = {["classColors"] = true, ["bars"] = true, ["backdrop"] = true, ["font"] = true, ["powerColor"] = true, ["healthColor"] = true, ["xpColor"] = true, ["positions"] = true}
 -- Sub layout keys inside layouts that are accepted
-local subLayout = {["growth"] = true, ["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["groupBy"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
+local subLayout = {["growth"] = true, ["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
 
 function ShadowUF:OnInitialize()
 	self.defaults = {
@@ -87,7 +87,16 @@ function ShadowUF:OnInitialize()
 	self:RegisterEvent("PLAYER_ENTERING_WORLD", function()
 		ShadowUF:UnregisterEvent("PLAYER_ENTERING_WORLD")
 		ShadowUF:LoadUnits()
+
+		if( self.db.profile.units.party.enabled and self.db.profile.units.party.hideInRaid ) then
+			ShadowUF:RAID_ROSTER_UPDATE()
+		end
 	end)
+	
+	-- Watch for joining a raid for party things
+	if( self.db.profile.units.party.enabled and self.db.profile.units.party.hideInRaid ) then
+		self:RegisterEvent("RAID_ROSTER_UPDATE")
+	end
 	
 	-- Load any layouts that were waiting
 	if( layoutQueue ) then
@@ -135,13 +144,28 @@ function ShadowUF:OnInitialize()
 	end
 end
 
+local partyDisabled
+function ShadowUF:RAID_ROSTER_UPDATE()
+	if( GetNumRaidMembers() > 5 ) then
+		if( not partyDisabled ) then
+			partyDisabled = true
+			self.Units:UninitializeFrame(self.db.profile.units.party, "party")
+		end
+	elseif( partyDisabled ) then
+		partyDisabled = false
+		self:LoadUnits()
+	end
+end
+
 function ShadowUF:LoadUnits()
 	local zone = select(2, IsInInstance())
 	for _, type in pairs(units) do
 		local config = self.db.profile.units[type]
 		if( config ) then
 			local enabled = config.enabled
-			if( zone ~= "none" ) then
+			if( type == "party" and partyDisabled ) then
+				enabled = false
+			elseif( zone ~= "none" ) then
 				if( self.db.profile.visibility[zone][type] == false ) then
 					enabled = false
 				elseif( self.db.profile.visibility[zone][type] == true ) then
@@ -218,6 +242,8 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.pet.enabled = true
 	self.defaults.profile.units.party.enabled = true
 	self.defaults.profile.units.party.portrait.enabled = true
+
+	self.defaults.profile.units.raid.groupBy = "INDEX"
 
 	self.defaults.profile.positions.partypet.anchorTo = "$parent"
 	self.defaults.profile.positions.partypet.anchorPoint = "BR"

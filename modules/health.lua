@@ -119,7 +119,9 @@ function Health.Update(self, unit)
 	local max = UnitHealthMax(unit)
 	local current = UnitHealth(unit)
 	local isOffline = not UnitIsConnected(unit)
-	if( current == 1 or UnitIsDeadOrGhost(unit) or isOffline ) then
+	if( isOffline ) then
+		current = max
+	elseif( current == 1 or UnitIsDeadOrGhost(unit) ) then
 		current = 0
 	end
 	

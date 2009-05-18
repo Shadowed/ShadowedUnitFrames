@@ -981,6 +981,22 @@ local function loadUnitOptions()
 		end
 	end
 	
+	local function disableSameAnchor(info)
+		local unit = info[#(info) - 3]
+		local anchor = "buffs"
+		unit = unit == "global" and masterUnit or unit
+	
+		if( not ShadowUF.db.profile.units[unit].auras.buffs.enabled ) then
+			anchor = "debuffs"
+		end
+		
+		if( anchor == info[#(info) - 1] ) then
+			return false
+		end
+	
+		return ShadowUF.db.profile.units[unit].auras.buffs.anchorPoint == ShadowUF.db.profile.units[unit].auras.debuffs.anchorPoint
+	end
+	
 	local auraTable = {
 		type = "group",
 		inline = true,
@@ -1099,6 +1115,7 @@ local function loadUnitOptions()
 				name = L["Per row"],
 				desc = L["How many auras to show in a single row."],
 				min = 1, max = 50, step = 1,
+				disabled = disableSameAnchor,
 			},
 			maxRows = {
 				order = 10,
@@ -1106,12 +1123,14 @@ local function loadUnitOptions()
 				name = L["Max rows"],
 				desc = L["How many rows to use."],
 				min = 1, max = 5, step = 1,
+				disabled = disableSameAnchor,
 			},
 			size = {
 				order = 11,
 				type = "range",
 				name = L["Size"],
 				min = 1, max = 30, step = 1,
+				disabled = disableSameAnchor,
 			},
 			sep4 = {
 				order = 12,
@@ -1131,6 +1150,7 @@ local function loadUnitOptions()
 				type = "range",
 				name = L["X Offset"],
 				min = -20, max = 20, step = 1,
+				disabled = disableSameAnchor,
 				hidden = hideAdvancedOption,
 			},
 			y = {
@@ -1138,6 +1158,7 @@ local function loadUnitOptions()
 				type = "range",
 				name = L["Y Offset"],
 				min = -20, max = 20, step = 1,
+				disabled = disableSameAnchor,
 				hidden = hideAdvancedOption,
 			},
 		},
@@ -1530,15 +1551,25 @@ local function loadUnitOptions()
 						name = L["General"],
 						hidden = false,
 						args = {
-							--[[
-							showPlayer = {
+							hideInRaid = {
 								order = 0,
 								type = "toggle",
-								name = L["Show player in frame"],
+								name = L["Hide in raid"],
+								desc = L["Party frames are hidden while in a raid group with more than 5 people inside."],
+								hidden = function(info) return info[#(info) - 3] == "raid" end,
+								set = function(info, value)
+									setLayout(info, value, true)
+									ShadowUF.Units:ReloadUnit(info[#(info) - 3])
+									
+									if( value ) then
+										ShadowUF:RegisterEvent("RAID_ROSTER_UPDATE")
+									else
+										ShadowUF:UnregisterEvent("RAID_ROSTER_UPDATE")
+									end
+								end,
 							},
-							]]
 							xOffset = {
-								order = 0.15,
+								order = 1,
 								type = "range",
 								name = L["X Offset"],
 								min = -50, max = 50, step = 1,
@@ -1548,7 +1579,7 @@ local function loadUnitOptions()
 								end,
 							},
 							yOffset = {
-								order = 0.25,
+								order = 2,
 								type = "range",
 								name = L["Y Offset"],
 								min = -50, max = 50, step = 1,
@@ -1558,14 +1589,14 @@ local function loadUnitOptions()
 								end,
 							},
 							attribPoint = {
-								order = 1,
+								order = 3,
 								type = "select",
 								name = L["Frame growth"],
 								desc = L["How the frame should grow when new group members are added."],
 								values = {["TOP"] = L["Down"], ["LEFT"] = L["Right"], ["BOTTOM"] = L["Up"], ["RIGHT"] = L["Left"]},
 							},
 							attribAnchorPoint = {
-								order = 1,
+								order = 4,
 								type = "select",
 								name = L["Column growth"],
 								desc = L["How the columns should grow when too many people are shown in a single group."],

@@ -265,6 +265,8 @@ ShadowUFLocals = {
 	["Search"] = "Search",
 	["Search tags"] = "Search tags",
 	["Frame"] = "Frame",
+	["Hide in raid"] = "Hide in raid",
+	["Party frames are hidden while in a raid group with more than 5 people inside."] = "Party frames are hidden while in a raid group with more than 5 people inside.",
 	
 	-- Visibility
 	["Visibility"] = "Visibility",

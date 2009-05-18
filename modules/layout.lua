@@ -285,12 +285,7 @@ function Layout:ApplyBarVisuals(frame, config)
 			self:ToggleVisibility(widget, frame.visibility[key])
 			if( widget:IsShown() ) then
 				widget:SetStatusBarTexture(mediaPath.statusbar)
-				
-				-- Quick hack, clean up later.
-				if( widget.rested ) then
-					widget.rested:SetStatusBarTexture(mediaPath.statusbar)
-				end
-				
+								
 				if( config[key].background ) then
 					widget.background:SetTexture(mediaPath.statusbar)
 					widget.background:Show()

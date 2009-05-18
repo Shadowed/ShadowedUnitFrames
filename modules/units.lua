@@ -67,7 +67,6 @@ end
 local function OnEvent(self, event, ...)
 	if( not unitEvents[event] or self.unit == (...) ) then
 		self.event = event
-		
 		for _, funct in pairs(self.registeredEvents[event]) do
 			funct(self, self.unit, ...)
 		end

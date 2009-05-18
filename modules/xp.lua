@@ -8,19 +8,18 @@ function XP:UnitEnabled(frame, unit)
 	
 	if( not frame.xpBar ) then
 		frame.xpBar = ShadowUF.Units:CreateBar(frame, "XPBar")
-		frame.xpBar.rested = CreateFrame("StatusBar", nil, frame)
+		frame.xpBar.rested = CreateFrame("StatusBar", nil, frame.xpBar)
+		frame.xpBar.rested:SetFrameLevel(frame.xpBar:GetFrameLevel() - 1)
 		frame.xpBar.rested:SetAllPoints(frame.xpBar)
-		frame.xpBar:SetParent(frame.xpBar.rested)
-		frame.xpBar.background:SetParent(frame.xpBar.rested)
 	end
 	
 	if( unit == "player" ) then
-		frame:RegisterEvent("PLAYER_XP_UPDATE", self.Update)
-		frame:RegisterEvent("UPDATE_EXHAUSTION", self.Update)
-		frame:RegisterEvent("PLAYER_LEVEL_UP", self.Update)
+		frame:RegisterNormalEvent("PLAYER_XP_UPDATE", self.Update)
+		frame:RegisterNormalEvent("UPDATE_EXHAUSTION", self.Update)
+		frame:RegisterNormalEvent("PLAYER_LEVEL_UP", self.Update)
 		frame:RegisterUnitEvent("UPDATE_FACTION", self.UpdateRep)
 	else
-		frame:RegisterEvent("UNIT_PET_EXPERIENCE", self.Update)
+		frame:RegisterNormalEvent("UNIT_PET_EXPERIENCE", self.Update)
 	end
 
 	frame:RegisterUpdateFunc(self.Update)
@@ -28,6 +27,12 @@ end
 
 function XP:UnitDisabled(frame, unit)
 	frame:UnregisterAll(self.Update, self.UpdateRep)
+end
+
+function XP:PreLayoutApplied(frame, unit)
+	if( frame.xpBar ) then
+		frame.xpBar.rested:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
+	end
 end
 
 function XP.SetColor(self, unit)
@@ -48,14 +53,7 @@ end
 -- Handles updating the bar ordering if needed
 function XP.SetBarVisibility(self, shown)
 	local wasShown = self.xpBar:IsShown()
-	if( shown ) then
-		self.xpBar.rested:Show()
-		self.xpBar:Show()
-	else
-		self.xpBar.rested:Hide()
-		self.xpBar:Hide()
-	end
-	
+	ShadowUF.Layout:ToggleVisibility(self.xpBar, shown)
 	if( wasShown and not shown or not wasShown and shown ) then
 		ShadowUF.Layout:ApplyBars(self, ShadowUF.db.profile.units[self.unitType])
 	end
