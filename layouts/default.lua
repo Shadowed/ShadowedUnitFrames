@@ -29,16 +29,17 @@ ShadowUF:RegisterLayout("Default", {
 			shadowY = -0.80,
 		},
 		classColors = {
-			HUNTER = { r = 0.67, g = 0.83, b = 0.45 },
-			WARLOCK = { r = 0.58, g = 0.51, b = 0.79 },
-			PRIEST = { r = 1.0, g = 1.0, b = 1.0 },
-			PALADIN = { r = 0.96, g = 0.55, b = 0.73 },
-			MAGE = { r = 0.41, g = 0.8, b = 0.94 },
-			ROGUE = { r = 1.0, g = 0.96, b = 0.41 },
-			DRUID = { r = 1.0, g = 0.49, b = 0.04 },
-			SHAMAN = { r = 0.14, g = 0.35, b = 1.0 },
-			WARRIOR = { r = 0.78, g = 0.61, b = 0.43 },
-			DEATHKNIGHT = { r = 0.77, g = 0.12 , b = 0.23 },
+			HUNTER = {r = 0.67, g = 0.83, b = 0.45},
+			WARLOCK = {r = 0.58, g = 0.51, b = 0.79},
+			PRIEST = {r = 1.0, g = 1.0, b = 1.0},
+			PALADIN = {r = 0.96, g = 0.55, b = 0.73},
+			MAGE = {r = 0.41, g = 0.8, b = 0.94},
+			ROGUE = {r = 1.0, g = 0.96, b = 0.41},
+			DRUID = {r = 1.0, g = 0.49, b = 0.04},
+			SHAMAN = {r = 0.14, g = 0.35, b = 1.0},
+			WARRIOR = {r = 0.78, g = 0.61, b = 0.43},
+			DEATHKNIGHT = {r = 0.77, g = 0.12 , b = 0.23},
+			PET = {r = 0.20, g = 0.90, b = 0.20},
 		},
 		powerColor = {
 			[0] = {r = 0.30, g = 0.50, b = 0.85}, -- Mana
@@ -104,7 +105,13 @@ ShadowUF:RegisterLayout("Default", {
 		},
 		runeBar = {
 			background = false,
-			height = 0.80,
+			height = 0.40,
+			width = 1.0,
+			order = 50,
+		},
+		totemBar = {
+			background = false,
+			height = 0.40,
 			width = 1.0,
 			order = 50,
 		},
@@ -189,7 +196,7 @@ ShadowUF:RegisterLayout("Default", {
 			width = 190,
 			height = 30,
 			scale = 1.0,
-			powerBar = {width = 1.0, height = 0.70},
+			powerBar = {height = 0.70},
 			text = {
 				{text = "[name]"},
 				{text = "[curmaxhp]"},
@@ -201,7 +208,7 @@ ShadowUF:RegisterLayout("Default", {
 			width = 120,
 			height = 30,
 			scale = 1.0,
-			powerBar = {width = 1.0, height = 0.70},
+			powerBar = {height = 0.70},
 			text = {
 				{text = "[afk( )][name]"},
 				{text = "[curhp]"},
@@ -213,7 +220,7 @@ ShadowUF:RegisterLayout("Default", {
 			width = 120,
 			height = 30,
 			scale = 1.0,
-			powerBar = {width = 1.0, height = 0.60},
+			powerBar = {height = 0.60},
 			text = {
 				{text = "[afk( )][name]"},
 				{text = "[maxhp]"},
@@ -225,7 +232,7 @@ ShadowUF:RegisterLayout("Default", {
 			width = 110,
 			height = 30,
 			scale = 1.0,
-			powerBar = {width = 1.0, height = 0.70},
+			powerBar = {height = 0.70},
 			text = {
 				{text = "[name]"},
 				{text = "[curhp]"},
@@ -237,7 +244,7 @@ ShadowUF:RegisterLayout("Default", {
 			width = 80,
 			height = 30,
 			scale = 1.0,
-			powerBar = {width = 1.0, height = 0.60},
+			powerBar = {height = 0.60},
 			text = {
 				{text = "[name]", width = 1.0},
 				{text = ""},

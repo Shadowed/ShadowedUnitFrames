@@ -99,10 +99,14 @@ function Health.UpdateColor(self, unit)
 				color = ShadowUF.db.profile.healthColor.red
 			end
 		end
-	elseif( ShadowUF.db.profile.units[self.unitType].healthBar.colorType == "class" and UnitIsPlayer(unit) ) then
-		local class = select(2, UnitClass(unit))
-		if( class and ShadowUF.db.profile.classColors[class] ) then
-			color = ShadowUF.db.profile.classColors[class]
+	elseif( ShadowUF.db.profile.units[self.unitType].healthBar.colorType == "class" and ( UnitIsPlayer(unit) or UnitCreatureFamily(unit) ) ) then
+		if( UnitCreatureFamily(unit) ) then
+			color = ShadowUF.db.profile.classColors.PET
+		else
+			local class = select(2, UnitClass(unit))
+			if( class and ShadowUF.db.profile.classColors[class] ) then
+				color = ShadowUF.db.profile.classColors[class]
+			end
 		end
 	elseif( ShadowUF.db.profile.units[self.unitType].healthBar.colorType == "static" ) then
 		color = ShadowUF.db.profile.healthColor.green

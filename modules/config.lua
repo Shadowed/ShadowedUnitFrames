@@ -168,7 +168,7 @@ local function loadGeneralOptions()
 	local hideTable = {
 		order = 0,
 		type = "toggle",
-		name = function(info) return string.format(L["Hide %s"], L.units[info[#(info)]] or L["Cast bars"]) end,
+		name = function(info) return string.format(L["Hide %s"], L.units[info[#(info)]] or info[#(info)] == "cast" and L["Cast bars"] or info[#(info)] == "runes" and L["Rune bar"]) end,
 		desc = L["You must do a /console reloadui for an object to show up agian."],
 		set = function(info, value)
 			ShadowUF.db.profile.hidden[info[#(info)]] = value
@@ -454,6 +454,7 @@ local function loadGeneralOptions()
 					focus = hideTable,
 					targettarget = hideTable,
 					cast = hideTable,
+					runes = hideTable,
 				},
 			},
 			layout = {
@@ -482,6 +483,8 @@ local function loadGeneralOptions()
 	for classToken in pairs(RAID_CLASS_COLORS) do
 		options.args.general.args.general.args.classColors.args[classToken] = classTable
 	end
+	
+	options.args.general.args.general.args.classColors.args.PET = classTable
 	
 	options.args.general.args.profile.order = 2
 end
@@ -527,7 +530,9 @@ local function loadUnitOptions()
 		
 		if( unit == "global" ) then
 			for unit in pairs(modifyUnits) do
-				ShadowUF.db.profile.units[unit][module][key] = value
+				if( type(ShadowUF.db.profile.units[unit][module]) ==  "table" ) then
+					ShadowUF.db.profile.units[unit][module][key] = value
+				end
 			end
 		else
 			ShadowUF.db.profile.units[unit][module][key] = value
@@ -1045,7 +1050,6 @@ local function loadUnitOptions()
 				name = L["Filter out irrelevant debuffs"] .. NYI,
 				desc = L["Automatically filters out debuffs that you don't care about, if you're a magic class you won't see Rend/Deep Wounds, physical classes won't see Curse of the Elements and so on."],
 				hidden = function(info) return info[#(info) - 1] == "buffs" end,
-				disabled = false,
 				width = "double",
 			},
 			prioritize = {
@@ -1303,14 +1307,16 @@ local function loadUnitOptions()
 							runeBar = {
 								order = 0,
 								type = "toggle",
-								name = L["Rune bar"] .. NYI,
+								name = L["Rune bar"],
 								hidden = hideClassWidget,
+								arg = "runeBar.enabled",
 							},
-							totems = {
+							totemBar = {
 								order = 0,
 								type = "toggle",
-								name = L["Totem indicators"] .. NYI,
+								name = L["Totem indicators"],
 								hidden = hideClassWidget,
+								arg = "totemBar.enabled",
 							},
 						},
 					},
@@ -1422,8 +1428,14 @@ local function loadUnitOptions()
 								order = 0,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Combat text"]),
-								width = "full",
 								arg = "combatText.enabled",
+							},
+							sep = {
+								order = 1,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = function(info) return not ShadowUF.db.profile.advanced end,
 							},
 							anchorPoint = {
 								order = 3,

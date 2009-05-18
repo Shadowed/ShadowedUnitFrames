@@ -66,8 +66,8 @@ end
 -- Event handling
 local function OnEvent(self, event, ...)
 	if( not unitEvents[event] or self.unit == (...) ) then
-		self.event = event
 		for _, funct in pairs(self.registeredEvents[event]) do
+			self.event = event
 			funct(self, self.unit, ...)
 		end
 	end
@@ -502,7 +502,7 @@ function Units.ShowMenu(frame)
 	ToggleDropDownMenu(1, nil, menuFrame, "cursor")
 end
 
-function Units:CreateBar(parent, name)
+function Units:CreateBar(parent)
 	local frame = CreateFrame("StatusBar", nil, parent)
 	frame.parent = parent
 	frame.background = frame:CreateTexture(nil, "BORDER")

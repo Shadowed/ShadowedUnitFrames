@@ -297,6 +297,7 @@ ShadowUFLocals = {
 		["SHAMAN"] = "Shaman",
 		["WARRIOR"] = "Warrior",
 		["DEATHKNIGHT"] = "Death Knight",
+		["PET"] = "Pet",
 	},
 	
 	-- Instance types

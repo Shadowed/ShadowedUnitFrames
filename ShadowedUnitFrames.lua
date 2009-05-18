@@ -14,7 +14,7 @@ local defaultDB
 -- Main layout keys, this does not include units or inherited module options
 local mainLayout = {["classColors"] = true, ["bars"] = true, ["backdrop"] = true, ["font"] = true, ["powerColor"] = true, ["healthColor"] = true, ["xpColor"] = true, ["positions"] = true}
 -- Sub layout keys inside layouts that are accepted
-local subLayout = {["growth"] = true, ["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
+local subLayout = {["runebar"] = true, ["growth"] = true, ["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
 
 function ShadowUF:OnInitialize()
 	self.defaults = {
@@ -26,7 +26,7 @@ function ShadowUF:OnInitialize()
 			layoutInfo = {},
 			positions = {},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
-			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true, cast = false},
+			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true, cast = false, runes = true},
 		},
 	}
 	
@@ -141,6 +141,10 @@ function ShadowUF:OnInitialize()
 				end
 			end
 		end
+	elseif( not self.db.profile.classColors.PET ) then
+		self.db.profile.classColors.PET = {r = 0.20, g = 0.90, b = 0.20}
+		self.db.profile.units.player.runeBar = {enabled = false, scale = 1.0, height = 0.40, width = 1.0}
+		self.db.profile.units.player.totemBar = {enabled = false, scale = 1.0, height = 0.40, width = 1.0}
 	end
 end
 
@@ -189,29 +193,16 @@ function ShadowUF:LoadUnitDefaults()
 		self.defaults.profile.positions[unit] = {point = "", relativePoint = "", anchorPoint = "", anchorTo = "UIParent", x = 0, y = 0}
 		
 		self.defaults.profile.units[unit] = {
-			height = 0,
-			width = 0,
-			scale = 1.0,
-			enabled = false,
-			effectiveScale = true,
-			healthBar = {enabled = true, colorType = "percent"},
-			powerBar = {enabled = true},
-			portrait = {enabled = false, type = "3D"},
-			incHeal = {enabled = false, showSelf = true},
-			range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
-			castBar = {
-				enabled = false,
-				castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0},
-				castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0},
-			},
-			fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60},
-			xpBar = {enabled = false},
+			height = 0, width = 0, scale = 1.0, enabled = false, effectiveScale = true,
+			healthBar = {enabled = true, colorType = "percent"}, powerBar = {enabled = true}, portrait = {enabled = false, type = "3D"}, runeBar = {enabled = false}, totemBar = {enabled = false},
+			incHeal = {enabled = false, showSelf = true}, range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
+			castBar = {enabled = false, castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0},},
+			fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60},xpBar = {enabled = false},
 			comboPoints = {enabled = false, anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0},
 			combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0},
 			text = {
 				{enabled = true, name = L["Left text"], width = 0.60, text = "[name]", anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0},
 				{enabled = true, name = L["Right text"], width = 0.40, text = "[curmaxhp]", anchorTo = "$healthBar", anchorPoint = "ICR", x = -3, y = 0},
-				
 				{enabled = true, name = L["Left text"], width = 0.60, text = "[level] [race]", anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0},
 				{enabled = true, name = L["Right text"], width = 0.40, text = "[curmaxpp]", anchorTo = "$powerBar", anchorPoint = "ICR", x = -3, y = 0},
 			},
@@ -278,7 +269,10 @@ end
 
 local function dummy() end
 function ShadowUF:HideBlizzard(type)
-	if( type == "player" ) then
+	if( type == "runes" ) then
+		RuneFrame.Show = dummy
+		RuneFrame:Hide()
+	elseif( type == "player" ) then
 		PlayerFrame:UnregisterAllEvents()
 		PlayerFrame.Show = dummy
 		PlayerFrame:Hide()
@@ -350,13 +344,17 @@ local function verifyTable(tbl)
 	return tbl
 end
 
-local function mergeTable(parent, child)
+local function mergeTable(parent, child, safeMerge)
 	for key, value in pairs(child) do
 		if( type(parent[key]) == "table" ) then
-			parent[key] = mergeTable(parent[key], value)
+			parent[key] = mergeTable(parent[key], value, safeMerge)
 		elseif( type(value) == "table" ) then
-			parent[key] = CopyTable(value)
-		else
+			if( safeMerge ) then
+				parent[key] = mergeTable(parent[key], value, safeMerge)
+			else
+				parent[key] = CopyTable(value)
+			end
+		elseif( not safeMerge or parent[key] == nil ) then
 			parent[key] = value
 		end
 	end
@@ -379,6 +377,8 @@ function ShadowUF:SetLayout(name, importPositions)
 				layout[unit] = layout[unit] or {}
 				if( not layout[unit][module] ) then
 					layout[unit][module] = CopyTable(layout[module])
+				else
+					layout[unit][module] = mergeTable(layout[unit][module], layout[module], true)
 				end
 			end
 		end
