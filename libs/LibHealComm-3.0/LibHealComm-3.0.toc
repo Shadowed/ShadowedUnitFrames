@@ -1,0 +1,9 @@
+## Interface: 30100
+## Title: Lib: HealComm-3.0
+## Notes: Keeps track of healing spells cast by everyone in a group.
+## Author: xbeeps
+## X-Category: Library
+
+LibStub\LibStub.lua
+CallbackHandler-1.0\CallbackHandler-1.0.lua
+lib.xml
