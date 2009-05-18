@@ -118,6 +118,20 @@ function ShadowUF:OnInitialize()
 	if( not self.db.profile.healthColor.inc ) then
 		self.db.profile.classColors = CopyTable(RAID_CLASS_COLORS)
 		self.db.profile.healthColor.inc = {r = 0.20, g = 0.20, b = 1.0}
+		
+		for _, data in pairs(ShadowUF.db.profile.units) do
+			if( data.auras ) then
+				for _, aura in pairs(data.auras) do
+					if( aura.inColumn ) then
+						aura.perRow = aura.inColumn
+						aura.maxRows = aura.rows
+						
+						aura.inColumn = nil
+						aura.rows = nil
+					end
+				end
+			end
+		end
 	end
 end
 
