@@ -6,12 +6,13 @@ function XP:UnitEnabled(frame, unit)
 		return
 	end
 	
-	frame.xpBar = frame.xpBar or ShadowUF.Units:CreateBar(frame, "XPBar")
-	frame.xpBar.rested = frame.xpBar.rested or CreateFrame("StatusBar", nil, frame)
-	frame.xpBar.rested:SetAllPoints(frame.xpBar)
-	frame.xpBar:SetParent(frame.xpBar.rested)
-	frame.xpBar.background:SetParent(frame.xpBar.rested)
-	frame:RegisterUpdateFunc(self.Update)
+	if( not frame.xpBar ) then
+		frame.xpBar = ShadowUF.Units:CreateBar(frame, "XPBar")
+		frame.xpBar.rested = CreateFrame("StatusBar", nil, frame)
+		frame.xpBar.rested:SetAllPoints(frame.xpBar)
+		frame.xpBar:SetParent(frame.xpBar.rested)
+		frame.xpBar.background:SetParent(frame.xpBar.rested)
+	end
 	
 	if( unit == "player" ) then
 		frame:RegisterEvent("PLAYER_XP_UPDATE", self.Update)
@@ -21,6 +22,8 @@ function XP:UnitEnabled(frame, unit)
 	else
 		frame:RegisterEvent("UNIT_PET_EXPERIENCE", self.Update)
 	end
+
+	frame:RegisterUpdateFunc(self.Update)
 end
 
 function XP:UnitDisabled(frame, unit)
@@ -36,9 +39,9 @@ function XP.SetColor(self, unit)
 		self.xpBar:SetStatusBarColor(FACTION_BAR_COLORS[self.xpBar.reaction].r, FACTION_BAR_COLORS[self.xpBar.reaction].g, FACTION_BAR_COLORS[self.xpBar.reaction].b, ShadowUF.db.profile.bars.alpha)
 		self.xpBar.background:SetVertexColor(FACTION_BAR_COLORS[self.xpBar.reaction].r, FACTION_BAR_COLORS[self.xpBar.reaction].g, FACTION_BAR_COLORS[self.xpBar.reaction].b, ShadowUF.db.profile.bars.backgroundAlpha)
 	else
-		self.xpBar:SetStatusBarColor(ShadowUF.db.profile.xpColor.normal.r, ShadowUF.db.profile.xpColor.normal.g, ShadowUF.db.profile.xpColor.normal.b, ShadowUF.db.profile.general.alpha)
-		self.xpBar.background:SetVertexColor(ShadowUF.db.profile.xpColor.normal.r, ShadowUF.db.profile.xpColor.normal.g, ShadowUF.db.profile.xpColor.normal.b, ShadowUF.db.profile.general.backgroundAlpha)
-		self.xpBar.rested:SetStatusBarColor(ShadowUF.db.profile.xpColor.rested.r, ShadowUF.db.profile.xpColor.rested.g, ShadowUF.db.profile.xpColor.rested.b, ShadowUF.db.profile.general.alpha)
+		self.xpBar:SetStatusBarColor(ShadowUF.db.profile.xpColor.normal.r, ShadowUF.db.profile.xpColor.normal.g, ShadowUF.db.profile.xpColor.normal.b, ShadowUF.db.profile.bars.alpha)
+		self.xpBar.background:SetVertexColor(ShadowUF.db.profile.xpColor.normal.r, ShadowUF.db.profile.xpColor.normal.g, ShadowUF.db.profile.xpColor.normal.b, ShadowUF.db.profile.bars.backgroundAlpha)
+		self.xpBar.rested:SetStatusBarColor(ShadowUF.db.profile.xpColor.rested.r, ShadowUF.db.profile.xpColor.rested.g, ShadowUF.db.profile.xpColor.rested.b, ShadowUF.db.profile.bars.alpha)
 	end
 end
 

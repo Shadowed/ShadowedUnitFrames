@@ -15,10 +15,12 @@ function Cast:UnitEnabled(frame, unit)
 		return
 	end
 
-	frame.castBar = frame.castBar or ShadowUF.Units:CreateBar(frame, "CastBar")
-	frame.castBar.name = frame.castBar.name or frame.castBar:CreateFontString(nil, "OVERLAY")
-	frame.castBar.time = frame.castBar.time or frame.castBar:CreateFontString(nil, "OVERLAY")
-
+	if( not frame.castBar ) then
+		frame.castBar = ShadowUF.Units:CreateBar(frame, "CastBar")
+		frame.castBar.name = frame.castBar:CreateFontString(nil, "OVERLAY")
+		frame.castBar.time = frame.castBar:CreateFontString(nil, "OVERLAY")
+	end
+		
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_START", self.EventUpdateCast)
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_STOP", self.EventStopCast)
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", self.EventStopCast)
@@ -82,10 +84,13 @@ local function castOnUpdate(self, elapsed)
 		self.elapsed = 0
 	end
 	
-	if( self.pushback == 0 ) then
-		self.time:SetFormattedText("%.1f", self.endSeconds - self.elapsed)
+	local timeLeft = self.endSeconds - self.elapsed
+	if( timeLeft <= 0 ) then
+		self.time:SetText("0.0")
+	elseif( self.pushback == 0 ) then
+		self.time:SetFormattedText("%.1f", timeLeft)
 	else
-		self.time:SetFormattedText("|cffff0000%.1f|r %.1f", self.pushback, self.endSeconds - self.elapsed)
+		self.time:SetFormattedText("|cffff0000%.1f|r %.1f", self.pushback, timeLeft)
 	end
 
 	-- Cast finished, do a quick fade
@@ -105,7 +110,9 @@ local function channelOnUpdate(self, elapsed)
 		self.elapsed = 0
 	end
 
-	if( self.pushback == 0 ) then
+	if( self.elapsed <= 0 ) then
+		self.time:SetText("0.0")
+	elseif( self.pushback == 0 ) then
 		self.time:SetFormattedText("%.1f", self.elapsed)
 	else
 		self.time:SetFormattedText("|cffff0000%.1f|r %.1f", self.pushback, self.elapsed)

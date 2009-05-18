@@ -11,7 +11,9 @@ function Power:UnitEnabled(frame, unit)
 		return
 	end
 	
-	frame.powerBar = frame.powerBar or ShadowUF.Units:CreateBar(frame, "PowerBar")
+	if( not frame.powerBar ) then
+		frame.powerBar = ShadowUF.Units:CreateBar(frame, "PowerBar")
+	end
 		
 	frame:RegisterUnitEvent("UNIT_MANA", self.Update)
 	frame:RegisterUnitEvent("UNIT_RAGE", self.Update)

@@ -7,7 +7,7 @@ ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUFLocals["Incoming heals"])
 
 -- RAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGGGGGGGGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 function IncHeal:UnitEnabled(frame, unit)
-	if( not frame.visibility.incHeal ) then
+	if( not frame.visibility.incHeal or unit == "targettarget" or unit == "targettargettarget" or unit == "focustarget" ) then
 		frames[frame] = nil
 		return
 	end

@@ -2,8 +2,7 @@ local Fader = ShadowUF:NewModule("Fader")
 ShadowUF:RegisterModule(Fader, "fader", ShadowUFLocals["Combat fader"])
 
 function Fader:UnitEnabled(frame, unit)
-	if( not frame.visibility.fader ) then return end
-	if( unit ~= "player" and unit ~= "focus" and frame.unitType ~= "party" and frame.unitType ~= "raid" ) then return end
+	if( not frame.visibility.fader or ( unit ~= "player" and unit ~= "focus" and frame.unitType ~= "party" and frame.unitType ~= "raid" ) ) then return end
 	
 	frame:RegisterNormalEvent("PLAYER_REGEN_ENABLED", self.Update)
 	frame:RegisterNormalEvent("PLAYER_REGEN_DISABLED", self.Update)

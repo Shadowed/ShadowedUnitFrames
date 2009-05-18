@@ -229,6 +229,9 @@ ShadowUFLocals = {
 	["Health bar color to use when health bars are showing yellow, neutral units."] = "Health bar color to use when health bars are showing yellow, neutral units.",
 	["Unattackable health"] = "Unattackable health",
 	["Health bar color to use for hostile units who you cannot attack, used for reaction coloring."] = "Health bar color to use for hostile units who you cannot attack, used for reaction coloring.",
+	["In range alpha"] = "In range alpha",
+	["Out of range alpha"] = "Out of range alpha",
+	["Fades out units who you are not in range of, this only works on people who are in your group."] = "Fades out units who you are not in range of, this only works on people who are in your group.",
 	
 	
 	-- Tags
@@ -330,6 +333,7 @@ ShadowUFLocals = {
 	["Totem indicators"] = "Totem indicators",
 	["Combo points"] = "Combo points",
 	["Incoming heals"] = "Incoming heals",
+	["Range indicator"] = "Range indicator",
 	
 	-- Tag help
 	["Shows AFK or DND flags if they are toggled."] = "Shows AFK or DND flags if they are toggled.",

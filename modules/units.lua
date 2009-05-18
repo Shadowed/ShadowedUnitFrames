@@ -130,7 +130,7 @@ local function SetVisibility(self)
 		self.visibility[key] = enabled
 		
 		-- Module isn't enabled all the time, only in this zone so we need to force it to be enabled
-		if( enabled and not self[key] ) then
+		if( enabled and ( not self[key] or self[key].disabled )) then
 			for module in pairs(ShadowUF.regModules) do
 				if( module.moduleKey == key ) then
 					module:UnitEnabled(self, self.unit)
@@ -140,6 +140,9 @@ local function SetVisibility(self)
 			for module in pairs(ShadowUF.regModules) do
 				if( module.moduleKey == key ) then
 					module:UnitDisabled(self, self.unit)
+					if( self[key] ) then
+						self[key].disabled = true
+					end
 				end
 			end
 		end

@@ -6,7 +6,10 @@ function Health:UnitEnabled(frame, unit)
 		return
 	end
 	
-	frame.healthBar = frame.healthBar or ShadowUF.Units:CreateBar(frame, "HealthBar")
+	if( not frame.healthBar ) then
+		frame.healthBar = ShadowUF.Units:CreateBar(frame, "HealthBar")
+	end
+	
 	frame:RegisterUnitEvent("UNIT_HEALTH", self.Update)
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self.Update)
 	frame:RegisterUnitEvent("UNIT_FACTION", self.Update)
@@ -97,7 +100,6 @@ function Health.UpdateColor(self, unit)
 		if( class and ShadowUF.db.profile.classColors[class] ) then
 			color = ShadowUF.db.profile.classColors[class]
 		end
-	
 	elseif( ShadowUF.db.profile.units[self.unitType].healthBar.colorType == "static" ) then
 		color = ShadowUF.db.profile.healthColor.green
 	end

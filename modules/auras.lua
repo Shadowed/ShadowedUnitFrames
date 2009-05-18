@@ -30,7 +30,7 @@ function Auras:UnitEnabled(frame, unit)
 	end
 	
 	self.CreateIcons(frame)
-
+		
 	frame:RegisterUnitEvent("UNIT_AURA", self.Update)
 	frame:RegisterUpdateFunc(self.Update)
 end
@@ -115,6 +115,7 @@ end
 
 function Auras.CreateIcons(self)
 	self.auras = self.auras or {}
+	
 	createAnchor(self, "buffs", ShadowUF.db.profile.units[self.unitType].auras.buffs)
 	createAnchor(self, "debuffs", ShadowUF.db.profile.units[self.unitType].auras.debuffs)
 end

@@ -5,14 +5,16 @@ ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUFLocals["Combo points"])
 function Combo:UnitEnabled(frame, unit)
 	if( not frame.visibility.comboPoints or unit ~= "target" ) then return end
 
-	frame.comboPoints = frame.comboPoints or CreateFrame("Frame", nil, frame)
-	frame.comboPoints.points = frame.comboPoints.points or {}
-	
-	for i=1, MAX_COMBO_POINTS do
-		frame.comboPoints.points[i] = frame.comboPoints.points[i] or frame.comboPoints:CreateTexture(nil, "OVERLAY")
-		frame.comboPoints.points[i]:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo")
+	if( not frame.comboPoints ) then
+		frame.comboPoints = CreateFrame("Frame", nil, frame)
+		frame.comboPoints.points = {}
+		
+		for i=1, MAX_COMBO_POINTS do
+			frame.comboPoints.points[i] = frame.comboPoints:CreateTexture(nil, "OVERLAY")
+			frame.comboPoints.points[i]:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo")
+		end
 	end
-	
+		
 	frame:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", self.CheckUnit)
 	frame:RegisterNormalEvent("UNIT_EXITED_VEHICLE", self.CheckUnit)
 	frame:RegisterNormalEvent("UNIT_COMBO_POINTS", self.Update)

@@ -90,11 +90,22 @@ fastFrame:SetScript("OnUpdate", function(self, elapsed)
 end)
 
 -- This pretty much means a tag was updated in some way (or deleted) so we have to do a full update to get the new values shown
-function Tags:FullUpdate()
-	for fontString in pairs(regFontStrings) do
-		if( fontString:IsVisible() ) then
-			fontString:UpdateTags()
+function Tags:FullUpdate(tag)
+	-- Specific tag changed, kill the functions we cached for it
+	if( tag ) then
+		functionPool[tag] = nil
+		ShadowUF.tagFunc[tag] = nil
+		
+		for tags in pairs(tagPool) do
+			if( string.match(tags, tag) ) then
+				tagPool[tags] = nil
+			end
 		end
+	end
+	
+	for fontString, tags in pairs(regFontStrings) do
+		self:Register(fontString.parent, fontString, tags)
+		fontString:UpdateTags()
 	end
 end
 
@@ -107,7 +118,7 @@ function Tags:Register(parent, fontString, tags)
 	fontString.parent = parent
 		
 	fastTagUpdates[fontString] = nil
-	regFontStrings[fontString] = true
+	regFontStrings[fontString] = tags
 	
 	local updateFunc = tagPool[tags]
 	if( not updateFunc ) then
@@ -310,19 +321,25 @@ function Tags:LoadTags()
 		end]],
 		["absolutepp"] = [[function(unit)
 			local maxPower = UnitPowerMax(unit)
+			local power = UnitPower(unit)
 			if( UnitIsDeadOrGhost(unit) ) then
 				return string.format("0/%s", maxPower)
+			elseif( maxPower == 0 and power == 0 ) then
+				return ""
 			end
 			
-			local power = UnitPower(unit)
 			return string.format("%s/%s", power, maxPower)
 		end]],
 		["curmaxpp"] = [[function(unit)
+			local maxPower = UnitPowerMax(unit)
+			local power = UnitPower(unit)
 			if( UnitIsDeadOrGhost(unit) ) then
-				return string.format("0/%s", ShadowUF.tagFunc.maxpp(unit))
+				return string.format("0/%s", maxPower)
+			elseif( maxPower == 0 and power == 0 ) then
+				return ""
 			end
 			
-			return string.format("%s/%s", ShadowUF.tagFunc.curpp(unit), ShadowUF.tagFunc.maxpp(unit))
+			return string.format("%s/%s", ShadowUF:FormatLargeNumber(power), ShadowUF:FormatLargeNumber(maxPower))
 		end]],
 		["dead"] = [[function(unit) return UnitIsDead(unit) and ShadowUFLocals["Dead"] or UnitIsGhost(unit) and ShadowUFLocals["Ghost"] end]],
 		["levelcolor"] = [[function(unit)

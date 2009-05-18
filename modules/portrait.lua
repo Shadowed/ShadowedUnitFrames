@@ -15,14 +15,16 @@ function Portrait:UnitEnabled(frame, unit)
 		return
 	end
 	
-	frame.portraitModel = frame.portraitModel or CreateFrame("PlayerModel", frame:GetName() .. "PlayerModel", frame)
-	frame.portraitModel:SetScript("OnShow", resetCamera)
-	frame.portraitModel:SetScript("OnHide", resetGUID)
+	if( not frame.portraitModel ) then
+		frame.portraitModel = CreateFrame("PlayerModel", frame:GetName() .. "PlayerModel", frame)
+		frame.portraitModel:SetScript("OnShow", resetCamera)
+		frame.portraitModel:SetScript("OnHide", resetGUID)
 
-	frame.portraitTexture = frame.portraitTexture or frame:CreateTexture(nil, "ARTWORK")
-	
-	self:PreLayoutApplied(frame)
-	
+		frame.portraitTexture = frame:CreateTexture(nil, "ARTWORK")
+		
+		self:PreLayoutApplied(frame)
+	end
+		
 	frame:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", self.Update)
 	frame:RegisterUpdateFunc(self.UpdateFunc)
 end

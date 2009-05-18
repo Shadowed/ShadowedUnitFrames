@@ -36,4 +36,5 @@ modules\runes.lua
 modules\fader.lua
 modules\combopoints.lua
 modules\incheal.lua
+modules\range.lua
 modules\layout.lua

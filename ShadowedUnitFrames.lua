@@ -19,7 +19,7 @@ local subLayout = {["growth"] = true, ["name"] = true, ["text"] = true, ["alignm
 function ShadowUF:OnInitialize()
 	self.defaults = {
 		profile = {
-			locked = true,
+			locked = false,
 			advanced = false,
 			tags = {},
 			units = {},
@@ -51,7 +51,7 @@ function ShadowUF:OnInitialize()
 				return false
 			end
 			
-			local funct, msg = loadstring("return " .. (ShadowUF.Tags.defaultTags[index] or ShadowUF.db.profile.tags[index].func))
+			local funct, msg = loadstring("return " .. (ShadowUF.Tags.defaultTags[index] or ShadowUF.db.profile.tags[index].func or ""))
 			
 			if( funct ) then
 				funct = funct()
@@ -160,6 +160,7 @@ function ShadowUF:LoadUnitDefaults()
 			powerBar = {enabled = true},
 			portrait = {enabled = false, type = "3D"},
 			incHeal = {enabled = false, showSelf = true},
+			range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
 			castBar = {
 				enabled = false,
 				castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0},

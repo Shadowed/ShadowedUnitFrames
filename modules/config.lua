@@ -19,11 +19,12 @@ end
 
 local function hideClassWidget(info)
 	local class = select(2, UnitClass("player"))
+	
 	if( info[#(info)] == "runeBar" and class ~= "DEATHKNIGHT" ) then
 		return true
 	elseif( info[#(info)] == "totems" and class ~= "SHAMAN" ) then
 		return true
-	end	
+	end
 	
 	return false
 end
@@ -85,8 +86,12 @@ end
 local function hidePlayerOnly(info)
 	local key = info[#(info)]
 	local unit = info[(#info) - 1]
-	if( unit ~= "player" and unit ~= "pet" ) then
-		if( key == "xpBar" or key == "runeBar" or key == "totems" ) then
+	if( ( key == "castBar" or key == "incHeal" ) and ( unit == "targettarget" or unit == "focustarget" or unit == "targettargettarget" ) ) then
+		return true
+	elseif( key == "range" and unit ~= "raid" and unit ~= "party" and unit ~= "partypet" and unit ~= "pet" ) then
+		return true
+	elseif( unit ~= "player" and unit ~= "pet" ) then
+		if( key == "xpBar" or key == "runeBar" or key == "totems" or key == "comboPoints" ) then
 			return true
 		end
 	end
@@ -1250,6 +1255,9 @@ local function loadUnitOptions()
 		},
 	}
 	
+	-- These are all always friendly, so don't show reaction setting
+	local isFriendlyUnit = {["player"] = true, ["pet"] = true, ["partypet"] = true, ["raid"] = true, ["party"] = true}
+	
 	local unitTable = {
 		type = "group",
 		childGroups = "tab",
@@ -1344,6 +1352,42 @@ local function loadUnitOptions()
 								desc = L["Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%."],
 								min = 0, max = 1.0, step = 0.1,
 								arg = "fader.inactiveAlpha",
+								isPercent = true,
+							},
+						}
+					},
+					range = {
+						order = 3,
+						type = "group",
+						inline = true,
+						name = L["Range indicator"],
+						hidden = function(info) if( info[#(info) - 2] == "global" or info[#(info) - 2] == "target" ) then return false elseif( info[#(info) - 2] == "player" ) then return true end return not isFriendlyUnit[info[#(info) - 2]] end,
+						args = {
+							fader = {
+								order = 0,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Range indicator"]),
+								desc = L["Fades out units who you are not in range of, this only works on people who are in your group."],
+								arg = "range.enabled",
+								hidden = false,
+							},
+							inAlpha = {
+								order = 1,
+								type = "range",
+								name = L["Out of range alpha"],
+								desc = L["Alpha to use when you are in combat for this unit."],
+								min = 0, max = 1.0, step = 0.05,
+								arg = "range.inAlpha",
+								hidden = false,
+								isPercent = true,
+							},
+							oorAlpha = {
+								order = 2,
+								type = "range",
+								name = L["Out of range alpha"],
+								min = 0, max = 1.0, step = 0.05,
+								arg = "range.oorAlpha",
+								hidden = false,
 								isPercent = true,
 							},
 						}
@@ -1747,12 +1791,8 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = L["Color by reaction"],
 								desc = L["If the unit is hostile, the reaction color will override any color health by options."],
-							},
-							sep = {
-								order = 3,
-								type = "description",
-								name = "",
-								width = "full",
+								arg = "healthBar.reaction",
+								hidden = function(info) return isFriendlyUnit[info[#(info) - 3]] end,
 							},
 							healthColor = {
 								order = 2,
@@ -1766,12 +1806,14 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Incoming heals"]),
 								arg = "incHeal.enabled",
+								hidden = function(info) if( info[#(info) - 3] == "targettarget" or info[#(info) - 3] == "targettargettarget" or info[#(info) - 3] == "focustarget" ) then return true end return false end,
 							},
 							enabledSelf = {
 								order = 5,
 								type = "toggle",
 								name = L["Show your heals"],
 								arg = "incHeal.showSelf",
+								hidden = function(info) if( info[#(info) - 3] == "targettarget" or info[#(info) - 3] == "targettargettarget" or info[#(info) - 3] == "focustarget" ) then return true end return false end,
 							},
 						},
 					},
@@ -2146,7 +2188,7 @@ local function loadTagOptions()
 	end
 		
 	local function isSearchHidden(info)
-		return tagData.search ~= "" and not string.match(info.arg, tagData.search) or false
+		return tagData.search ~= "" and not string.match(info[#(info)], tagData.search) or false
 	end
 	
 	local function editTag(info)
@@ -2245,8 +2287,8 @@ local function loadTagOptions()
 							tagData.error = nil
 							tagData.addError = nil
 							
-							ShadowUF.db.profile.tags[text] = {funct = "function(unit)\n\nend"}
-							options.args.tags.args.general.args.list.args[tag] = tagTable
+							ShadowUF.db.profile.tags[text] = {func = "function(unit)\n\nend"}
+							options.args.tags.args.general.args.list.args[text] = tagTable
 							
 							selectDialogGroup("tags", "edit")
 						end,
@@ -2316,7 +2358,7 @@ local function loadTagOptions()
 									return get(info)
 								end,
 							},
-							funct = {
+							func = {
 								order = 4,
 								type = "input",
 								multiline = true,
@@ -2343,7 +2385,11 @@ local function loadTagOptions()
 									AceRegistry:NotifyChange("ShadowedUF")
 									return tagData.error and "" or true
 								end,
-								set = set,
+								set = function(info, value)
+									set(info, value)
+									
+									ShadowUF.Tags:FullUpdate(tagData.name)
+								end,
 								get = function(info)
 									if( tagData.funcError ) then
 										return stripCode(tagData.funcError)
@@ -2362,7 +2408,7 @@ local function loadTagOptions()
 								func = function(info)
 									ShadowUF.db.profile.tags[tagData.name] = nil
 									ShadowUF.tagFunc[tagData.name] = nil
-									ShadowUF.Tags:FullUpdate()
+									ShadowUF.Tags:FullUpdate(tagData.name)
 
 									options.args.tags.args.general.args.list.args[tagData.name] = nil
 									tagData.name = nil
