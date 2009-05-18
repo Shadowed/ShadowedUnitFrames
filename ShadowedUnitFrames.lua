@@ -186,8 +186,8 @@ function ShadowUF:LoadUnitDefaults()
 				happiness = {enabled = false, size = 16, anchorPoint = "BR", anchorTo = "$parent", x = 2, y = -2},	
 			},
 			auras = {
-				buffs = {enabled = false, inColumn = 10, rows = 4, prioritize = true, enlargeSelf = false, anchorPoint = "TOP", size = 16, x = 0, y = 0, HELPFUL = true},
-				debuffs = {enabled = false, inColumn = 10, rows = 4, enlargeSelf = true, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0, HARMFUL = true},
+				buffs = {enabled = false, perRow = 10, maxRows = 4, prioritize = true, enlargeSelf = false, anchorPoint = "TOP", size = 16, x = 0, y = 0, HELPFUL = true},
+				debuffs = {enabled = false, perRow = 10, maxRows = 4, enlargeSelf = true, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0, HARMFUL = true},
 			},
 		}
 	end

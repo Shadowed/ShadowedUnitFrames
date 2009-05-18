@@ -421,7 +421,8 @@ function Layout:ApplyIndicators(frame, config)
 end
 
 local function positionAuras(self, config)
-	for id, button in pairs(self.buttons) do
+	for id=1, self.maxAuras do
+		local button = self.buttons[id]
 		button:SetHeight(config.size)
 		button:SetWidth(config.size)
 		button.border:SetHeight(config.size + 1)
@@ -431,22 +432,22 @@ local function positionAuras(self, config)
 		-- If's ahoy
 		if( id > 1 ) then
 			if( config.anchorPoint == "BOTTOM" or config.anchorPoint == "TOP" or config.anchorPoint == "INSIDE" ) then
-				if( id % config.inColumn == 1 ) then
+				if( id % config.perRow == 1 ) then
 					if( config.anchorPoint == "TOP" ) then
-						button:SetPoint("BOTTOM", self.buttons[id - config.inColumn], "TOP", 0, 2)
+						button:SetPoint("BOTTOM", self.buttons[id - config.perRow], "TOP", 0, 2)
 					else
-						button:SetPoint("TOP", self.buttons[id - config.inColumn], "BOTTOM", 0, -2)
+						button:SetPoint("TOP", self.buttons[id - config.perRow], "BOTTOM", 0, -2)
 					end
 				elseif( config.anchorPoint == "INSIDE" ) then
 						button:SetPoint("RIGHT", self.buttons[id - 1], "LEFT", -1, 0)
 				else
 					button:SetPoint("LEFT", self.buttons[id - 1], "RIGHT", 1, 0)
 				end
-			elseif( config.rows == 1 or id % config.rows == 1 ) then
+			elseif( id % config.maxRows == 1 ) then
 				if( config.anchorPoint == "RIGHT" ) then
-					button:SetPoint("LEFT", self.buttons[id - config.rows], "RIGHT", 1, 0)
+					button:SetPoint("LEFT", self.buttons[id - config.maxRows], "RIGHT", 1, 0)
 				else
-					button:SetPoint("RIGHT", self.buttons[id - config.rows], "LEFT", -1, 0)
+					button:SetPoint("RIGHT", self.buttons[id - config.maxRows], "LEFT", -1, 0)
 				end
 			else
 				button:SetPoint("TOP", self.buttons[id - 1], "BOTTOM", 0, -2)

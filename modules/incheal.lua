@@ -19,7 +19,6 @@ end
 
 function IncHeal:UnitDisabled(frame, unit)
 	frames[frame] = nil
-	--frame:UnregisterAll(self.Update)
 	self:Setup()
 end
 

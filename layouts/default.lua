@@ -51,9 +51,9 @@ ShadowUF:RegisterLayout("Default", {
 		},
 		healthColor = {
 			tapped = {r = 0.5, g = 0.5, b = 0.5},
-			red = {r = 1.0, g = 0.0, b = 0.0},
+			red = {r = 0.90, g = 0.0, b = 0.0},
 			green = {r = 0.20, g = 0.90, b = 0.20},
-			yellow = {r = 1.0, g = 1.0, b = 0.0},
+			yellow = {r = 0.93, g = 0.93, b = 0.0},
 			inc = {r = 0.20, g = 0.20, b = 1.0},
 			enemyUnattack = {r = 0.60, g = 0.20, b = 0.20},
 		},

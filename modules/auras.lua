@@ -57,7 +57,7 @@ local function createAnchor(self, key, config)
 
 	local aura = self.auras[key]
 	aura.buttons = aura.buttons or {}
-	aura.maxAuras = config.inColumn * config.rows
+	aura.maxAuras = config.perRow * config.maxRows
 	aura.parent = self
 	aura.totalAuras = 0
 	

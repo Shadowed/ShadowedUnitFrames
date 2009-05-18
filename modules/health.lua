@@ -75,10 +75,13 @@ function Health.UpdateColor(self, unit)
 	end
 	
 	-- Tapped by a non-party member
+	self.healthBar.hasReaction = false
+	
 	local color
 	if( not UnitIsTappedByPlayer(unit) and UnitIsTapped(unit) ) then
 		color = ShadowUF.db.profile.healthColor.tapped
 	elseif( ShadowUF.db.profile.units[self.unitType].healthBar.reaction and not UnitIsFriend(unit, "player") ) then
+		self.healthBar.hasReaction = true
 		if( UnitPlayerControlled(unit) ) then
 			if( UnitCanAttack("player", unit) ) then
 				color = ShadowUF.db.profile.healthColor.red
@@ -128,7 +131,7 @@ function Health.Update(self, unit)
 		
 	if( isOffline ) then
 		setBarColor(self.healthBar, 0.50, 0.50, 0.50)
-	elseif( not self.healthBar.hasAggro and ShadowUF.db.profile.units[self.unitType].healthBar.colorType == "percent" ) then
+	elseif( not self.healthBar.hasReaction and not self.healthBar.hasAggro and ShadowUF.db.profile.units[self.unitType].healthBar.colorType == "percent" ) then
 		setGradient(self.healthBar, unit)
 	end
 end

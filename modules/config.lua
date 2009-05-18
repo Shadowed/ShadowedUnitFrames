@@ -1093,17 +1093,17 @@ local function loadUnitOptions()
 				name = "",
 				width = "full",
 			},
-			inColumn = {
+			perRow = {
 				order = 9,
 				type = "range",
-				name = L["Per column"],
+				name = L["Per row"],
 				desc = L["How many auras to show in a single row."],
 				min = 1, max = 50, step = 1,
 			},
-			rows = {
+			maxRows = {
 				order = 10,
 				type = "range",
-				name = L["Rows"],
+				name = L["Max rows"],
 				desc = L["How many rows to use."],
 				min = 1, max = 5, step = 1,
 			},
