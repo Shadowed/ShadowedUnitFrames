@@ -16,7 +16,7 @@ function Cast:UnitEnabled(frame, unit)
 	end
 
 	if( not frame.castBar ) then
-		frame.castBar = ShadowUF.Units:CreateBar(frame, "CastBar")
+		frame.castBar = ShadowUF.Units:CreateBar(frame)
 		frame.castBar.name = frame.castBar:CreateFontString(nil, "OVERLAY")
 		frame.castBar.time = frame.castBar:CreateFontString(nil, "OVERLAY")
 	end

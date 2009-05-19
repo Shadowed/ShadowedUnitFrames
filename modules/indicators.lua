@@ -129,6 +129,7 @@ function Indicators:UnitEnabled(frame, unit)
 	
 	-- Forces the indicators to be above the bars/portraits/etc
 	frame.indicators = CreateFrame("Frame", frame:GetName() .. "IndicatorsFrame", frame)
+	frame.indicators:SetFrameLevel(frame.topFrameLevel)
 	frame.indicators.list = indicatorList
 
 	frame.indicators.status = frame.indicators.status or frame.indicators:CreateTexture(nil, "OVERLAY")

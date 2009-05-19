@@ -26,7 +26,7 @@ function ShadowUF:OnInitialize()
 			layoutInfo = {},
 			positions = {},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
-			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true, cast = false, runes = true},
+			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true, cast = false, runes = true, buffs = true},
 		},
 	}
 	
@@ -272,6 +272,10 @@ function ShadowUF:HideBlizzard(type)
 	if( type == "runes" ) then
 		RuneFrame.Show = dummy
 		RuneFrame:Hide()
+	elseif( type == "buffs" ) then
+		BuffFrame:UnregisterEvent("UNIT_AURA")
+		TemporaryEnchantFrame:Hide()
+		BuffFrame:Hide()
 	elseif( type == "player" ) then
 		PlayerFrame:UnregisterAllEvents()
 		PlayerFrame.Show = dummy
@@ -507,7 +511,7 @@ function ShadowUF:ProfilesChanged()
 	-- Reset any loaded caches
 	for k in pairs(self.tagFunc) do self.tagFunc[k] = nil end
 	for k in pairs(self.layoutInfo) do self.layoutInfo[k] = nil end
-	
+
 	if( not self.layoutInfo.Default ) then
 		self.layoutInfo.Default = nil
 		self.db.profile.layoutInfo.Default = defaultDB

@@ -168,8 +168,8 @@ local function loadGeneralOptions()
 	local hideTable = {
 		order = 0,
 		type = "toggle",
-		name = function(info) return string.format(L["Hide %s"], L.units[info[#(info)]] or info[#(info)] == "cast" and L["Cast bars"] or info[#(info)] == "runes" and L["Rune bar"]) end,
-		desc = L["You must do a /console reloadui for an object to show up agian."],
+		name = function(info) return string.format(L["Hide %s"], L.units[info[#(info)]] or info[#(info)] == "cast" and L["Cast bars"] or info[#(info)] == "runes" and L["Rune bar"] or info[#(info)] == "buffs" and L["Buff icons"]) end,
+		desc = L["You must do a /console reloadui for an object to show up again."],
 		set = function(info, value)
 			ShadowUF.db.profile.hidden[info[#(info)]] = value
 			if( value ) then
@@ -453,6 +453,7 @@ local function loadGeneralOptions()
 					party = hideTable,
 					focus = hideTable,
 					targettarget = hideTable,
+					buffs = hideTable,
 					cast = hideTable,
 					runes = hideTable,
 				},
@@ -1044,6 +1045,7 @@ local function loadUnitOptions()
 				name = function(info) if( info[#(info) - 1] == "buffs" ) then return L["Enable buffs"] end return L["Enable debuffs"] end,
 				disabled = false,
 			},
+			--[[
 			autoFilter = {
 				order = 1,
 				type = "toggle",
@@ -1052,6 +1054,7 @@ local function loadUnitOptions()
 				hidden = function(info) return info[#(info) - 1] == "buffs" end,
 				width = "double",
 			},
+			]]
 			prioritize = {
 				order = 1,
 				type = "toggle",

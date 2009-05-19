@@ -1,6 +1,7 @@
 local Units = ShadowUF:NewModule("Units")
 local unitList, unitFrames, unitEvents, loadedUnits, queuedCombat = {}, {}, {}, {}, {}
 local inCombat, needPartyFrame
+local FRAME_LEVEL_MAX = 5
 
 ShadowUF:RegisterModule(Units)
 
@@ -210,17 +211,21 @@ function Units:LoadUnit(config, unit)
 end
 
 local function OnDragStart(self)
-	if( ShadowUF.db.profile.locked ) then return end
+	if( ShadowUF.db.profile.locked or self.isMoving ) then return end
 	if( self.unitType == "party" or self.unitType == "raid" ) then
 		self = unitFrames[self.unitType]
 	end
 	
 	self.isMoving = true
 	self:StartMoving()
+
+	GameTooltip:Hide()
 end
 
 local function OnDragStop(self)
-	if( self.unitType == "party" or self.unitType == "raid" ) then
+	if( not self.isMoving ) then
+		return
+	elseif( self.unitType == "party" or self.unitType == "raid" ) then
 		self = unitFrames[self.unitType]
 	end
 	
@@ -242,7 +247,7 @@ end
 
 -- Create the generic things that we want in every secure frame regardless if it's a button or a header
 function Units:CreateUnit(frame,  hookVisibility)
-	frame.barFrame = CreateFrame("Frame", frame:GetName() .. "BarFrame", frame)
+	frame.barFrame = CreateFrame("Frame", nil, frame)
 	
 	frame.fullUpdates = {}
 	frame.registeredEvents = {}
@@ -254,7 +259,8 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame.UnregisterAll = UnregisterAll
 	frame.FullUpdate = FullUpdate
 	frame.SetVisibility = SetVisibility
-
+	frame.topFrameLevel = FRAME_LEVEL_MAX
+	
 	frame:SetScript("OnDragStart", OnDragStart)
 	frame:SetScript("OnDragStop", OnDragStop)
 	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
@@ -504,6 +510,7 @@ end
 
 function Units:CreateBar(parent)
 	local frame = CreateFrame("StatusBar", nil, parent)
+	frame:SetFrameLevel(FRAME_LEVEL_MAX)
 	frame.parent = parent
 	frame.background = frame:CreateTexture(nil, "BORDER")
 	frame.background:SetHeight(1)

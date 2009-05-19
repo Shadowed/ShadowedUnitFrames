@@ -47,8 +47,11 @@ end
 
 function Fader:UnitDisabled(frame, unit)
 	frame:UnregisterAll(self.Update)
-	frame.fader:Hide()
 	frame:SetAlpha(1.0)
+
+	if( frame.fader ) then
+		frame.fader:Hide()
+	end
 end
 
 function Fader.Update(self, unit)

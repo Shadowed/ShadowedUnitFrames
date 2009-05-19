@@ -7,7 +7,7 @@ function XP:UnitEnabled(frame, unit)
 	end
 	
 	if( not frame.xpBar ) then
-		frame.xpBar = ShadowUF.Units:CreateBar(frame, "XPBar")
+		frame.xpBar = ShadowUF.Units:CreateBar(frame)
 		frame.xpBar.rested = CreateFrame("StatusBar", nil, frame.xpBar)
 		frame.xpBar.rested:SetFrameLevel(frame.xpBar:GetFrameLevel() - 1)
 		frame.xpBar.rested:SetAllPoints(frame.xpBar)

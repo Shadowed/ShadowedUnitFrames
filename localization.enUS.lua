@@ -75,7 +75,7 @@ ShadowUFLocals = {
 	["Hide Blizzard"] = "Hide Blizzard",
 	["Hide %s"] = "Hide %s",
 	["Cast bars"] = "Cast bars",
-	["You must do a /console reloadui for an object to show up agian."] = "You must do a /console reloadui for an object to show up agian.",
+	["You must do a /console reloadui for an object to show up again."] = "You must do a /console reloadui for an object to show up again.",
 
 	-- Units
 	["Global"] = "Global",
@@ -118,6 +118,7 @@ ShadowUFLocals = {
 	["General bars"] = "General bars",
 	["Height"] = "Height",
 	["Width"] = "Width",
+	["Buff icons"] = "Buff icons",
 	["Scale"] = "Scale",
 	["Portrait type"] = "Portrait type",
 	["3D"] = "3D",

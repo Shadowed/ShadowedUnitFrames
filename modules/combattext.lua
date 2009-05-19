@@ -10,7 +10,8 @@ function Combat:UnitEnabled(frame, unit)
 		frame.combatText = CreateFrame("Frame", nil, frame.barFrame)
 		frame.combatText.feedbackText = frame.combatText:CreateFontString(nil, "ARTWORK")
 		frame.combatText.feedbackText:SetPoint("CENTER", frame.combatText, "CENTER", 0, 0)
-
+		frame.combatText:SetFrameLevel(frame.topFrameLevel)
+		
 		frame.combatText.feedbackStartTime = 0
 		frame.combatText:SetScript("OnUpdate", CombatFeedback_OnUpdate)
 		frame.combatText:SetHeight(1)
