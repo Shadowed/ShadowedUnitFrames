@@ -150,7 +150,7 @@ end
 
 local partyDisabled
 function ShadowUF:RAID_ROSTER_UPDATE()
-	if( GetNumRaidMembers() > 5 ) then
+	if( GetNumRaidMembers() > 5 and self.db.profile.units.party.hideInRaid ) then
 		if( not partyDisabled ) then
 			partyDisabled = true
 			self.Units:UninitializeFrame(self.db.profile.units.party, "party")

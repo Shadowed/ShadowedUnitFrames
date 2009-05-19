@@ -1578,8 +1578,10 @@ local function loadUnitOptions()
 									
 									if( value ) then
 										ShadowUF:RegisterEvent("RAID_ROSTER_UPDATE")
+										ShadowUF:RAID_ROSTER_UPDATE()
 									else
 										ShadowUF:UnregisterEvent("RAID_ROSTER_UPDATE")
+										ShadowUF:RAID_ROSTER_UPDATE()
 									end
 								end,
 							},
