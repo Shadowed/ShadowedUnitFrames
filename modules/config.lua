@@ -464,12 +464,6 @@ local function loadGeneralOptions()
 				name = L["Layout management"] .. NYI,
 				args = {}
 			},
-			tags = {
-				type = "group",
-				order = 5,
-				name = L["Tag management"] .. NYI,
-				args = {},
-			},
 		},
 	}
 	
@@ -507,7 +501,7 @@ local function loadUnitOptions()
 	local anchorList = {}
 	local function getAnchorParents(info)
 		for k in pairs(anchorList) do anchorList[k] = nil end
-		if( info[#(info) - 3] == "partypet" ) then
+		if( info[#(info) - 3] == "partypet" or info[#(info) - 3] == "partytarget" ) then
 			anchorList["#SUFHeaderparty"] = L["Party member"]
 			return anchorList
 		end
@@ -603,7 +597,7 @@ local function loadUnitOptions()
 			ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
 		end
 			
-		if( info.arg == "positions" and ( unit == "raid" or unit == "party" or unit == "partypet" ) ) then
+		if( info.arg == "positions" and ( unit == "raid" or unit == "party" or unit == "partypet" or unit == "partytarget" ) ) then
 			ShadowUF.Units:ReloadUnit(unit)
 		end
 	end
@@ -709,6 +703,11 @@ local function loadUnitOptions()
 	end
 	
 	local function setNumber(info, value)
+		local frame = ShadowUF.Units.unitFrames[info[#(info) - 3]]
+		if( frame ) then
+			value = value * frame:GetEffectiveScale()
+		end
+		
 		setLayout(info, tonumber(value))
 	end
 	
@@ -1705,8 +1704,14 @@ local function loadUnitOptions()
 						hidden = hideIfGlobal,
 						name = L["Anchor to another frame"],
 						args = {
-							anchorPoint = {
+							help = {
 								order = 0,
+								type = "description",
+								name = L["Offsets are saved using effective scaling, this is to prevent the frame from jumping around when you reload or login."],
+								width = "full",
+							},
+							anchorPoint = {
+								order = 0.50,
 								type = "select",
 								name = L["Anchor point"],
 								values = positionList,
@@ -2504,7 +2509,11 @@ local function loadVisibilityOptions()
 		end
 		
 		ShadowUF.db.profile.visibility[area][unit .. key] = value
-		ShadowUF.Units:ReloadUnit(unit)
+		if( key == "" ) then
+			ShadowUF:LoadUnits()
+		else
+			ShadowUF.Units:ReloadUnit(unit)
+		end
 	end
 	
 	local function get(info)

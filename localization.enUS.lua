@@ -158,6 +158,7 @@ ShadowUFLocals = {
 	["Color by reaction"] = "Color by reaction",
 	["If the unit is hostile, the reaction color will override any color health by options."] = "If the unit is hostile, the reaction color will override any color health by options.",
 	["When showing incoming heals, include your heals in the total incoming."] = "When showing incoming heals, include your heals in the total incoming.",
+	["Offsets are saved using effective scaling, this is to prevent the frame from jumping around when you reload or login."] = "Offsets are saved using effective scaling, this is to prevent the frame from jumping around when you reload or login.",
 	
 	-- Layout
 	["Layout"] = "Layout",
@@ -320,6 +321,7 @@ ShadowUFLocals = {
 		["focustarget"] = "Focus target",
 		["party"] = "Party",
 		["partypet"] = "Party pet",
+		["partytarget"] = "Party targets",
 		["raid"] = "Raid",
 	},
 		

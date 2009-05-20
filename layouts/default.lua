@@ -125,6 +125,7 @@ ShadowUF:RegisterLayout("Default", {
 			player = {point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", y = -25, x = 20}, 
 			pet = {anchorPoint = "TL", anchorTo = "#SUFUnitplayer", x = 0, y = 25}, 
 			partypet = {anchorPoint = "RB", anchorTo = "#SUFHeaderparty", x = 0, y = 0},
+			partytarget = {anchorPoint = "RT", anchorTo = "#SUFHeaderparty", x = 0, y = 0},
 			raid = {anchorPoint = "C", anchorTo = "UIParent", x = 0, y = 0},
 		},
 		-- Units
@@ -167,8 +168,20 @@ ShadowUF:RegisterLayout("Default", {
 			yOffset = -20,
 		},
 		partypet = {
-			width = 125,
-			height = 30,
+			width = 90,
+			height = 25,
+			scale = 1.0,
+			powerBar = {height = 0.60},
+			text = {
+				{text = "[name]"},
+				{text = "[curhp]"},
+				{text = ""},
+				{text = ""},
+			},
+		},
+		partytarget = {
+			width = 90,
+			height = 25,
 			scale = 1.0,
 			powerBar = {height = 0.60},
 			text = {

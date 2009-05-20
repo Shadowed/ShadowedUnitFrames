@@ -58,23 +58,21 @@ end
 ]]
 
 local invalidUnit = {["focustarget"] = true, ["targettarget"] = true, ["targettargettarget"] = true}
-function Health.UpdateThreat(self, unit, skipColor)
+function Health.UpdateThreat(self, unit)
 	-- This unit may contain adult siutations
 	if( not invalidUnit[unit] and ShadowUF.db.profile.units[self.unitType].healthBar.colorAggro and UnitThreatSituation(unit) == 3 ) then
 		setBarColor(self.healthBar, ShadowUF.db.profile.healthColor.red.r, ShadowUF.db.profile.healthColor.red.g, ShadowUF.db.profile.healthColor.red.b)
 		self.healthBar.hasAggro = true
 	elseif( self.healthBar.hasAggro ) then
 		self.healthBar.hasAggro = nil
-		if( not skipColor ) then
-			Health.UpdateThreat(self, unit)
-		end
+		Health.UpdateColor(self, unit)
 	end
 end
 
 function Health.UpdateColor(self, unit)
 	-- Check aggro first, since it's going to override any other setting
 	if( ShadowUF.db.profile.units[self.unitType].healthBar.colorAggro ) then
-		Health.UpdateThreat(self, unit, true)
+		Health.UpdateThreat(self, unit)
 		if( self.healthBar.hasAggro ) then return end
 	end
 	

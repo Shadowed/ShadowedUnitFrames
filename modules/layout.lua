@@ -494,7 +494,7 @@ function Layout:ApplyBars(frame, config)
 
 	for i=#(ordering), 1, -1 do table.remove(ordering, i) end
 	for module in pairs(ShadowUF.regModules) do
-		if( module.moduleType == "bar" and frame[module.moduleKey] and frame[module.moduleKey]:IsShown() ) then
+		if( module.moduleType == "bar" and frame[module.moduleKey] and config[module.moduleKey].height and frame[module.moduleKey]:IsShown() ) then
 			totalWeight = totalWeight + config[module.moduleKey].height
 			totalBars = totalBars + 1
 			

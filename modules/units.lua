@@ -3,6 +3,7 @@ local unitList, unitFrames, unitEvents, loadedUnits, queuedCombat = {}, {}, {}, 
 local inCombat, needPartyFrame
 local FRAME_LEVEL_MAX = 5
 
+Units.unitFrames = unitFrames
 ShadowUF:RegisterModule(Units)
 
 -- Frame shown, do a full update
@@ -223,10 +224,12 @@ local function OnDragStart(self)
 end
 
 local function OnDragStop(self)
+	if( self.unitType == "party" or self.unitType == "raid" ) then
+		self = unitFrames[self.unitType]
+	end
+	
 	if( not self.isMoving ) then
 		return
-	elseif( self.unitType == "party" or self.unitType == "raid" ) then
-		self = unitFrames[self.unitType]
 	end
 	
 	self.isMoving = nil
@@ -291,9 +294,9 @@ end
 
 function Units:ReloadUnit(type)
 	-- Force any attribute changes to take affect.
-	if( type == "partypet" ) then
+	if( type == "partypet" or type == "partytarget" ) then
 		for i=1, MAX_PARTY_MEMBERS do
-			local frame = unitFrames["partypet" .. i]
+			local frame = unitFrames[type .. i]
 			if( frame ) then
 				self:SetFrameAttributes(frame, type)
 				if( UnitExists(frame.unit) ) then
@@ -334,7 +337,6 @@ function Units:SetFrameAttributes(frame, type)
 		frame:SetAttribute("initial-width", config.width)
 		frame:SetAttribute("initial-height", config.height)
 		frame:SetAttribute("initial-scale", config.scale)
-		--frame:SetAttribute("showPlayer", config.showPlayer)
 		frame:SetAttribute("showRaid", type == "raid" and true or false)
 		frame:SetAttribute("showParty", type == "party" and true or false)
 		frame:SetAttribute("xOffset", config.xOffset)
@@ -356,13 +358,15 @@ function Units:SetFrameAttributes(frame, type)
 				frame:SetAttribute("groupBy", config.groupBy)
 			end
 		end
-	elseif( type == "partypet" ) then
+	elseif( type == "partypet" or type == "partytarget" ) then
 		frame:SetAttribute("framePoint", ShadowUF.Layout:GetPoint(ShadowUF.db.profile.positions[type].anchorPoint))
 		frame:SetAttribute("frameRelative", ShadowUF.Layout:GetRelative(ShadowUF.db.profile.positions[type].anchorPoint))
 		frame:SetAttribute("frameX", ShadowUF.db.profile.positions[type].x)
 		frame:SetAttribute("frameY", ShadowUF.db.profile.positions[type].y)
 	end
 end
+
+
 
 function Units:LoadGroupHeader(config, type)
 	if( unitFrames[type] ) then
@@ -379,6 +383,7 @@ function Units:LoadGroupHeader(config, type)
 	headerFrame.initialConfigFunction = initUnit
 	headerFrame.unitType = type
 	headerFrame:SetMovable(true)
+	headerFrame:RegisterForDrag("LeftButton")
 	headerFrame:Show()
 
 	unitFrames[type] = headerFrame
@@ -387,18 +392,18 @@ function Units:LoadGroupHeader(config, type)
 	if( type == "party" and needPartyFrame ) then
 		needPartyFrame = nil
 		
-		Units:LoadPetUnit(ShadowUF.db.profile.units.partypet, headerFrame, "partypet")
+		Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partypet, headerFrame, "partypet")
+		Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partypet, headerFrame, "partytarget")
 	end
 end
 
-function Units:LoadPetUnit(config, parentHeader, unit)
+function Units:LoadPartyChildUnit(config, parentHeader, type, unit)
 	if( not parentHeader ) then
 		needPartyFrame = true
 		return
 	elseif( unitFrames[unit] ) then
 		self:SetFrameAttributes(unitFrames[unit], unitFrames[unit].unitType)
 
-		unitFrames[unit]:SetAttribute("unit", unit)
 		RegisterUnitWatch(unitFrames[unit])
 		return
 	end
@@ -406,16 +411,16 @@ function Units:LoadPetUnit(config, parentHeader, unit)
 	local frame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate,SecureHandlerShowHideTemplate")
 	frame.ignoreAnchor = true
 
-	self:SetFrameAttributes(frame, "partypet")
-
+	self:SetFrameAttributes(frame, type)
+	
 	self:CreateUnit(frame, true)
 	frame:SetFrameRef("partyHeader",  parentHeader)
 	frame:SetAttribute("unit", unit)
-	frame:SetAttribute("petOwner", (string.gsub(unit, "(%w+)pet(%d+)", "%1%2")))
+	frame:SetAttribute("unitOwner", "party" .. (string.match(unit, "(%d+)")))
 	frame:SetAttribute("_onshow", [[
 		local children = table.new(self:GetFrameRef("partyHeader"):GetChildren())
 		for _, child in pairs(children) do
-			if( child:GetAttribute("unit") == self:GetAttribute("petOwner") ) then
+			if( child:GetAttribute("unit") == self:GetAttribute("unitOwner") ) then
 				self:SetParent(child)
 				self:ClearAllPoints()
 				self:SetPoint(self:GetAttribute("framePoint"), child, self:GetAttribute("frameRelative"), self:GetAttribute("frameX"), self:GetAttribute("frameY"))
@@ -439,7 +444,11 @@ function Units:InitializeFrame(config, type)
 		self:LoadGroupHeader(config, type)
 	elseif( type == "partypet" ) then
 		for i=1, MAX_PARTY_MEMBERS do
-			self:LoadPetUnit(config, SUFHeaderparty, type .. i)
+			self:LoadPartyChildUnit(config, SUFHeaderparty, type, type .. i)
+		end
+	elseif( type == "partytarget" ) then
+		for i=1, MAX_PARTY_MEMBERS do
+			self:LoadPartyChildUnit(config, SUFHeaderparty, type, "party" .. i .. "target")
 		end
 	else
 		self:LoadUnit(config, type)
