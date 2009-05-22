@@ -705,7 +705,10 @@ local function loadUnitOptions()
 	local function setNumber(info, value)
 		local frame = ShadowUF.Units.unitFrames[info[#(info) - 3]]
 		if( frame ) then
-			value = value * frame:GetEffectiveScale()
+			local anchorTo = ShadowUF.db.profile.positions[info[#(info) - 3]].anchorTo
+			if( anchorTo == "UIParent" ) then
+				value = value * frame:GetEffectiveScale()
+			end
 		end
 		
 		setLayout(info, tonumber(value))
@@ -1709,6 +1712,14 @@ local function loadUnitOptions()
 								type = "description",
 								name = L["Offsets are saved using effective scaling, this is to prevent the frame from jumping around when you reload or login."],
 								width = "full",
+								hidden = function(info)
+									local position = ShadowUF.db.profile.positions[info[#(info) - 3]]
+									if( position and position.anchorTo ~= "UIParent" ) then
+										return false
+									end
+									
+									return true
+								end,
 							},
 							anchorPoint = {
 								order = 0.50,
