@@ -24,23 +24,24 @@ local function cancelBuff(self)
 	CancelUnitBuff(self.unit, self.auraID, self.filter)
 end
 
-function Auras:UnitEnabled(frame, unit)
+function Auras:UnitEnabled(frame)
 	if( not frame.visibility.auras or not ShadowUF.db.profile.units[frame.unitType].auras ) then
 		return
 	end
 	
-	self.CreateIcons(frame)
+	self:CreateIcons(frame)
 		
-	frame:RegisterUnitEvent("UNIT_AURA", self.Update)
-	frame:RegisterUpdateFunc(self.Update)
+	frame:RegisterUnitEvent("UNIT_AURA", self, "Update")
+	frame:RegisterNormalEvent("PLAYER_ENTERING_WORLD", self, "Update")
+	frame:RegisterUpdateFunc(self, "Update")
 end
 
-function Auras:UnitDisabled(frame, unit)
-	frame:UnregisterAll(self.Update)
+function Auras:UnitDisabled(frame)
+	frame:UnregisterAll(self)
 end
 
 local filterTable = {}
-function Auras.UpdateFilter(self, config)
+function Auras:UpdateFilter(auraGroup, config)
 	for i=#(filterTable), 1, -1 do table.remove(filterTable, i) end
 	table.insert(filterTable, config.HELPFUL and "HELPFUL" or nil)
 	table.insert(filterTable, config.HARMFUL and "HARMFUL" or nil)
@@ -49,7 +50,7 @@ function Auras.UpdateFilter(self, config)
 	table.insert(filterTable, config.CANCELABLE and "CANCELABLE" or nil)
 	table.insert(filterTable, config.NOT_CANCELABLE and "NOT_CANCELABLE" or nil)
 	
-	self.filter = table.concat(filterTable, "|") or ""
+	auraGroup.filter = table.concat(filterTable, "|") or ""
 end
 
 local function createAnchor(self, key, config)
@@ -99,47 +100,47 @@ local function createAnchor(self, key, config)
 		button:Hide()
 	end
 	
-	Auras.UpdateFilter(aura, ShadowUF.db.profile.units[self.unitType].auras[key])
+	Auras:UpdateFilter(aura, ShadowUF.db.profile.units[self.unitType].auras[key])
 end
 
-function Auras:PreLayoutApplied(self)
-	Auras.CreateIcons(self)
+function Auras:PreLayoutApplied(frame)
+	self:CreateIcons(frame)
 
-	self.auras.anchor = "buffs"
-	if( not ShadowUF.db.profile.units[self.unitType].auras.buffs.enabled ) then
-		self.auras.anchor = "debuffs"
+	frame.auras.anchor = "buffs"
+	if( not ShadowUF.db.profile.units[frame.unitType].auras.buffs.enabled ) then
+		frame.auras.anchor = "debuffs"
 	end
 
-	Auras.Update(self, self.unit)
+	self:Update(frame)
 end
 
-function Auras.CreateIcons(self)
-	self.auras = self.auras or {}
+function Auras:CreateIcons(frame)
+	frame.auras = frame.auras or {}
 	
-	createAnchor(self, "buffs", ShadowUF.db.profile.units[self.unitType].auras.buffs)
-	createAnchor(self, "debuffs", ShadowUF.db.profile.units[self.unitType].auras.debuffs)
+	createAnchor(frame, "buffs", ShadowUF.db.profile.units[frame.unitType].auras.buffs)
+	createAnchor(frame, "debuffs", ShadowUF.db.profile.units[frame.unitType].auras.debuffs)
 end
 
-function Auras:LayoutApplied(self)
-	if( self.auras and ShadowUF.db.profile.units[self.unitType].auras ) then
-		Auras.UpdateFilter(self.auras.buffs, ShadowUF.db.profile.units[self.unitType].auras.buffs)
-		Auras.UpdateFilter(self.auras.debuffs, ShadowUF.db.profile.units[self.unitType].auras.debuffs)
+function Auras:LayoutApplied(frame)
+	if( frame.auras and ShadowUF.db.profile.units[frame.unitType].auras ) then
+		self:UpdateFilter(frame.auras.buffs, ShadowUF.db.profile.units[frame.unitType].auras.buffs)
+		self:UpdateFilter(frame.auras.debuffs, ShadowUF.db.profile.units[frame.unitType].auras.debuffs)
 		
-		Auras.Update(self, self.unit)
+		self:Update(frame)
 	end
 end
 
-function Auras.UpdateDisplay(self, unitType)
-	for _, button in pairs(self.buttons) do
+function Auras:UpdateDisplay(frame, unitType)
+	for _, button in pairs(frame.buttons) do
 		button:Hide()
 	end
 
-	if( self.totalAuras == 0 ) then
+	if( frame.totalAuras == 0 ) then
 		return
 	end
 		
-	for i=1, self.totalAuras do
-		local button = self.buttons[i]
+	for i=1, frame.totalAuras do
+		local button = frame.buttons[i]
 		if( button.auraDuration and button.auraEnd ) then
 			local config = ShadowUF.db.profile.units[unitType].auras[button.type]
 			if( button.type == "debuffs" ) then
@@ -169,19 +170,19 @@ function Auras.UpdateDisplay(self, unitType)
 	end
 end
 
-function Auras.Scan(self, filter, type, unit)
+function Auras:Scan(frame, filter, type, unit)
 	local index = 1
 	while( true ) do
 		local name, rank, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(unit, index, filter)
 		if( not name ) then break end
 		
-		self.totalAuras = self.totalAuras + 1
-		if( self.totalAuras >= self.maxAuras ) then
-			self.totalAuras = self.maxAuras
+		frame.totalAuras = frame.totalAuras + 1
+		if( frame.totalAuras >= frame.maxAuras ) then
+			frame.totalAuras = frame.maxAuras
 			return 0
 		end
 		
-		local button = self.buttons[self.totalAuras]
+		local button = frame.buttons[frame.totalAuras]
 		button.auraName = name
 		button.auraRank = rank
 		button.auraTexture = texture
@@ -201,39 +202,40 @@ function Auras.Scan(self, filter, type, unit)
 	end
 end
 
-function Auras.Update(self, unit)
-	local config = ShadowUF.db.profile.units[self.unitType].auras
+function Auras:Update(frame)
+	local unit = frame.unit
+	local config = ShadowUF.db.profile.units[frame.unitType].auras
 	if( config.buffs.anchorPoint == config.debuffs.anchorPoint ) then
-		self.auras[self.auras.anchor].totalAuras = 0
+		frame.auras[frame.auras.anchor].totalAuras = 0
 				
 		if( config.buffs.prioritize ) then
 			if( config.buffs.enabled ) then
-				Auras.Scan(self.auras[self.auras.anchor], self.auras.buffs.filter, "buffs", unit)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit)
 			end
 			if( config.debuffs.enabled ) then
-				Auras.Scan(self.auras[self.auras.anchor], self.auras.debuffs.filter, "debuffs", unit)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit)
 			end
 		else
 			if( config.debuffs.enabled ) then
-				Auras.Scan(self.auras[self.auras.anchor], self.auras.debuffs.filter, "debuffs", unit)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit)
 			end
 			if( config.buffs.enabled ) then
-				Auras.Scan(self.auras[self.auras.anchor], self.auras.buffs.filter, "buffs", unit)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit)
 			end
 		end
 		
-		Auras.UpdateDisplay(self.auras[self.auras.anchor], self.unitType)
+		self:UpdateDisplay(frame.auras[frame.auras.anchor], frame.unitType)
 	else
 		if( config.buffs.enabled ) then
-			self.auras.buffs.totalAuras = 0
-			Auras.Scan(self.auras.buffs, self.auras.buffs.filter, "buffs", unit)
-			Auras.UpdateDisplay(self.auras.buffs, self.unitType)
+			frame.auras[frame.auras.anchor].totalAuras = 0
+			self:Scan(frame.auras.buffs, frame.auras.buffs.filter, "buffs", unit)
+			self:UpdateDisplay(frame.auras.buffs, frame.unitType)
 		end
 
 		if( config.debuffs.enabled ) then
-			self.auras.debuffs.totalAuras = 0
-			Auras.Scan(self.auras.debuffs, self.auras.debuffs.filter, "debuffs", unit)
-			Auras.UpdateDisplay(self.auras.debuffs, self.unitType)
+			frame.auras[frame.auras.anchor].totalAuras = 0
+			self:Scan(frame.auras.debuffs, frame.auras.debuffs.filter, "debuffs", unit)
+			self:UpdateDisplay(frame.auras.debuffs, frame.unitType)
 		end
 	end
 end

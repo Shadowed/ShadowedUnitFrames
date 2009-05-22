@@ -10,18 +10,16 @@ function Health:UnitEnabled(frame, unit)
 		frame.healthBar = ShadowUF.Units:CreateBar(frame)
 	end
 	
-	frame:RegisterUnitEvent("UNIT_HEALTH", self.Update)
-	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self.Update)
-	frame:RegisterUnitEvent("UNIT_FACTION", self.Update)
-	frame:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", self.UpdateThreat)
-
-	frame:RegisterUpdateFunc(self.Update)
-	frame:RegisterUpdateFunc(self.UpdateColor)
-	frame:RegisterUpdateFunc(self.UpdateThreat)
+	frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
+	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
+	frame:RegisterUnitEvent("UNIT_FACTION", self, "Update")
+	frame:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", self, "UpdateThreat")
+	
+	frame:RegisterUpdateFunc(self, "UpdateAll")
 end
 
-function Health:UnitDisabled(frame, unit)
-	frame:UnregisterAll(self.Update, self.UpdateColor, self.UpdateThreat)
+function Health:UnitDisabled(frame)
+	frame:UnregisterAll(self)
 end
 
 local function setBarColor(bar, r, g, b)
@@ -58,32 +56,32 @@ end
 ]]
 
 local invalidUnit = {["focustarget"] = true, ["targettarget"] = true, ["targettargettarget"] = true}
-function Health.UpdateThreat(self, unit)
-	-- This unit may contain adult siutations
-	if( not invalidUnit[unit] and ShadowUF.db.profile.units[self.unitType].healthBar.colorAggro and UnitThreatSituation(unit) == 3 ) then
-		setBarColor(self.healthBar, ShadowUF.db.profile.healthColor.red.r, ShadowUF.db.profile.healthColor.red.g, ShadowUF.db.profile.healthColor.red.b)
-		self.healthBar.hasAggro = true
-	elseif( self.healthBar.hasAggro ) then
-		self.healthBar.hasAggro = nil
-		Health.UpdateColor(self, unit)
+function Health:UpdateThreat(frame)
+	if( not invalidUnit[frame.unit] and ShadowUF.db.profile.units[frame.unitType].healthBar.colorAggro and UnitThreatSituation(frame.unit) == 3 ) then
+		setBarColor(frame.healthBar, ShadowUF.db.profile.healthColor.red.r, ShadowUF.db.profile.healthColor.red.g, ShadowUF.db.profile.healthColor.red.b)
+		frame.healthBar.hasAggro = true
+	elseif( frame.healthBar.hasAggro ) then
+		frame.healthBar.hasAggro = nil
+		self:UpdateColor(frame)
 	end
 end
 
-function Health.UpdateColor(self, unit)
+function Health:UpdateColor(frame)
 	-- Check aggro first, since it's going to override any other setting
-	if( ShadowUF.db.profile.units[self.unitType].healthBar.colorAggro ) then
-		Health.UpdateThreat(self, unit)
-		if( self.healthBar.hasAggro ) then return end
+	if( ShadowUF.db.profile.units[frame.unitType].healthBar.colorAggro ) then
+		self:UpdateThreat(frame)
+		if( frame.healthBar.hasAggro ) then return end
 	end
 	
 	-- Tapped by a non-party member
-	self.healthBar.hasReaction = false
+	frame.healthBar.hasReaction = false
 	
 	local color
+	local unit = frame.unit
 	if( not UnitIsTappedByPlayer(unit) and UnitIsTapped(unit) ) then
 		color = ShadowUF.db.profile.healthColor.tapped
-	elseif( ShadowUF.db.profile.units[self.unitType].healthBar.reaction and not UnitIsFriend(unit, "player") ) then
-		self.healthBar.hasReaction = true
+	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and not UnitIsFriend(unit, "player") ) then
+		frame.healthBar.hasReaction = true
 		if( UnitPlayerControlled(unit) ) then
 			if( UnitCanAttack("player", unit) ) then
 				color = ShadowUF.db.profile.healthColor.red
@@ -100,7 +98,7 @@ function Health.UpdateColor(self, unit)
 				color = ShadowUF.db.profile.healthColor.red
 			end
 		end
-	elseif( ShadowUF.db.profile.units[self.unitType].healthBar.colorType == "class" and ( UnitIsPlayer(unit) or UnitCreatureFamily(unit) ) ) then
+	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorType == "class" and ( UnitIsPlayer(unit) or UnitCreatureFamily(unit) ) ) then
 		if( UnitCreatureFamily(unit) ) then
 			color = ShadowUF.db.profile.classColors.PET
 		else
@@ -109,18 +107,19 @@ function Health.UpdateColor(self, unit)
 				color = ShadowUF.db.profile.classColors[class]
 			end
 		end
-	elseif( ShadowUF.db.profile.units[self.unitType].healthBar.colorType == "static" ) then
+	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorType == "static" ) then
 		color = ShadowUF.db.profile.healthColor.green
 	end
 	
 	if( color ) then
-		setBarColor(self.healthBar, color.r, color.g, color.b)
+		setBarColor(frame.healthBar, color.r, color.g, color.b)
 	else
-		setGradient(self.healthBar, unit)
+		setGradient(frame.healthBar, unit)
 	end
 end
 
-function Health.Update(self, unit)
+function Health:Update(frame)
+	local unit = frame.unit
 	local max = UnitHealthMax(unit)
 	local current = UnitHealth(unit)
 	local isOffline = not UnitIsConnected(unit)
@@ -130,16 +129,23 @@ function Health.Update(self, unit)
 		current = 0
 	end
 	
-	self.healthBar:SetMinMaxValues(0, max)
-	self.healthBar:SetValue(current)
+	frame.healthBar:SetMinMaxValues(0, max)
+	frame.healthBar:SetValue(current)
 	
-	if( self.incHeal and self.incHeal.nextUpdate ) then
-		self.incHeal:Hide()
+	if( frame.incHeal and frame.incHeal.nextUpdate ) then
+		frame.incHeal:Hide()
 	end
 		
 	if( isOffline ) then
-		setBarColor(self.healthBar, 0.50, 0.50, 0.50)
-	elseif( not self.healthBar.hasReaction and not self.healthBar.hasAggro and ShadowUF.db.profile.units[self.unitType].healthBar.colorType == "percent" ) then
-		setGradient(self.healthBar, unit)
+		setBarColor(frame.healthBar, 0.50, 0.50, 0.50)
+	elseif( not frame.healthBar.hasReaction and not frame.healthBar.hasAggro and ShadowUF.db.profile.units[frame.unitType].healthBar.colorType == "percent" ) then
+		setGradient(frame.healthBar, unit)
 	end
 end
+
+function Health:UpdateAll(frame)
+	self:UpdateColor(frame)
+	self:UpdateThreat(frame)
+	self:Update(frame)
+end
+

@@ -10,13 +10,13 @@ local function resetGUID(self)
 	self.guid = nil
 end
 
-function Portrait:UnitEnabled(frame, unit)
+function Portrait:UnitEnabled(frame)
 	if( not frame.visibility.portrait ) then
 		return
 	end
 	
 	if( not frame.portraitModel ) then
-		frame.portraitModel = CreateFrame("PlayerModel", frame:GetName() .. "PlayerModel", frame)
+		frame.portraitModel = CreateFrame("PlayerModel", nil, frame)
 		frame.portraitModel:SetScript("OnShow", resetCamera)
 		frame.portraitModel:SetScript("OnHide", resetGUID)
 
@@ -25,12 +25,12 @@ function Portrait:UnitEnabled(frame, unit)
 		self:PreLayoutApplied(frame)
 	end
 		
-	frame:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", self.Update)
-	frame:RegisterUpdateFunc(self.UpdateFunc)
+	frame:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", self, "Update")
+	frame:RegisterUpdateFunc(self, "UpdateFunc")
 end
 
-function Portrait:UnitDisabled(frame, unit)
-	frame:UnregisterAll(self.Update)
+function Portrait:UnitDisabled(frame)
+	frame:UnregisterAll(self)
 end
 
 function Portrait:PreLayoutApplied(frame)
@@ -49,26 +49,26 @@ function Portrait:PreLayoutApplied(frame)
 	end
 end
 
-function Portrait.UpdateFunc(self, unit)
-	local guid = UnitGUID(unit)
-	if( self.portraitModel.guid ~= guid ) then
-		Portrait.Update(self, unit)
+function Portrait:UpdateFunc(frame)
+	local guid = UnitGUID(frame.unit)
+	if( frame.portraitModel.guid ~= guid ) then
+		self:Update(frame)
 	end
 	
-	self.portraitModel.guid = guid
+	frame.portraitModel.guid = guid
 end
 
-function Portrait.Update(self, unit)
-	if( ShadowUF.db.profile.units[self.unitType].portrait.type == "2D" ) then
-		self.portraitTexture:SetTexCoord(0.10, 0.90, 0.10, 0.90)
-		SetPortraitTexture(self.portraitTexture, unit)
+function Portrait:Update(frame)
+	if( ShadowUF.db.profile.units[frame.unitType].portrait.type == "2D" ) then
+		frame.portrait:SetTexCoord(0.10, 0.90, 0.10, 0.90)
+		SetPortraitTexture(frame.portrait, unit)
 	elseif( UnitIsVisible(unit) and UnitIsConnected(unit) ) then
-		self.portrait:SetUnit(unit)
-		self.portrait:SetCamera(0)
+		frame.portrait:SetUnit(unit)
+		frame.portrait:SetCamera(0)
 	else
-		self.portrait:SetModelScale(4.25)
-		self.portrait:SetPosition(0, 0, -1.5)
-		self.portrait:SetModel("Interface\\Buttons\\talktomequestionmark.mdx")	
+		frame.portrait:SetModelScale(4.25)
+		frame.portrait:SetPosition(0, 0, -1.5)
+		frame.portrait:SetModel("Interface\\Buttons\\talktomequestionmark.mdx")	
 	end
 end
 

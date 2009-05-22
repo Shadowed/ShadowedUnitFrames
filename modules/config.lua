@@ -20,9 +20,9 @@ end
 local function hideClassWidget(info)
 	local class = select(2, UnitClass("player"))
 	
-	if( info[#(info)] == "runeBar" and class ~= "DEATHKNIGHT" ) then
+	if( ( info.arg == "runeBar.enabled" or info[#(info)] == "runeBar" ) and class ~= "DEATHKNIGHT" ) then
 		return true
-	elseif( info[#(info)] == "totems" and class ~= "SHAMAN" ) then
+	elseif( ( info.arg == "totemBar.enabled" or info[#(info)] == "totems" ) and class ~= "SHAMAN" ) then
 		return true
 	end
 	
@@ -1302,29 +1302,6 @@ local function loadUnitOptions()
 				set = setUnit,
 				get = getUnit,
 				args = {
-					extra = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Extra"],
-						hidden = function(info) if( info[#(info) - 2] ~= "player" ) then return true end local class = select(2, UnitClass("player")) if( class ~= "DEATHKNIGHT" and class ~= "SHAMAN" ) then return true end return false end,
-						args = {
-							runeBar = {
-								order = 0,
-								type = "toggle",
-								name = L["Rune bar"],
-								hidden = hideClassWidget,
-								arg = "runeBar.enabled",
-							},
-							totemBar = {
-								order = 0,
-								type = "toggle",
-								name = L["Totem indicators"],
-								hidden = hideClassWidget,
-								arg = "totemBar.enabled",
-							},
-						},
-					},
 					portrait = {
 						order = 2,
 						type = "group",
@@ -1405,7 +1382,7 @@ local function loadUnitOptions()
 							inAlpha = {
 								order = 1,
 								type = "range",
-								name = L["Out of range alpha"],
+								name = L["In range alpha"],
 								desc = L["Alpha to use when you are in combat for this unit."],
 								min = 0, max = 1.0, step = 0.05,
 								arg = "range.inAlpha",
@@ -1714,7 +1691,7 @@ local function loadUnitOptions()
 								width = "full",
 								hidden = function(info)
 									local position = ShadowUF.db.profile.positions[info[#(info) - 3]]
-									if( position and position.anchorTo ~= "UIParent" ) then
+									if( position and position.anchorTo == "UIParent" ) then
 										return false
 									end
 									
@@ -1843,42 +1820,42 @@ local function loadUnitOptions()
 								name = string.format(L["Enable %s"], L["Health bar"]),
 								arg = "healthBar.enabled",
 							},
-							colorAggro = {
-								order = 1,
-								type = "toggle",
-								name = L["Color on aggro"],
-								arg = "healthBar.colorAggro",
-								hidden = function(info) return info[#(info) - 3] == "focustarget" or info[#(info) - 3] == "targettarget" or info[#(info) - 3] == "targettargettarget" end,
-							},
-							reaction = {
-								order = 1.5,
-								type = "toggle",
-								name = L["Color by reaction"],
-								desc = L["If the unit is hostile, the reaction color will override any color health by options."],
-								arg = "healthBar.reaction",
-								hidden = function(info) return isFriendlyUnit[info[#(info) - 3]] end,
-							},
-							healthColor = {
-								order = 2,
-								type = "select",
-								name = L["Color health by"],
-								values = {["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"]},
-								arg = "healthBar.colorType",
-							},
 							enabledHeal = {
-								order = 4,
+								order = 1,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Incoming heals"]),
 								arg = "incHeal.enabled",
 								hidden = function(info) if( info[#(info) - 3] == "targettarget" or info[#(info) - 3] == "targettargettarget" or info[#(info) - 3] == "focustarget" ) then return true end return false end,
 							},
 							enabledSelf = {
-								order = 5,
+								order = 2,
 								type = "toggle",
 								name = L["Show your heals"],
 								desc = L["When showing incoming heals, include your heals in the total incoming."],
 								arg = "incHeal.showSelf",
 								hidden = function(info) if( info[#(info) - 3] == "targettarget" or info[#(info) - 3] == "targettargettarget" or info[#(info) - 3] == "focustarget" ) then return true end return false end,
+							},
+							healthColor = {
+								order = 4,
+								type = "select",
+								name = L["Color health by"],
+								values = {["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"]},
+								arg = "healthBar.colorType",
+							},
+							colorAggro = {
+								order = 5,
+								type = "toggle",
+								name = L["Color on aggro"],
+								arg = "healthBar.colorAggro",
+								hidden = function(info) return info[#(info) - 3] == "focustarget" or info[#(info) - 3] == "targettarget" or info[#(info) - 3] == "targettargettarget" end,
+							},
+							reaction = {
+								order = 6,
+								type = "toggle",
+								name = L["Color by reaction"],
+								desc = L["If the unit is hostile, the reaction color will override any color health by options."],
+								arg = "healthBar.reaction",
+								hidden = function(info) return isFriendlyUnit[info[#(info) - 3]] end,
 							},
 						},
 					},
@@ -1889,14 +1866,44 @@ local function loadUnitOptions()
 						name = L["General bars"],
 						width = "half",
 						args = {
-							powerBar = {
+							runeBar = {
 								order = 0,
+								type = "toggle",
+								name = L["Rune bar"],
+								hidden = function(info)
+									local hidden = hidePlayerOnly(info)
+									if( hidden ) then return true end
+									
+									return hideClassWidget(info)
+								end,
+								arg = "runeBar.enabled",
+							},
+							totemBar = {
+								order = 0,
+								type = "toggle",
+								name = L["Totem indicators"],
+								hidden = function(info)
+									local hidden = hidePlayerOnly(info)
+									if( hidden ) then return true end
+									
+									return hideClassWidget(info)
+								end,
+								arg = "totemBar.enabled",
+							},
+							sep = {
+								order = 0.50,
+								type = "description",
+								name = "",
+								width = "full",
+							},
+							powerBar = {
+								order = 1,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Power bar"]),
 								arg = "powerBar.enabled",
 							},
 							xpBar = {
-								order = 1,
+								order = 2,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["XP/Rep bar"]),
 								desc = L["This bar will automatically hide when you are at the level cap, or you do not have any reputations tracked."],

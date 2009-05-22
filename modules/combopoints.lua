@@ -2,8 +2,8 @@ local Combo = ShadowUF:NewModule("Combo")
 local playerUnit = "player"
 ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUFLocals["Combo points"])
 
-function Combo:UnitEnabled(frame, unit)
-	if( not frame.visibility.comboPoints or unit ~= "target" ) then return end
+function Combo:UnitEnabled(frame)
+	if( not frame.visibility.comboPoints or frame.unitType ~= "target" ) then return end
 
 	if( not frame.comboPoints ) then
 		frame.comboPoints = CreateFrame("Frame", nil, frame)
@@ -15,12 +15,10 @@ function Combo:UnitEnabled(frame, unit)
 		end
 	end
 		
-	frame:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", self.CheckUnit)
-	frame:RegisterNormalEvent("UNIT_EXITED_VEHICLE", self.CheckUnit)
-	frame:RegisterNormalEvent("UNIT_COMBO_POINTS", self.Update)
-
-	frame:RegisterUpdateFunc(self.CheckUnit)
-	frame:RegisterUpdateFunc(self.Update)
+	frame:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", self, "CheckUnit")
+	frame:RegisterNormalEvent("UNIT_EXITED_VEHICLE", self, "CheckUnit")
+	frame:RegisterNormalEvent("UNIT_COMBO_POINTS", self, "Update")
+	frame:RegisterUpdateFunc(self, "UpdateAll")
 end
 
 function Combo:PreLayoutApplied(frame)
@@ -56,27 +54,32 @@ function Combo:PreLayoutApplied(frame)
 	end
 end
 
-function Combo:UnitDisabled(frame, unit)
-	frame:UnregisterAll(self.Update)
+function Combo:UnitDisabled(frame)
+	frame:UnregisterAll(self)
 end
 
-function Combo.CheckUnit(self, unit)
+function Combo:CheckUnit(frame)
 	playerUnit = UnitHasVehicleUI("player") and "vehicle" or "player"
 end
 
-function Combo.Update(self, unit)
+function Combo:Update(frame)
 	-- For Malygos dragons, they also self cast their CP on themselves, which is why we check CP on ourself!
 	local points = GetComboPoints(playerUnit)
 	if( points == 0 ) then
 		points = GetComboPoints(playerUnit, playerUnit)
 	end
 	
-	for id, pointTexture in pairs(self.comboPoints.points) do
+	for id, pointTexture in pairs(frame.comboPoints.points) do
 		if( id <= points ) then
 			pointTexture:Show()
 		else
 			pointTexture:Hide()
 		end
 	end
+end
+
+function Combo:UpdateAll(frame)
+	self:CheckUnit(Frame)
+	self:Update(frame)
 end
 

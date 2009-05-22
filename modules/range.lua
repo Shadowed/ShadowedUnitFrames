@@ -11,7 +11,7 @@ local function checkRange(self, elapsed)
 	self.parent:SetAlpha(UnitInRange(self.parent.unit, "player") and ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha or ShadowUF.db.profile.units[self.parent.unitType].range.oorAlpha)
 end
 
-function Range:UnitEnabled(frame, unit)
+function Range:UnitEnabled(frame)
 	if( not frame.visibility.range or frame.unitType == "player" ) then
 		return
 	elseif( frame.unitType ~= "raid" and frame.unitType ~= "party" and frame.unitType ~= "partypet" and frame.unitType ~= "pet" ) then
@@ -28,7 +28,7 @@ function Range:UnitEnabled(frame, unit)
 	frame.range:Show()
 end
 
-function Range:UnitDisabled(frame, unit)
+function Range:UnitDisabled(frame)
 	if( frame.range ) then
 		frame.range:Hide()
 		frame:SetAlpha(1.0)

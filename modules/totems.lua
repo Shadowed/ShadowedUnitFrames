@@ -2,8 +2,8 @@ local Totems = ShadowUF:NewModule("Totems")
 local totemColors = {{r = 1, g = 0, b = 0.4}, {r = 0, g = 1, b = 0.4}, {r = 0, g = 0.4, b = 1}, {r = 0.90, g = 0.90, b = 0.90}}
 ShadowUF:RegisterModule(Totems, "totemBar", ShadowUFLocals["Totem indicators"], "bar")
 
-function Totems:UnitEnabled(frame, unit)
-	if( not frame.visibility.totemBar or unit ~= "player" ) then
+function Totems:UnitEnabled(frame)
+	if( not frame.visibility.totemBar or frame.unitType ~= "player" ) then
 		return
 	end
 			
@@ -29,12 +29,12 @@ function Totems:UnitEnabled(frame, unit)
 		end
 	end
 	
-	frame:RegisterNormalEvent("PLAYER_TOTEM_UPDATE", self.Update)
-	frame:RegisterUpdateFunc(self.Update)
+	frame:RegisterNormalEvent("PLAYER_TOTEM_UPDATE", "Update")
+	frame:RegisterUpdateFunc(self, "Update")
 end
 
-function Totems:UnitDisabled(frame, unit)
-	frame:UnregisterAll(self.Update)
+function Totems:UnitDisabled(frame)
+	frame:UnregisterAll(self)
 end
 
 function Totems:LayoutApplied(frame)
@@ -48,7 +48,7 @@ function Totems:LayoutApplied(frame)
 			totem:SetWidth(barWidth)
 		end
 		
-		self.Update(frame, frame.unit)
+		self:Update(frame)
 	end
 end
 
@@ -62,8 +62,8 @@ local function totemMonitor(self, elapsed)
 	end
 end
 
-function Totems.Update(self, unit)
-	for id, indicator in pairs(self.totemBar.totems) do
+function Totems:Update(frame)
+	for id, indicator in pairs(frame.totemBar.totems) do
 		local have, name, start, duration = GetTotemInfo(id)
 		if( have ) then
 			indicator.have = true

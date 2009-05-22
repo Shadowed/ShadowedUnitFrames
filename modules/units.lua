@@ -10,32 +10,31 @@ ShadowUF:RegisterModule(Units)
 local function FullUpdate(self)
 	for handler, func in pairs(self.fullUpdates) do
 		if( func == true ) then
-			handler(self, self.unit)
+			handler(self)
 		else
-			handler[func](handler, self.unit)
+			handler[func](handler, self)
 		end
 	end
 end
 
 -- Register an event that should always call the frame
-local function RegisterNormalEvent(self, event, func)
+local function RegisterNormalEvent(self, event, handler, func)
 	self:RegisterEvent(event)
 	self.registeredEvents[event] = self.registeredEvents[event] or {}
 	
-	for _, regFunc in pairs(self.registeredEvents[event]) do
-		if( regFunc == func ) then
-			return
-		end
+	-- Each handler can only register an event once per a frame.
+	if( self.registeredEvents[event][handler] ) then
+		return
 	end
 	
-	table.insert(self.registeredEvents[event], func)
+	self.registeredEvents[event][handler] = func
 end
 
 -- Register an event thats only called if it's for the actual unit
-local function RegisterUnitEvent(self, event, func)
+local function RegisterUnitEvent(self, event, handler, func)
 	unitEvents[event] = true
 
-	RegisterNormalEvent(self, event, func)
+	RegisterNormalEvent(self, event, handler, func)
 end
 
 -- Register a function to be called in an OnUpdate if it's an invalid unit (targettarget/etc)
@@ -44,33 +43,28 @@ local function RegisterUpdateFunc(self, handler, func)
 end
 
 -- Used when something is disabled, removes all callbacks etc to it
-local function UnregisterAll(self, ...)
-	for i=1, select("#", ...) do
-		local func = select(i, ...)
+local function UnregisterAll(self, handler)
+	self.fullUpdates[handler] = nil
+	
+	for event, list in pairs(self.registeredEvents) do
+		list[handler] = nil
 		
-		self.fullUpdates[func] = nil
+		local totalEvents = 0
+		for _ in pairs(list) do
+			totalEvents = totalEvents + 1
+		end
 		
-		for event, list in pairs(self.registeredEvents) do
-			for i=#(list), 1, -1 do
-				if( list[i] == func ) then
-					table.remove(list, i)
-					break
-				end
-			end
-			
-			if( #(list) == 0 ) then
-				self:UnregisterEvent(event)
-			end
+		if( totalEvents == 0 ) then
+			self:UnregisterEvent(event)
 		end
 	end
 end
 
 -- Event handling
-local function OnEvent(self, event, ...)
-	if( not unitEvents[event] or self.unit == (...) ) then
-		for _, funct in pairs(self.registeredEvents[event]) do
-			self.event = event
-			funct(self, self.unit, ...)
+local function OnEvent(self, event, unit, ...)
+	if( not unitEvents[event] or self.unit == unit ) then
+		for handler, func in pairs(self.registeredEvents[event]) do
+			handler[func](handler, self, event, unit, ...)
 		end
 	end
 end
@@ -459,7 +453,7 @@ local function disableChildren(...)
 	for i=1, select("#", ...) do
 		local frame = select(i, ...)
 		if( frame.unit ) then
-			ShadowUF:FireModuleEvent("UnitDisabled", frame, frame.unitType)
+			ShadowUF:FireModuleEvent("UnitDisabled", frame)
 			frame:SetAttribute("unit", nil)
 		end
 	end
@@ -476,7 +470,7 @@ function Units:UninitializeFrame(config, type)
 			if( frame.unit ~= type ) then
 				disableChildren(frame:GetChildren())
 			else
-				ShadowUF:FireModuleEvent("UnitDisabled", frame, frame.unitType)
+				ShadowUF:FireModuleEvent("UnitDisabled", frame)
 				frame:SetAttribute("unit", nil)
 			end
 

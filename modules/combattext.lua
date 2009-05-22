@@ -1,7 +1,7 @@
 local Combat = ShadowUF:NewModule("CombatText")
 ShadowUF:RegisterModule(Combat, "combatText", ShadowUFLocals["Combat text"])
 
-function Combat:UnitEnabled(frame, unit)
+function Combat:UnitEnabled(frame)
 	if( not frame.visibility.combatText ) then
 		return
 	end
@@ -18,15 +18,15 @@ function Combat:UnitEnabled(frame, unit)
 		frame.combatText:SetWidth(1)
 	end
 		
-	frame:RegisterUnitEvent("UNIT_COMBAT", self.Update)
+	frame:RegisterUnitEvent("UNIT_COMBAT", self, "Update")
 end
 
-function Combat:UnitDisabled(frame, unit)
-	frame:UnregisterAll(self.Update)
+function Combat:UnitDisabled(frame)
+	frame:UnregisterAll(self)
 end
 
-function Combat.Update(self, unit, junk, ...)
-	CombatFeedback_OnCombatEvent(self.combatText, ...)
+function Combat:Update(frame, event, unit, ...)
+	CombatFeedback_OnCombatEvent(frame.combatText, ...)
 	
-	self.combatText.feedbackText:SetFont(self.combatText.fontPath, self.combatText.feedbackText:GetStringHeight(), "OUTLINE")
+	frame.combatText.feedbackText:SetFont(frame.combatText.fontPath, frame.combatText.feedbackText:GetStringHeight(), "OUTLINE")
 end

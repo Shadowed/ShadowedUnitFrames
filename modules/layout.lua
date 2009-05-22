@@ -312,7 +312,7 @@ function Layout:ApplyText(frame, config)
 	-- Update cast bar text
 	if( frame.castBar and frame.castBar:IsShown() ) then
 		frame.castBar.name:SetFont(mediaPath.font, ShadowUF.db.profile.font.size)
-		frame.castBar.name:SetWidth(frame.castBar:GetWidth() * 0.80)
+		frame.castBar.name:SetWidth(frame.castBar:GetWidth() * 0.75)
 		frame.castBar.name:SetHeight(ShadowUF.db.profile.font.size + 1)
 		frame.castBar.name:SetJustifyH(self:GetJustify(config.castBar.castName))
 		self:AnchorFrame(frame.castBar, frame.castBar.name, config.castBar.castName)
@@ -320,7 +320,7 @@ function Layout:ApplyText(frame, config)
 		updateShadows(frame.castBar.name)
 		
 		frame.castBar.time:SetFont(mediaPath.font, ShadowUF.db.profile.font.size)
-		frame.castBar.time:SetWidth(frame.castBar:GetWidth() * 0.20)
+		frame.castBar.time:SetWidth(frame.castBar:GetWidth() * 0.25)
 		frame.castBar.time:SetHeight(ShadowUF.db.profile.font.size + 1)
 		frame.castBar.time:SetJustifyH(self:GetJustify(config.castBar.castTime))
 		self:AnchorFrame(frame.castBar, frame.castBar.time, config.castBar.castTime)

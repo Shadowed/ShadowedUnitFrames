@@ -1,8 +1,8 @@
 local Runes = ShadowUF:NewModule("Runes")
 ShadowUF:RegisterModule(Runes, "runeBar", ShadowUFLocals["Rune bar"], "bar")
 
-function Runes:UnitEnabled(frame, unit)
-	if( not frame.visibility.runeBar or unit ~= "player" ) then
+function Runes:UnitEnabled(frame)
+	if( not frame.visibility.runeBar or frame.unitType ~= "player" ) then
 		return
 	end
 			
@@ -28,14 +28,13 @@ function Runes:UnitEnabled(frame, unit)
 		end
 	end
 	
-	frame:RegisterNormalEvent("RUNE_POWER_UPDATE", self.UpdateUsable)
-	frame:RegisterNormalEvent("RUNE_TYPE_UPDATE", self.Update)
-	frame:RegisterUpdateFunc(self.Update)
-	frame:RegisterUpdateFunc(self.UpdateUsable)
+	frame:RegisterNormalEvent("RUNE_POWER_UPDATE", self, "UpdateUsable")
+	frame:RegisterNormalEvent("RUNE_TYPE_UPDATE", self, "Update")
+	frame:RegisterUpdateFunc(self, "UpdateAll")
 end
 
-function Runes:UnitDisabled(frame, unit)
-	frame:UnregisterAll(self.Update, self.UpdateUsable)
+function Runes:UnitDisabled(frame)
+	frame:UnregisterAll(self)
 end
 
 function Runes:LayoutApplied(frame)
@@ -48,7 +47,7 @@ function Runes:LayoutApplied(frame)
 			rune:SetWidth(barWidth)
 		end
 		
-		self.Update(frame, frame.unit)
+		self:Update(frame)
 	end
 end
 
@@ -66,8 +65,8 @@ local function runeMonitor(self, elapsed)
 end
 
 -- Updates the timers on runes
-function Runes.UpdateUsable(self, unit, rune, available)
-	for id, indicator in pairs(self.runeBar.runes) do
+function Runes:UpdateUsable(frame, rune, available)
+	for id, indicator in pairs(frame.runeBar.runes) do
 		if( not rune or id == rune ) then
 			local startTime, cooldown, cooled = GetRuneCooldown(id)
 			if( not cooled ) then
@@ -87,11 +86,16 @@ function Runes.UpdateUsable(self, unit, rune, available)
 end
 
 -- No rune is passed for full update (Login), a single rune is passed when a single rune type changes, such as Blood Tap
-function Runes.Update(self, unit, rune)
-	for id, indicator in pairs(self.runeBar.runes) do
+function Runes:Update(frame, rune)
+	for id, indicator in pairs(frame.runeBar.runes) do
 		if( not rune or rune == id ) then
 			local type = GetRuneType(id)
 			indicator:SetStatusBarColor(runeColors[type].r, runeColors[type].g, runeColors[type].b)
 		end
 	end
+end
+
+function Runes:FullUpdate(frame)
+	self:Update(frame)
+	self:UpdateUsable(frame)
 end

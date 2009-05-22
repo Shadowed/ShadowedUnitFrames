@@ -202,7 +202,7 @@ ShadowUF:RegisterLayout("Default", {
 				status = {anchorTo = "$parent", anchorPoint = "BL", size = 16, y = -2, x = 12},
 				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -37, y = -9},
 				leader = {anchorTo = "$parent", anchorPoint = "TR", size = 14, x = -2, y = -10},
-				pvp = {anchorTo = "$parent", anchorPoint = "BR", size = 22, y = 11, x = -34},
+				pvp = {anchorTo = "$parent", anchorPoint = "BR", size = 22, y = 11, x = 12},
 			},
 		},
 		pet = {

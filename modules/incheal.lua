@@ -6,8 +6,8 @@ local OH_WARNING = 1.30
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUFLocals["Incoming heals"])
 
 -- RAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGGGGGGGGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-function IncHeal:UnitEnabled(frame, unit)
-	if( not frame.visibility.incHeal or unit == "targettarget" or unit == "targettargettarget" or unit == "focustarget" ) then
+function IncHeal:UnitEnabled(frame)
+	if( not frame.visibility.incHeal or frame.unitType == "targettarget" or frame.unitType == "targettargettarget" or frame.unitType == "focustarget" ) then
 		frames[frame] = nil
 		return
 	end
@@ -16,11 +16,12 @@ function IncHeal:UnitEnabled(frame, unit)
 	frame.incHeal = frame.incHeal or ShadowUF.Units:CreateBar(frame)
 	frame.incHeal:SetFrameLevel(frame.topFrameLevel - 2)
 
-	frame:RegisterUpdateFunc(self.UpdateFrame)
+	frame:RegisterUpdateFunc(self, "UpdateFrame")
+
 	self:Setup()
 end
 
-function IncHeal:UnitDisabled(frame, unit)
+function IncHeal:UnitDisabled(frame)
 	frames[frame] = nil
 	self:Setup()
 end
@@ -96,15 +97,15 @@ local function updateHealthBar(frame, target, healed, succeeded)
 	end
 end
 
-function IncHeal.UpdateFrame(self, unit)
-	local name = getName(unit)
-	if( name and self.incHeal ) then
-		local amount = HealComm:UnitIncomingHealGet(unit, GetTime()) or 0
-		if( playerHeals[name] and ShadowUF.db.profile.units[self.unitType].incHeal.showSelf ) then
+function IncHeal:UpdateFrame(frame)
+	local name = getName(frame.unit)
+	if( name and frame.incHeal ) then
+		local amount = HealComm:UnitIncomingHealGet(frame.unit, GetTime()) or 0
+		if( playerHeals[name] and ShadowUF.db.profile.units[frame.unitType].incHeal.showSelf ) then
 			amount = amount + playerHeals[name]
 		end
 		
-		updateHealthBar(self, name, amount, true)
+		updateHealthBar(frame, name, amount, true)
 	end
 end
 
