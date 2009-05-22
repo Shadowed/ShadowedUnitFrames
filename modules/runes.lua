@@ -65,7 +65,7 @@ local function runeMonitor(self, elapsed)
 end
 
 -- Updates the timers on runes
-function Runes:UpdateUsable(frame, rune, available)
+function Runes:UpdateUsable(frame, event, rune, available)
 	for id, indicator in pairs(frame.runeBar.runes) do
 		if( not rune or id == rune ) then
 			local startTime, cooldown, cooled = GetRuneCooldown(id)
@@ -86,7 +86,7 @@ function Runes:UpdateUsable(frame, rune, available)
 end
 
 -- No rune is passed for full update (Login), a single rune is passed when a single rune type changes, such as Blood Tap
-function Runes:Update(frame, rune)
+function Runes:Update(frame, event, rune)
 	for id, indicator in pairs(frame.runeBar.runes) do
 		if( not rune or rune == id ) then
 			local type = GetRuneType(id)
@@ -95,7 +95,7 @@ function Runes:Update(frame, rune)
 	end
 end
 
-function Runes:FullUpdate(frame)
+function Runes:UpdateAll(frame)
 	self:Update(frame)
 	self:UpdateUsable(frame)
 end

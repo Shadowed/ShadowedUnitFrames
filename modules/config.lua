@@ -85,7 +85,7 @@ end
 -- Module functions
 local function hidePlayerOnly(info)
 	local key = info[#(info)]
-	local unit = info[(#info) - 1]
+	local unit = info[2]
 	if( ( key == "castBar" or key == "incHeal" ) and ( unit == "targettarget" or unit == "focustarget" or unit == "targettargettarget" ) ) then
 		return true
 	elseif( key == "range" and unit ~= "raid" and unit ~= "party" and unit ~= "partypet" and unit ~= "pet" ) then
@@ -1877,7 +1877,7 @@ local function loadUnitOptions()
 							runeBar = {
 								order = 0,
 								type = "toggle",
-								name = L["Rune bar"],
+								name = string.format(L["Enable %s"], L["Rune bar"]),
 								hidden = function(info)
 									local hidden = hidePlayerOnly(info)
 									if( hidden ) then return true end
@@ -1889,7 +1889,7 @@ local function loadUnitOptions()
 							totemBar = {
 								order = 0,
 								type = "toggle",
-								name = L["Totem indicators"],
+								name = string.format(L["Enable %s"], L["Totem indicators"]),
 								hidden = function(info)
 									local hidden = hidePlayerOnly(info)
 									if( hidden ) then return true end
@@ -1897,12 +1897,6 @@ local function loadUnitOptions()
 									return hideClassWidget(info)
 								end,
 								arg = "totemBar.enabled",
-							},
-							sep = {
-								order = 0.50,
-								type = "description",
-								name = "",
-								width = "full",
 							},
 							powerBar = {
 								order = 1,
