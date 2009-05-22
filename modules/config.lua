@@ -1074,6 +1074,14 @@ local function loadUnitOptions()
 				end,
 				width = "double",
 			},
+			CURABLE = {
+				order = 1,
+				type = "toggle",
+				name = L["Show curable only"],
+				desc = L["Filter out any aura that you cannot cure."],
+				hidden = function(info) return info[#(info) - 1] == "buffs" end,
+				width = "double",
+			},
 			sep1 = {
 				order = 2,
 				type = "description",

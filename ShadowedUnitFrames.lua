@@ -194,7 +194,7 @@ function ShadowUF:LoadUnitDefaults()
 		
 		self.defaults.profile.units[unit] = {
 			height = 0, width = 0, scale = 1.0, enabled = false, effectiveScale = true,
-			healthBar = {enabled = true, colorType = "percent"}, powerBar = {enabled = true}, portrait = {enabled = false, type = "3D"}, runeBar = {enabled = false}, totemBar = {enabled = false},
+			healthBar = {enabled = true, colorType = "percent", reaction = true}, powerBar = {enabled = true}, portrait = {enabled = false, type = "3D"}, runeBar = {enabled = false}, totemBar = {enabled = false},
 			incHeal = {enabled = false, showSelf = true}, range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
 			castBar = {enabled = false, castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0},},
 			fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60},xpBar = {enabled = false},

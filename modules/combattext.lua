@@ -28,5 +28,9 @@ end
 function Combat:Update(frame, event, unit, ...)
 	CombatFeedback_OnCombatEvent(frame.combatText, ...)
 	
-	frame.combatText.feedbackText:SetFont(frame.combatText.fontPath, frame.combatText.feedbackText:GetStringHeight(), "OUTLINE")
+	-- Increasing the font size leads to it becoming pixeled, however getting the percentage it was increased by
+	-- and then scaling the entire container frame, does not!
+	local increased = frame.combatText.feedbackText:GetStringHeight() / ShadowUF.db.profile.font.size
+	frame.combatText.feedbackText:SetFont(frame.combatText.fontPath, ShadowUF.db.profile.font.size, "OUTLINE")
+	frame.combatText:SetScale(increased)
 end

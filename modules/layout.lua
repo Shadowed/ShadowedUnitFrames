@@ -147,12 +147,7 @@ function Layout:AnchorFrame(parent, frame, config, isRecurse)
 	if( not config or not config.anchorTo ) then
 		return
 	end
-	
-	local scale = 1
-	if( frame.unitType and ShadowUF.db.profile.units[frame.unitType].effectiveScale ) then
-		scale = parent:GetEffectiveScale()
-	end
-	
+		
 	-- $ = Indicates we're asking for one of the sub-frames inside the parent
 	-- # = Indicates we're asking for one of SSUF's frames, and that it might not be created yet
 	local anchorTo
@@ -182,6 +177,12 @@ function Layout:AnchorFrame(parent, frame, config, isRecurse)
 		end
 	else
 		anchorTo = config.anchorTo
+	end
+
+	-- Effective scaling should only be used if it's enabled + they are anchored to the UIParent
+	local scale = 1
+	if( config.anchorPoint == "UIParent" and frame.unitType and ShadowUF.db.profile.units[frame.unitType].effectiveScale ) then
+		scale = parent:GetEffectiveScale()
 	end
 	
 	if( config.anchorPoint and config.anchorPoint ~= "" ) then

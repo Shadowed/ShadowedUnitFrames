@@ -1,6 +1,35 @@
 local Auras = ShadowUF:NewModule("Auras")
-local buttonCache ={}
+local canRemove
 ShadowUF:RegisterModule(Auras, "auras", ShadowUFLocals["Auras"])
+
+function Auras:CheckCures()
+	local classToken = select(2, UnitClass("player"))
+	-- If they are a Shaman, then we need to check what they can cure when spells change
+	if( not self.eventFrame and classToken == "SHAMAN" ) then
+		self.eventFrame = CreateFrame("Frame")
+		self.eventFrame:RegisterEvent("SPELLS_CHANGED")
+		self.eventFrame:SetScript("OnEvent", function(self) canRemove.Curse = GetSpellInfo((GetSpellInfo(51886))) and true or false	end)
+	end
+	
+	canRemove = canRemove or {}
+	if( classToken == "DRUID" ) then
+		canRemove.Curse = true
+		canRemove.Poison = true
+	elseif( classToken == "MAGE" ) then
+		canRemove.Curse = true
+	elseif( classToken == "SHAMAN" ) then
+		canRemove.Disease = true
+		canRemove.Poison = true
+		canRemove.Curse = GetSpellInfo((GetSpellInfo(51886))) and true or false
+	elseif( classToken == "PRIEST" ) then
+		canRemove.Disease = true
+		canRemove.Magic = true
+	elseif( classToken == "PALADIN" ) then
+		canRemove.Magic = true
+		canRemove.Disease = true
+		canRemove.Poison = true
+	end
+end
 
 local function updateTooltip(self)
 	if( GameTooltip:IsOwned(self) ) then
@@ -27,6 +56,10 @@ end
 function Auras:UnitEnabled(frame)
 	if( not frame.visibility.auras or not ShadowUF.db.profile.units[frame.unitType].auras ) then
 		return
+	end
+	
+	if( not canRemove ) then
+		self:CheckCures()
 	end
 	
 	self:CreateIcons(frame)
@@ -170,35 +203,36 @@ function Auras:UpdateDisplay(frame, unitType)
 	end
 end
 
-function Auras:Scan(frame, filter, type, unit)
+function Auras:Scan(frame, filter, type, unit, filterCurable)
 	local index = 1
 	while( true ) do
 		local name, rank, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(unit, index, filter)
 		if( not name ) then break end
-		
-		frame.totalAuras = frame.totalAuras + 1
-		if( frame.totalAuras >= frame.maxAuras ) then
-			frame.totalAuras = frame.maxAuras
-			return 0
-		end
-		
-		local button = frame.buttons[frame.totalAuras]
-		button.auraName = name
-		button.auraRank = rank
-		button.auraTexture = texture
-		button.auraCount = count
-		button.auraType = debuffType
-		button.auraDuration = duration
-		button.auraEnd = endTime
-		button.auraStealable = isStealable
-		button.auraCaster = caster
-		button.auraPlayers = caster == "player"
-		button.auraID = index
-		button.filter = filter
-		button.type = type
-		button.unit = unit
-		
 		index = index + 1
+		
+		if( not filterCurable or debuffType and canRemove[debuffType] ) then
+			frame.totalAuras = frame.totalAuras + 1
+			if( frame.totalAuras >= frame.maxAuras ) then
+				frame.totalAuras = frame.maxAuras
+				return 0
+			end
+			
+			local button = frame.buttons[frame.totalAuras]
+			button.auraName = name
+			button.auraRank = rank
+			button.auraTexture = texture
+			button.auraCount = count
+			button.auraType = debuffType
+			button.auraDuration = duration
+			button.auraEnd = endTime
+			button.auraStealable = isStealable
+			button.auraCaster = caster
+			button.auraPlayers = caster == "player"
+			button.auraID = index
+			button.filter = filter
+			button.type = type
+			button.unit = unit
+		end
 	end
 end
 
@@ -213,11 +247,11 @@ function Auras:Update(frame)
 				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit)
 			end
 			if( config.debuffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE)
 			end
 		else
 			if( config.debuffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE)
 			end
 			if( config.buffs.enabled ) then
 				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit)
@@ -234,7 +268,7 @@ function Auras:Update(frame)
 
 		if( config.debuffs.enabled ) then
 			frame.auras[frame.auras.anchor].totalAuras = 0
-			self:Scan(frame.auras.debuffs, frame.auras.debuffs.filter, "debuffs", unit)
+			self:Scan(frame.auras.debuffs, frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE)
 			self:UpdateDisplay(frame.auras.debuffs, frame.unitType)
 		end
 	end

@@ -61,9 +61,9 @@ end
 function Portrait:Update(frame)
 	if( ShadowUF.db.profile.units[frame.unitType].portrait.type == "2D" ) then
 		frame.portrait:SetTexCoord(0.10, 0.90, 0.10, 0.90)
-		SetPortraitTexture(frame.portrait, unit)
-	elseif( UnitIsVisible(unit) and UnitIsConnected(unit) ) then
-		frame.portrait:SetUnit(unit)
+		SetPortraitTexture(frame.portrait, frame.unit)
+	elseif( UnitIsVisible(frame.unit) and UnitIsConnected(frame.unit) ) then
+		frame.portrait:SetUnit(frame.unit)
 		frame.portrait:SetCamera(0)
 	else
 		frame.portrait:SetModelScale(4.25)
