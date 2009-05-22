@@ -702,7 +702,14 @@ local function loadUnitOptions()
 		return tonumber(value)
 	end
 	
+	local numberList = {}
 	local function setNumber(info, value)
+		local unit = info[#(info) - 3]
+		local key = info[#(info)]
+		local id = unit .. key
+		
+		numberList[id] = value
+
 		local frame = ShadowUF.Units.unitFrames[info[#(info) - 3]]
 		if( frame ) then
 			local anchorTo = ShadowUF.db.profile.positions[info[#(info) - 3]].anchorTo
@@ -715,6 +722,13 @@ local function loadUnitOptions()
 	end
 	
 	local function getString(info)
+		local unit = info[#(info) - 3]
+		local key = info[#(info)]
+		local id = unit .. key
+		if( numberList[id] ) then
+			return numberList[id]
+		end
+
 		return tostring(getLayout(info))
 	end
 	
@@ -1694,9 +1708,8 @@ local function loadUnitOptions()
 						args = {
 							help = {
 								order = 0,
-								type = "description",
-								name = L["Offsets are saved using effective scaling, this is to prevent the frame from jumping around when you reload or login."],
-								width = "full",
+								type = "group",
+								name = L["Help"],
 								hidden = function(info)
 									local position = ShadowUF.db.profile.positions[info[#(info) - 3]]
 									if( position and position.anchorTo == "UIParent" ) then
@@ -1705,6 +1718,15 @@ local function loadUnitOptions()
 									
 									return true
 								end,
+								args = {
+									desc = {
+										order = 0,
+										type = "description",
+										name = L["Offsets are saved using effective scaling, this is to prevent the frame from jumping around when you reload or login."],
+										hidden = false,
+										width = "full",
+									}
+								},
 							},
 							anchorPoint = {
 								order = 0.50,

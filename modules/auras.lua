@@ -204,11 +204,11 @@ function Auras:UpdateDisplay(frame, unitType)
 end
 
 function Auras:Scan(frame, filter, type, unit, filterCurable)
-	local index = 1
+	local index = 0
 	while( true ) do
+		index = index + 1
 		local name, rank, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(unit, index, filter)
 		if( not name ) then break end
-		index = index + 1
 		
 		if( not filterCurable or debuffType and canRemove[debuffType] ) then
 			frame.totalAuras = frame.totalAuras + 1
@@ -261,13 +261,13 @@ function Auras:Update(frame)
 		self:UpdateDisplay(frame.auras[frame.auras.anchor], frame.unitType)
 	else
 		if( config.buffs.enabled ) then
-			frame.auras[frame.auras.anchor].totalAuras = 0
+			frame.auras.buffs.totalAuras = 0
 			self:Scan(frame.auras.buffs, frame.auras.buffs.filter, "buffs", unit)
 			self:UpdateDisplay(frame.auras.buffs, frame.unitType)
 		end
 
 		if( config.debuffs.enabled ) then
-			frame.auras[frame.auras.anchor].totalAuras = 0
+			frame.auras.debuffs.totalAuras = 0
 			self:Scan(frame.auras.debuffs, frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE)
 			self:UpdateDisplay(frame.auras.debuffs, frame.unitType)
 		end

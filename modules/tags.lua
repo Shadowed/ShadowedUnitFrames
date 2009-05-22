@@ -59,9 +59,9 @@ frame:SetScript("OnUpdate", function(self, elapsed)
 	timeElapsed = timeElapsed + elapsed
 	
 	if( timeElapsed >= 0.50 ) then
-		for _, text in pairs(eventlessUnits) do
-			if( text.parent:IsVisible() and UnitExists(text.parent.unit) ) then
-				text:UpdateTags()
+		for _, fontString in pairs(eventlessUnits) do
+			if( UnitExists(fontString.parent.unit) ) then
+				fontString:UpdateTags()
 			end
 		end
 		
@@ -248,19 +248,6 @@ end
 
 function Tags:LoadTags()
 	self.defaultTags = {
-		["colorname"] = [[function(unit)
-			local name = UnitName(unit)
-			if( not name or not UnitIsPlayer(unit) ) then
-				return name
-			end
-			
-			local color = ShadowUF:GetClassColor(unit)
-			if( not color ) then
-				return name
-			end
-			
-			return color .. name .. "|r"
-		end]],
 		["afk"] = [[function(unit)
 			if( UnitIsAFK(unit) ) then
 				return ShadowUFLocals["(AFK)"]
@@ -270,16 +257,41 @@ function Tags:LoadTags()
 		
 			return ""
 		end]],
-		["class"] = [[function(unit) return UnitClass(unit) end]],
-		["classcolor"] = [[function(unit)
-			local color = ShadowUF:GetClassColor(unit)
-			local class = UnitClass(unit)
-			if( not color or not class ) then
-				return class
+		["close"] = [[function(unit) return "|r" end]],
+		["smartclass"] = [[function(unit)
+			if( not UnitIsPlayer(unit) ) then
+				return UnitCreatureFamily(unit)
 			end
 			
-			return color .. class .. "|r"
+			return UnitClass(unit)
 		end]],
+		["reactcolor"] = [[function(unit)
+			local color
+			if( not UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) ) then
+				if( UnitCanAttack("player", unit) ) then
+					color = ShadowUF.db.profile.healthColor.red
+				else
+					color = ShadowUF.db.profile.healthColor.enemyUnattack
+				end
+			elseif( UnitReaction(unit, "player") ) then
+				local reaction = UnitReaction(unit, "player")
+				if( reaction > 4 ) then
+					color = ShadowUF.db.profile.healthColor.green
+				elseif( reaction == 4 ) then
+					color = ShadowUF.db.profile.healthColor.yellow
+				elseif( reaction < 4 ) then
+					color = ShadowUF.db.profile.healthColor.red
+				end
+			end
+			
+			if( not color ) then
+				return nil
+			end
+			
+			return ShadowUF:Hex(color)
+		end]],
+		["class"] = [[function(unit) return UnitClass(unit) end]],
+		["classcolor"] = [[function(unit) return ShadowUF:GetClassColor(unit) end]],
 		["creature"] = [[function(unit) return UnitCreatureFamily(unit) or UnitCreatureType(unit) end]],
 		["curhp"] = [[function(unit)
 			local health = UnitHealth(unit)
@@ -287,6 +299,14 @@ function Tags:LoadTags()
 				health = 0
 			end
 			return ShadowUF:FormatLargeNumber(health)
+		end]],
+		["colorname"] = [[function(unit) 
+			local color = ShadowUF:GetClassUnit(unit)
+			if( not color ) then
+				return UnitName(unit)
+			end
+		
+			return color .. UnitName(unit) .. "|r"
 		end]],
 		["curpp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPower(unit)) end]],
 		["curmaxhp"] = [[function(unit)
@@ -312,13 +332,17 @@ function Tags:LoadTags()
 
 			local dead = ShadowUF.tagFunc.dead(unit)
 			if( dead ) then
-				return dead
+				return dead 
 			end
 			
 			local health = UnitHealth(unit)
 			local maxHealth = UnitHealthMax(unit)
 			return string.format("%s/%s", health, maxHealth)
 		end]],
+		["abscurhp"] = [[function(unit)	return UnitHeath(unit) end]],
+		["absmaxhp"] = [[function(unit) return UnitHealthMax(unit) end]],
+		["abscurpp"] = [[function(unit)	return UnitPower(unit) end]],
+		["absmaxpp"] = [[function(unit) return UnitPowerMax(unit) end]],
 		["absolutepp"] = [[function(unit)
 			local maxPower = UnitPowerMax(unit)
 			local power = UnitPower(unit)
@@ -345,7 +369,12 @@ function Tags:LoadTags()
 		["levelcolor"] = [[function(unit)
 			local level = UnitLevel(unit);
 			if( UnitCanAttack("player", unit) ) then
-				return ShadowUF:Hex(GetDifficultyColor(level > 0 and level or 99))
+				local color = ShadowUF:Hex(GetDifficultyColor(level > 0 and level or 99))
+				if( not color ) then
+					return level
+				end
+				
+				return color .. level .. "|r"
 			else
 				return level
 			end
@@ -439,8 +468,8 @@ function Tags:LoadTags()
 		["offline"] = L["Returns Offline if the unit is offline, otherwise nothing is shown."],
 		["perhp"] = L["Returns current health as a percentage, if the unit is dead or offline than that is shown instead."],
 		["perpp"] = L["Returns current power as a percentage."],
-		["class"] = L["Class, use [classcolor] if you want a colored class name."],
-		["classcolor"] = L["Colored class, use [class] for just the class name without coloring."],
+		["class"] = L["Class name, use [classcolor][class][close] if you want a colored class name."],
+		["classcolor"] = L["Color code for the class, use [classcolor][class][close] if you want the class text to be colored by class"],
 		["creature"] = L["Create type, for example, if you're targeting a Felguard then this will return Felguard."],
 		["curhp"] = L["Current health, uses a short format, 11500 is formatted as 11.5k, values below 10000 are formatted as is."],
 		["curpp"] = L["Current power, uses a short format, 12750 is formatted as 12.7k, values below 10000 are formatted as is."],
@@ -452,21 +481,30 @@ function Tags:LoadTags()
 		["colorname"] = L["Unit name colored by class."],
 		["absolutepp"] = L["Absolute current/max power, without any formating so 17750 is still formatted as 17750."],
 		["absolutehp"] = L["Absolute current/max health, without any formating so 17750 is still formatted as 17750."],
+		["absmaxhp"] = L["Absolute maximum health value without any formating so 15000 is still shown as 15000."],
+		["abscurhp"] = L["Absolute current health value without any formating so 15000 is still shown as 15000."],
+		["absmaxpp"] = L["Absolute maximum power value without any formating so 15000 is still shown as 15000."],
+		["abscurpp"] = L["Absolute current power value without any formating so 15000 is still shown as 15000."],
+		["reactcolor"] = L["Reaction color code, use [reactcolor][name][close] to color the units name by their reaction."],
 	}
 
 	-- Default tag events
 	self.defaultEvents = {
 		["afk"]					= "PLAYER_FLAGS_CHANGED", -- Yes, I know it's called PLAYER_FLAGS_CHANGED, but arg1 is the unit including non-players.
 		["curhp"]               = "UNIT_HEALTH",
+		["abscurhp"]			= "UNIT_HEALTH",
 		["curmaxhp"]			= "UNIT_HEALTH UNIT_MAXHEALTH",
 		["absolutehp"]			= "UNIT_HEALTH UNIT_MAXHEALTH",
 		["curpp"]               = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER",
+		["abscurpp"]            = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER",
 		["curmaxpp"]			= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
 		["absolutepp"]			= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
 		["dead"]                = "UNIT_HEALTH",
 		["level"]               = "UNIT_LEVEL PLAYER_LEVEL_UP",
 		["maxhp"]               = "UNIT_MAXHEALTH",
+		["absmaxhp"]               = "UNIT_MAXHEALTH",
 		["maxpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
+		["absmaxpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
 		["missinghp"]           = "UNIT_HEALTH UNIT_MAXHEALTH",
 		["missingpp"]           = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_MAXRUNIC_POWER UNIT_RUNIC_POWER",
 		["name"]                = "UNIT_NAME_UPDATE",
@@ -480,6 +518,7 @@ function Tags:LoadTags()
 		["rare"]                = "UNIT_CLASSIFICATION_CHANGED",
 		["classification"]      = "UNIT_CLASSIFICATION_CHANGED",
 		["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
+		["level"]				= "PLAYER_LEVEL_UP",
 	}
 	
 	self.powerEvents = {
@@ -523,6 +562,12 @@ function Tags:Verify()
 			print(string.format("Failed to load tag %s.", tag))
 			print(msg)
 			fine = nil
+		end
+	end
+	
+	for tag, data in pairs(self.defaultTags) do
+		if( not self.defaultEvents[tag] ) then
+			print(string.format("No event found for %s.", tag))
 		end
 	end
 	

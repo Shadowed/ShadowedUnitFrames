@@ -172,14 +172,14 @@ local function OnAttributeChanged(self, name, value)
 		
 	-- Pet changed, going from pet -> vehicle for one
 	elseif( value == "pet" ) then
-		self:RegisterUnitEvent("UNIT_PET", FullUpdate)
+		self:RegisterUnitEvent("UNIT_PET", self, "FullUpdate")
 		
 	-- Automatically do a full update on target change
 	elseif( value == "target" ) then
-		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", FullUpdate)
+		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
 	-- Automatically do a full update on focus change
 	elseif( value == "focus" ) then
-		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", FullUpdate)
+		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "FullUpdate")
 	end
 		
 	-- Add to Clique

@@ -346,6 +346,13 @@ ShadowUFLocals = {
 	["Range indicator"] = "Range indicator",
 	
 	-- Tag help
+	["Reaction color code, use [reactcolor][name][close] to color the units name by their reaction."] = "Reaction color code, use [reactcolor][name][close] to color the units name by their reaction.",
+	["Class name, use [classcolor][class][close] if you want a colored class name."] = "Class name, use [classcolor][class][close] if you want a colored class name.",
+	["Color code for the class, use [classcolor][class][close] if you want the class text to be colored by class"] = "Color code for the class, use [classcolor][class][close] if you want the class text to be colored by class",
+	["Absolute maximum health value without any formating so 15000 is still shown as 15000."] = "Absolute maximum health value without any formating so 15000 is still shown as 15000.",
+	["Absolute current health value without any formating so 15000 is still shown as 15000."] = "Absolute current health value without any formating so 15000 is still shown as 15000.",
+	["Absolute maximum power value without any formating so 15000 is still shown as 15000."] = "Absolute maximum power value without any formating so 15000 is still shown as 15000.",
+	["Absolute current power value without any formating so 15000 is still shown as 15000."] = "Absolute current power value without any formating so 15000 is still shown as 15000.",
 	["Shows AFK or DND flags if they are toggled."] = "Shows AFK or DND flags if they are toggled.",
 	["Absolute current/max health, without any formating so 17750 is still formatted as 17750."] = "Absolute current/max health, without any formating so 17750 is still formatted as 17750.",
 	["Absolute current/max power, without any formating so 17750 is still formatted as 17750."] = "Absolute current/max power, without any formating so 17750 is still formatted as 17750.",
