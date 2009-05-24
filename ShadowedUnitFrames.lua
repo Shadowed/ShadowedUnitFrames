@@ -52,15 +52,15 @@ function ShadowUF:OnInitialize()
 				return false
 			end
 			
-			local funct, msg = loadstring("return " .. (ShadowUF.Tags.defaultTags[index] or ShadowUF.db.profile.tags[index].func or ""))
+			local func, msg = loadstring("return " .. (ShadowUF.Tags.defaultTags[index] or ShadowUF.db.profile.tags[index].func or ""))
 			
-			if( funct ) then
-				funct = funct()
+			if( func ) then
+				func = func()
 			elseif( msg ) then
 				error(msg, 3)
 			end
 			
-			tbl[index] = funct
+			tbl[index] = func
 			return tbl[index]
 		end
 	})
@@ -85,9 +85,11 @@ function ShadowUF:OnInitialize()
 	})
 
 	-- Reset the "Defaults" layout as it's now named default
-	if( ShadowUF.db.profile.layoutInfo.Defaults ) then
-		ShadowUF.db.profile.layoutInfo.Defaults = nil
-		ShadowUF.db.profile.layoutInfo.Default = nil
+	if( self.db.profile.layoutInfo.Defaults ) then
+		self.db.profile.layoutInfo.Defaults = nil
+		if( self.db.profile.activeLayout == "Defaults" ) then
+			self.db.profile.activeLayout = "default"
+		end
 	end
 	
 	-- Load any layouts that were waiting
@@ -102,13 +104,13 @@ function ShadowUF:OnInitialize()
 	-- Hide any Blizzard frames
 	self:HideBlizzardFrames()
 	
-	-- Load SML info
-	self.Layout:LoadSML()
-	
 	-- No layout is loaded, so set this as our active one
 	if( not self.db.profile.activeLayout ) then
 		self:SetLayout("default", true)
 	end
+
+	-- Load SML info
+	self.Layout:LoadSML()
 
 	-- Upgrade power formats
 	if( ShadowUF.db.profile.powerColor ) then
@@ -552,9 +554,10 @@ frame:RegisterEvent("RAID_ROSTER_UPDATE")
 frame:RegisterEvent("ADDON_LOADED")
 frame:SetScript("OnEvent", function(self, event, ...)
 	if( event == "ADDON_LOADED" ) then
-		if( select(1, ...) == "ShadowedUnitFrames" ) then
+		if( IsAddOnLoaded("ShadowedUnitFrames") ) then
+			frame:UnregisterEvent("ADDON_LOADED")
+			
 			ShadowUF:OnInitialize()
-			self:UnregisterEvent("ADDON_LOADED")
 		end
 	elseif( event == "ZONE_CHANGED_NEW_AREA" ) then
 		ShadowUF:LoadUnits()
@@ -565,5 +568,4 @@ frame:SetScript("OnEvent", function(self, event, ...)
 	else
 		ShadowUF[event](ShadowUF, event, ...)
 	end
-	
 end)
