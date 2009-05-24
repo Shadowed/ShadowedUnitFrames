@@ -39,9 +39,10 @@ function Power:UnitDisabled(frame)
 end
 
 function Power:UpdateColor(frame)
-	local powerType = UnitPowerType(frame.unit)
-	frame.powerBar:SetStatusBarColor(ShadowUF.db.profile.powerColor[powerType].r, ShadowUF.db.profile.powerColor[powerType].g, ShadowUF.db.profile.powerColor[powerType].b, ShadowUF.db.profile.bars.alpha)
-	frame.powerBar.background:SetVertexColor(ShadowUF.db.profile.powerColor[powerType].r, ShadowUF.db.profile.powerColor[powerType].g, ShadowUF.db.profile.powerColor[powerType].b, ShadowUF.db.profile.bars.backgroundAlpha)
+	local powerType = select(2, UnitPowerType(frame.unit))
+	powerType = powerType == "" and "MANA" or powerType
+	frame.powerBar:SetStatusBarColor(ShadowUF.db.profile.powerColors[powerType].r, ShadowUF.db.profile.powerColors[powerType].g, ShadowUF.db.profile.powerColors[powerType].b, ShadowUF.db.profile.bars.alpha)
+	frame.powerBar.background:SetVertexColor(ShadowUF.db.profile.powerColors[powerType].r, ShadowUF.db.profile.powerColors[powerType].g, ShadowUF.db.profile.powerColors[powerType].b, ShadowUF.db.profile.bars.backgroundAlpha)
 end
 
 function Power:Update(frame)

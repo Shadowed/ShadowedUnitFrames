@@ -44,9 +44,9 @@ function XP:SetColor(frame)
 		frame.xpBar:SetStatusBarColor(FACTION_BAR_COLORS[frame.xpBar.reaction].r, FACTION_BAR_COLORS[frame.xpBar.reaction].g, FACTION_BAR_COLORS[frame.xpBar.reaction].b, ShadowUF.db.profile.bars.alpha)
 		frame.xpBar.background:SetVertexColor(FACTION_BAR_COLORS[frame.xpBar.reaction].r, FACTION_BAR_COLORS[frame.xpBar.reaction].g, FACTION_BAR_COLORS[frame.xpBar.reaction].b, ShadowUF.db.profile.bars.backgroundAlpha)
 	else
-		frame.xpBar:SetStatusBarColor(ShadowUF.db.profile.xpColor.normal.r, ShadowUF.db.profile.xpColor.normal.g, ShadowUF.db.profile.xpColor.normal.b, ShadowUF.db.profile.bars.alpha)
-		frame.xpBar.background:SetVertexColor(ShadowUF.db.profile.xpColor.normal.r, ShadowUF.db.profile.xpColor.normal.g, ShadowUF.db.profile.xpColor.normal.b, ShadowUF.db.profile.bars.backgroundAlpha)
-		frame.xpBar.rested:SetStatusBarColor(ShadowUF.db.profile.xpColor.rested.r, ShadowUF.db.profile.xpColor.rested.g, ShadowUF.db.profile.xpColor.rested.b, ShadowUF.db.profile.bars.alpha)
+		frame.xpBar:SetStatusBarColor(ShadowUF.db.profile.xpColors.normal.r, ShadowUF.db.profile.xpColors.normal.g, ShadowUF.db.profile.xpColors.normal.b, ShadowUF.db.profile.bars.alpha)
+		frame.xpBar.background:SetVertexColor(ShadowUF.db.profile.xpColors.normal.r, ShadowUF.db.profile.xpColors.normal.g, ShadowUF.db.profile.xpColors.normal.b, ShadowUF.db.profile.bars.backgroundAlpha)
+		frame.xpBar.rested:SetStatusBarColor(ShadowUF.db.profile.xpColors.rested.r, ShadowUF.db.profile.xpColors.rested.g, ShadowUF.db.profile.xpColors.rested.b, ShadowUF.db.profile.bars.alpha)
 	end
 end
 
@@ -78,7 +78,7 @@ function XP:UpdateRep(frame)
 end
 
 function XP:Update(frame)
-	if( frame.unit == "pet" and UnitselfMax(frame.unit) == 0 ) then
+	if( frame.unit == "pet" and UnitXPMax(frame.unit) == 0 ) then
 		self:SetBarVisibility(frame, false)
 		return
 	elseif( UnitLevel(frame.unit) == MAX_PLAYER_LEVEL ) then

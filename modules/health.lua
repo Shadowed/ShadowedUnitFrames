@@ -33,12 +33,12 @@ local function setGradient(healthBar, unit)
 	local r, g, b = 0, 0, 0
 	
 	if( percent == 1.0 ) then
-		r, g, b = ShadowUF.db.profile.healthColor.green.r, ShadowUF.db.profile.healthColor.green.g, ShadowUF.db.profile.healthColor.green.b
+		r, g, b = ShadowUF.db.profile.healthColors.green.r, ShadowUF.db.profile.healthColors.green.g, ShadowUF.db.profile.healthColors.green.b
 	elseif( percent > 0.50 ) then
-		r = (ShadowUF.db.profile.healthColor.red.r - percent) * 2
-		g = ShadowUF.db.profile.healthColor.green.g
+		r = (ShadowUF.db.profile.healthColors.red.r - percent) * 2
+		g = ShadowUF.db.profile.healthColors.green.g
 	else
-		r = ShadowUF.db.profile.healthColor.red.r
+		r = ShadowUF.db.profile.healthColors.red.r
 		g = percent * 2
 	end
 	
@@ -58,7 +58,7 @@ end
 local invalidUnit = {["focustarget"] = true, ["targettarget"] = true, ["targettargettarget"] = true}
 function Health:UpdateThreat(frame)
 	if( not invalidUnit[frame.unit] and ShadowUF.db.profile.units[frame.unitType].healthBar.colorAggro and UnitThreatSituation(frame.unit) == 3 ) then
-		setBarColor(frame.healthBar, ShadowUF.db.profile.healthColor.red.r, ShadowUF.db.profile.healthColor.red.g, ShadowUF.db.profile.healthColor.red.b)
+		setBarColor(frame.healthBar, ShadowUF.db.profile.healthColors.red.r, ShadowUF.db.profile.healthColors.red.g, ShadowUF.db.profile.healthColors.red.b)
 		frame.healthBar.hasAggro = true
 	elseif( frame.healthBar.hasAggro ) then
 		frame.healthBar.hasAggro = nil
@@ -79,23 +79,23 @@ function Health:UpdateColor(frame)
 	local color
 	local unit = frame.unit
 	if( not UnitIsTappedByPlayer(unit) and UnitIsTapped(unit) ) then
-		color = ShadowUF.db.profile.healthColor.tapped
+		color = ShadowUF.db.profile.healthColors.tapped
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and not UnitIsFriend(unit, "player") ) then
 		frame.healthBar.hasReaction = true
 		if( UnitPlayerControlled(unit) ) then
 			if( UnitCanAttack("player", unit) ) then
-				color = ShadowUF.db.profile.healthColor.red
+				color = ShadowUF.db.profile.healthColors.red
 			else
-				color = ShadowUF.db.profile.healthColor.enemyUnattack
+				color = ShadowUF.db.profile.healthColors.enemyUnattack
 			end
 		elseif( UnitReaction(unit, "player") ) then
 			local reaction = UnitReaction(unit, "player")
 			if( reaction > 4 ) then
-				color = ShadowUF.db.profile.healthColor.green
+				color = ShadowUF.db.profile.healthColors.green
 			elseif( reaction == 4 ) then
-				color = ShadowUF.db.profile.healthColor.yellow
+				color = ShadowUF.db.profile.healthColors.yellow
 			elseif( reaction < 4 ) then
-				color = ShadowUF.db.profile.healthColor.red
+				color = ShadowUF.db.profile.healthColors.red
 			end
 		end
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorType == "class" and ( UnitIsPlayer(unit) or UnitCreatureFamily(unit) ) ) then
@@ -108,7 +108,7 @@ function Health:UpdateColor(frame)
 			end
 		end
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorType == "static" ) then
-		color = ShadowUF.db.profile.healthColor.green
+		color = ShadowUF.db.profile.healthColors.green
 	end
 	
 	if( color ) then

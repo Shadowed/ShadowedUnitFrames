@@ -269,18 +269,18 @@ function Tags:LoadTags()
 			local color
 			if( not UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) ) then
 				if( UnitCanAttack("player", unit) ) then
-					color = ShadowUF.db.profile.healthColor.red
+					color = ShadowUF.db.profile.healthColors.red
 				else
-					color = ShadowUF.db.profile.healthColor.enemyUnattack
+					color = ShadowUF.db.profile.healthColors.enemyUnattack
 				end
 			elseif( UnitReaction(unit, "player") ) then
 				local reaction = UnitReaction(unit, "player")
 				if( reaction > 4 ) then
-					color = ShadowUF.db.profile.healthColor.green
+					color = ShadowUF.db.profile.healthColors.green
 				elseif( reaction == 4 ) then
-					color = ShadowUF.db.profile.healthColor.yellow
+					color = ShadowUF.db.profile.healthColors.yellow
 				elseif( reaction < 4 ) then
-					color = ShadowUF.db.profile.healthColor.red
+					color = ShadowUF.db.profile.healthColors.red
 				end
 			end
 			
@@ -339,7 +339,7 @@ function Tags:LoadTags()
 			local maxHealth = UnitHealthMax(unit)
 			return string.format("%s/%s", health, maxHealth)
 		end]],
-		["abscurhp"] = [[function(unit)	return UnitHeath(unit) end]],
+		["abscurhp"] = [[function(unit)	return UnitHealth(unit) end]],
 		["absmaxhp"] = [[function(unit) return UnitHealthMax(unit) end]],
 		["abscurpp"] = [[function(unit)	return UnitPower(unit) end]],
 		["absmaxpp"] = [[function(unit) return UnitPowerMax(unit) end]],
@@ -518,7 +518,7 @@ function Tags:LoadTags()
 		["rare"]                = "UNIT_CLASSIFICATION_CHANGED",
 		["classification"]      = "UNIT_CLASSIFICATION_CHANGED",
 		["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
-		["level"]				= "PLAYER_LEVEL_UP",
+		["level"]				= "PARTY_MEMBERS_CHANGED UNIT_LEVEL",
 	}
 	
 	self.powerEvents = {
@@ -534,6 +534,7 @@ function Tags:LoadTags()
 		["PLAYER_TARGET_CHANGED"] = true,
 		["PLAYER_FOCUS_CHANGED"] = true,
 		["PLAYER_LEVEL_UP"] = true,
+		["PARTY_MEMBERS_CHANGED"] = true,
 	}
 end
 
@@ -567,7 +568,7 @@ function Tags:Verify()
 	
 	for tag, data in pairs(self.defaultTags) do
 		if( not self.defaultEvents[tag] ) then
-			print(string.format("No event found for %s.", tag))
+			--print(string.format("No event found for %s.", tag))
 		end
 	end
 	

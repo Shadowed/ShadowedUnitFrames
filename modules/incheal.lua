@@ -34,7 +34,7 @@ function IncHeal:LayoutApplied(frame)
 	frame.incHeal:SetWidth(frame.healthBar:GetWidth() * OH_WARNING)
 	frame.incHeal:SetHeight(frame.healthBar:GetHeight())
 	frame.incHeal:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
-	frame.incHeal:SetStatusBarColor(ShadowUF.db.profile.healthColor.inc.r, ShadowUF.db.profile.healthColor.inc.g, ShadowUF.db.profile.healthColor.inc.b, ShadowUF.db.profile.bars.alpha)
+	frame.incHeal:SetStatusBarColor(ShadowUF.db.profile.healthColors.inc.r, ShadowUF.db.profile.healthColors.inc.g, ShadowUF.db.profile.healthColors.inc.b, ShadowUF.db.profile.bars.alpha)
 	frame.incHeal:SetPoint("TOPLEFT", frame.healthBar, "TOPLEFT", 0, 0)
 	frame.incHeal:Hide()
 end

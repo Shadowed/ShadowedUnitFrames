@@ -12,7 +12,7 @@ local units = {"player", "pet", "target", "targettarget", "targettargettarget", 
 local defaultDB
 
 -- Main layout keys, this does not include units or inherited module options
-local mainLayout = {["classColors"] = true, ["bars"] = true, ["backdrop"] = true, ["font"] = true, ["powerColor"] = true, ["healthColor"] = true, ["xpColor"] = true, ["positions"] = true}
+local mainLayout = {["classColors"] = true, ["bars"] = true, ["backdrop"] = true, ["font"] = true, ["powerColors"] = true, ["healthColors"] = true, ["xpColors"] = true, ["positions"] = true}
 -- Sub layout keys inside layouts that are accepted
 local subLayout = {["runebar"] = true, ["growth"] = true, ["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
 
@@ -123,28 +123,22 @@ function ShadowUF:OnInitialize()
 		self:SetLayout("Default", true)
 	end
 	
-	-- Quick upgrade
-	if( not self.db.profile.healthColor.inc ) then
-		self.db.profile.classColors = CopyTable(RAID_CLASS_COLORS)
-		self.db.profile.healthColor.inc = {r = 0.20, g = 0.20, b = 1.0}
-		
-		for _, data in pairs(ShadowUF.db.profile.units) do
-			if( data.auras ) then
-				for _, aura in pairs(data.auras) do
-					if( aura.inColumn ) then
-						aura.perRow = aura.inColumn
-						aura.maxRows = aura.rows
-						
-						aura.inColumn = nil
-						aura.rows = nil
-					end
-				end
-			end
-		end
-	elseif( not self.db.profile.classColors.PET ) then
-		self.db.profile.classColors.PET = {r = 0.20, g = 0.90, b = 0.20}
-		self.db.profile.units.player.runeBar = {enabled = false, scale = 1.0, height = 0.40, width = 1.0}
-		self.db.profile.units.player.totemBar = {enabled = false, scale = 1.0, height = 0.40, width = 1.0}
+	-- Upgrade power formats
+	if( ShadowUF.db.profile.powerColor ) then
+		ShadowUF.db.profile.healthColors = CopyTable(ShadowUF.db.profile.healthColor)
+		ShadowUF.db.profile.healthColor = nil
+		ShadowUF.db.profile.xpColors = CopyTable(ShadowUF.db.profile.xpColor)
+		ShadowUF.db.profile.xpColor = nil
+		ShadowUF.db.profile.powerColor = nil
+		ShadowUF.db.profile.powerColors = {
+			MANA = {r = 0.30, g = 0.50, b = 0.85}, 
+			RAGE = {r = 0.90, g = 0.20, b = 0.30},
+			FOCUS = {r = 1.0, g = 0.85, b = 0}, 
+			ENERGY = {r = 1.0, g = 0.85, b = 0.10}, 
+			HAPPINESS = {r = 0.50, g = 0.90, b = 0.70},
+			RUNES = {r = 0.50, g = 0.50, b = 0.50}, 
+			RUNIC_POWER = {b = 0.60, g = 0.45, r = 0.35}, 
+		}
 	end
 end
 

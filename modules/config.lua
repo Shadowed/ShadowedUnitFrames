@@ -123,10 +123,10 @@ local function loadGeneralOptions()
 	
 	local function setColor(info, r, g, b, a)
 		local parent = info[#(info) - 1]
-		local key = info.arg or info[#(info)]
+		local key = info[#(info)]
 		
 		if( parent == "color" ) then
-			parent = info.arg and "powerColor" or "healthColor"
+			parent = info.arg and "powerColors" or "healthColors"
 		end
 
 		ShadowUF.db.profile[parent][key].r = r
@@ -139,10 +139,10 @@ local function loadGeneralOptions()
 	
 	local function getColor(info)
 		local parent = info[#(info) - 1]
-		local key = info.arg or info[#(info)]
+		local key = info[#(info)]
 		
 		if( parent == "color" ) then
-			parent = info.arg and "powerColor" or "healthColor"
+			parent = info.arg and "powerColors" or "healthColors"
 		end
 		
 		return ShadowUF.db.profile[parent][key].r, ShadowUF.db.profile[parent][key].g, ShadowUF.db.profile[parent][key].b, ShadowUF.db.profile[parent][key].a
@@ -333,60 +333,51 @@ local function loadGeneralOptions()
 						set = setColor,
 						get = getColor,
 						args = {
-							mana = {
+							MANA = {
 								order = 0,
 								type = "color",
 								hasAlpha = true,
 								name = L["Mana"],
-								arg = 0,
+								arg = true,
 								width = "half",
 							},
-							rage = {
+							RAGE = {
 								order = 1,
 								type = "color",
 								hasAlpha = true,
 								name = L["Mana"],
-								arg = 1,
+								arg = true,
 								width = "half",
 							},
-							focus = {
+							FOCUS = {
 								order = 2,
 								type = "color",
 								hasAlpha = true,
 								name = L["Focus"],
-								arg = 2,
+								arg = true,
 								width = "half",
 							},
-							energy = {
+							ENERGY = {
 								order = 3,
 								type = "color",
 								hasAlpha = true,
 								name = L["Energy"],
-								arg = 3,
+								arg = true,
 								width = "half",
 							},
-							runes = {
-								order = 4,
-								type = "color",
-								hasAlpha = true,
-								name = L["Runes"],
-								arg = 5,
-								width = "half",
-							},
-							happiness = {
+							HAPPINESS = {
 								order = 5,
 								type = "color",
 								hasAlpha = true,
 								name = L["Happiness"],
-								arg = 4,
-								width = "half",
+								arg = true,
 							},
-							rp = {
+							RUNIC_POWER = {
 								order = 6,
 								type = "color",
 								hasAlpha = true,
 								name = L["Runic Power"],
-								arg = 6,
+								arg = true,
 							},
 							green = {
 								order = 7,
@@ -458,12 +449,6 @@ local function loadGeneralOptions()
 					runes = hideTable,
 				},
 			},
-			layout = {
-				type = "group",
-				order = 4,
-				name = L["Layout management"] .. NYI,
-				args = {}
-			},
 		},
 	}
 	
@@ -482,6 +467,40 @@ local function loadGeneralOptions()
 	options.args.general.args.general.args.classColors.args.PET = classTable
 	
 	options.args.general.args.profile.order = 2
+	
+	-- Load layout management info
+	options.args.general.args.layout = {
+		order = 1,
+		type = "group",
+		name = L["Layouts"] .. NYI,
+		childGroups = "tab",
+		args = {
+			manage = {
+				order = 1,
+				type = "group",
+				name = L["Management"],
+				args = {
+				
+				},
+			},
+			import = {
+				order = 2,
+				type = "group",
+				name = L["Import"],
+				args = {
+				
+				},
+			},
+			export = {
+				order = 3,
+				type = "group",
+				name = L["Export"],
+				args = {
+				
+				},
+			},
+		},
+	}
 end
 
 ---------------------
@@ -981,7 +1000,7 @@ local function loadUnitOptions()
 			hidden = isFromParent,
 			type = "range",
 			name = L["X Offset"],
-			min = -20, max = 20, step = 1,
+			min = -50, max = 50, step = 1,
 		}
 		
 		local y = {
@@ -989,7 +1008,7 @@ local function loadUnitOptions()
 			hidden = isFromParent,
 			type = "range",
 			name = L["Y Offset"],
-			min = -20, max = 20, step = 1
+			min = -50, max = 50, step = 1
 		}
 		
 		for id in pairs(ShadowUF.defaults.profile.units.player.text) do
@@ -1453,7 +1472,7 @@ local function loadUnitOptions()
 								order = 4,
 								type = "range",
 								name = L["X Offset"],
-								min = -20, max = 20, step = 1,
+								min = -50, max = 50, step = 1,
 								arg = "combatText.x",
 								hidden = hideAdvancedOption,
 							},
@@ -1461,7 +1480,7 @@ local function loadUnitOptions()
 								order = 5,
 								type = "range",
 								name = L["Y Offset"],
-								min = -20, max = 20, step = 1,
+								min = -50, max = 50, step = 1,
 								arg = "combatText.y",
 								hidden = hideAdvancedOption,
 							},

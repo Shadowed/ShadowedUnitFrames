@@ -180,9 +180,10 @@ function Layout:AnchorFrame(parent, frame, config, isRecurse)
 	end
 
 	-- Effective scaling should only be used if it's enabled + they are anchored to the UIParent
+	-- raaaaaaaaaaaaaggggggggggggggggeeeeeeeeeeeeeeeeeeeeeee
 	local scale = 1
-	if( config.anchorPoint == "UIParent" and frame.unitType and ShadowUF.db.profile.units[frame.unitType].effectiveScale ) then
-		scale = parent:GetEffectiveScale()
+	if( config.anchorTo == "UIParent" and frame.unitType and ShadowUF.db.profile.units[frame.unitType].effectiveScale ) then
+		scale = frame:GetEffectiveScale()
 	end
 	
 	if( config.anchorPoint and config.anchorPoint ~= "" ) then

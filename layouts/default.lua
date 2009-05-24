@@ -41,16 +41,16 @@ ShadowUF:RegisterLayout("Default", {
 			DEATHKNIGHT = {r = 0.77, g = 0.12 , b = 0.23},
 			PET = {r = 0.20, g = 0.90, b = 0.20},
 		},
-		powerColor = {
-			[0] = {r = 0.30, g = 0.50, b = 0.85}, -- Mana
-			[1] = {r = 0.90, g = 0.20, b = 0.30}, -- Rage
-			[2] = {r = 1.0, g = 0.85, b = 0}, -- Focus (Hunter pets)
-			[3] = {r = 1.0, g = 0.85, b = 0.10}, -- Energy
-			[4] = {r = 0, g = 1.0, b = 1.0}, -- Happiness
-			[5] = {r = 0.50, g = 0.50, b = 0.50}, -- Runes
-			[6] = {b = 0.60, g = 0.45, r = 0.35}, -- Runic Power
+		powerColors = {
+			MANA = {r = 0.30, g = 0.50, b = 0.85}, 
+			RAGE = {r = 0.90, g = 0.20, b = 0.30},
+			FOCUS = {r = 1.0, g = 0.85, b = 0}, 
+			ENERGY = {r = 1.0, g = 0.85, b = 0.10}, 
+			HAPPINESS = {r = 0.50, g = 0.90, b = 0.70},
+			RUNES = {r = 0.50, g = 0.50, b = 0.50}, 
+			RUNIC_POWER = {b = 0.60, g = 0.45, r = 0.35}, 
 		},
-		healthColor = {
+		healthColors = {
 			tapped = {r = 0.5, g = 0.5, b = 0.5},
 			red = {r = 0.90, g = 0.0, b = 0.0},
 			green = {r = 0.20, g = 0.90, b = 0.20},
@@ -58,7 +58,7 @@ ShadowUF:RegisterLayout("Default", {
 			inc = {r = 0.20, g = 0.20, b = 1.0},
 			enemyUnattack = {r = 0.60, g = 0.20, b = 0.20},
 		},
-		xpColor = {
+		xpColors = {
 			normal = {r = 0.58, g = 0.0, b = 0.55},
 			rested = {r = 0.0, g = 0.39, b = 0.88, a = 0.80},
 		},

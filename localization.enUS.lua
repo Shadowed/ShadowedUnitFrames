@@ -30,6 +30,7 @@ ShadowUFLocals = {
 	-- GUI
 	["Tags"] = "Tags",
 	["Layout"] = "Layout",
+	["Layouts"] = "Layouts",
 	["Units"] = "Units",
 	["Error"] = "Error",
 	["General"] = "General",
@@ -78,6 +79,9 @@ ShadowUFLocals = {
 	["You must do a /console reloadui for an object to show up again."] = "You must do a /console reloadui for an object to show up again.",
 
 	-- Units
+	["Management"] = "Management",
+	["Import"] = "Import",
+	["Export"] = "Export",
 	["Global"] = "Global",
 	["global"] = "Global",
 	["Modify settings"] = "Modify settings",
@@ -192,7 +196,7 @@ ShadowUFLocals = {
 	["How large the background should tile"] = "How large the background should tile",
 	["Inset"] = "Inset",
 	["How far into the frame the background will be shown"] = "How far into the frame the background will be shown",
-	["Layout management"] = "Layout management",
+	
 	["Tag management"] = "Tag management",
 	["Profiles"] = "Profiles",
 	["Enable units"] = "Enable units",

@@ -61,7 +61,7 @@ function Fader:Update(frame)
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha)
 	elseif( UnitHealth(frame.unit) ~= UnitHealthMax(frame.unit) ) then
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha)
-	elseif( unit == "player" and UnitExists("target") ) then
+	elseif( frame.unitType == "player" and UnitExists("target") ) then
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha)
 	else
 		startFading(frame, "out", ShadowUF.db.profile.units[frame.unitType].fader.inactiveAlpha)
