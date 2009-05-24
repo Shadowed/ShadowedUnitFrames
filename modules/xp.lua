@@ -1,4 +1,4 @@
-local XP = ShadowUF:NewModule("XP")
+local XP = {}
 ShadowUF:RegisterModule(XP, "xpBar", ShadowUFLocals["XP/Rep bar"], "bar")
 
 function XP:UnitEnabled(frame)

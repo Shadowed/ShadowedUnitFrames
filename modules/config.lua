@@ -1,8 +1,10 @@
-local Config = ShadowUF:NewModule("Config")
+local Config = {}
 local AceDialog, AceRegistry, AceGUI, SML, registered, options
 local L = ShadowUFLocals
 local unitOrder, masterUnit
 local NYI = " (NYI)" -- Debug
+
+ShadowUF.Config = Config
 
 --[[
 	Interface design is a complex process, you might ask what goes into it? Well this is what it requires:
@@ -1595,14 +1597,7 @@ local function loadUnitOptions()
 								set = function(info, value)
 									setLayout(info, value, true)
 									ShadowUF.Units:ReloadUnit(info[#(info) - 3])
-									
-									if( value ) then
-										ShadowUF:RegisterEvent("RAID_ROSTER_UPDATE")
-										ShadowUF:RAID_ROSTER_UPDATE()
-									else
-										ShadowUF:UnregisterEvent("RAID_ROSTER_UPDATE")
-										ShadowUF:RAID_ROSTER_UPDATE()
-									end
+									ShadowUF:RAID_ROSTER_UPDATE()
 								end,
 							},
 							xOffset = {

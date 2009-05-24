@@ -1,4 +1,4 @@
-local Range = ShadowUF:NewModule("Range")
+local Range = {}
 ShadowUF:RegisterModule(Range, "range", ShadowUFLocals["Range indicator"])
 
 local function checkRange(self, elapsed)

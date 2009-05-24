@@ -1,4 +1,4 @@
-local Totems = ShadowUF:NewModule("Totems")
+local Totems = {}
 local totemColors = {{r = 1, g = 0, b = 0.4}, {r = 0, g = 1, b = 0.4}, {r = 0, g = 0.4, b = 1}, {r = 0.90, g = 0.90, b = 0.90}}
 ShadowUF:RegisterModule(Totems, "totemBar", ShadowUFLocals["Totem indicators"], "bar")
 

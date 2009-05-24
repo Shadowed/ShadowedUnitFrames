@@ -1,4 +1,4 @@
-local IncHeal = ShadowUF:NewModule("IncHeal")
+local IncHeal = {}
 local frames, playerHeals = {}, {}
 local playerName = UnitName("player")
 local HealComm

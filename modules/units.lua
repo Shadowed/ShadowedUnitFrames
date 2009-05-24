@@ -1,9 +1,10 @@
-local Units = ShadowUF:NewModule("Units")
-local unitList, unitFrames, unitEvents, loadedUnits, queuedCombat = {}, {}, {}, {}, {}
+local Units = {unitFrames = {}}
+local unitList, unitEvents, loadedUnits, queuedCombat = {}, {}, {}, {}, {}
+local unitFrames = Units.unitFrames
 local inCombat, needPartyFrame
 local FRAME_LEVEL_MAX = 5
 
-Units.unitFrames = unitFrames
+ShadowUF.Units = Units
 ShadowUF:RegisterModule(Units)
 
 -- Frame shown, do a full update

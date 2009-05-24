@@ -1,4 +1,4 @@
-local Runes = ShadowUF:NewModule("Runes")
+local Runes = {}
 ShadowUF:RegisterModule(Runes, "runeBar", ShadowUFLocals["Rune bar"], "bar")
 
 function Runes:UnitEnabled(frame)

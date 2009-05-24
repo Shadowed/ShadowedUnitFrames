@@ -2,7 +2,7 @@
 	Shadow Unit Frames, Mayen/Selari from Illidan (US) PvP
 ]]
 
-ShadowUF = LibStub("AceAddon-3.0"):NewAddon("ShadowUF", "AceEvent-3.0")
+ShadowUF = {}
 ShadowUF.moduleNames = {}
 
 local L = ShadowUFLocals
@@ -82,22 +82,7 @@ function ShadowUF:OnInitialize()
 			return tbl[index]
 		end,
 	})
-	
-	self:RegisterEvent("ZONE_CHANGED_NEW_AREA", "LoadUnits")
-	self:RegisterEvent("PLAYER_ENTERING_WORLD", function()
-		ShadowUF:UnregisterEvent("PLAYER_ENTERING_WORLD")
-		ShadowUF:LoadUnits()
-
-		if( self.db.profile.units.party.enabled and self.db.profile.units.party.hideInRaid ) then
-			ShadowUF:RAID_ROSTER_UPDATE()
-		end
-	end)
-	
-	-- Watch for joining a raid for party things
-	if( self.db.profile.units.party.enabled and self.db.profile.units.party.hideInRaid ) then
-		self:RegisterEvent("RAID_ROSTER_UPDATE")
-	end
-	
+		
 	-- Load any layouts that were waiting
 	if( layoutQueue ) then
 		for name, data in pairs(layoutQueue) do
@@ -106,11 +91,6 @@ function ShadowUF:OnInitialize()
 		
 		layoutQueue = nil
 	end
-	
-	self.Layout = self.modules.Layout
-	self.Units = self.modules.Units
-	self.Tags = self.modules.Tags
-	self.Auras = self.modules.Auras
 	
 	-- Hide any Blizzard frames
 	self:HideBlizzardFrames()
@@ -144,7 +124,7 @@ end
 
 local partyDisabled
 function ShadowUF:RAID_ROSTER_UPDATE()
-	if( GetNumRaidMembers() > 5 and self.db.profile.units.party.hideInRaid ) then
+	if( GetNumRaidMembers() > 5 and self.db.profile.units.party.enabled and self.db.profile.units.party.hideInRaid ) then
 		if( not partyDisabled ) then
 			partyDisabled = true
 			self.Units:UninitializeFrame(self.db.profile.units.party, "party")
@@ -538,3 +518,26 @@ end
 function ShadowUF:Print(msg)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99ShadowUF|r: " .. msg)
 end
+
+local frame = CreateFrame("Frame")
+frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+frame:RegisterEvent("RAID_ROSTER_UPDATE")
+frame:RegisterEvent("ADDON_LOADED")
+frame:SetScript("OnEvent", function(self, event, ...)
+	if( event == "ADDON_LOADED" ) then
+		if( select(1, ...) == "ShadowedUnitFrames" ) then
+			ShadowUF:OnInitialize()
+			self:UnregisterEvent("ADDON_LOADED")
+		end
+	elseif( event == "ZONE_CHANGED_NEW_AREA" ) then
+		ShadowUF:LoadUnits()
+	elseif( event == "PLAYER_ENTERING_WORLD" ) then
+		ShadowUF:LoadUnits()
+		ShadowUF:RAID_ROSTER_UPDATE()
+		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+	else
+		ShadowUF[event](ShadowUF, event, ...)
+	end
+	
+end)

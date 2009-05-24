@@ -1,4 +1,4 @@
-local Health = ShadowUF:NewModule("Health")
+local Health = {}
 ShadowUF:RegisterModule(Health, "healthBar", ShadowUFLocals["Health bar"], "bar")
 
 function Health:UnitEnabled(frame, unit)

@@ -1,4 +1,4 @@
-local Auras = ShadowUF:NewModule("Auras")
+local Auras = {}
 local canRemove
 ShadowUF:RegisterModule(Auras, "auras", ShadowUFLocals["Auras"])
 

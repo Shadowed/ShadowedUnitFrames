@@ -1,18 +1,12 @@
-local Indicators = ShadowUF:NewModule("Indicators")
+local Indicators = {}
 local raidUnits, partyUnits = {}, {}
 local indicatorList = {"status", "pvp", "leader", "masterLoot", "raidTarget", "happiness"}
 
 ShadowUF:RegisterModule(Indicators, "indicators", ShadowUFLocals["Indicators"])
 
-function Indicators:OnInitialize()
-	for i=1, MAX_PARTY_MEMBERS do
-		partyUnits[i] = "party" .. i
-	end
-	
-	for i=1, MAX_RAID_MEMBERS do
-		raidUnits[i] = "raid" .. i
-	end
-end
+-- Cache the units so we don't have to concat every time it updates
+for i=1, MAX_PARTY_MEMBERS do partyUnits[i] = "party" .. i end
+for i=1, MAX_RAID_MEMBERS do raidUnits[i] = "raid" .. i end
 
 function Indicators:UpdateHappiness(frame)
 	if( not frame.indicators.happiness.enabled ) then return end

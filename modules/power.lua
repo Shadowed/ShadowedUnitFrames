@@ -1,4 +1,4 @@
-local Power = ShadowUF:NewModule("Power")
+local Power = {}
 ShadowUF:RegisterModule(Power, "powerBar", ShadowUFLocals["Power bar"], "bar")
 
 local function updateTimer(self, elapsed)

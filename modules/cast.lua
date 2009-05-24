@@ -1,4 +1,4 @@
-local Cast = ShadowUF:NewModule("Cast")
+local Cast = {}
 local castFuncs = {["UNIT_SPELLCAST_START"] = UnitCastingInfo, ["UNIT_SPELLCAST_DELAYED"] = UnitCastingInfo, ["UNIT_SPELLCAST_CHANNEL_START"] = UnitChannelInfo, ["UNIT_SPELLCAST_CHANNEL_UPDATE"] = UnitChannelInfo}
 local FADE_TIME = 0.20
 

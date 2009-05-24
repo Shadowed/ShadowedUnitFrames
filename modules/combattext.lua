@@ -1,4 +1,4 @@
-local Combat = ShadowUF:NewModule("CombatText")
+local Combat = {}
 ShadowUF:RegisterModule(Combat, "combatText", ShadowUFLocals["Combat text"])
 
 function Combat:UnitEnabled(frame)

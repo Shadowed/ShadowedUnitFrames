@@ -1,13 +1,9 @@
-local Layout = ShadowUF:NewModule("Layout", "AceEvent-3.0")
+local Layout = {}
 local SML, config
 local ordering, backdropCache, anchoringQueued, mediaPath, frameList = {}, {}, {}, {}, {}
 local mediaRequired
 
--- Deal with loading SML data we need
-function Layout:OnInitialize()
-	self.mediaPath = mediaPath
-	self:CheckMedia()
-end
+ShadowUF.Layout = Layout
 
 local function loadMedia(type, name, default)
 	if( name == "" ) then
@@ -33,6 +29,8 @@ function Layout:CheckMedia()
 	mediaPath[SML.MediaType.FONT] = loadMedia(SML.MediaType.FONT, ShadowUF.db.profile.font.name, "Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf")
 	mediaPath[SML.MediaType.BACKGROUND] = loadMedia(SML.MediaType.BACKGROUND, ShadowUF.db.profile.backdrop.backgroundTexture, "Interface\\ChatFrame\\ChatFrameBackground")
 	mediaPath[SML.MediaType.BORDER] = loadMedia(SML.MediaType.BORDER, ShadowUF.db.profile.backdrop.borderTexture, "")
+
+	self.mediaPath = mediaPath
 end
 
 -- We might not have had a media we required at initial load, wait for it to load and then update everything when it does
@@ -104,6 +102,8 @@ function Layout:LoadSML()
 	SML:Register(SML.MediaType.STATUSBAR, "LiteStep", "Interface\\Addons\\ShadowedUnitFrames\\media\\textures\\LiteStep")
 	SML:Register(SML.MediaType.STATUSBAR, "Aluminium", "Interface\\Addons\\ShadowedUnitFrames\\media\\textures\\Aluminium")
 	SML:Register(SML.MediaType.STATUSBAR, "Minimalist", "Interface\\Addons\\ShadowedUnitFrames\\media\\textures\\Minimalist")
+
+	self:CheckMedia()
 end
 
 --[[
@@ -372,7 +372,7 @@ function Layout:ApplyText(frame, config)
 			
 			updateShadows(fontString)
 			
-			ShadowUF.modules.Tags:Register(frame, fontString, row.text)
+			ShadowUF.Tags:Register(frame, fontString, row.text)
 			fontString:UpdateTags()
 			fontString:Show()
 			

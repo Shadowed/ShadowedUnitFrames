@@ -1,4 +1,4 @@
-local Combo = ShadowUF:NewModule("Combo")
+local Combo = {}
 local playerUnit = "player"
 ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUFLocals["Combo points"])
 

@@ -1,4 +1,4 @@
-local Fader = ShadowUF:NewModule("Fader")
+local Fader = {}
 ShadowUF:RegisterModule(Fader, "fader", ShadowUFLocals["Combat fader"])
 
 local function faderUpdate(self, elapsed)
