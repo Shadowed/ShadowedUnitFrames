@@ -19,6 +19,12 @@ local function selectDialogGroup(group, key)
 	AceRegistry:NotifyChange("ShadowedUF")
 end
 
+local function selectTabGroup(group, subGroup, key)
+	AceDialog.Status.ShadowedUF.children[group].status.groups.selected = subGroup
+	AceDialog.Status.ShadowedUF.children[group].children[subGroup].status.groups.selected = key
+	AceRegistry:NotifyChange("ShadowedUF")
+end
+
 local function hideClassWidget(info)
 	local class = select(2, UnitClass("player"))
 	
@@ -468,13 +474,125 @@ local function loadGeneralOptions()
 	
 	options.args.general.args.general.args.classColors.args.PET = classTable
 	
-	options.args.general.args.profile.order = 2
+	options.args.general.args.profile.order = 1
 	
 	-- Load layout management info
-	options.args.general.args.layout = {
-		order = 1,
+	local function storeActiveLayout(layout)
+		-- First let us grab the main stuff, this is the easy part
+		for key in pairs(ShadowUF.mainLayout) do
+			layout[key] = ShadowUF.db.profile[key]
+		end
+		
+		-- Now load all of the units
+		for unit, data in pairs(ShadowUF.db.profile.units) do
+			layout.units[unit] = CopyTable(data)
+			layout.units[unit] = ShadowUF:VerifyTable(layout.units[unit])
+		end
+		
+		return layout
+	end
+	
+	local layoutData = {author = UnitName("player")}
+	local layoutTable = {
+		order = function(info)
+			if( ShadowUF.db.profile.activeLayout == info[#(info)] ) then
+				return 0
+			end
+			
+			return 1
+		end,
 		type = "group",
-		name = L["Layouts"] .. NYI,
+		inline = true,
+		name = function(info)
+			local layout = ShadowUF.layoutInfo[info[#(info)]]
+			local prefix = ""
+			if( ShadowUF.db.profile.activeLayout == info[#(info)] ) then
+				prefix = L["|cffffffffActive:|r "]
+			end
+			
+			if( layout.author ) then
+				return string.format(L["%s%s by %s"], prefix, layout.name, layout.author)
+			else
+				return prefix .. layout.name
+			end
+		end,
+		args = {
+			desc = {
+				order = 0,
+				type = "description",
+				name = function(info) return ShadowUF.layoutInfo[info[#(info) - 1]].description end,
+				width = "full",
+			},
+			sep = {
+				order = 1,
+				type = "header",
+				name = "",
+				width = "full",
+			},
+			activate = {
+				order = 2,
+				type = "execute",
+				name = L["Activate"],
+				disabled = function(info) return info[#(info) - 1] == ShadowUF.db.profile.activeLayout end,
+				confirm = true,
+				confirmText = L["By activating this layout, all of your positioning, sizing and so on settings will be reset to load this layout, are you sure you want to activate this?"],
+				func = function(info)
+					ShadowUF:SetLayout(info[#(info) - 1], true)
+					ShadowUF:LoadUnits()
+					ShadowUF.Layout:ReloadAll()
+				end,
+				width = "half",
+			},
+			export = {
+				order = 3,
+				type = "execute",
+				name = L["Export"],
+				width = "half",
+				func = function(info)
+					local id = info[#(info) - 1]
+					local data = ""
+					local newInfo = {id = id, name = ShadowUF.layoutInfo[id].name, author = ShadowUF.layoutInfo[id].author, description = ShadowUF.layoutInfo[id].description}
+					-- If it's not the active layout we can just directly use the layout
+					if( ShadowUF.db.profile.activeLayout ~= id ) then
+						newInfo.layout = ShadowUF.layoutInfo[id].layout
+					-- ... and if it's not, we extract the data manually
+					else
+						newInfo.layout = storeActiveLayout({units = {}})
+					end
+					
+					layoutData.export = id
+					layoutData.exportName = ShadowUF.layoutInfo[id].name
+					layoutData.exportData = ShadowUF:CompressLayout(ShadowUF:WriteTable(newInfo))
+					
+					selectTabGroup("general", "layout", "export")
+				end,
+			},
+			delete = {
+				order = 4,
+				type = "execute",
+				name = L["Delete"],
+				disabled = function(info) return info[#(info) - 1] == "default" end,
+				width = "half",
+				confirm = true,
+				confirmText = L["Are you sure you want to delete this layout?"],
+				func = function(info)
+					local id = info[#(info) - 1]
+					ShadowUF.layoutInfo[id] = nil
+					ShadowUF.db.profile.layoutInfo[id] = nil
+					ShadowUF:SetLayout("default", true)
+					ShadowUF:LoadUnits()
+					ShadowUF.Layout:ReloadAll()
+					
+					options.args.general.args.layout.args.manage.args[id] = nil
+				end,
+			},
+		},
+	}
+	
+	options.args.general.args.layout = {
+		order = 2,
+		type = "group",
+		name = L["Layouts"],
 		childGroups = "tab",
 		args = {
 			manage = {
@@ -485,24 +603,194 @@ local function loadGeneralOptions()
 				
 				},
 			},
+			create = {
+				order = 1.5,
+				type = "group",
+				name = L["Create"],
+				args = {
+					desc = {
+						order = 0,
+						type = "group",
+						name = L["Help"],
+						inline = true,
+						args = {
+							info = {
+								order = 0,
+								type = "description",
+								name = L["Create a new layout using your current layout as a template. You must fill out all of the fields before you can create it."],
+							},
+						},
+					},
+					layout = {
+						order = 1,
+						type = "group",
+						name = L["Layout"],
+						inline = true,
+						set = function(info, value) layoutData[info[#(info)]] = value end,
+						get = function(info) return layoutData[info[#(info)]] or "" end,
+						args = {
+							name = {
+								order = 0,
+								type = "input",
+								name = L["Layout name"],
+							},
+							author = {
+								order = 1,
+								type = "input",
+								name = L["Author"],
+							},
+							description = {
+								order = 2,
+								type = "input",
+								name = L["Description"],
+								width = "full",
+							},
+							create = {
+								order = 3,
+								type = "execute",
+								name = L["Create"],
+								disabled = function()
+									if( layoutData.name and layoutData.author and layoutData.description ) then
+										return false
+									end
+								
+									return true
+								end,
+								func = function()
+									local id = "layout" .. time()
+									local layout = {id = id, name = layoutData.name, author = layoutData.author, description = layoutData.description, layout = storeActiveLayout({units = {}})}
+									ShadowUF.db.profile.layoutInfo[id] = ShadowUF:WriteTable(layout)
+									ShadowUF.db.profile.activeLayout = id
+									
+									layoutData.name = nil
+									layoutData.author = nil
+									layoutData.description = nil
+									
+									selectTabGroup("general", "layout", "manage")
+									
+									options.args.general.args.layout.args.manage.args[id] = layoutTable
+								end,
+							},
+						},
+					},
+				},
+			},
 			import = {
 				order = 2,
 				type = "group",
 				name = L["Import"],
 				args = {
-				
+					desc = {
+						order = 0,
+						type = "group",
+						name = function() return layoutData.error and L["Error"] or L["Importing"] end,
+						inline = true,
+						hidden = false,
+						args = {
+							info = {
+								order = 0,
+								type = "description",
+								name = function() return layoutData.error or L["Import a new layout using the layout data string another user gave you."] end,
+							},
+						},
+					},
+					text = {
+						order = 1,
+						type = "group",
+						name = L["Data"],
+						inline = true,
+						hidden = false,
+						args = {
+							data = {
+								order = 0,
+								type = "input",
+								name = "",
+								multiline = true,
+								set = function(info, value)
+									-- Do basic verifications to make sure it's good
+									local value = ShadowUF:UncompressLayout(value)
+									if( not value or value == "" ) then
+										layoutData.error = string.format(L["Failed to import layout:\n\n%s"], L["No layout data entered."])
+										return
+									elseif( not string.match(value, "id=") or not string.match(value, "name=") or not string.match(value, "description=") or not string.match(value, "author=") ) then
+										layoutData.error = string.format(L["Failed to import layout:\n\n%s"], L["Layout information fields are not all set, make sure that id, name, description and author was included."])
+										layoutData.importData = value
+										return
+									end
+									
+									-- Now load and it and see what happens
+									local data, msg = loadstring("return " .. value)()
+									if( msg ) then
+										layoutData.importData = value
+										layoutData.error = string.format(L["Failed to import layout:\n\n%s"], msg)
+										return
+									-- Ugly I know, fuck you it's 3 AM
+									elseif( ShadowUF.db.profile.layoutInfo[data.id] ) then
+										layoutData.importData = value
+										layoutData.error = string.format(L["Failed to import layout:\n\n%s"], string.format(L["You already have a layout named %s, delete it first if you want to reimport it."], data.name))
+										return
+									end
+									
+									-- Excellent, register it then
+									layoutData.error = nil
+									layoutData.importData = nil
+									ShadowUF:RegisterLayout(data.id, data)
+									
+									options.args.general.args.layout.args.manage.args[data.id] = layoutTable
+									selectTabGroup("general", "layout", "manage")
+								end,
+								get = function(info, value) return layoutData.importData or "" end,
+								width = "full",
+							},
+						},
+					},
 				},
 			},
 			export = {
 				order = 3,
 				type = "group",
 				name = L["Export"],
+				hidden = function() return not layoutData.export end,
 				args = {
-				
+					desc = {
+						order = 0,
+						type = "group",
+						name = function(info) return string.format(L["Exporting %s"], layoutData.exportName) end,
+						inline = true,
+						hidden = false,
+						args = {
+							info = {
+								order = 0,
+								type = "description",
+								name = L["You can now give the string below to other Shadowed Unit Frames users, they can then import it through the import tab to use this layout."],
+							},
+						},
+					},
+					text = {
+						order = 1,
+						type = "group",
+						name = L["Data"],
+						inline = true,
+						hidden = false,
+						args = {
+							data = {
+								order = 0,
+								type = "input",
+								name = "",
+								multiline = true,
+								get = function() return layoutData.exportData end,
+								width = "full",
+							},
+						},
+					},
 				},
 			},
 		},
 	}
+	
+	for name in pairs(ShadowUF.db.profile.layoutInfo) do
+		options.args.general.args.layout.args.manage.args[name] = layoutTable
+	end
 end
 
 ---------------------
@@ -1172,8 +1460,28 @@ local function loadUnitOptions()
 			maxRows = {
 				order = 10,
 				type = "range",
-				name = L["Max rows"],
-				desc = L["How many rows to use."],
+				name = function(info)
+					local unit = info[#(info) - 3]
+					local type = info[#(info) - 1]
+					unit = unit == "global" and masterUnit or unit
+					
+					if( ShadowUF.db.profile.units[unit].auras[type].anchorPoint == "LEFT" or ShadowUF.db.profile.units[unit].auras[type].anchorPoint == "RIGHT" ) then
+						return L["Per column"]
+					end
+					
+					return L["Max rows"]
+				end,
+				desc = function(info)
+					local unit = info[#(info) - 3]
+					local type = info[#(info) - 1]
+					unit = unit == "global" and masterUnit or unit
+					
+					if( ShadowUF.db.profile.units[unit].auras[type].anchorPoint == "LEFT" or ShadowUF.db.profile.units[unit].auras[type].anchorPoint == "RIGHT" ) then
+						return L["How many auras per a column for example, entering two her will create two rows that are filled up to whatever per row is set as."]
+					end
+					
+					return L["How many rows total should be used, rows will be however long the per row value is set at."]
+				end,
 				min = 1, max = 5, step = 1,
 				disabled = disableSameAnchor,
 			},

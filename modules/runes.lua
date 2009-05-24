@@ -2,7 +2,7 @@ local Runes = {}
 ShadowUF:RegisterModule(Runes, "runeBar", ShadowUFLocals["Rune bar"], "bar")
 
 function Runes:UnitEnabled(frame)
-	if( not frame.visibility.runeBar or frame.unitType ~= "player" ) then
+	if( not frame.visibility.runeBar or frame.unitType ~= "player" or select(2, UnitClass("player")) ~= "DEATHKNIGHT" ) then
 		return
 	end
 			

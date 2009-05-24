@@ -1,9 +1,14 @@
 local L = ShadowUFLocals
--- NTS: Change this to a serialized table once I release this.
-ShadowUF:RegisterLayout("Default", {
+-- **WARNING**
+--[[
+	If you are making a layout using RegisterLayout and tables, not through exporting in-game
+	you must include the id, name, author, description fields.
+]]--
+ShadowUF:RegisterLayout("default", {
+	id = "default",
 	name = "Default",
 	author = "Shadowed",
-	description = "Default layout provided with sUF.",
+	description = "Default layout provided with Shadowed Unit Frames.",
 	layout = {
 		bars = {
 			texture = "Minimalist",

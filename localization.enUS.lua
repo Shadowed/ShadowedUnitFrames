@@ -44,6 +44,29 @@ ShadowUFLocals = {
 	["Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.\n\nShift click a unit to select all/unselect all."] = "Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.\n\nShift click a unit to select all/unselect all.",
 	["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText (Advanced only) - Allows changing how the text anchors and the offset, you can set tags here as well.\n\nTag Wizard - Quickly add and remove tags to text."] = "In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText (Advanced only) - Allows changing how the text anchors and the offset, you can set tags here as well.\n\nTag Wizard - Quickly add and remove tags to text.",
 	
+	-- Layout
+	["|cffffffffActive:|r "] = "|cffffffffActive:|r ",
+	["%s%s by %s"] = "%s%s by %s",
+	["Activate"] = "Activate",
+	["Export"] = "Export",
+	["Delete"] = "Delete",
+	["By activating this layout, all of your positioning, sizing and so on settings will be reset to load this layout, are you sure you want to activate this?"] = "By activating this layout, all of your positioning, sizing and so on settings will be reset to load this layout, are you sure you want to activate this?",
+	["Exporting %s"] = "Exporting %s",
+	["You can now give the string below to other Shadowed Unit Frames users, they can then import it through the import tab to use this layout."] = "You can now give the string below to other Shadowed Unit Frames users, they can then import it through the import tab to use this layout.",
+	["Create"] = "Create",
+	["Create a new layout using your current layout as a template. You must fill out all of the fields before you can create it."] = "Create a new layout using your current layout as a template. You must fill out all of the fields before you can create it.",
+	["Layout name"] = "Layout name",
+	["Author"] = "Author",
+	["Description"] = "Description",
+	["Are you sure you want to delete this layout?"] = "Are you sure you want to delete this layout?",
+	["Importing"] = "Importing",
+	["Data"] = "Data",
+	["Import a new layout using the layout data string another user gave you."] = "Import a new layout using the layout data string another user gave you.",
+	["Failed to import layout:\n\n%s"] = "Failed to import layout:\n\n%s",
+	["No layout data entered."] = "No layout data entered.",
+	["Layout information fields are not all set, make sure that id, name, description and author was included."] = "Layout information fields are not all set, make sure that id, name, description and author was included.",
+	["You already have a layout named %s, delete it first if you want to reimport it."] = "You already have a layout named %s, delete it first if you want to reimport it.",
+	
 	-- Positions
 	["Up"] = "Up",
 	["Center"] = "Center",
@@ -100,7 +123,8 @@ ShadowUFLocals = {
 	["Per row"] = "Per row",
 	["Max rows"] = "Max rows",
 	["Rows"] = "Rows",
-	["Maximum number of rows to use."] = "Maximum number of rows to use.",
+	["How many rows total should be used, rows will be however long the per row value is set at."] = "How many rows total should be used, rows will be however long the per row value is set at.",
+	["How many auras per a column for example, entering two her will create two rows that are filled up to whatever per row is set as."] = "How many auras per a column for example, entering two her will create two rows that are filled up to whatever per row is set as.",
 	["Enlarge your auras"] = "Enlarge your auras",
 	["If you casted the aura, then the buff icon will be increased in size to make it more visible."] = "If you casted the aura, then the buff icon will be increased in size to make it more visible.",
 	["Anchor to"] = "Anchor to",
@@ -165,6 +189,7 @@ ShadowUFLocals = {
 	["If the unit is hostile, the reaction color will override any color health by options."] = "If the unit is hostile, the reaction color will override any color health by options.",
 	["When showing incoming heals, include your heals in the total incoming."] = "When showing incoming heals, include your heals in the total incoming.",
 	["Offsets are saved using effective scaling, this is to prevent the frame from jumping around when you reload or login."] = "Offsets are saved using effective scaling, this is to prevent the frame from jumping around when you reload or login.",
+	["Per column"] = "Per column",
 	
 	-- Layout
 	["Layout"] = "Layout",

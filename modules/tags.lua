@@ -140,7 +140,7 @@ function Tags:Register(parent, fontString, tags)
 
 					cachedFunc = function(unit)
 						local str = tag(unit)
-						if( str and str ~= "" ) then
+						if( str ) then
 							return pre .. str .. ap
 						end
 					end
@@ -181,14 +181,6 @@ function Tags:Register(parent, fontString, tags)
 		frame:Show()
 	else
 		RegisterTagEvents(fontString, tags)
-		
-		if( unit == "focus" ) then
-			RegisterEvent(fontString, "PLAYER_FOCUS_CHANGED")
-		elseif( unit == "target" ) then
-			RegisterEvent(fontString, "PLAYER_TARGET_CHANGED")
-		elseif( unit == "mouseover" ) then
-			RegisterEvent(fontString, "UPDATE_MOUSEOVER_UNIT")
-		end
 	end
 end
 
@@ -251,8 +243,6 @@ Tags.defaultTags = {
 		elseif( UnitIsDND(unit) ) then
 			return ShadowUFLocals["(DND)"]
 		end
-	
-		return ""
 	end]],
 	["close"] = [[function(unit) return "|r" end]],
 	["smartclass"] = [[function(unit)
@@ -346,7 +336,7 @@ Tags.defaultTags = {
 		if( UnitIsDeadOrGhost(unit) ) then
 			return string.format("0/%s", maxPower)
 		elseif( maxPower == 0 and power == 0 ) then
-			return ""
+			return nil
 		end
 		
 		return string.format("%s/%s", power, maxPower)
@@ -357,7 +347,7 @@ Tags.defaultTags = {
 		if( UnitIsDeadOrGhost(unit) ) then
 			return string.format("0/%s", maxPower)
 		elseif( maxPower == 0 and power == 0 ) then
-			return ""
+			return nil
 		end
 		
 		return string.format("%s/%s", ShadowUF:FormatLargeNumber(power), ShadowUF:FormatLargeNumber(maxPower))
@@ -382,7 +372,7 @@ Tags.defaultTags = {
 	["maxpp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPowerMax(unit)) end]],
 	["missinghp"] = [[function(unit)
 		local missing = UnitHealthMax(unit) - UnitHealth(unit)
-		if( missing <= 0 ) then return "" end
+		if( missing <= 0 ) then return nil end
 		return "-" .. ShadowUF:FormatLargeNumber(UnitHealthMax(unit) - UnitHealth(unit)) 
 	end]],
 	["missingpp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPowerMax(unit) - UnitPower(unit)) end]],
@@ -417,7 +407,6 @@ Tags.defaultTags = {
 		elseif( not UnitIsConnected(unit) ) then
 			return ShadowUFLocals["Offline"]
 		end
-		return ""
 	end]],
 	["cpoints"] = [[function(unit) local cp = GetComboPoints(unit, "target") return (cp > 0) and cp end]],
 	["smartlevel"] = [[function(unit)
@@ -528,9 +517,6 @@ Tags.powerEvents = {
 
 -- Events that should call every font string, and not bother checking for unit
 Tags.unitlessEvents = {
-	["PLAYER_TARGET_CHANGED"] = true,
-	["PLAYER_FOCUS_CHANGED"] = true,
-	["PLAYER_LEVEL_UP"] = true,
 	["PARTY_MEMBERS_CHANGED"] = true,
 }
 

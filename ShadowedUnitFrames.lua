@@ -37,11 +37,12 @@ function ShadowUF:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileChanged", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnProfileCopied", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "ProfilesChanged")
-	self.db.RegisterCallback(self, "OnDatabaseShutdown", "OnDatabaseShutdown")	
 	
-	-- List of units that SUF supports
+	-- Things other modules need to access
 	self.units = units
 	self.regModules = modules
+	self.mainLayout = mainLayout
+	self.subLayout = subLayout
 	
 	-- Setup tag cache
 	self.tagFunc = setmetatable({}, {
@@ -82,7 +83,13 @@ function ShadowUF:OnInitialize()
 			return tbl[index]
 		end,
 	})
-		
+
+	-- Reset the "Defaults" layout as it's now named default
+	if( ShadowUF.db.profile.layoutInfo.Defaults ) then
+		ShadowUF.db.profile.layoutInfo.Defaults = nil
+		ShadowUF.db.profile.layoutInfo.Default = nil
+	end
+	
 	-- Load any layouts that were waiting
 	if( layoutQueue ) then
 		for name, data in pairs(layoutQueue) do
@@ -100,9 +107,9 @@ function ShadowUF:OnInitialize()
 	
 	-- No layout is loaded, so set this as our active one
 	if( not self.db.profile.activeLayout ) then
-		self:SetLayout("Default", true)
+		self:SetLayout("default", true)
 	end
-	
+
 	-- Upgrade power formats
 	if( ShadowUF.db.profile.powerColor ) then
 		ShadowUF.db.profile.healthColors = CopyTable(ShadowUF.db.profile.healthColor)
@@ -194,7 +201,7 @@ function ShadowUF:LoadUnitDefaults()
 			},
 		}
 	end
-		
+	
 	self.defaults.profile.units.player.enabled = true
 	self.defaults.profile.units.player.portrait.enabled = true
 	self.defaults.profile.units.player.indicators.status.enabled = true
@@ -317,11 +324,11 @@ function ShadowUF:HideBlizzard(type)
 end
 
 -- Plugin APIs
-local function verifyTable(tbl)
+function ShadowUF:VerifyTable(tbl)
 	for key, value in pairs(tbl) do
 		if( type(value) == "table" ) then
-			tbl[key] = verifyTable(value)
-		else
+			tbl[key] = self:VerifyTable(value)
+		elseif( not subLayout[key] ) then
 			tbl[key] = nil
 		end
 	end
@@ -372,7 +379,7 @@ function ShadowUF:SetLayout(name, importPositions)
 	-- Now go through and verify all of the unit settings
 	for unit in pairs(units) do
 		if( layout[unit] ) then
-			verifyTable(layout[unit])
+			self:VerifyTable(layout[unit])
 		end
 	end
 	
@@ -398,27 +405,53 @@ function ShadowUF:IsLayoutRegistered(name)
 	return self.db.profile.layoutInfo[name]
 end
 
-function ShadowUF:RegisterLayout(name, data)
-	if( not name ) then
+-- Reduces the total size of a layout by renaming some common variables
+--20000 characters
+local compressionMap
+function ShadowUF:CompressLayout(data)
+	compressionMap = compressionMapor or {[";anchorTo="]=";aT=",[";anchorPoint="]=";aP=",[";width="]=";w=",[";height="]=";h=",[";background="]=";bg=",[";castName="]=";cN=",[";castTime="]=";cT=",[";relativePoint="]=";rP=",[";point="]=";p=",[";indicators="]=";is=",[";size="]=";s=",[";name="]=";n=",[";text="]=";t=",[";comboPoints="]=";cP=",[";combatText="]=";coT=",["{anchorTo="]="{aT=",["{anchorPoint="]="{aP=",["{width="]="{w=",["{height="]="{h=",["{background="]="{bg=",["{castName="]="{cN=",["{castTime="]="{cT=",["{relativePoint="]="{rP=",["{point="]="{p=",["{indicators="]="{is=",["{size="]="{s=",["{name="]="{n=",["{text="]="{t=",["{comboPoints="]="{cP=",["{combatText="]="{coT=",}
+	
+	for find, replace in pairs(compressionMap) do
+		data = string.gsub(data, find, replace)
+	end
+	
+	-- Strip any empty tables
+	data = string.gsub(data, "([a-zA-Z]+={})", "")
+	data = string.gsub(data, ";;", ";")
+	data = string.gsub(data, ";}", "}")
+	
+	return data
+end
+
+function ShadowUF:UncompressLayout(data)
+	compressionMap = compressionMapor or {[";anchorTo="]=";aT=",[";anchorPoint="]=";aP=",[";width="]=";w=",[";height="]=";h=",[";background="]=";bg=",[";castName="]=";cN=",[";castTime="]=";cT=",[";relativePoint="]=";rP=",[";point="]=";p=",[";indicators="]=";is=",[";size="]=";s=",[";name="]=";n=",[";text="]=";t=",[";comboPoints="]=";cP=",[";combatText="]=";coT=",["{anchorTo="]="{aT=",["{anchorPoint="]="{aP=",["{width="]="{w=",["{height="]="{h=",["{background="]="{bg=",["{castName="]="{cN=",["{castTime="]="{cT=",["{relativePoint="]="{rP=",["{point="]="{p=",["{indicators="]="{is=",["{size="]="{s=",["{name="]="{n=",["{text="]="{t=",["{comboPoints="]="{cP=",["{combatText="]="{coT=",}
+	
+	for replace, find in pairs(compressionMap) do
+		data = string.gsub(data, find, replace)
+	end
+	
+	return data
+end
+
+function ShadowUF:RegisterLayout(id, data)
+	if( not id ) then
 		error(L["Cannot register layout, no name passed."])
-	elseif( type(data) ~= "table" ) then
-		error(L["Cannot register layout, configuration should be a table got %s."])
 	-- We aren't ready for the layout yet, queue it and will load it once everything is initialized
 	elseif( not self.db ) then
 		layoutQueue = layoutQueue or {}
-		layoutQueue[name] = data
+		layoutQueue[id] = data
 		return
 	end
 	
 	if( type(data) == "table" ) then
-		self.db.profile.layoutInfo[name] = self:WriteTable(data)
+		self.db.profile.layoutInfo[id] = self:WriteTable(data)
 	else
-		self.db.profile.layoutInfo[name] = data
+		self.db.profile.layoutInfo[id] = self:UncompressLayout(data)
 	end
 	
 	-- Store a copy of the default DB, so if someone does a layout reset we can still keep data.
-	if( name == "Default" ) then
-		defaultDB = self.db.profile.layoutInfo[name]
+	if( id == "default" ) then
+		defaultDB = self.db.profile.layoutInfo[id]
 	end
 end
 
@@ -493,26 +526,19 @@ function ShadowUF:ProfilesChanged()
 	for k in pairs(self.tagFunc) do self.tagFunc[k] = nil end
 	for k in pairs(self.layoutInfo) do self.layoutInfo[k] = nil end
 
-	if( not self.layoutInfo.Default ) then
-		self.layoutInfo.Default = nil
-		self.db.profile.layoutInfo.Default = defaultDB
+	if( not self.layoutInfo.default ) then
+		self.layoutInfo.default = nil
+		self.db.profile.layoutInfo.default = defaultDB
 	end
 	
 	-- Check if we need to reimport the layout
 	if( not self.db.profile.activeLayout ) then
-		self:SetLayout("Default", true)
+		self:SetLayout("default", true)
 	end
 
 	ShadowUF.Units:ProfileChanged()
 	ShadowUF:LoadUnits()
 	ShadowUF.Layout:ReloadAll()
-end
-
--- Database is getting ready to be written, we need to convert any changed data back into text
-function ShadowUF:OnDatabaseShutdown()
-	for name, layout in pairs(self.layouts) do
-		self.db.profile.layouts[name] = self:WriteTable(layout)
-	end
 end
 
 function ShadowUF:Print(msg)
