@@ -222,7 +222,8 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.raid.auras.debuffs.enabled = false
 	self.defaults.profile.units.raid.auras.buffs.enabled = false
 
-	self.defaults.profile.units.raid.groupBy = "INDEX"
+	self.defaults.profile.units.raid.groupBy = "GROUP"
+	self.defaults.profile.units.raid.sortOrder = "ASC"
 
 	self.defaults.profile.positions.partypet.anchorTo = "$parent"
 	self.defaults.profile.positions.partypet.anchorPoint = "RB"

@@ -339,7 +339,7 @@ function Units:SetFrameAttributes(frame, type)
 		
 		if( type == "raid" ) then
 			frame:SetAttribute("sortMethod", "INDEX")
-			frame:SetAttribute("sortDir", "ASC")
+			frame:SetAttribute("sortDir", config.sortOrder)
 			frame:SetAttribute("maxColumns", config.maxColumns)
 			frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
 			frame:SetAttribute("columnSpacing", config.columnSpacing)

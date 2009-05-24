@@ -1958,6 +1958,12 @@ local function loadUnitOptions()
 								name = L["Group by"],
 								values = {["GROUP"] = L["Group number"], ["CLASS"] = L["Class"]},
 							},
+							sortOrder = {
+								order = 0.25,
+								type = "select",
+								name = L["Sort order"],
+								values = {["ASC"] = L["Ascending"], ["DESC"] = L["Descending"]},
+							},
 							sep = {
 								order = 0.5,
 								type = "description",
