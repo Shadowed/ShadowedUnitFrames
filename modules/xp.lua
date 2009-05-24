@@ -86,19 +86,19 @@ function XP:Update(frame)
 		return
 	end
 	
-	local current = Unitself(frame.unit)
-	local min, max = math.min(0, current), UnitselfMax(frame.unit)
+	local current = UnitXP(frame.unit)
+	local min, max = math.min(0, current), UnitXPMax(frame.unit)
 	
-	frame.selfBar:SetMinMaxValues(min, max)
-	frame.selfBar:SetValue(current)
-	frame.selfBar.type = "self"
+	frame.xpBar:SetMinMaxValues(min, max)
+	frame.xpBar:SetValue(current)
+	frame.xpBar.type = "xp"
 	
 	if( frame.unit == "player" and GetselfExhaustion() ) then
-		frame.selfBar.rested:SetMinMaxValues(min, max)
-		frame.selfBar.rested:SetValue(math.min(current + GetselfExhaustion(), max))
+		frame.xpBar.rested:SetMinMaxValues(min, max)
+		frame.xpBar.rested:SetValue(math.min(current + GetselfExhaustion(), max))
 	else
-		frame.selfBar.rested:SetMinMaxValues(0, 1)
-		frame.selfBar.rested:SetValue(0)
+		frame.xpBar.rested:SetMinMaxValues(0, 1)
+		frame.xpBar.rested:SetValue(0)
 	end
 	
 	-- Update coloring
