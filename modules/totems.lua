@@ -29,7 +29,7 @@ function Totems:UnitEnabled(frame)
 		end
 	end
 	
-	frame:RegisterNormalEvent("PLAYER_TOTEM_UPDATE", "Update")
+	frame:RegisterNormalEvent("PLAYER_TOTEM_UPDATE", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
