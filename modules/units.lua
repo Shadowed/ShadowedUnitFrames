@@ -149,6 +149,13 @@ local function SetVisibility(self)
 	end
 end
 
+function Units:UpdateOnChange(frame)
+	if( frame.guid ~= UnitGUID(frame.unit) and UnitExists(frame.unit) ) then
+		frame.guid = UnitGUID(frame.unit)
+		frame:FullUpdate()
+	end
+end
+
 -- Frame is now initialized with a unit
 local function OnAttributeChanged(self, name, value)
 	if( name ~= "unit" or not value or self.unit == value ) then return end
@@ -163,6 +170,7 @@ local function OnAttributeChanged(self, name, value)
 	
 	unitList[value] = self
 
+	
 	-- Now set what is enabled
 	self:SetVisibility()
 	
@@ -174,6 +182,10 @@ local function OnAttributeChanged(self, name, value)
 	-- Pet changed, going from pet -> vehicle for one
 	elseif( value == "pet" ) then
 		self:RegisterUnitEvent("UNIT_PET", self, "FullUpdate")
+	-- Party changed, might need to do a full update
+	elseif( self.unitType == "party" ) then
+		self.guid = UnitGUID(self.unit)
+		self:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", Units, "UpdateOnChange")
 		
 	-- Automatically do a full update on target change
 	elseif( value == "target" ) then

@@ -203,14 +203,14 @@ function Auras:UpdateDisplay(frame, unitType)
 	end
 end
 
-function Auras:Scan(frame, filter, type, unit, filterCurable)
+function Auras:Scan(frame, filter, type, unit, filterCurable, filterPlayer)
 	local index = 0
 	while( true ) do
 		index = index + 1
 		local name, rank, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(unit, index, filter)
 		if( not name ) then break end
 		
-		if( not filterCurable or debuffType and canRemove[debuffType] ) then
+		if( ( not filterCurable or debuffType and canRemove[debuffType] ) and ( not filterPlayer or caster == "player" )  ) then
 			frame.totalAuras = frame.totalAuras + 1
 			if( frame.totalAuras >= frame.maxAuras ) then
 				frame.totalAuras = frame.maxAuras
@@ -243,18 +243,18 @@ function Auras:Update(frame)
 		frame.auras[frame.auras.anchor].totalAuras = 0
 				
 		if( config.buffs.prioritize ) then
-			if( config.buffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit)
+			if( config.buffs.enasbled ) then
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit, nil, config.buffs.PLAYER)
 			end
 			if( config.debuffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE, config.debuffs.PLAYER)
 			end
 		else
 			if( config.debuffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE, config.debuffs.PLAYER)
 			end
 			if( config.buffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit, nil, config.buffs.PLAYER)
 			end
 		end
 		
@@ -262,13 +262,13 @@ function Auras:Update(frame)
 	else
 		if( config.buffs.enabled ) then
 			frame.auras.buffs.totalAuras = 0
-			self:Scan(frame.auras.buffs, frame.auras.buffs.filter, "buffs", unit)
+			self:Scan(frame.auras.buffs, frame.auras.buffs.filter, "buffs", unit, nil, config.buffs.PLAYER)
 			self:UpdateDisplay(frame.auras.buffs, frame.unitType)
 		end
 
 		if( config.debuffs.enabled ) then
 			frame.auras.debuffs.totalAuras = 0
-			self:Scan(frame.auras.debuffs, frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE)
+			self:Scan(frame.auras.debuffs, frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE, config.debuffs.PLAYER)
 			self:UpdateDisplay(frame.auras.debuffs, frame.unitType)
 		end
 	end
