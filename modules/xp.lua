@@ -93,9 +93,9 @@ function XP:Update(frame)
 	frame.xpBar:SetValue(current)
 	frame.xpBar.type = "xp"
 	
-	if( frame.unit == "player" and GetselfExhaustion() ) then
+	if( frame.unit == "player" and GetXPExhaustion() ) then
 		frame.xpBar.rested:SetMinMaxValues(min, max)
-		frame.xpBar.rested:SetValue(math.min(current + GetselfExhaustion(), max))
+		frame.xpBar.rested:SetValue(math.min(current + GetXPExhaustion(), max))
 	else
 		frame.xpBar.rested:SetMinMaxValues(0, 1)
 		frame.xpBar.rested:SetValue(0)
