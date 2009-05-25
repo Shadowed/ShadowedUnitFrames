@@ -12,7 +12,7 @@ function Health:UnitEnabled(frame, unit)
 	
 	frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
-	frame:RegisterUnitEvent("UNIT_FACTION", self, "Update")
+	frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdateColor")
 	frame:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", self, "UpdateThreat")
 	
 	frame:RegisterUpdateFunc(self, "UpdateAll")
