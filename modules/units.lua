@@ -27,7 +27,7 @@ local function RegisterNormalEvent(self, event, handler, func)
 	if( self.registeredEvents[event][handler] ) then
 		return
 	end
-	
+		
 	self.registeredEvents[event][handler] = func
 end
 
@@ -158,9 +158,18 @@ end
 
 -- Frame is now initialized with a unit
 local function OnAttributeChanged(self, name, value)
-	if( name ~= "unit" or not value or self.unit == value ) then return end
+	if( name ~= "unit" or not value ) then return end
+	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
 	if( inCombat ) then
 		queuedCombat[self] = true
+		return
+	-- The unit was removed (Left party/raid) meaning we need to kill the unitid info we saved for them, and stop all events
+	elseif( not value ) then
+		self.unit = nil
+		self.unitID = nil
+		self.unitType = nil
+		
+		self:SetScript("OnEvent", nil)
 		return
 	end
 	
@@ -169,7 +178,6 @@ local function OnAttributeChanged(self, name, value)
 	self.unitType = string.gsub(value, "([0-9]+)", "")
 	
 	unitList[value] = self
-
 	
 	-- Now set what is enabled
 	self:SetVisibility()
@@ -182,11 +190,19 @@ local function OnAttributeChanged(self, name, value)
 	-- Pet changed, going from pet -> vehicle for one
 	elseif( value == "pet" ) then
 		self:RegisterUnitEvent("UNIT_PET", self, "FullUpdate")
+	
+	--[[
 	-- Party changed, might need to do a full update
 	elseif( self.unitType == "party" ) then
 		self.guid = UnitGUID(self.unit)
 		self:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", Units, "UpdateOnChange")
-		
+	
+	-- Raid changed, might need to do a full update
+	elseif( self.unitType == "raid" ) then
+		self.guid = UnitGUID(self.unit)
+		self:RegisterNormalEvent("RAID_ROSTER_UPDATE", Units, "UpdateOnChange")
+	]]
+	
 	-- Automatically do a full update on target change
 	elseif( value == "target" ) then
 		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")

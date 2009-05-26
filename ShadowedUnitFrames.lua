@@ -62,8 +62,7 @@ function ShadowUF:OnInitialize()
 			
 			tbl[index] = func
 			return tbl[index]
-		end
-	})
+	end})
 	
 	-- Setup layout cache
 	self.layoutInfo = setmetatable({}, {
@@ -81,8 +80,7 @@ function ShadowUF:OnInitialize()
 			end
 			
 			return tbl[index]
-		end,
-	})
+	end})
 
 	-- Reset the "Defaults" layout as it's now named default
 	if( self.db.profile.layoutInfo.Defaults ) then
@@ -104,11 +102,6 @@ function ShadowUF:OnInitialize()
 	-- Hide any Blizzard frames
 	self:HideBlizzardFrames()
 	
-	-- No layout is loaded, so set this as our active one
-	if( not self.db.profile.activeLayout ) then
-		self:SetLayout("default", true)
-	end
-
 	-- Load SML info
 	self.Layout:LoadSML()
 
@@ -177,7 +170,7 @@ function ShadowUF:LoadUnitDefaults()
 		
 		self.defaults.profile.units[unit] = {
 			height = 0, width = 0, scale = 1.0, enabled = false, effectiveScale = true,
-			healthBar = {enabled = true, colorType = "percent", reaction = true}, powerBar = {enabled = true}, portrait = {enabled = false, type = "3D"}, runeBar = {enabled = false}, totemBar = {enabled = false},
+			healthBar = {enabled = true, colorType = "percent", reaction = true}, powerBar = {enabled = true}, portrait = {enabled = false, order = 0, type = "3D"}, runeBar = {enabled = false}, totemBar = {enabled = false},
 			incHeal = {enabled = false, showSelf = true}, range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
 			castBar = {enabled = false, castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0},},
 			fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60},xpBar = {enabled = false},
@@ -409,10 +402,10 @@ function ShadowUF:IsLayoutRegistered(name)
 end
 
 -- Reduces the total size of a layout by renaming some common variables
---20000 characters
+--20000 characters -> 13000, not terribly amazing compression but it's not bad
 local compressionMap
 function ShadowUF:CompressLayout(data)
-	compressionMap = compressionMapor or {[";anchorTo="]=";aT=",[";anchorPoint="]=";aP=",[";width="]=";w=",[";height="]=";h=",[";background="]=";bg=",[";castName="]=";cN=",[";castTime="]=";cT=",[";relativePoint="]=";rP=",[";point="]=";p=",[";indicators="]=";is=",[";size="]=";s=",[";name="]=";n=",[";text="]=";t=",[";comboPoints="]=";cP=",[";combatText="]=";coT=",["{anchorTo="]="{aT=",["{anchorPoint="]="{aP=",["{width="]="{w=",["{height="]="{h=",["{background="]="{bg=",["{castName="]="{cN=",["{castTime="]="{cT=",["{relativePoint="]="{rP=",["{point="]="{p=",["{indicators="]="{is=",["{size="]="{s=",["{name="]="{n=",["{text="]="{t=",["{comboPoints="]="{cP=",["{combatText="]="{coT=",}
+	compressionMap = compressionMap or {[";anchorTo="]=";aT=",[";anchorPoint="]=";aP=",[";width="]=";w=",[";height="]=";h=",[";background="]=";bg=",[";castName="]=";cN=",[";castTime="]=";cT=",[";relativePoint="]=";rP=",[";point="]=";p=",[";indicators="]=";is=",[";size="]=";s=",[";name="]=";n=",[";text="]=";t=",[";comboPoints="]=";cP=",[";combatText="]=";coT=",["{anchorTo="]="{aT=",["{anchorPoint="]="{aP=",["{width="]="{w=",["{height="]="{h=",["{background="]="{bg=",["{castName="]="{cN=",["{castTime="]="{cT=",["{relativePoint="]="{rP=",["{point="]="{p=",["{indicators="]="{is=",["{size="]="{s=",["{name="]="{n=",["{text="]="{t=",["{comboPoints="]="{cP=",["{combatText="]="{coT=",}
 	
 	for find, replace in pairs(compressionMap) do
 		data = string.gsub(data, find, replace)
@@ -427,7 +420,7 @@ function ShadowUF:CompressLayout(data)
 end
 
 function ShadowUF:UncompressLayout(data)
-	compressionMap = compressionMapor or {[";anchorTo="]=";aT=",[";anchorPoint="]=";aP=",[";width="]=";w=",[";height="]=";h=",[";background="]=";bg=",[";castName="]=";cN=",[";castTime="]=";cT=",[";relativePoint="]=";rP=",[";point="]=";p=",[";indicators="]=";is=",[";size="]=";s=",[";name="]=";n=",[";text="]=";t=",[";comboPoints="]=";cP=",[";combatText="]=";coT=",["{anchorTo="]="{aT=",["{anchorPoint="]="{aP=",["{width="]="{w=",["{height="]="{h=",["{background="]="{bg=",["{castName="]="{cN=",["{castTime="]="{cT=",["{relativePoint="]="{rP=",["{point="]="{p=",["{indicators="]="{is=",["{size="]="{s=",["{name="]="{n=",["{text="]="{t=",["{comboPoints="]="{cP=",["{combatText="]="{coT=",}
+	compressionMap = compressionMap or {[";anchorTo="]=";aT=",[";anchorPoint="]=";aP=",[";width="]=";w=",[";height="]=";h=",[";background="]=";bg=",[";castName="]=";cN=",[";castTime="]=";cT=",[";relativePoint="]=";rP=",[";point="]=";p=",[";indicators="]=";is=",[";size="]=";s=",[";name="]=";n=",[";text="]=";t=",[";comboPoints="]=";cP=",[";combatText="]=";coT=",["{anchorTo="]="{aT=",["{anchorPoint="]="{aP=",["{width="]="{w=",["{height="]="{h=",["{background="]="{bg=",["{castName="]="{cN=",["{castTime="]="{cT=",["{relativePoint="]="{rP=",["{point="]="{p=",["{indicators="]="{is=",["{size="]="{s=",["{name="]="{n=",["{text="]="{t=",["{comboPoints="]="{cP=",["{combatText="]="{coT=",}
 	
 	for replace, find in pairs(compressionMap) do
 		data = string.gsub(data, find, replace)
@@ -455,6 +448,11 @@ function ShadowUF:RegisterLayout(id, data)
 	-- Store a copy of the default DB, so if someone does a layout reset we can still keep data.
 	if( id == "default" ) then
 		defaultDB = self.db.profile.layoutInfo[id]
+	end
+
+	-- No layout is loaded, so set this as our active one
+	if( not self.db.profile.activeLayout ) then
+		self:SetLayout("default", true)
 	end
 end
 
@@ -528,7 +526,8 @@ function ShadowUF:ProfilesChanged()
 	-- Reset any loaded caches
 	for k in pairs(self.tagFunc) do self.tagFunc[k] = nil end
 	for k in pairs(self.layoutInfo) do self.layoutInfo[k] = nil end
-
+	
+	-- It's possible that this new profile does not have the default layout loaded, so will need to do that too
 	if( not self.layoutInfo.default ) then
 		self.layoutInfo.default = nil
 		self.db.profile.layoutInfo.default = defaultDB
@@ -556,7 +555,7 @@ frame:RegisterEvent("ADDON_LOADED")
 frame:SetScript("OnEvent", function(self, event, ...)
 	if( event == "ADDON_LOADED" ) then
 		if( IsAddOnLoaded("ShadowedUnitFrames") ) then
-			frame:UnregisterEvent("ADDON_LOADED")
+			self:UnregisterEvent("ADDON_LOADED")
 			ShadowUF:OnInitialize()
 		end
 	elseif( event == "ZONE_CHANGED_NEW_AREA" ) then

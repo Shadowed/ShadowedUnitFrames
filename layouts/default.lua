@@ -71,6 +71,7 @@ ShadowUF:RegisterLayout("default", {
 		portrait = {
 			alignment = "LEFT",
 			width = 0.22,
+			order = 15,
 		},
 		auras = {
 			buffs = {anchorPoint = "BOTTOM", size = 16, x = 0, y = 0},
@@ -86,6 +87,7 @@ ShadowUF:RegisterLayout("default", {
 		},
 		healthBar = {
 			background = true,
+			fullSize = true,
 			height = 1.20,
 			width = 1.0,
 			order = 10,

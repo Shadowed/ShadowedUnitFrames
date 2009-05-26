@@ -423,6 +423,7 @@ Tags.defaultTags = {
 			end
 		end
 	end]],
+	["dechp"] = [[function(unit) return string.format("%.1f%%", (UnitHealth(unit) / UnitHealthMax(unit)) * 100) end]],
 	["classification"] = [[function(unit)
 		local c = UnitClassification(unit)
 		return c == "rare" and ShadowUFLocals["Rare"] or c == "eliterare" and ShadowUFLocals["Rare Elite"] or c == "elite" and ShadowUFLocals["Elite"] or c == "worldboss" and ShadowUFLocals["Boss"]
@@ -472,6 +473,7 @@ Tags.defaultHelp = {
 	["absmaxpp"] = L["Absolute maximum power value without any formating so 15000 is still shown as 15000."],
 	["abscurpp"] = L["Absolute current power value without any formating so 15000 is still shown as 15000."],
 	["reactcolor"] = L["Reaction color code, use [reactcolor][name][close] to color the units name by their reaction."],
+	["dechp"] = L["Shows the units health as a percentage rounded to the first decimal, meaning 61 out of 110 health is shown as 55.4%."],
 }
 
 -- Default tag events
@@ -488,9 +490,9 @@ Tags.defaultEvents = {
 	["dead"]                = "UNIT_HEALTH",
 	["level"]               = "UNIT_LEVEL PLAYER_LEVEL_UP",
 	["maxhp"]               = "UNIT_MAXHEALTH",
-	["absmaxhp"]               = "UNIT_MAXHEALTH",
+	["absmaxhp"]			= "UNIT_MAXHEALTH",
 	["maxpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
-	["absmaxpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
+	["absmaxpp"]			= "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
 	["missinghp"]           = "UNIT_HEALTH UNIT_MAXHEALTH",
 	["missingpp"]           = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_MAXRUNIC_POWER UNIT_RUNIC_POWER",
 	["name"]                = "UNIT_NAME_UPDATE",
@@ -505,6 +507,7 @@ Tags.defaultEvents = {
 	["classification"]      = "UNIT_CLASSIFICATION_CHANGED",
 	["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
 	["level"]				= "PARTY_MEMBERS_CHANGED UNIT_LEVEL",
+	["dechp"]				= "UNIT_HEALTH UNIT_MAXHEALTH",
 }
 
 Tags.powerEvents = {

@@ -1523,7 +1523,7 @@ local function loadUnitOptions()
 			},
 		},
 	}
-
+	
 	local barTable = {
 		order = getModuleOrder,
 		name = getName,
@@ -1531,25 +1531,51 @@ local function loadUnitOptions()
 		inline = true,
 		hidden = hideClassWidget,
 		args = {
-			order = {
+			fullSize = {
 				order = 0,
+				type = "toggle",
+				name = L["Full size"],
+				desc = L["Ignores the portrait and uses the entire frames width, the bar will be drawn either above or below the portrait depending on the order."],
+				hidden = function(info)
+					local unit = info[#(info) - 3]
+					unit = unit == "global" and masterUnit or unit
+					return not ShadowUF.db.profile.units[unit].portrait.enabled
+				end,
+			},
+			background = {
+				order = 1,
+				type = "toggle",
+				name = L["Show background"],
+				desc = L["Show a background behind the bars with the same texture/color but faded out."],
+				hidden = hideAdvancedOption,
+			},
+			sep = {
+				order = 1.5,
+				type = "description",
+				name = "",
+				width = "full",
+				hidden = function(info)
+					local unit = info[#(info) - 3]
+					unit = unit == "global" and masterUnit or unit
+					if( ShadowUF.db.profile.units[unit].portrait.enabled and ShadowUF.db.profile.advanced ) then
+						return false
+					end
+					
+					return true
+				end,
+			},
+			order = {
+				order = 2,
 				type = "range",
 				name = L["Order"],
 				min = 0, max = 100, step = 5,
 			},
 			height = {
-				order = 1,
+				order = 3,
 				type = "range",
 				name = L["Height"],
 				desc = L["How much of the frames total height this bar should get, this is a weighted value, the higher it is the more it gets."],
 				min = 0, max = 10, step = 0.1,
-			},
-			background = {
-				order = 2,
-				type = "toggle",
-				name = L["Show background"],
-				desc = L["Show a background behind the bars with the same texture/color but faded out."],
-				hidden = hideAdvancedOption,
 			},
 		},
 	}
@@ -2376,6 +2402,13 @@ local function loadUnitOptions()
 						name = L["Portrait"],
 						inline = true,
 						args = {
+							order = {
+								order = 0,
+								type = "range",
+								name = L["Order"],
+								desc = L["Order to use for the portrait, this only applies if you have a full sized bar."],
+								min = 0, max = 100, step = 5,
+							},
 							width = {
 								order = 1,
 								type = "range",

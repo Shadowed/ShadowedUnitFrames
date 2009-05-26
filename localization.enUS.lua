@@ -102,11 +102,14 @@ ShadowUFLocals = {
 	["You must do a /console reloadui for an object to show up again."] = "You must do a /console reloadui for an object to show up again.",
 
 	-- Units
+	["Full size"] = "Full size",
+	["Ignores the portrait and uses the entire frames width, the bar will be drawn either above or below the portrait depending on the order."] = "Ignores the portrait and uses the entire frames width, the bar will be drawn either above or below the portrait depending on the order.",
 	["Management"] = "Management",
 	["Import"] = "Import",
 	["Export"] = "Export",
 	["Global"] = "Global",
 	["global"] = "Global",
+	["Order to use for the portrait, this only applies if you have a full sized bar."] = "Order to use for the portrait, this only applies if you have a full sized bar.",
 	["Modify settings"] = "Modify settings",
 	["Units to modify"] = "Units to modify",
 	["Adds %s to the list of units to be modified when you change values in this tab."] = "Adds %s to the list of units to be modified when you change values in this tab.",
@@ -418,4 +421,5 @@ ShadowUFLocals = {
 	["Colored class, use [class] for just the class name without coloring."] = "Colored class, use [class] for just the class name without coloring.",
 	["Create type, for example, if you're targeting a Felguard then this will return Felguard."] = "Create type, for example, if you're targeting a Felguard then this will return Felguard.",
 	["Class, use [classcolor] if you want a colored class name."] = "Class, use [classcolor] if you want a colored class name.",
+	["Shows the units health as a percentage rounded to the first decimal, meaning 61 out of 110 health is shown as 55.4%."] = "Shows the units health as a percentage rounded to the first decimal, meaning 61 out of 110 health is shown as 55.4%.",
 }

@@ -1,7 +1,7 @@
 local Health = {}
 ShadowUF:RegisterModule(Health, "healthBar", ShadowUFLocals["Health bar"], "bar")
 
-function Health:UnitEnabled(frame, unit)
+function Health:UnitEnabled(frame)
 	if( not frame.visibility.healthBar ) then
 		return
 	end
@@ -66,6 +66,7 @@ function Health:UpdateThreat(frame)
 	end
 end
 
+   
 function Health:UpdateColor(frame)
 	-- Check aggro first, since it's going to override any other setting
 	if( ShadowUF.db.profile.units[frame.unitType].healthBar.colorAggro ) then
