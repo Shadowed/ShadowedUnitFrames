@@ -450,12 +450,12 @@ function Units:InitializeFrame(config, type)
 	elseif( type == "raid" ) then
 		self:LoadGroupHeader(config, type)
 	elseif( type == "partypet" ) then
-		for i=1, MAX_PARTY_MEMBERS do
-			self:LoadPartyChildUnit(config, SUFHeaderparty, type, type .. i)
+		for _, unit in pairs(ShadowUF.partyUnits) do
+			self:LoadPartyChildUnit(config, SUFHeaderparty, type, unit)
 		end
 	elseif( type == "partytarget" ) then
-		for i=1, MAX_PARTY_MEMBERS do
-			self:LoadPartyChildUnit(config, SUFHeaderparty, type, "party" .. i .. "target")
+		for _, unit in pairs(ShadowUF.partyUnits) do
+			self:LoadPartyChildUnit(config, SUFHeaderparty, type, unit .. "target")
 		end
 	else
 		self:LoadUnit(config, type)

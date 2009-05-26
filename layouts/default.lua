@@ -60,7 +60,7 @@ ShadowUF:RegisterLayout("default", {
 			red = {r = 0.90, g = 0.0, b = 0.0},
 			green = {r = 0.20, g = 0.90, b = 0.20},
 			yellow = {r = 0.93, g = 0.93, b = 0.0},
-			inc = {r = 0.20, g = 0.20, b = 1.0},
+			inc = {r = 0, g = 0.35, b = 0.23},
 			enemyUnattack = {r = 0.60, g = 0.20, b = 0.20},
 		},
 		xpColors = {
@@ -190,7 +190,7 @@ ShadowUF:RegisterLayout("default", {
 			scale = 1.0,
 			powerBar = {height = 0.60},
 			text = {
-				{text = "[name]"},
+				{text = "[afk( )][name]"},
 				{text = "[curhp]"},
 				{text = ""},
 				{text = ""},
@@ -208,6 +208,13 @@ ShadowUF:RegisterLayout("default", {
 				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -37, y = -9},
 				leader = {anchorTo = "$parent", anchorPoint = "TR", size = 14, x = -2, y = -10},
 				pvp = {anchorTo = "$parent", anchorPoint = "BR", size = 22, y = 11, x = 12},
+			},
+			text = {
+				{width = 0.60, text = "[afk( )][name]", anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0},
+				{width = 0.40, text = "[curmaxhp]", anchorTo = "$healthBar", anchorPoint = "ICR", x = -3, y = 0},
+				
+				{width = 0.60, text = "[level( )][perpp]", anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0},
+				{width = 0.40, text = "[curmaxpp]", anchorTo = "$powerBar", anchorPoint = "ICR", x = -3, y = 0},
 			},
 		},
 		pet = {

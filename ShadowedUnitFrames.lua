@@ -2,14 +2,15 @@
 	Shadow Unit Frames, Mayen/Selari from Illidan (US) PvP
 ]]
 
-ShadowUF = {}
-ShadowUF.moduleNames = {}
+ShadowUF = {moduleNames = {}, raidUnits = {}, partyUnits = {}, regModules = {}}
 
 local L = ShadowUFLocals
-local layoutQueue
-local modules = {}
+local layoutQueue, defaultDB
 local units = {"player", "pet", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid"}
-local defaultDB
+
+-- Cache the units so we don't have to concat every time it updates
+for i=1, MAX_PARTY_MEMBERS do ShadowUF.partyUnits[i] = "party" .. i end
+for i=1, MAX_RAID_MEMBERS do ShadowUF.raidUnits[i] = "raid" .. i end
 
 -- Main layout keys, this does not include units or inherited module options
 local mainLayout = {["classColors"] = true, ["bars"] = true, ["backdrop"] = true, ["font"] = true, ["powerColors"] = true, ["healthColors"] = true, ["xpColors"] = true, ["positions"] = true}
@@ -40,7 +41,6 @@ function ShadowUF:OnInitialize()
 	
 	-- Things other modules need to access
 	self.units = units
-	self.regModules = modules
 	self.mainLayout = mainLayout
 	self.subLayout = subLayout
 	
@@ -462,7 +462,7 @@ end
 function ShadowUF:RegisterModule(module, key, name, type)
 	module.moduleKey = key
 	module.moduleType = type
-	modules[module] = true
+	self.regModules[module] = true
 	
 	-- This lets the module indicate that it's adding something useful to the DB and needs to be listed for visibility as well as being loaded from layout code
 	if( key and name ) then
@@ -471,7 +471,7 @@ function ShadowUF:RegisterModule(module, key, name, type)
 end
 
 function ShadowUF:FireModuleEvent(event, frame, unit)
-	for module in pairs(modules) do
+	for module in pairs(self.regModules) do
 		if( module[event] ) then
 			module[event](module, frame, unit)
 		end
@@ -557,7 +557,6 @@ frame:SetScript("OnEvent", function(self, event, ...)
 	if( event == "ADDON_LOADED" ) then
 		if( IsAddOnLoaded("ShadowedUnitFrames") ) then
 			frame:UnregisterEvent("ADDON_LOADED")
-			
 			ShadowUF:OnInitialize()
 		end
 	elseif( event == "ZONE_CHANGED_NEW_AREA" ) then

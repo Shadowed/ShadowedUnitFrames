@@ -2262,6 +2262,13 @@ local function loadUnitOptions()
 								hidden = function(info) if( info[#(info) - 3] ~= "player" and info[#(info) - 4] ~= "pet" ) then return true else return false end end,
 								arg = "xpBar.enabled",
 							},
+							castBar = {
+								order = 3,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Cast bar"]),
+								arg = "castBar.enabled",
+								hidden = function() return ShadowUF.db.profile.advanced end,
+							},
 						},
 					},
 					cast = {
@@ -2269,6 +2276,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Cast bar"],
+						hidden = hideAdvancedOption,
 						args = {
 							enabled = {
 								order = 0,
