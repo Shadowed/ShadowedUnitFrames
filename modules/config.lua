@@ -1531,6 +1531,7 @@ local function loadUnitOptions()
 		inline = true,
 		hidden = hideClassWidget,
 		args = {
+			--[[
 			fullSize = {
 				order = 0,
 				type = "toggle",
@@ -1542,6 +1543,7 @@ local function loadUnitOptions()
 					return not ShadowUF.db.profile.units[unit].portrait.enabled
 				end,
 			},
+			]]
 			background = {
 				order = 1,
 				type = "toggle",
@@ -1549,6 +1551,7 @@ local function loadUnitOptions()
 				desc = L["Show a background behind the bars with the same texture/color but faded out."],
 				hidden = hideAdvancedOption,
 			},
+			--[[
 			sep = {
 				order = 1.5,
 				type = "description",
@@ -1564,6 +1567,7 @@ local function loadUnitOptions()
 					return true
 				end,
 			},
+			]]
 			order = {
 				order = 2,
 				type = "range",
@@ -2402,6 +2406,7 @@ local function loadUnitOptions()
 						name = L["Portrait"],
 						inline = true,
 						args = {
+							--[[
 							order = {
 								order = 0,
 								type = "range",
@@ -2409,6 +2414,7 @@ local function loadUnitOptions()
 								desc = L["Order to use for the portrait, this only applies if you have a full sized bar."],
 								min = 0, max = 100, step = 5,
 							},
+							]]
 							width = {
 								order = 1,
 								type = "range",
