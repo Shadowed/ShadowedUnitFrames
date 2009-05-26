@@ -243,7 +243,7 @@ function Auras:Update(frame)
 		frame.auras[frame.auras.anchor].totalAuras = 0
 				
 		if( config.buffs.prioritize ) then
-			if( config.buffs.enasbled ) then
+			if( config.buffs.enabled ) then
 				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit, nil, config.buffs.PLAYER)
 			end
 			if( config.debuffs.enabled ) then

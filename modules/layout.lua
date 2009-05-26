@@ -20,8 +20,13 @@ local function loadMedia(type, name, default)
 	return media
 end
 
-function Layout:MediaForced(mediaType, path)
-	mediaPath[mediaType] = path
+function Layout:MediaForced(mediaType)
+	local oldPath = mediaPath[mediaType]
+	self:CheckMedia()
+	
+	if( mediaPath[mediaType] ~= oldPath ) then
+		self:ReloadAll()
+	end
 end
 
 function Layout:CheckMedia()
@@ -88,7 +93,7 @@ end
 function Layout:LoadSML()
 	SML = SML or LibStub:GetLibrary("LibSharedMedia-3.0")
 	SML.RegisterCallback(self, "LibSharedMedia_Registered", "MediaRegistered")
-	--SML.RegisterCallback(self, "LibSharedMedia_SetGlobal", "MediaForced")
+	SML.RegisterCallback(self, "LibSharedMedia_SetGlobal", "MediaForced")
 
 	SML:Register(SML.MediaType.FONT, "Myriad Condensed Web", "Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf")
 	SML:Register(SML.MediaType.BACKGROUND, "Chat Frame", "Interface\\ChatFrame\\ChatFrameBackground")
