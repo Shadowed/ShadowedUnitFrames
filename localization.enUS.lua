@@ -381,6 +381,8 @@ ShadowUFLocals = {
 	["Range indicator"] = "Range indicator",
 	
 	-- Tag help
+	["Closes a color code, pretends colors from showing up on text that you do not want it to."] = "Closes a color code, pretends colors from showing up on text that you do not want it to.",
+	["Shows the current group number of the unit."] = "Shows the current group number of the unit.",
 	["Reaction color code, use [reactcolor][name][close] to color the units name by their reaction."] = "Reaction color code, use [reactcolor][name][close] to color the units name by their reaction.",
 	["Class name, use [classcolor][class][close] if you want a colored class name."] = "Class name, use [classcolor][class][close] if you want a colored class name.",
 	["Color code for the class, use [classcolor][class][close] if you want the class text to be colored by class"] = "Color code for the class, use [classcolor][class][close] if you want the class text to be colored by class",

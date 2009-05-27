@@ -148,7 +148,7 @@ ShadowUF:RegisterLayout("default", {
 			attribAnchorPoint = "RIGHT",
 			powerBar = {height = 0.60},
 			text = {
-				{text = "[afk( )][name]"},
+				{text = "[group( )][afk( )][name]"},
 				{text = "[curhp]"},
 				{text = ""},
 				{text = "[curpp]"},
@@ -159,7 +159,7 @@ ShadowUF:RegisterLayout("default", {
 			height = 55,
 			scale = 1.0,
 			text = {
-				{width = 0.60, text = "[afk( )][name]", anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0},
+				{width = 0.60, text = "[afk( )][name][( ()group())]", anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0},
 				{width = 0.40, text = "[curmaxhp]", anchorTo = "$healthBar", anchorPoint = "ICR", x = -3, y = 0},
 				
 				{width = 0.60, text = "[perpp]", anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0},

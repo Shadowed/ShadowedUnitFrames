@@ -129,17 +129,27 @@ function Tags:Register(parent, fontString, tags)
 			-- If they enter a tag such as "foo(|)" then we won't find a regular tag, meaning will go into our function pool code
 			local cachedFunc = functionPool[tag] or ShadowUF.tagFunc[tag]
 			if( not cachedFunc ) then
-				local pre, tagKey, ap = string.match(tag, "(%b())([%w]+)(%b())")
-				if( not pre ) then pre, tagKey = string.match(tag, "(%b())([%w]+)") end
-				if( not pre ) then tagKey, ap = string.match(tag, "([%w]+)(%b())") end
+				local hasPre, hasAp = true, true
+				local tagKey = select(2, string.match(tag, "(%b())([%w]+)(%b())"))
 				
-				local tag = tagKey and ShadowUF.tagFunc[tagKey]
-				if( tag ) then
-					pre = pre and string.sub(pre, 2, -2) or ""
-					ap = ap and string.sub(ap, 2, -2) or ""
-
+				if( not tagKey ) then
+					hasPre, hasAp = true, false
+					tagKey = select(2, string.match(tag, "(%b())([%w]+)"))
+				end
+				
+				if( not tagKey ) then
+					hasPre, hasAp = false, true
+					tagKey = string.match(tag, "([%w]+)(%b())")
+				end
+				
+				local tagFunc = tagKey and ShadowUF.tagFunc[tagKey]
+				if( tagFunc ) then
+					local startOff, endOff = string.find(tag, tagKey)
+					local pre = hasPre and string.sub(tag, 2, startOff - 2) or ""
+					local ap = hasAp and string.sub(tag, endOff + 2, -2) or ""
+					
 					cachedFunc = function(unit)
-						local str = tag(unit)
+						local str = tagFunc(unit)
 						if( str ) then
 							return pre .. str .. ap
 						end
@@ -432,6 +442,17 @@ Tags.defaultTags = {
 		local c = UnitClassification(unit)
 		return c == "rare" and "R" or c == "eliterare" and "R+" or c == "elite" and "+" or c == "worldboss" and "B"
 	end]],
+	["group"] = [[function(unit)
+		local name = UnitName(unit)
+		for i=1, GetNumRaidMembers() do
+			local raidName, _, group = GetRaidRosterInfo(i)
+			if( raidName == name ) then
+				return group
+			end
+		end
+		
+		return nil
+	end]],
 }
 
 Tags.defaultHelp = {
@@ -474,6 +495,8 @@ Tags.defaultHelp = {
 	["abscurpp"] = L["Absolute current power value without any formating so 15000 is still shown as 15000."],
 	["reactcolor"] = L["Reaction color code, use [reactcolor][name][close] to color the units name by their reaction."],
 	["dechp"] = L["Shows the units health as a percentage rounded to the first decimal, meaning 61 out of 110 health is shown as 55.4%."],
+	["group"] = L["Shows the current group number of the unit."],
+	["close"] = L["Closes a color code, pretends colors from showing up on text that you do not want it to."],
 }
 
 -- Default tag events
@@ -508,6 +531,7 @@ Tags.defaultEvents = {
 	["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
 	["level"]				= "PARTY_MEMBERS_CHANGED UNIT_LEVEL",
 	["dechp"]				= "UNIT_HEALTH UNIT_MAXHEALTH",
+	["group"]				= "RAID_ROSTER_UPDATE",
 }
 
 Tags.powerEvents = {
@@ -518,9 +542,10 @@ Tags.powerEvents = {
 	["UNIT_RUNIC_POWER"] = true,
 }
 
--- Events that should call every font string, and not bother checking for unit
+-- Events that do not provide a unit, so if the fontstring registered it, it's called regardless
 Tags.unitlessEvents = {
 	["PARTY_MEMBERS_CHANGED"] = true,
+	["RAID_ROSTER_UPDATE"] = true,
 }
 
 -- Checker function, makes sure tags are all happy

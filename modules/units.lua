@@ -467,7 +467,7 @@ function Units:InitializeFrame(config, type)
 		self:LoadGroupHeader(config, type)
 	elseif( type == "partypet" ) then
 		for _, unit in pairs(ShadowUF.partyUnits) do
-			self:LoadPartyChildUnit(config, SUFHeaderparty, type, unit)
+			self:LoadPartyChildUnit(config, SUFHeaderparty, type, unit .. "pet")
 		end
 	elseif( type == "partytarget" ) then
 		for _, unit in pairs(ShadowUF.partyUnits) do

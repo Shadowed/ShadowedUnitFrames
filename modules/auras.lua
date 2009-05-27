@@ -12,23 +12,10 @@ function Auras:CheckCures()
 	end
 	
 	canRemove = canRemove or {}
-	if( classToken == "DRUID" ) then
-		canRemove.Curse = true
-		canRemove.Poison = true
-	elseif( classToken == "MAGE" ) then
-		canRemove.Curse = true
-	elseif( classToken == "SHAMAN" ) then
-		canRemove.Disease = true
-		canRemove.Poison = true
-		canRemove.Curse = GetSpellInfo((GetSpellInfo(51886))) and true or false
-	elseif( classToken == "PRIEST" ) then
-		canRemove.Disease = true
-		canRemove.Magic = true
-	elseif( classToken == "PALADIN" ) then
-		canRemove.Magic = true
-		canRemove.Disease = true
-		canRemove.Poison = true
-	end
+	canRemove.Curse = classToken == "DRUID" or classToken == "MAGE" or GetSpellInfo((GetSpellInfo(51886))) or false
+	canRemove.Poison = classToken == "PALADIN" or classToken == "SHAMAN"
+	canRemove.Disease = classToken == "SHAMAN" or classToken == "PRIEST" or classToken == "PALADIN"
+	canRemove.Magic = classToken == "PALADIN" or classToken == "PRIEST"
 end
 
 local function updateTooltip(self)
@@ -75,15 +62,12 @@ end
 
 local filterTable = {}
 function Auras:UpdateFilter(auraGroup, config)
-	for i=#(filterTable), 1, -1 do table.remove(filterTable, i) end
-	table.insert(filterTable, config.HELPFUL and "HELPFUL" or nil)
-	table.insert(filterTable, config.HARMFUL and "HARMFUL" or nil)
-	table.insert(filterTable, config.PLAYER and "PLAYER" or nil)
-	table.insert(filterTable, config.RAID and "RAID" or nil)
-	table.insert(filterTable, config.CANCELABLE and "CANCELABLE" or nil)
-	table.insert(filterTable, config.NOT_CANCELABLE and "NOT_CANCELABLE" or nil)
+	auraGroup.filter = config.HELPFUL and "HELPFUL" or ""
+	auraGroup.filter = config.HARMFUL and "HARMFUL" or auraGroup.filter
 	
-	auraGroup.filter = table.concat(filterTable, "|") or ""
+	if( auraGroup.RAID ) then
+		auraGroup.filter = auraGroup.filter .. "|RAID"
+	end
 end
 
 local function createAnchor(self, key, config)
@@ -163,6 +147,7 @@ function Auras:LayoutApplied(frame)
 	end
 end
 
+local stealableColor = { r = 1, g = 1, b = 1 }
 function Auras:UpdateDisplay(frame, unitType)
 	for _, button in pairs(frame.buttons) do
 		button:Hide()
@@ -177,7 +162,7 @@ function Auras:UpdateDisplay(frame, unitType)
 		if( button.auraDuration and button.auraEnd ) then
 			local config = ShadowUF.db.profile.units[unitType].auras[button.type]
 			if( button.type == "debuffs" ) then
-				local color = button.auraType and DebuffTypeColor[button.auraType] or DebuffTypeColor.none
+				local color =  button.auraStealable and stealableColor or button.auraType and DebuffTypeColor[button.auraType] or DebuffTypeColor.none
 				button.border:SetVertexColor(color.r, color.g, color.b)
 			else
 				button.border:SetVertexColor(0.60, 0.60, 0.60, 1.0)
@@ -203,14 +188,14 @@ function Auras:UpdateDisplay(frame, unitType)
 	end
 end
 
-function Auras:Scan(frame, filter, type, unit, filterCurable, filterPlayer)
+function Auras:Scan(frame, filter, type, unit, specialFilters)
 	local index = 0
 	while( true ) do
 		index = index + 1
 		local name, rank, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(unit, index, filter)
 		if( not name ) then break end
 		
-		if( ( not filterCurable or debuffType and canRemove[debuffType] ) and ( not filterPlayer or caster == "player" )  ) then
+		if( ( not specialFilters.CURABLE or debuffType and canRemove[debuffType] ) and ( not specialFilters.PLAYER or caster == "player" )  ) then
 			frame.totalAuras = frame.totalAuras + 1
 			if( frame.totalAuras >= frame.maxAuras ) then
 				frame.totalAuras = frame.maxAuras
@@ -244,17 +229,17 @@ function Auras:Update(frame)
 				
 		if( config.buffs.prioritize ) then
 			if( config.buffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit, nil, config.buffs.PLAYER)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit, config.buffs)
 			end
 			if( config.debuffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE, config.debuffs.PLAYER)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit, config.debuffs)
 			end
 		else
 			if( config.debuffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE, config.debuffs.PLAYER)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.debuffs.filter, "debuffs", unit, config.debuffs)
 			end
 			if( config.buffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit, nil, config.buffs.PLAYER)
+				self:Scan(frame.auras[frame.auras.anchor], frame.auras.buffs.filter, "buffs", unit, config.buffs)
 			end
 		end
 		
@@ -262,13 +247,13 @@ function Auras:Update(frame)
 	else
 		if( config.buffs.enabled ) then
 			frame.auras.buffs.totalAuras = 0
-			self:Scan(frame.auras.buffs, frame.auras.buffs.filter, "buffs", unit, nil, config.buffs.PLAYER)
+			self:Scan(frame.auras.buffs, frame.auras.buffs.filter, "buffs", unit, config.buffs)
 			self:UpdateDisplay(frame.auras.buffs, frame.unitType)
 		end
 
 		if( config.debuffs.enabled ) then
 			frame.auras.debuffs.totalAuras = 0
-			self:Scan(frame.auras.debuffs, frame.auras.debuffs.filter, "debuffs", unit, config.debuffs.CURABLE, config.debuffs.PLAYER)
+			self:Scan(frame.auras.debuffs, frame.auras.debuffs.filter, "debuffs", unit, config.debuffs)
 			self:UpdateDisplay(frame.auras.debuffs, frame.unitType)
 		end
 	end
