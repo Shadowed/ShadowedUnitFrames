@@ -2510,8 +2510,6 @@ local function loadUnitOptions()
 				childGroups = "tab",
 				order = 0,
 				name = L["Global"],
-				set = set,
-				get = get,
 				args = {
 					units = {
 						order = 0,

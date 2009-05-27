@@ -65,7 +65,7 @@ function Auras:UpdateFilter(auraGroup, config)
 	auraGroup.filter = config.HELPFUL and "HELPFUL" or ""
 	auraGroup.filter = config.HARMFUL and "HARMFUL" or auraGroup.filter
 	
-	if( auraGroup.RAID ) then
+	if( config.RAID ) then
 		auraGroup.filter = auraGroup.filter .. "|RAID"
 	end
 end
