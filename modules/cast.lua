@@ -4,7 +4,7 @@ local FADE_TIME = 0.20
 
 ShadowUF:RegisterModule(Cast, "castBar", ShadowUFLocals["Cast bar"], true)
 
-function Cast:UnitEnabled(frame, unit)
+function Cast:OnEnable(frame, unit)
 	-- We won't get valid information from *target, while I could do an OnUpdate, but I don't want to
 	if( not frame.visibility.castBar or string.match(unit, "(%w+)target") ) then
 		return
@@ -30,7 +30,7 @@ function Cast:UnitEnabled(frame, unit)
 	frame:RegisterUpdateFunc(self, "UpdateCurrentCast")
 end
 
-function Cast:UnitDisabled(frame, unit)
+function Cast:OnDisable(frame, unit)
 	frame:UnregisterAll(self)
 end
 

@@ -40,7 +40,7 @@ local function loadData()
 		return not ShadowUF.db.profile.advanced
 	end
 
-	isUnitDisabled = function(info)
+	isOnDisable = function(info)
 		return not ShadowUF.db.profile.units[info[#(info)]].enabled
 	end
 	
@@ -988,10 +988,10 @@ local function loadUnitOptions()
 			args = {}
 		}
 		
-		local textTbl = {
+		Config.tagTextTable = {
 			type = "group",
-			name = function(info) return getUnit(info[2], "text." .. info[#(info)]).name end,
-			hidden = function(info)	return string.sub(getUnit(info[2], "text." .. info[#(info)]).anchorTo, 2) ~= info[#(info) - 1] end,
+			name = function(info) return getVariable(info[2], "text", tonumber(info[#(info)]), "name") end,
+			hidden = function(info)	return string.sub(getVariable(info[2], "text", tonumber(info[#(info)]), "anchorTo"), 2) ~= info[#(info) - 1] end,
 			set = false,
 			get = false,
 			args = {
@@ -1009,7 +1009,6 @@ local function loadUnitOptions()
 					order = 1,
 					type = "group",
 					inline = true,
-					hidden = false,
 					name = L["Tags"],
 					hidden = false,
 					set = function(info, value)
@@ -1040,7 +1039,7 @@ local function loadUnitOptions()
 							setVariable(unit, "text", id, "text", value)
 						end
 					end,
-					get = function(info) return string.match(getVariable(unit, "text", info[#(info) - 2], "text"), string.format("%%[%s%%]", info[#(info)])) end,
+					get = function(info) return string.match(getVariable(unit, "text", tonumber(info[#(info) - 2]), "text"), string.format("%%[%s%%]", info[#(info)])) end,
 					args = tagList,
 				},
 			},
@@ -1052,7 +1051,7 @@ local function loadUnitOptions()
 			tagWizard[parent] = parentList
 			
 			for id in pairs(ShadowUF.defaults.profile.units.player.text) do
-				tagWizard[parent].args[tostring(id)] = textTbl
+				tagWizard[parent].args[tostring(id)] = Config.tagTextTable
 			end
 		end
 	end
@@ -1483,7 +1482,7 @@ local function loadUnitOptions()
 		childGroups = "tab",
 		order = getUnitOrder,
 		name = getName,
-		hidden = isUnitDisabled,
+		hidden = isOnDisable,
 		args = {
 			general = {
 				order = 1,
@@ -2397,7 +2396,7 @@ local function loadUnitOptions()
 		order = getUnitOrder,
 		type = "toggle",
 		name = getName,
-		hidden = isUnitDisabled,
+		hidden = isOnDisable,
 		desc = function(info)
 			return string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], L.units[info[#(info)]])
 		end,
@@ -2886,7 +2885,7 @@ local function loadOptions()
 	Config.options = options
 	
 	-- Options finished loading, fire callback for any non-default modules that want to be included
-	ShadowUF:FireModuleEvent("ConfigurationLoaded", options)
+	ShadowUF:FireModuleEvent("OnConfigurationLoad", options)
 end
 
 SLASH_SSUF1 = "/suf"

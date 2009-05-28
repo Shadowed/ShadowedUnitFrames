@@ -5,7 +5,7 @@ local function updateTimer(self, elapsed)
 	Power:Update(self.parent)
 end
 
-function Power:UnitEnabled(frame)
+function Power:OnEnable(frame)
 	if( not frame.visibility.powerBar ) then
 		return
 	end
@@ -34,7 +34,7 @@ function Power:UnitEnabled(frame)
 	end
 end
 
-function Power:UnitDisabled(frame)
+function Power:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 

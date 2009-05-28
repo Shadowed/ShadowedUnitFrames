@@ -2,7 +2,7 @@ local Combo = {}
 local playerUnit = "player"
 ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUFLocals["Combo points"])
 
-function Combo:UnitEnabled(frame)
+function Combo:OnEnable(frame)
 	if( not frame.visibility.comboPoints or frame.unitType ~= "target" ) then return end
 
 	if( not frame.comboPoints ) then
@@ -21,7 +21,7 @@ function Combo:UnitEnabled(frame)
 	frame:RegisterUpdateFunc(self, "UpdateAll")
 end
 
-function Combo:PreLayoutApplied(frame)
+function Combo:OnPreLayoutApply(frame)
 	if( not frame.comboPoints ) then return end
 	local config = ShadowUF.db.profile.units[frame.unitType].comboPoints
 	local point, relativePoint
@@ -54,7 +54,7 @@ function Combo:PreLayoutApplied(frame)
 	end
 end
 
-function Combo:UnitDisabled(frame)
+function Combo:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 

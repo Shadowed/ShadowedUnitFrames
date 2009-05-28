@@ -2,7 +2,7 @@
 	Shadow Unit Frames, Mayen/Selari from Illidan (US) PvP
 ]]
 
-ShadowUF = {raidUnits = {}, partyUnits = {}, modules = {}}
+ShadowUF = {raidUnits = {}, partyUnits = {}, modules = {}, moduleOrder = {}}
 
 local L = ShadowUFLocals
 local layoutQueue, defaultDB
@@ -463,10 +463,12 @@ function ShadowUF:RegisterModule(module, key, name, isBar)
 	module.moduleKey = key
 	module.moduleHasBar = isBar
 	module.moduleName = name
+	
+	table.insert(self.moduleOrder, module)
 end
 
 function ShadowUF:FireModuleEvent(event, frame, unit)
-	for _, module in pairs(self.modules) do
+	for _, module in pairs(self.moduleOrder) do
 		if( module[event] ) then
 			module[event](module, frame, unit)
 		end

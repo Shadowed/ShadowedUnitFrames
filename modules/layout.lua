@@ -76,7 +76,7 @@ function Layout:ApplyAll(frame)
 	end
 	
 	-- About to set layout
-	ShadowUF:FireModuleEvent("PreLayoutApplied", frame)
+	ShadowUF:FireModuleEvent("OnPreLayoutApply", frame)
 			
 	self:ApplyUnitFrame(frame, unitConfig)
 	self:ApplyPortrait(frame, unitConfig)
@@ -87,7 +87,7 @@ function Layout:ApplyAll(frame)
 	self:ApplyText(frame, unitConfig)
 	
 	-- Layouts been fully set
-	ShadowUF:FireModuleEvent("LayoutApplied", frame)
+	ShadowUF:FireModuleEvent("OnLayoutApplied", frame)
 end
 
 function Layout:LoadSML()

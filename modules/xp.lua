@@ -1,7 +1,7 @@
 local XP = {}
 ShadowUF:RegisterModule(XP, "xpBar", ShadowUFLocals["XP/Rep bar"], true)
 
-function XP:UnitEnabled(frame)
+function XP:OnEnable(frame)
 	if( not frame.visibility.xpBar or ( frame.unitType ~= "player" and frame.unitType ~= "pet" ) ) then
 		return
 	end
@@ -25,11 +25,11 @@ function XP:UnitEnabled(frame)
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
-function XP:UnitDisabled(frame)
+function XP:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 
-function XP:PreLayoutApplied(frame)
+function XP:OnPreLayoutApply(frame)
 	if( frame.xpBar ) then
 		frame.xpBar.rested:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 	end

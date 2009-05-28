@@ -6,7 +6,7 @@ local OH_WARNING = 1.30
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUFLocals["Incoming heals"])
 
 -- RAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGGGGGGGGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
-function IncHeal:UnitEnabled(frame)
+function IncHeal:OnEnable(frame)
 	if( not frame.visibility.incHeal or frame.unitType == "targettarget" or frame.unitType == "targettargettarget" or frame.unitType == "focustarget" ) then
 		frames[frame] = nil
 		return
@@ -21,12 +21,12 @@ function IncHeal:UnitEnabled(frame)
 	self:Setup()
 end
 
-function IncHeal:UnitDisabled(frame)
+function IncHeal:OnDisable(frame)
 	frames[frame] = nil
 	self:Setup()
 end
 
-function IncHeal:LayoutApplied(frame)
+function IncHeal:OnLayoutApplied(frame)
 	if( not frame.incHeal or not frame.healthBar ) then
 		return
 	end

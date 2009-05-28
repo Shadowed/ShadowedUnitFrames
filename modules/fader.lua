@@ -24,7 +24,7 @@ local function startFading(self, type, alpha)
 	self.fader:Show()
 end
 
-function Fader:UnitEnabled(frame)
+function Fader:OnEnable(frame)
 	if( not frame.visibility.fader or ( frame.unitType ~= "player" and frame.unitType ~= "focus" and frame.unitType ~= "party" and frame.unitType ~= "raid" ) ) then return end
 	
 	if( not frame.fader ) then
@@ -45,7 +45,7 @@ function Fader:UnitEnabled(frame)
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
-function Fader:UnitDisabled(frame)
+function Fader:OnDisable(frame)
 	frame:UnregisterAll(self)
 	frame:SetAlpha(1.0)
 

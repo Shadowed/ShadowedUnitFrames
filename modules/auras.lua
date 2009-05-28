@@ -40,7 +40,7 @@ local function cancelBuff(self)
 	CancelUnitBuff(self.unit, self.auraID, self.filter)
 end
 
-function Auras:UnitEnabled(frame)
+function Auras:OnEnable(frame)
 	if( not frame.visibility.auras or not ShadowUF.db.profile.units[frame.unitType].auras ) then
 		return
 	end
@@ -56,7 +56,7 @@ function Auras:UnitEnabled(frame)
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
-function Auras:UnitDisabled(frame)
+function Auras:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 
@@ -121,7 +121,7 @@ local function createAnchor(self, key, config)
 	Auras:UpdateFilter(aura, ShadowUF.db.profile.units[self.unitType].auras[key])
 end
 
-function Auras:PreLayoutApplied(frame)
+function Auras:OnPreLayoutApply(frame)
 	self:CreateIcons(frame)
 
 	frame.auras.anchor = "buffs"
@@ -139,7 +139,7 @@ function Auras:CreateIcons(frame)
 	createAnchor(frame, "debuffs", ShadowUF.db.profile.units[frame.unitType].auras.debuffs)
 end
 
-function Auras:LayoutApplied(frame)
+function Auras:OnLayoutApplied(frame)
 	if( frame.auras and ShadowUF.db.profile.units[frame.unitType].auras ) then
 		self:UpdateFilter(frame.auras.buffs, ShadowUF.db.profile.units[frame.unitType].auras.buffs)
 		self:UpdateFilter(frame.auras.debuffs, ShadowUF.db.profile.units[frame.unitType].auras.debuffs)

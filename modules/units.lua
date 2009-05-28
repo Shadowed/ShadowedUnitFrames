@@ -95,7 +95,8 @@ local function SetVisibility(self)
 	local layoutUpdate
 	local zone = select(2, IsInInstance())
 	-- Selectively disable modules
-	for key, module in pairs(ShadowUF.modules) do
+	for _, module in pairs(ShadowUF.moduleOrder) do
+		local key = module.moduleKey
 		local enabled = ShadowUF.db.profile.units[self.unitType][key] and ShadowUF.db.profile.units[self.unitType][key].enabled
 		
 		-- Make sure at least one option is enabled if it's an aura or indicator
@@ -127,13 +128,14 @@ local function SetVisibility(self)
 		
 		-- Module isn't enabled all the time, only in this zone so we need to force it to be enabled
 		if( enabled and ( not self[key] or self[key].disabled )) then
-			module:UnitEnabled(self, self.unit)
+			module:OnEnable(self, self.unit)
 		elseif( not enabled and wasEnabled ) then
-			module:UnitDisabled(self, self.unit)
+			module:OnDisable(self, self.unit)
 			if( self[key] ) then self[key].disabled = true end
 		end
 	end
 	
+	-- We had a module update, so redo everything
 	if( layoutUpdate ) then
 		ShadowUF.Layout:ApplyAll(self)
 	end
@@ -472,7 +474,7 @@ local function disableChildren(...)
 	for i=1, select("#", ...) do
 		local frame = select(i, ...)
 		if( frame.unit ) then
-			ShadowUF:FireModuleEvent("UnitDisabled", frame)
+			ShadowUF:FireModuleEvent("OnDisable", frame)
 			frame:SetAttribute("unit", nil)
 		end
 	end
@@ -489,7 +491,7 @@ function Units:UninitializeFrame(config, type)
 			if( frame.unit ~= type ) then
 				disableChildren(frame:GetChildren())
 			else
-				ShadowUF:FireModuleEvent("UnitDisabled", frame)
+				ShadowUF:FireModuleEvent("OnDisable", frame)
 				frame:SetAttribute("unit", nil)
 			end
 
@@ -498,7 +500,7 @@ function Units:UninitializeFrame(config, type)
 	end
 end
 
-function Units:LayoutApplied(frame)
+function Units:OnLayoutApplied(frame)
 	frame:FullUpdate()
 end
 

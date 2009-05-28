@@ -1,7 +1,7 @@
 local Runes = {}
 ShadowUF:RegisterModule(Runes, "runeBar", ShadowUFLocals["Rune bar"], true)
 
-function Runes:UnitEnabled(frame)
+function Runes:OnEnable(frame)
 	if( not frame.visibility.runeBar or frame.unitType ~= "player" or select(2, UnitClass("player")) ~= "DEATHKNIGHT" ) then
 		return
 	end
@@ -33,11 +33,11 @@ function Runes:UnitEnabled(frame)
 	frame:RegisterUpdateFunc(self, "UpdateAll")
 end
 
-function Runes:UnitDisabled(frame)
+function Runes:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 
-function Runes:LayoutApplied(frame)
+function Runes:OnLayoutApplied(frame)
 	if( frame.runeBar ) then
 		local barWidth = (frame.runeBar:GetWidth() - 5 ) / 6
 		

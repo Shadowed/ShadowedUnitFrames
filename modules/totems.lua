@@ -2,7 +2,7 @@ local Totems = {}
 local totemColors = {{r = 1, g = 0, b = 0.4}, {r = 0, g = 1, b = 0.4}, {r = 0, g = 0.4, b = 1}, {r = 0.90, g = 0.90, b = 0.90}}
 ShadowUF:RegisterModule(Totems, "totemBar", ShadowUFLocals["Totem bar"], true)
 
-function Totems:UnitEnabled(frame)
+function Totems:OnEnable(frame)
 	if( not frame.visibility.totemBar or frame.unitType ~= "player" or select(2, UnitClass("player")) ~= "SHAMAN" ) then
 		return
 	end
@@ -33,11 +33,11 @@ function Totems:UnitEnabled(frame)
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
-function Totems:UnitDisabled(frame)
+function Totems:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 
-function Totems:LayoutApplied(frame)
+function Totems:OnLayoutApplied(frame)
 	if( frame.totemBar ) then
 		local barWidth = (frame.totemBar:GetWidth() - 5 ) / 4
 		

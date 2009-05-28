@@ -10,7 +10,7 @@ local function resetGUID(self)
 	self.guid = nil
 end
 
-function Portrait:UnitEnabled(frame)
+function Portrait:OnEnable(frame)
 	if( not frame.visibility.portrait ) then
 		return
 	end
@@ -22,18 +22,18 @@ function Portrait:UnitEnabled(frame)
 
 		frame.portraitTexture = frame:CreateTexture(nil, "ARTWORK")
 		
-		self:PreLayoutApplied(frame)
+		self:OnPreLayoutApply(frame)
 	end
 		
 	frame:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", self, "Update")
 	frame:RegisterUpdateFunc(self, "UpdateFunc")
 end
 
-function Portrait:UnitDisabled(frame)
+function Portrait:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 
-function Portrait:PreLayoutApplied(frame)
+function Portrait:OnPreLayoutApply(frame)
 	if( not frame.portraitTexture or not frame.portraitModel ) then
 		return
 	end

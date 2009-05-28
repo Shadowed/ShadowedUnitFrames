@@ -1,7 +1,7 @@
 local Combat = {}
 ShadowUF:RegisterModule(Combat, "combatText", ShadowUFLocals["Combat text"])
 
-function Combat:UnitEnabled(frame)
+function Combat:OnEnable(frame)
 	if( not frame.visibility.combatText ) then
 		return
 	end
@@ -21,7 +21,7 @@ function Combat:UnitEnabled(frame)
 	frame:RegisterUnitEvent("UNIT_COMBAT", self, "Update")
 end
 
-function Combat:UnitDisabled(frame)
+function Combat:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 

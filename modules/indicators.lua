@@ -94,7 +94,7 @@ function Indicators:UpdateAll(frame)
 	self:UpdateHappiness(frame)
 end
 
-function Indicators:UnitEnabled(frame, unit)
+function Indicators:OnEnable(frame, unit)
 	if( not frame.visibility.indicators ) then
 		return
 	end
@@ -145,7 +145,7 @@ function Indicators:UnitEnabled(frame, unit)
 	frame.indicators.happiness:Hide()
 end
 
-function Indicators:UnitDisabled(frame, unit)
+function Indicators:OnDisable(frame, unit)
 	frame:UnregisterAll(self)
 
 	if( frame.indicators ) then
@@ -158,7 +158,7 @@ function Indicators:UnitDisabled(frame, unit)
 	end
 end
 
-function Indicators:LayoutApplied(frame)
+function Indicators:OnLayoutApplied(frame)
 	if( frame.indicators ) then
 		for _, key in pairs(frame.indicators.list) do
 			local indicator = frame.indicators[key]
