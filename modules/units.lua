@@ -5,7 +5,7 @@ local inCombat, needPartyFrame
 local FRAME_LEVEL_MAX = 5
 
 ShadowUF.Units = Units
-ShadowUF:RegisterModule(Units)
+ShadowUF:RegisterModule(Units, "units")
 
 -- Frame shown, do a full update
 local function FullUpdate(self)
@@ -95,7 +95,7 @@ local function SetVisibility(self)
 	local layoutUpdate
 	local zone = select(2, IsInInstance())
 	-- Selectively disable modules
-	for key in pairs(ShadowUF.moduleNames) do
+	for key, module in pairs(ShadowUF.modules) do
 		local enabled = ShadowUF.db.profile.units[self.unitType][key] and ShadowUF.db.profile.units[self.unitType][key].enabled
 		
 		-- Make sure at least one option is enabled if it's an aura or indicator
@@ -127,20 +127,10 @@ local function SetVisibility(self)
 		
 		-- Module isn't enabled all the time, only in this zone so we need to force it to be enabled
 		if( enabled and ( not self[key] or self[key].disabled )) then
-			for module in pairs(ShadowUF.regModules) do
-				if( module.moduleKey == key ) then
-					module:UnitEnabled(self, self.unit)
-				end
-			end
+			module:UnitEnabled(self, self.unit)
 		elseif( not enabled and wasEnabled ) then
-			for module in pairs(ShadowUF.regModules) do
-				if( module.moduleKey == key ) then
-					module:UnitDisabled(self, self.unit)
-					if( self[key] ) then
-						self[key].disabled = true
-					end
-				end
-			end
+			module:UnitDisabled(self, self.unit)
+			if( self[key] ) then self[key].disabled = true end
 		end
 	end
 	

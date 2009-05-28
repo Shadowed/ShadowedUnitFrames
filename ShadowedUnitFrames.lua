@@ -2,7 +2,7 @@
 	Shadow Unit Frames, Mayen/Selari from Illidan (US) PvP
 ]]
 
-ShadowUF = {moduleNames = {}, raidUnits = {}, partyUnits = {}, regModules = {}}
+ShadowUF = {raidUnits = {}, partyUnits = {}, modules = {}}
 
 local L = ShadowUFLocals
 local layoutQueue, defaultDB
@@ -191,8 +191,8 @@ function ShadowUF:LoadUnitDefaults()
 				happiness = {enabled = false, size = 16, anchorPoint = "BR", anchorTo = "$parent", x = 2, y = -2},	
 			},
 			auras = {
-				buffs = {enabled = false, perRow = 11, maxRows = 4, prioritize = true, enlargeSelf = false, anchorPoint = "TOP", size = 16, x = 0, y = 0, HELPFUL = true},
-				debuffs = {enabled = false, perRow = 11, maxRows = 4, enlargeSelf = true, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0, HARMFUL = true},
+				buffs = {enabled = false, perRow = 11, maxRows = 4, prioritize = true, enlargeSelf = false, anchorPoint = "TOP", size = 16, x = 0, y = 0},
+				debuffs = {enabled = false, perRow = 11, maxRows = 4, enlargeSelf = true, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0},
 			},
 		}
 	end
@@ -359,14 +359,14 @@ function ShadowUF:SetLayout(name, importPositions)
 	local layout = CopyTable(self.layoutInfo[name].layout)
 	
 	-- Merge all parent module settings into the units module setting (If there are none)
-	for module in pairs(self.moduleNames) do
-		if( layout[module] ) then
+	for key in pairs(self.modules) do
+		if( layout[key] ) then
 			for _, unit in pairs(units) do
 				layout[unit] = layout[unit] or {}
-				if( not layout[unit][module] ) then
-					layout[unit][module] = CopyTable(layout[module])
+				if( not layout[unit][key] ) then
+					layout[unit][key] = CopyTable(layout[key])
 				else
-					layout[unit][module] = mergeTable(layout[unit][module], layout[module], true)
+					layout[unit][key] = mergeTable(layout[unit][key], layout[key], true)
 				end
 			end
 		end
@@ -378,7 +378,7 @@ function ShadowUF:SetLayout(name, importPositions)
 			self:VerifyTable(layout[unit])
 		end
 	end
-	
+		
 	-- Don't overwrite positioning data
 	if( not importPositions ) then
 		layout.positions = nil
@@ -457,19 +457,16 @@ function ShadowUF:RegisterLayout(id, data)
 end
 
 -- Module APIs
-function ShadowUF:RegisterModule(module, key, name, type)
+function ShadowUF:RegisterModule(module, key, name, isBar)
+	self.modules[key] = module
+
 	module.moduleKey = key
-	module.moduleType = type
-	self.regModules[module] = true
-	
-	-- This lets the module indicate that it's adding something useful to the DB and needs to be listed for visibility as well as being loaded from layout code
-	if( key and name ) then
-		self.moduleNames[key] = name
-	end
+	module.moduleHasBar = isBar
+	module.moduleName = name
 end
 
 function ShadowUF:FireModuleEvent(event, frame, unit)
-	for module in pairs(self.regModules) do
+	for _, module in pairs(self.modules) do
 		if( module[event] ) then
 			module[event](module, frame, unit)
 		end

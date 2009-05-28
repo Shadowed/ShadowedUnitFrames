@@ -285,10 +285,10 @@ end
 
 -- Setup bars
 function Layout:ApplyBarVisuals(frame, config)
-	for module in pairs(ShadowUF.regModules) do
+	for _, module in pairs(ShadowUF.modules) do
 		local key = module.moduleKey
 		local widget = frame[key]
-		if( widget and module.moduleType == "bar" ) then
+		if( widget and module.moduleHasBar ) then
 			self:ToggleVisibility(widget, frame.visibility[key])
 			if( widget:IsShown() ) then
 				widget:SetStatusBarTexture(mediaPath.statusbar)
@@ -500,8 +500,8 @@ function Layout:ApplyBars(frame, config)
 	local totalBars = -1
 
 	for i=#(ordering), 1, -1 do table.remove(ordering, i) end
-	for module in pairs(ShadowUF.regModules) do
-		if( module.moduleType == "bar" and frame[module.moduleKey] and config[module.moduleKey].height and frame[module.moduleKey]:IsShown() ) then
+	for _, module in pairs(ShadowUF.modules) do
+		if( module.moduleHasBar and frame[module.moduleKey] and config[module.moduleKey].height and frame[module.moduleKey]:IsShown() ) then
 			totalWeight = totalWeight + config[module.moduleKey].height
 			totalBars = totalBars + 1
 			

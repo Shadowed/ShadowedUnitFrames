@@ -62,10 +62,10 @@ end
 
 local filterTable = {}
 function Auras:UpdateFilter(auraGroup, config)
-	auraGroup.filter = config.HELPFUL and "HELPFUL" or ""
-	auraGroup.filter = config.HARMFUL and "HARMFUL" or auraGroup.filter
+	auraGroup.filter = auraGroup.type == "buffs" and "HELPFUL" or ""
+	auraGroup.filter = auraGroup.type == "debuffs" and "HARMFUL" or auraGroup.filter
 	
-	if( config.RAID ) then
+	if( config.raid ) then
 		auraGroup.filter = auraGroup.filter .. "|RAID"
 	end
 end
@@ -77,6 +77,7 @@ local function createAnchor(self, key, config)
 	aura.buttons = aura.buttons or {}
 	aura.maxAuras = config.perRow * config.maxRows
 	aura.parent = self
+	aura.type = key
 	aura.totalAuras = 0
 	
 	for i=1, aura.maxAuras do
@@ -195,7 +196,7 @@ function Auras:Scan(frame, filter, type, unit, specialFilters)
 		local name, rank, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(unit, index, filter)
 		if( not name ) then break end
 		
-		if( ( not specialFilters.CURABLE or debuffType and canRemove[debuffType] ) and ( not specialFilters.PLAYER or caster == "player" )  ) then
+		if( ( not specialFilters.curable or debuffType and canRemove[debuffType] ) and ( not specialFilters.player or caster == "player" )  ) then
 			frame.totalAuras = frame.totalAuras + 1
 			if( frame.totalAuras >= frame.maxAuras ) then
 				frame.totalAuras = frame.maxAuras

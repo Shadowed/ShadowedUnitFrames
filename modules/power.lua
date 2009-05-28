@@ -1,5 +1,5 @@
 local Power = {}
-ShadowUF:RegisterModule(Power, "powerBar", ShadowUFLocals["Power bar"], "bar")
+ShadowUF:RegisterModule(Power, "powerBar", ShadowUFLocals["Power bar"], true)
 
 local function updateTimer(self, elapsed)
 	Power:Update(self.parent)

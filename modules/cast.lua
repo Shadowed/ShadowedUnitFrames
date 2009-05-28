@@ -2,7 +2,7 @@ local Cast = {}
 local castFuncs = {["UNIT_SPELLCAST_START"] = UnitCastingInfo, ["UNIT_SPELLCAST_DELAYED"] = UnitCastingInfo, ["UNIT_SPELLCAST_CHANNEL_START"] = UnitChannelInfo, ["UNIT_SPELLCAST_CHANNEL_UPDATE"] = UnitChannelInfo}
 local FADE_TIME = 0.20
 
-ShadowUF:RegisterModule(Cast, "castBar", ShadowUFLocals["Cast bar"], "bar")
+ShadowUF:RegisterModule(Cast, "castBar", ShadowUFLocals["Cast bar"], true)
 
 function Cast:UnitEnabled(frame, unit)
 	-- We won't get valid information from *target, while I could do an OnUpdate, but I don't want to
