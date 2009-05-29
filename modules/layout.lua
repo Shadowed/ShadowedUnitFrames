@@ -472,20 +472,15 @@ end
 function Layout:ApplyAuras(frame, config)
 	if( not frame.auras or not frame.visibility.auras ) then
 		if( frame.auras ) then
-			frame.auras.buffs:Hide()
 			frame.auras.buffs.buttons[1]:Hide()
-			
-			frame.auras.debuffs:Hide()
 			frame.auras.debuffs.buttons[1]:Hide()
 		end
 		return
 	end
 		
 	-- Update aura position
-	self:ToggleVisibility(frame.auras.buffs, config.auras.buffs.enabled)
-	if( frame.auras.buffs:IsShown() ) then positionAuras(frame.auras.buffs, config.auras.buffs) end
-	self:ToggleVisibility(frame.auras.debuffs, config.auras.debuffs.enabled)
-	if( frame.auras.debuffs:IsShown() ) then positionAuras(frame.auras.debuffs, config.auras.debuffs) end
+	if( config.auras.buffs.enabled ) then positionAuras(frame.auras.buffs, config.auras.buffs) end
+	if( config.auras.debuffs.enabled ) then positionAuras(frame.auras.debuffs, config.auras.debuffs) end
 end
 
 -- Setup the bar ordering/info

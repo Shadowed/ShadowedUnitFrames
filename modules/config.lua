@@ -1302,7 +1302,7 @@ local function loadUnitOptions()
 				type = "select",
 				name = L["Position"],
 				desc = L["How you want this aura to be anchored to the unit frame."],
-				values = {["INSIDE"] = L["Inside"], ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
+				values = {--[[["INSIDE"] = L["Inside"],]] ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
 				arg = "auras.$parent.anchorPoint",
 			},
 			x = {

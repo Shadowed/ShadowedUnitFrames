@@ -287,7 +287,7 @@ Tags.defaultTags = {
 		
 		return ShadowUF:Hex(color)
 	end]],
-	["class"] = [[function(unit) return UnitClass(unit) end]],
+	["class"] = [[function(unit) if( not UnitIsPlayer(unit) ) then return nil end return UnitClass(unit) end]],
 	["classcolor"] = [[function(unit) return ShadowUF:GetClassColor(unit) end]],
 	["creature"] = [[function(unit) return UnitCreatureFamily(unit) or UnitCreatureType(unit) end]],
 	["curhp"] = [[function(unit)
