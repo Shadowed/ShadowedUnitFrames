@@ -293,11 +293,13 @@ function Layout:ApplyBarVisuals(frame, config)
 			if( widget:IsShown() ) then
 				widget:SetStatusBarTexture(mediaPath.statusbar)
 								
-				if( config[key].background ) then
-					widget.background:SetTexture(mediaPath.statusbar)
-					widget.background:Show()
-				else
-					widget.background:Hide()
+				if( widget.background ) then
+					if( config[key].background ) then
+						widget.background:SetTexture(mediaPath.statusbar)
+						widget.background:Show()
+					else
+						widget.background:Hide()
+					end
 				end
 			end
 		end

@@ -197,16 +197,7 @@ local function loadData()
 		end
 											
 		-- Non-standard units do not support any of these modules
-		if( ( key == "castBar" or key == "incHeal" or key == "range" or key == "enabledHeal" or key == "enabledSelf" or key == "colorAggro" ) and string.match(unit, "%s+target" ) ) then
-			return true
-		-- Of course, nobody except for players and pets have XP (that we can query)
-		elseif( key == "xpBar" and unit ~= "pet" and unit ~= "player" ) then
-			return true
-		-- And rune as well as totem bars are only for player
-		elseif( ( key == "runeBar" or key == "totems" ) and unit ~= "player" ) then
-			return true
-		-- Combo points only for target
-		elseif( key == "comboPoints" and unit ~= "target" ) then
+		if( ( key == "enabledHeal" or key == "enabledSelf" or key == "colorAggro" ) and string.match(unit, "%s+target" ) ) then
 			return true
 		end
 		
