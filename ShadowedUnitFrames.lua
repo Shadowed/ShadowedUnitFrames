@@ -150,7 +150,7 @@ function ShadowUF:LoadUnitDefaults()
 			powerBar = {enabled = true}, portrait = {enabled = false, type = "3D"},
 			range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
 			fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60},
-			text = {{enabled = true, name = L["Left text"], text = "[name]"}, {enabled = true, name = L["Right text"], text = "[curmaxhp]"}, {enabled = true, name = L["Left text"], text = "[level] [race]"}, {enabled = true, name = L["Right text"], text = "[curmaxpp]"}},
+			text = {{enabled = true, name = L["Left text"], text = "[name]", anchorTo = "$healthBar"}, {enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorTo = "$healthBar"}, {enabled = true, name = L["Left text"], text = "[level] [race]", anchorTo = "$powerBar"}, {enabled = true, name = L["Right text"], text = "[curmaxpp]", anchorTo = "$powerBar"}},
 			indicators = {raidTarget = {enabled = true}, pvp = {enabled = true}}, 
 			auras = {
 				buffs = {enabled = false, perRow = 11, maxRows = 4, prioritize = true, enlargeSelf = false},
@@ -199,6 +199,7 @@ function ShadowUF:LoadUnitDefaults()
 	-- RAID
 	self.defaults.profile.units.raid.groupBy = "GROUP"
 	self.defaults.profile.units.raid.sortOrder = "ASC"
+	self.defaults.profile.units.raid.filters = {[1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [8] = true}
 	-- PARTYPET
 	self.defaults.profile.positions.partypet.anchorTo = "$parent"
 	self.defaults.profile.positions.partypet.anchorPoint = "RB"

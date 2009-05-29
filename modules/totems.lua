@@ -8,8 +8,8 @@ function Totems:OnEnable(frame)
 	end
 			
 	if( not frame.totemBar ) then
-		frame.totemBar = ShadowUF.Units:CreateBar(frame)
-		frame.totemBar.background:SetVertexColor(0, 0, 0, 0)
+		frame.totemBar = CreateFrame("StatusBar", nil, frame)
+		frame.totemBar:SetFrameLevel(frame.topFrameLevel)
 		frame.totemBar:SetMinMaxValues(0, 1)
 		frame.totemBar:SetValue(0)
 		frame.totemBar.totems = {}

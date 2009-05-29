@@ -1065,7 +1065,7 @@ local function loadUnitOptions()
 			},
 		}
 		
-		local parentList = {
+		local parentTable = {
 			order = 0,
 			type = "group",
 			name = getName,
@@ -1139,13 +1139,18 @@ local function loadUnitOptions()
 				},
 			},
 		}
+		
+		local parentList = {}
+		for id, text in pairs(ShadowUF.defaults.profile.units.player.text) do
+			parentList[text.anchorTo] = parentList[text.anchorTo] or {}
+			parentList[text.anchorTo][id] = text
+		end
 	
-		-- NTS: If I ever allow people to add more tag text, this has to be changed to a regular variable
-		for _, parent in pairs({"$healthBar", "$powerBar"}) do
+		for parent, list in pairs(parentList) do
 			parent = string.sub(parent, 2)
-			tagWizard[parent] = parentList
+			tagWizard[parent] = parentTable
 			
-			for id in pairs(ShadowUF.defaults.profile.units.player.text) do
+			for id in pairs(list) do
 				tagWizard[parent].args[tostring(id)] = Config.tagTextTable
 				tagWizard[parent].args[tostring(id) .. ":adv"] = Config.advanceTextTable
 				
@@ -1806,6 +1811,23 @@ local function loadUnitOptions()
 								name = L["Column spacing"],
 								min = -100, max = 100, step = 1,
 								arg = "columnSpacing",
+							},
+							selectedGroups = {
+								order = 7,
+								type = "multiselect",
+								name = L["Raid groups to show"],
+								values = {string.format(L["Group %d"], 1), string.format(L["Group %d"], 2), string.format(L["Group %d"], 3), string.format(L["Group %d"], 4), string.format(L["Group %d"], 5), string.format(L["Group %d"], 6), string.format(L["Group %d"], 7), string.format(L["Group %d"], 8)},
+								set = function(info, key, value)
+									local tbl = getVariable(info[2], nil, nil, "filters")
+									tbl[key] = value
+									
+									setVariable(info[2], "filters", nil, tbl)
+									ShadowUF.Units:ReloadUnit("raid")
+								end,
+								get = function(info, key)
+									local tbl = getVariable(info[2], nil, nil, "filters")
+									return tbl[key]
+								end,
 							},
 						},
 					},

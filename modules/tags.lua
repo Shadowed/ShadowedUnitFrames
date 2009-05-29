@@ -443,7 +443,11 @@ Tags.defaultTags = {
 		return c == "rare" and "R" or c == "eliterare" and "R+" or c == "elite" and "+" or c == "worldboss" and "B"
 	end]],
 	["group"] = [[function(unit)
-		local name = UnitName(unit)
+		local name, server = UnitName(unit)
+		if( server and server ~= "" ) then
+			name = string.format("%s-%s", name, server)
+		end
+		
 		for i=1, GetNumRaidMembers() do
 			local raidName, _, group = GetRaidRosterInfo(i)
 			if( raidName == name ) then

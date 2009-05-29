@@ -196,6 +196,8 @@ ShadowUFLocals = {
 	["When showing incoming heals, include your heals in the total incoming."] = "When showing incoming heals, include your heals in the total incoming.",
 	["Offsets are saved using effective scaling, this is to prevent the frame from jumping around when you reload or login."] = "Offsets are saved using effective scaling, this is to prevent the frame from jumping around when you reload or login.",
 	["Per column"] = "Per column",
+	["Raid groups to show"] = "Raid groups to show",
+	["Group %d"] = "Group %d",
 	
 	-- Layout
 	["Layout"] = "Layout",

@@ -357,19 +357,31 @@ function Units:SetFrameAttributes(frame, type)
 		frame:SetAttribute("yOffset", config.yOffset)
 		
 		if( type == "raid" ) then
+			local filter
+			for id, enabled in pairs(config.filters) do
+				if( enabled ) then
+					if( filter ) then
+						filter = filter .. "," .. id
+					else
+						filter = id
+					end
+				end
+			end
+		
 			frame:SetAttribute("sortMethod", "INDEX")
 			frame:SetAttribute("sortDir", config.sortOrder)
 			frame:SetAttribute("maxColumns", config.maxColumns)
 			frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
 			frame:SetAttribute("columnSpacing", config.columnSpacing)
 			frame:SetAttribute("columnAnchorPoint", config.attribAnchorPoint)
-
+			frame:SetAttribute("groupFilter", filter or "1,2,3,4,5,6,7,8")
+			
 			if( config.groupBy == "CLASS" ) then
 				frame:SetAttribute("groupingOrder", "DEATHKNIGHT,DRUID,HUNTER,MAGE,PALADIN,PRIEST,ROGUE,SHAMAN,WARLOCK,WARRIOR")
-				frame:SetAttribute("groupBy", config.groupBy)
-			elseif( config.groupBy == "CLASS" ) then
+				frame:SetAttribute("groupBy", "CLASS")
+			else
 				frame:SetAttribute("groupingOrder", "1,2,3,4,5,6,7,8")
-				frame:SetAttribute("groupBy", config.groupBy)
+				frame:SetAttribute("groupBy", "GROUP")
 			end
 		end
 	elseif( type == "partypet" or type == "partytarget" ) then
@@ -475,6 +487,9 @@ local function disableChildren(...)
 		if( frame.unit ) then
 			ShadowUF:FireModuleEvent("OnDisable", frame)
 			frame:SetAttribute("unit", nil)
+
+			-- Flag unit as disabled so if it's reenabled visibility will take care of the initialization
+			for _, module in pairs(ShadowUF.modules) do module.disabled = true end
 		end
 	end
 end
@@ -492,6 +507,9 @@ function Units:UninitializeFrame(config, type)
 			else
 				ShadowUF:FireModuleEvent("OnDisable", frame)
 				frame:SetAttribute("unit", nil)
+				
+				-- Flag unit as disabled so if it's reenabled visibility will take care of the initialization
+				for _, module in pairs(ShadowUF.modules) do module.disabled = true end
 			end
 
 			frame:Hide()
@@ -544,6 +562,7 @@ function Units:CreateBar(parent)
 end
 
 -- Combat queuer
+local headerUpdated = {}
 local centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -558,15 +577,23 @@ centralFrame:SetScript("OnEvent", function(self, event)
 		
 	elseif( event == "PLAYER_REGEN_ENABLED" ) then
 		inCombat = nil
-		
+			
+		for k in pairs(headerUpdated) do headerUpdated[k] = nil end
+				
 		for frame in pairs(queuedCombat) do
 			OnAttributeChanged(frame, "unit", frame:GetAttribute("unit"))
 			queuedCombat[frame] = nil
 			
-			-- If the party was started while in combat (Nobody else in the group) the header might not have height/width set
-			if( frame.unitType ~= frame.unit ) then
-				unitFrames[frame.unitType]:SetHeight(0.1)
-				unitFrames[frame.unitType]:SetWidth(0.1)
+			-- When parties change in combat, the overall height/width of the secure header will change, we need to force a secure group update
+			-- in order for all of the sizing information to be set correctly, I bet this causes taint errors, but not positive.
+			-- I'm sure I'll find out because someone will be like, "THIS BROKE IN THE MIDDLE OF MY RAID YOU FUCKER I HATE YOU" and I'll laugh at their hatred
+			if( frame.unitType ~= frame.unit and not headerUpdated[frame.unitType] ) then
+				local header = unitFrames[frame.unitType]
+				if( header and header:GetHeight() == 0 and header:GetWidth() == 0 ) then
+					SecureGroupHeader_Update(header)
+				end
+				
+				headerUpdated[frame.unitType] = true
 			end
 		end
 	elseif( event == "PLAYER_REGEN_DISABLED" ) then
