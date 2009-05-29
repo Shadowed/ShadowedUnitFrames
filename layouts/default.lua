@@ -154,6 +154,9 @@ function ShadowUF:LoadDefaultLayout()
 				attribPoint = "TOP",
 				attribAnchorPoint = "RIGHT",
 				powerBar = {height = 0.60},
+				indicators = {
+					pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+				},
 				text = {
 					{text = "[group( )][afk( )][name]"},
 					{text = "[curhp]"},
@@ -210,6 +213,9 @@ function ShadowUF:LoadDefaultLayout()
 				height = 25,
 				scale = 1.0,
 				powerBar = {height = 0.60},
+				indicators = {
+					pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+				},
 				text = {
 					{text = "[afk( )][name]"},
 					{text = "[curhp]"},
@@ -262,6 +268,9 @@ function ShadowUF:LoadDefaultLayout()
 				height = 30,
 				scale = 1.0,
 				powerBar = {height = 0.70},
+				indicators = {
+					pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+				},
 				text = {
 					{text = "[afk( )][name]"},
 					{text = "[curhp]"},
@@ -274,6 +283,9 @@ function ShadowUF:LoadDefaultLayout()
 				height = 30,
 				scale = 1.0,
 				powerBar = {height = 0.60},
+				indicators = {
+					pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+				},
 				text = {
 					{text = "[afk( )][name]"},
 					{text = "[maxhp]"},
@@ -286,6 +298,9 @@ function ShadowUF:LoadDefaultLayout()
 				height = 30,
 				scale = 1.0,
 				powerBar = {height = 0.70},
+				indicators = {
+					pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+				},
 				text = {
 					{text = "[name]"},
 					{text = "[curhp]"},
@@ -298,6 +313,9 @@ function ShadowUF:LoadDefaultLayout()
 				height = 30,
 				scale = 1.0,
 				powerBar = {height = 0.60},
+				indicators = {
+					pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+				},
 				text = {
 					{text = "[name]", width = 1.0},
 					{text = ""},

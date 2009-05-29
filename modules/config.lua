@@ -564,7 +564,7 @@ local function loadGeneralOptions()
 		-- Now load all of the units
 		for unit, data in pairs(ShadowUF.db.profile.units) do
 			layout.units[unit] = CopyTable(data)
-			layout.units[unit] = ShadowUF:VerifyTable(layout.units[unit])
+			layout.units[unit] = ShadowUF:VerifyTable(layout.units[unit], ShadowUF.defaults.profile.units[unit])
 		end
 		
 		return layout
@@ -890,7 +890,7 @@ local function loadUnitOptions()
 		local currentName = getFrameName(unit)
 		for _, unitID in pairs(ShadowUF.units) do
 			if( unitID ~= unit and ShadowUF.db.profile.positions[unitID].anchorTo ~= currentName ) then
-				anchorList[getFrameName(unitID)] = string.format(L["%s frames"], L.units[unit])
+				anchorList[getFrameName(unitID)] = string.format(L["%s frames"], L.units[unitID])
 			end
 		end
 		
@@ -1613,7 +1613,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Combo points"],
-						hidden = hideRestrictedOption,
+						hidden = function(info) if( info[2] == "global" ) then return true end return hideRestrictedOption end,
 						args = {
 							enabled = {
 								order = 0,
@@ -2018,6 +2018,7 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Incoming heals"]),
 								arg = "incHeal.enabled",
+								hidden = function(info) return string.match(info[2], "%w+target") end,
 							},
 							enabledSelf = {
 								order = 2,
@@ -2025,6 +2026,14 @@ local function loadUnitOptions()
 								name = L["Show your heals"],
 								desc = L["When showing incoming heals, include your heals in the total incoming."],
 								arg = "incHeal.showSelf",
+								hidden = function(info) return string.match(info[2], "%w+target") end,
+							},
+							sep = {
+								order = 2.5,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = function(info) return not string.match(info[2], "%w+target") end,
 							},
 							healthColor = {
 								order = 4,
@@ -2091,7 +2100,7 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["XP/Rep bar"]),
 								desc = L["This bar will automatically hide when you are at the level cap, or you do not have any reputations tracked."],
-								hidden = function(info) if( info[#(info) - 3] ~= "player" and info[#(info) - 4] ~= "pet" ) then return true else return false end end,
+								hidden = hideRestrictedOption,
 								arg = "xpBar.enabled",
 							},
 							castBar = {
@@ -2099,7 +2108,7 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Cast bar"]),
 								arg = "castBar.enabled",
-								hidden = function() return ShadowUF.db.profile.advanced end,
+								hidden = function(info) if( ShadowUF.db.profile.advanced ) then return true end return hideRestrictedOption(info) end,
 							},
 						},
 					},
@@ -2108,7 +2117,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Cast bar"],
-						hidden = hideAdvancedOption,
+						hidden = function(info) if( not ShadowUF.db.profile.advanced ) then return true end return hideRestrictedOption(info) end,
 						args = {
 							enabled = {
 								order = 0,

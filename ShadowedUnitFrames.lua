@@ -80,15 +80,14 @@ function ShadowUF:OnInitialize()
 			return tbl[index]
 	end})
 			
-	-- No active layout, register the default one
-	if( not self.db.profile.loadedLayout ) then
-		self:LoadDefaultLayout()
-	end
-
-	-- Upgrade code
 	if( self.db.profile.activeLayout ) then
 		self.db.profile.activeLayout = nil
 		DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99ShadowUF|r: Warning, a layout reset has been forced due to changes in the database format to improve performance and clean up the code. Sorry!")
+	end
+
+	-- No active layout, register the default one
+	if( not self.db.profile.loadedLayout ) then
+		self:LoadDefaultLayout()
 	end
 	
 	-- Hide any Blizzard frames
@@ -293,7 +292,7 @@ end
 function ShadowUF:VerifyTable(tbl, checkTable)
 	for key, value in pairs(tbl) do
 		if( type(value) == "table" ) then
-			if( checkTable[key] ) then
+			if( not checkTable or checkTable[key] ) then
 				tbl[key] = self:VerifyTable(value, checkTable[key])
 			else
 				tbl[key] = nil
@@ -503,18 +502,14 @@ local frame = CreateFrame("Frame")
 frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("RAID_ROSTER_UPDATE")
-frame:RegisterEvent("ADDON_LOADED")
 frame:SetScript("OnEvent", function(self, event, ...)
-	if( event == "ADDON_LOADED" ) then
-		if( IsAddOnLoaded("ShadowedUnitFrames") ) then
-			self:UnregisterEvent("ADDON_LOADED")
-			ShadowUF:OnInitialize()
-		end
-	elseif( event == "ZONE_CHANGED_NEW_AREA" ) then
+	if( event == "ZONE_CHANGED_NEW_AREA" ) then
 		ShadowUF:LoadUnits()
 	elseif( event == "PLAYER_ENTERING_WORLD" ) then
+		ShadowUF:OnInitialize()
 		ShadowUF:LoadUnits()
 		ShadowUF:RAID_ROSTER_UPDATE()
+
 		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 	else
 		ShadowUF[event](ShadowUF, event, ...)

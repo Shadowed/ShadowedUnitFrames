@@ -123,7 +123,7 @@ end
 	ITR = Inside Top Right, ITL = Inside Top Left
 ]]
 
-local preDefPoint = {C = "CENTER", ICL = "LEFT", RT = "TOPLEFT", BC = "TOP", ICR = "RIGHT", LT = "TOPRIGHT", TR = "BOTTOMRIGHT", BL = "TOPLEFT", LB = "BOTTOMRIGHT", LC = "RIGHT", RB = "BOTTOMLEFT", RC = "LEFT", TC = "BOTTOM", BR = "TOPRIGHT", TL = "TOPLEFT", ITR = "BOTTOMRIGHT", ITL = "BOTTOM", IC = "CENTER"}
+local preDefPoint = {C = "CENTER", ICL = "LEFT", RT = "TOPLEFT", BC = "TOP", ICR = "RIGHT", LT = "TOPRIGHT", TR = "TOPRIGHT", BL = "TOPLEFT", LB = "BOTTOMRIGHT", LC = "RIGHT", RB = "BOTTOMLEFT", RC = "LEFT", TC = "BOTTOM", BR = "TOPRIGHT", TL = "TOPLEFT", ITR = "BOTTOMRIGHT", ITL = "BOTTOM", IC = "CENTER"}
 local preDefRelative = {C = "CENTER", ICL = "LEFT", RT = "TOPRIGHT", BC = "BOTTOM", ICR = "RIGHT", LT = "TOPLEFT", TR = "TOPRIGHT", BL = "BOTTOMLEFT", LB = "BOTTOMLEFT", LC = "LEFT", RB = "BOTTOMRIGHT", RC = "RIGHT", TC = "TOP", BR = "BOTTOMRIGHT", TL = "TOPLEFT", ITR = "RIGHT", ITL = "LEFT", IC = "CENTER"}
 
 -- Figures out how text should be justified based on where it's anchoring
