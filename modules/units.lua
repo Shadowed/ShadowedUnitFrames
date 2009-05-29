@@ -128,9 +128,9 @@ local function SetVisibility(self)
 		
 		-- Module isn't enabled all the time, only in this zone so we need to force it to be enabled
 		if( enabled and ( not self[key] or self[key].disabled )) then
-			module:OnEnable(self, self.unit)
+			module:OnEnable(self)
 		elseif( not enabled and wasEnabled ) then
-			module:OnDisable(self, self.unit)
+			module:OnDisable(self)
 			if( self[key] ) then self[key].disabled = true end
 		end
 	end
