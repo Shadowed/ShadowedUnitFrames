@@ -7,11 +7,6 @@ ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUFLocals["Incoming heals"])
 
 -- RAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGGGGGGGGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
 function IncHeal:OnEnable(frame)
-	if( not frame.visibility.incHeal or frame.unitType == "targettarget" or frame.unitType == "targettargettarget" or frame.unitType == "focustarget" ) then
-		frames[frame] = nil
-		return
-	end
-	
 	frames[frame] = true
 	frame.incHeal = frame.incHeal or ShadowUF.Units:CreateBar(frame)
 	frame.incHeal:SetFrameLevel(frame.topFrameLevel - 2)

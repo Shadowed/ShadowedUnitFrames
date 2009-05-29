@@ -2,13 +2,13 @@ local Runes = {}
 ShadowUF:RegisterModule(Runes, "runeBar", ShadowUFLocals["Rune bar"], true)
 
 function Runes:OnEnable(frame)
-	if( not frame.visibility.runeBar or frame.unitType ~= "player" or select(2, UnitClass("player")) ~= "DEATHKNIGHT" ) then
+	if( select(2, UnitClass("player")) ~= "DEATHKNIGHT" ) then
 		return
 	end
 			
 	if( not frame.runeBar ) then
-		frame.runeBar = ShadowUF.Units:CreateBar(frame)
-		frame.runeBar.background:SetVertexColor(0, 0, 0, 0)
+		frame.runeBar = CreateFrame("StatusBar", nil, frame)
+		frame.runeBar:SetFrameLevel(frame.topFrameLevel)
 		frame.runeBar:SetMinMaxValues(0, 1)
 		frame.runeBar:SetValue(0)
 		frame.runeBar.runes = {}

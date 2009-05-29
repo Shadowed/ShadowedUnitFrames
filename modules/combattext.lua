@@ -2,10 +2,6 @@ local Combat = {}
 ShadowUF:RegisterModule(Combat, "combatText", ShadowUFLocals["Combat text"])
 
 function Combat:OnEnable(frame)
-	if( not frame.visibility.combatText ) then
-		return
-	end
-	
 	if( not frame.combatText ) then
 		frame.combatText = CreateFrame("Frame", nil, frame.barFrame)
 		frame.combatText.feedbackText = frame.combatText:CreateFontString(nil, "ARTWORK")

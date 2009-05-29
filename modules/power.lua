@@ -6,10 +6,6 @@ local function updateTimer(self, elapsed)
 end
 
 function Power:OnEnable(frame)
-	if( not frame.visibility.powerBar ) then
-		return
-	end
-	
 	if( not frame.powerBar ) then
 		frame.powerBar = ShadowUF.Units:CreateBar(frame)
 	end

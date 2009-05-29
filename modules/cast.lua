@@ -5,11 +5,6 @@ local FADE_TIME = 0.20
 ShadowUF:RegisterModule(Cast, "castBar", ShadowUFLocals["Cast bar"], true)
 
 function Cast:OnEnable(frame, unit)
-	-- We won't get valid information from *target, while I could do an OnUpdate, but I don't want to
-	if( not frame.visibility.castBar or string.match(unit, "(%w+)target") ) then
-		return
-	end
-
 	if( not frame.castBar ) then
 		frame.castBar = ShadowUF.Units:CreateBar(frame)
 		frame.castBar.name = frame.castBar:CreateFontString(nil, "ARTWORK")

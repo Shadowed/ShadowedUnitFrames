@@ -1,6 +1,6 @@
 local Config = {}
 local AceDialog, AceRegistry, AceGUI, SML, registered, options
-local modifyUnits = {}
+local modifyUnits, globalConfig = {}, {}
 local L = ShadowUFLocals
 
 ShadowUF.Config = Config
@@ -10,9 +10,9 @@ ShadowUF.Config = Config
 	10% bullshit, 15% tears, 15% hackery, 20% yelling at code, 40% magic
 ]]
 
-local selectDialogGroup, selectTabGroup, hideAdvancedOption, getName, getUnitOrder, set, get, setVariable
+local selectDialogGroup, selectTabGroup, hideAdvancedOption, getName, getUnitOrder, set, get, setVariable, getVariable
 local setColor, getColor, setUnit, getUnit, getTagName, getTagHelp, hideRestrictedOption, getModuleOrder
-local unitOrder, globalConfig, positionList, fullReload, pointPositions, isModifiersSet
+local unitOrder, positionList, fullReload, pointPositions, isModifiersSet, isUnitDisabled, mergeTables
 local function loadData()
 	-- Simple position list rather than the full one
 	pointPositions = {[""] = L["None"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["C"] = L["Center"]}
@@ -40,8 +40,22 @@ local function loadData()
 		return not ShadowUF.db.profile.advanced
 	end
 
-	isOnDisable = function(info)
+	isUnitDisabled = function(info)
 		return not ShadowUF.db.profile.units[info[#(info)]].enabled
+	end
+
+	mergeTables = function(parent, child)
+		for key, value in pairs(child) do
+			if( type(parent[key]) == "table" ) then
+				parent[key] = mergeTables(parent[key], value)
+			elseif( type(value) == "table" ) then
+				parent[key] = CopyTable(value)
+			elseif( parent[key] == nil ) then
+				parent[key] = value
+			end
+		end
+		
+		return parent
 	end
 	
 	getName = function(info)
@@ -58,8 +72,9 @@ local function loadData()
 	end
 	
 	isModifiersSet = function(info)
-		for k in pairs(modifyUnits) do return true end
-		return false
+		if( info[2] ~= "global" ) then return false end
+		for k in pairs(modifyUnits) do return false end
+		return true
 	end
 
 	-- These are for setting simple options like bars.texture = "Default" or locked = true
@@ -175,12 +190,12 @@ local function loadData()
 
 	-- Module functions
 	hideRestrictedOption = function(info)
-		local unit = info[2]
+		local unit = type(info.arg) == "number" and info[#(info) - info.arg] or info[2]
 		local key = info[#(info)]
 		if( ( key == "totemBar" and select(2, UnitClass("player")) ~= "SHAMAN" ) or ( key == "runeBar" and select(2, UnitClass("player")) ~= "DEATHKNIGHT" ) ) then
 			return true
 		end
-		
+											
 		-- Non-standard units do not support any of these modules
 		if( ( key == "castBar" or key == "incHeal" or key == "range" or key == "enabledHeal" or key == "enabledSelf" or key == "colorAggro" ) and string.match(unit, "%s+target" ) ) then
 			return true
@@ -194,6 +209,17 @@ local function loadData()
 		elseif( key == "comboPoints" and unit ~= "target" ) then
 			return true
 		end
+		
+		-- Fall back for indicators, no variable table so it shouldn't be shown
+		if( info[#(info) - 1] == "indicators" ) then
+			if( ( unit == "global" and not globalConfig.indicators[key] ) or ( unit ~= "global" and not ShadowUF.db.profile.units[unit].indicators[key] ) ) then
+				return true
+			end
+		-- Fall back, no variable table so it shouldn't be shown
+		elseif( ( unit == "global" and not globalConfig[key] ) or ( unit ~= "global" and not ShadowUF.db.profile.units[unit][key] ) ) then
+			return true
+		end
+		
 		return false
 	end
 
@@ -237,6 +263,7 @@ local function loadGeneralOptions()
 			if( value ) then ShadowUF:HideBlizzard(info[#(info)]) end
 		end,
 		get = get,
+		arg = "hidden.$key",
 	}
 	
 	options.args.general = {
@@ -871,7 +898,7 @@ local function loadUnitOptions()
 		-- Don't let a frame anchor to a frame thats anchored to it already (Stop infinite loops-o-doom
 		local currentName = getFrameName(unit)
 		for _, unitID in pairs(ShadowUF.units) do
-			if( unitID ~= unitID and ShadowUF.db.profile.units[unitID] and ShadowUF.db.profile.positions[unit].anchorTo ~= currentName ) then
+			if( unitID ~= unit and ShadowUF.db.profile.positions[unitID].anchorTo ~= currentName ) then
 				anchorList[getFrameName(unitID)] = string.format(L["%s frames"], L.units[unit])
 			end
 		end
@@ -922,7 +949,7 @@ local function loadUnitOptions()
 		ShadowUF.db.profile.positions[info[2]][info[#(info)]] = value
 		
 		if( info[2] == "raid" or info[2] == "party" ) then
-			ShadowUF.Units:ReloadUnits(info[2])
+			ShadowUF.Units:ReloadUnit(info[2])
 		else
 			ShadowUF.Layout:ReloadAll(info[2])
 		end
@@ -980,7 +1007,73 @@ local function loadUnitOptions()
 		for tag, data in pairs(ShadowUF.db.profile.tags) do
 			tagList[tag] = tagTable
 		end
-
+		
+		local quickIDMap = {}
+		Config.advanceTextTable = {
+			order = 0,
+			name = function(info) return getVariable(info[2], "text", quickIDMap[info[#(info)]], "name") end,
+			type = "group",
+			inline = true,
+			hidden = function(info)
+				if( not ShadowUF.db.profile.advanced ) then return true end
+				return string.sub(getVariable(info[2], "text", quickIDMap[info[#(info)]], "anchorTo"), 2) ~= info[#(info) - 1]
+			end,
+			set = function(info, value)
+				info.arg = string.format("text.%s.%s", quickIDMap[info[#(info) - 1]], info[#(info)])
+				setUnit(info, value)
+			end,
+			get = function(info)
+				info.arg = string.format("text.%s.%s", quickIDMap[info[#(info) - 1]], info[#(info)])
+				return getUnit(info)
+			end,
+			args = {
+				text = {
+					order = 0,
+					type = "input",
+					name = L["Text"],
+					width = "full",
+					hidden = false,
+				},
+				width = {
+					order = 1,
+					hidden = false,
+					name = L["Width"],
+					desc = L["Percentage of the frames width that this text should use."],
+					type = "range",
+					min = 0, max = 1, step = 0.01,
+					isPercent = true,
+				},
+				anchorPoint = {
+					order = 2,
+					hidden = false,
+					type = "select",
+					name = L["Anchor point"],
+					values = {["ITR"] = L["Inside Top Right"], ["ITL"] = L["Inside Top Left"], ["ICL"] = L["Inside Center Left"], ["IC"] = L["Inside Center"], ["ICR"] = L["Inside Center Right"]},
+				},
+				sep = {
+					order = 3,
+					hidden = false,
+					type = "description",
+					name = "",
+					width = "full",
+				},
+				x = {
+					order = 4,
+					hidden = false,
+					type = "range",
+					name = L["X Offset"],
+					min = -50, max = 50, step = 1,
+				},
+				y = {
+					order = 5,
+					hidden = false,
+					type = "range",
+					name = L["Y Offset"],
+					min = -50, max = 50, step = 1
+				},
+			},
+		}
+		
 		local parentList = {
 			order = 0,
 			type = "group",
@@ -991,7 +1084,7 @@ local function loadUnitOptions()
 		Config.tagTextTable = {
 			type = "group",
 			name = function(info) return getVariable(info[2], "text", tonumber(info[#(info)]), "name") end,
-			hidden = function(info)	return string.sub(getVariable(info[2], "text", tonumber(info[#(info)]), "anchorTo"), 2) ~= info[#(info) - 1] end,
+			hidden = function(info) return string.sub(getVariable(info[2], "text", tonumber(info[#(info)]), "anchorTo"), 2) ~= info[#(info) - 1] end,
 			set = false,
 			get = false,
 			args = {
@@ -1063,143 +1156,17 @@ local function loadUnitOptions()
 			
 			for id in pairs(ShadowUF.defaults.profile.units.player.text) do
 				tagWizard[parent].args[tostring(id)] = Config.tagTextTable
+				tagWizard[parent].args[tostring(id) .. ":adv"] = Config.advanceTextTable
+				
+				quickIDMap[tostring(id) .. ":adv"] = id
 			end
 		end
 	end
-	
-	-- TEXT CONFIGURATION
-	local function setText(info, value)
-		local id, key = string.split(":", info[#(info)])
-		local unit = info[#(info) - 3]
-		if( unit == "global" ) then
-			for unit in pairs(modifyUnits) do
-				ShadowUF.db.profile.units[unit].text[tonumber(id)][key] = value
-			end
-		else
-			ShadowUF.db.profile.units[unit].text[tonumber(id)][key] = value
-		end
 		
-		ShadowUF.Layout:ReloadAll(unit ~= "global" and unit or nil)
-	end
-	
-	local function getText(info, value)
-		local id, key = string.split(":", info[#(info)])
-		local unit = info[#(info) - 3]
-		if( unit == "global" ) then
-			unit = masterUnit
-		end
-		
-		return ShadowUF.db.profile.units[unit].text[tonumber(id)][key]
-	end
-
-	local function getTextOrder(info)
-		local key = info[#(info)]
-		if( key == "healthBar" ) then
-			return 0
-		elseif( key == "powerBar" ) then
-			return 1
-		end
-
-		return tonumber((string.split(":", key)))
-	end
-
-	Config.textTable = {
-		order = getTextOrder,
-		name = getName,
-		type = "group",
-		inline = true,
-		set = setText,
-		get = getText,
-		args = {}
-	}
-
-	do
-		local function getTextName(info)
-			local unit = info[#(info) - 3]
-			local id = tonumber((string.split(":", info[#(info)])))
-			unit = unit == "global" and masterUnit or unit			
-			return ShadowUF.db.profile.units[unit].text[id].name
-		end
-		
-		local function isFromParent(info)
-			local unit = info[#(info) - 3]
-			local id = tonumber((string.split(":", info[#(info)])))
-			unit = unit == "global" and masterUnit or unit
-			return string.sub(ShadowUF.db.profile.units[unit].text[id].anchorTo, 2) ~= info[#(info) - 1]
-		end
-		
-		local header = {
-			order = getTextOrder,
-			name = getTextName,
-			hidden = isFromParent,
-			type = "header",
-		}
-		
-		local text = {
-			order = function(info) return getTextOrder(info) + 0.05 end,
-			hidden = isFromParent,
-			name = L["Text"],
-			type = "input",
-			width = "double",
-		}
-
-		local width = {
-			order = function(info) return getTextOrder(info) + 0.10 end,
-			hidden = isFromParent,
-			name = L["Width"],
-			desc = L["Percentage of the frames width that this text should use."],
-			type = "range",
-			min = 0, max = 1, step = 0.01,
-			isPercent = true,
-		}
-		
-		local sep = {
-			order = function(info) return getTextOrder(info) + 0.15 end,
-			hidden = isFromParent,
-			name = "",
-			type = "description",
-			width = "full",
-		}
-		
-		local anchorPoint = {
-			order = function(info) return getTextOrder(info) + 0.20 end,
-			hidden = isFromParent,
-			type = "select",
-			name = L["Anchor point"],
-			values = {["ITR"] = L["Inside Top Right"], ["ITL"] = L["Inside Top Left"], ["ICL"] = L["Inside Center Left"], ["IC"] = L["Inside Center"], ["ICR"] = L["Inside Center Right"]},
-		}
-		
-		local x = {
-			order = function(info) return getTextOrder(info) + 0.30 end,
-			hidden = isFromParent,
-			type = "range",
-			name = L["X Offset"],
-			min = -50, max = 50, step = 1,
-		}
-		
-		local y = {
-			order = function(info) return getTextOrder(info) + 0.40 end,
-			hidden = isFromParent,
-			type = "range",
-			name = L["Y Offset"],
-			min = -50, max = 50, step = 1
-		}
-		
-		for id in pairs(ShadowUF.defaults.profile.units.player.text) do
-			Config.textTable.args[id .. ":header"] = header
-			Config.textTable.args[id .. ":text"] = text
-			Config.textTable.args[id .. ":width"] = width
-			Config.textTable.args[id .. ":sep"] = sep
-			Config.textTable.args[id .. ":anchorPoint"] = anchorPoint
-			Config.textTable.args[id .. ":x"] = x
-			Config.textTable.args[id .. ":y"] = y
-		end
-	end
-	
 	local function disableSameAnchor(info)
-		local anchor = ShadowUF.db.profile.units[info[2]].auras.buffs.enabled and "buffs" or "debuffs"
+		local anchor = getVariable(info[2], "auras", "buffs", "enabled") and "buffs" or "debuffs"
 		
-		if( anchor == info[#(info) - 1] or ShadowUF.db.profile.units[info[2]].auras.buffs.anchorPoint ~= ShadowUF.db.profile.units[info[2]].auras.debuffs.anchorPoint ) then return false end
+		if( anchor == info[#(info) - 1] or getVariable(info[2], "auras", "buffs", "anchorPoint") ~= getVariable(info[2], "auras", "debuffs", "anchorPoint") ) then return false end
 		
 		return true
 	end
@@ -1409,6 +1376,7 @@ local function loadUnitOptions()
 				type = "range",
 				name = L["Order"],
 				min = 0, max = 100, step = 5,
+				hidden = false,
 				arg = "$parent.order",
 			},
 			height = {
@@ -1417,6 +1385,7 @@ local function loadUnitOptions()
 				name = L["Height"],
 				desc = L["How much of the frames total height this bar should get, this is a weighted value, the higher it is the more it gets."],
 				min = 0, max = 10, step = 0.1,
+				hidden = false,
 				arg = "$parent.height",
 			},
 		},
@@ -1427,7 +1396,7 @@ local function loadUnitOptions()
 		name = getName,
 		type = "group",
 		inline = true,
-		hidden = false,
+		hidden = hideRestrictedOption,
 		args = {
 			enabled = {
 				order = 0,
@@ -1485,15 +1454,12 @@ local function loadUnitOptions()
 		},
 	}
 	
-	-- These are all always friendly, so don't show reaction setting
-	local isFriendlyUnit = {["player"] = true, ["pet"] = true, ["partypet"] = true, ["raid"] = true, ["party"] = true}
-	
 	Config.unitTable = {
 		type = "group",
 		childGroups = "tab",
 		order = getUnitOrder,
 		name = getName,
-		hidden = isOnDisable,
+		hidden = isUnitDisabled,
 		args = {
 			general = {
 				order = 1,
@@ -1568,7 +1534,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Range indicator"],
-						hidden = function(info) if( info[#(info) - 2] == "global" or info[#(info) - 2] == "target" ) then return false elseif( info[#(info) - 2] == "player" ) then return true end return not isFriendlyUnit[info[#(info) - 2]] end,
+						hidden = hideRestrictedOption,
 						args = {
 							fader = {
 								order = 0,
@@ -1604,12 +1570,14 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Combat text"],
+						hidden = hideRestrictedOption,
 						args = {
 							combatText = {
 								order = 0,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Combat text"]),
 								arg = "combatText.enabled",
+								hidden = false,
 							},
 							sep = {
 								order = 1,
@@ -1702,7 +1670,8 @@ local function loadUnitOptions()
 								type = "select",
 								name = L["Anchor point"],
 								values = positionList,
-								arg = "positions",
+								set = setPosition,
+								get = getPosition,
 								hidden = false,
 							},
 							x = {
@@ -1710,6 +1679,8 @@ local function loadUnitOptions()
 								type = "range",
 								name = L["X Offset"],
 								min = -20, max = 20, step = 1,
+								set = setPosition,
+								get = getPosition,
 								hidden = false,
 							},
 							y = {
@@ -1717,6 +1688,8 @@ local function loadUnitOptions()
 								type = "range",
 								name = L["Y Offset"],
 								min = -20, max = 20, step = 1,
+								set = setPosition,
+								get = getPosition,
 								hidden = false,
 							},
 						}
@@ -1900,7 +1873,7 @@ local function loadUnitOptions()
 								name = L["Help"],
 								hidden = function(info)
 									local position = ShadowUF.db.profile.positions[info[2]]
-									return position and position.anchorTo == "UIParent" and true or false
+									return not position or position.anchorTo ~= "UIParent"
 								end,
 								args = {
 									desc = {
@@ -1952,12 +1925,12 @@ local function loadUnitOptions()
 						order = 1.5,
 						type = "header",
 						name = L["Or you can set a position manually"],
-						hidden = hideAdvancedAndGlobal,
+						hidden = function(info) if( info[2] == "global" or hideAdvancedOption() ) then return true else return false end end,
 					},
 					position = {
 						order = 2,
 						type = "group",
-						hidden = hideAdvancedAndGlobal,
+						hidden = function(info) if( info[2] == "global" or hideAdvancedOption() ) then return true else return false end end,
 						inline = true,
 						name = L["Manual position"],
 						set = setPosition,
@@ -2059,7 +2032,7 @@ local function loadUnitOptions()
 								name = L["Color by reaction"],
 								desc = L["If the unit is hostile, the reaction color will override any color health by options."],
 								arg = "healthBar.reaction",
-								hidden = function(info) return isFriendlyUnit[info[2]] end,
+								hidden = function(info) return info[2] == "player" or info[2] == "pet" end,
 							},
 						},
 					},
@@ -2273,26 +2246,9 @@ local function loadUnitOptions()
 					happiness = Config.indicatorTable,
 				},
 			},
-			text = {
-				order = 6,
-				name = L["Text"],
-				type = "group",
-				set = setUnit,
-				get = getUnit,
-				hidden = function(info)
-					local hidden = isModifiersSet(info)
-					if( hidden ) then return true end
-					
-					return hideAdvancedOption(info)
-				end,
-				args = {
-					healthBar = Config.textTable,
-					powerBar = Config.textTable,
-				},
-			},
 			tag = {
 				order = 7,
-				name = L["Tag wizard"],
+				name = L["Text"],
 				type = "group",
 				hidden = isModifiersSet,
 				childGroups = "tree",
@@ -2337,28 +2293,31 @@ local function loadUnitOptions()
 						name = L["Units"],
 						set = function(info, value)
 							local unit = info[#(info)]
-							if( not masterUnit and value ) then
-								masterUnit = unit
-							end
-							
 							if( IsShiftKeyDown() ) then
 								for _, unit in pairs(ShadowUF.units) do
 									if( ShadowUF.db.profile.units[unit].enabled ) then
 										modifyUnits[unit] = value and true or nil
+										
+										if( value ) then
+											globalConfig = mergeTables(globalConfig, ShadowUF.db.profile.units[unit])
+										end
 									end
 								end
 							else
 								modifyUnits[unit] = value and true or nil
-							end
-							
-							if( not modifyUnits[unit] and masterUnit == unit ) then
-								masterUnit = nil
-								for unit in pairs(modifyUnits) do
-									masterUnit = unit
-									break
+
+								if( value ) then
+									globalConfig = mergeTables(globalConfig, ShadowUF.db.profile.units[unit])
 								end
 							end
-
+							
+							-- Check if we have nothing else selected, if so wipe it
+							local hasUnit
+							for k in pairs(modifyUnits) do hasUnit = true break end
+							if( not hasUnit ) then
+								globalConfig = {}
+							end
+							
 							AceRegistry:NotifyChange("ShadowedUF")
 						end,
 						get = function(info) return modifyUnits[info[#(info)]] end,
@@ -2407,7 +2366,7 @@ local function loadUnitOptions()
 		order = getUnitOrder,
 		type = "toggle",
 		name = getName,
-		hidden = isOnDisable,
+		hidden = isUnitDisabled,
 		desc = function(info)
 			return string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], L.units[info[#(info)]])
 		end,
@@ -2829,12 +2788,8 @@ local function loadVisibilityOptions()
 		name = getName,
 		desc = getHelp,
 		tristate = true,
-		hidden = function(info)
-			local hidden = hideRestrictedOption(info)
-			if( hidden ) then return true end
-			
-			return hideRestrictedOption(info)
-		end,
+		hidden = hideRestrictedOption,
+		arg = 1,
 	}
 		
 	for key, module in pairs(ShadowUF.modules) do

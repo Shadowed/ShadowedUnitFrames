@@ -187,7 +187,7 @@ function Layout:AnchorFrame(parent, frame, config, isRecurse)
 	-- Effective scaling should only be used if it's enabled + they are anchored to the UIParent
 	-- raaaaaaaaaaaaaggggggggggggggggeeeeeeeeeeeeeeeeeeeeeee
 	local scale = 1
-	if( config.anchorTo == "UIParent" and frame.unitType and ShadowUF.db.profile.units[frame.unitType].effectiveScale ) then
+	if( config.anchorTo == "UIParent" and frame.unitType ) then
 		scale = frame:GetEffectiveScale()
 	end
 	
@@ -336,7 +336,7 @@ function Layout:ApplyText(frame, config)
 	end
 	
 	-- Update feedback text
-	self:ToggleVisibility(frame.combatText, config.combatText.enabled)
+	self:ToggleVisibility(frame.combatText, config.combatText and config.combatText.enabled)
 	if( frame.combatText and frame.combatText:IsShown() ) then
 		frame.combatText.feedbackText:SetFont(mediaPath.font, ShadowUF.db.profile.font.size + 1)
 		frame.combatText.feedbackFontHeight = ShadowUF.db.profile.font.size + 1
@@ -410,14 +410,14 @@ function Layout:ApplyIndicators(frame, config)
 	
 	for _, key in pairs(frame.indicators.list) do
 		local indicator = frame.indicators[key]
-		indicator.enabled = config.indicators[key].enabled
-		--self:ToggleVisibility(indicator, indicator.enabled)
-		
-		if( indicator.enabled ) then
-			indicator:SetHeight(config.indicators[key].size)
-			indicator:SetWidth(config.indicators[key].size)
-			
-			self:AnchorFrame(frame, indicator, config.indicators[key])
+		if( indicator ) then
+			indicator.enabled = config.indicators[key] and config.indicators[key].enabled
+			if( indicator.enabled ) then
+				indicator:SetHeight(config.indicators[key].size)
+				indicator:SetWidth(config.indicators[key].size)
+				
+				self:AnchorFrame(frame, indicator, config.indicators[key])
+			end
 		end
 	end
 end

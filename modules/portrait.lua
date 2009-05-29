@@ -11,10 +11,6 @@ local function resetGUID(self)
 end
 
 function Portrait:OnEnable(frame)
-	if( not frame.visibility.portrait ) then
-		return
-	end
-	
 	if( not frame.portraitModel ) then
 		frame.portraitModel = CreateFrame("PlayerModel", nil, frame)
 		frame.portraitModel:SetScript("OnShow", resetCamera)

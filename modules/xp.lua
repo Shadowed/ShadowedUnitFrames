@@ -2,10 +2,6 @@ local XP = {}
 ShadowUF:RegisterModule(XP, "xpBar", ShadowUFLocals["XP/Rep bar"], true)
 
 function XP:OnEnable(frame)
-	if( not frame.visibility.xpBar or ( frame.unitType ~= "player" and frame.unitType ~= "pet" ) ) then
-		return
-	end
-	
 	if( not frame.xpBar ) then
 		frame.xpBar = ShadowUF.Units:CreateBar(frame)
 		frame.xpBar.rested = CreateFrame("StatusBar", nil, frame.xpBar)

@@ -3,7 +3,7 @@ local totemColors = {{r = 1, g = 0, b = 0.4}, {r = 0, g = 1, b = 0.4}, {r = 0, g
 ShadowUF:RegisterModule(Totems, "totemBar", ShadowUFLocals["Totem bar"], true)
 
 function Totems:OnEnable(frame)
-	if( not frame.visibility.totemBar or frame.unitType ~= "player" or select(2, UnitClass("player")) ~= "SHAMAN" ) then
+	if( select(2, UnitClass("player")) ~= "SHAMAN" ) then
 		return
 	end
 			

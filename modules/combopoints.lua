@@ -3,8 +3,6 @@ local playerUnit = "player"
 ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUFLocals["Combo points"])
 
 function Combo:OnEnable(frame)
-	if( not frame.visibility.comboPoints or frame.unitType ~= "target" ) then return end
-
 	if( not frame.comboPoints ) then
 		frame.comboPoints = CreateFrame("Frame", nil, frame)
 		frame.comboPoints.points = {}

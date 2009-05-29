@@ -5,7 +5,6 @@
 ShadowUF = {raidUnits = {}, partyUnits = {}, modules = {}, moduleOrder = {}, units = {"player", "pet", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid"}}
 
 local L = ShadowUFLocals
-local layoutQueue, defaultDB
 local units = ShadowUF.units
 
 -- Cache the units so we don't have to concat every time it updates
@@ -15,7 +14,7 @@ for i=1, MAX_RAID_MEMBERS do ShadowUF.raidUnits[i] = "raid" .. i end
 -- Main layout keys, this does not include units or inherited module options
 local mainLayout = {["classColors"] = true, ["bars"] = true, ["backdrop"] = true, ["font"] = true, ["powerColors"] = true, ["healthColors"] = true, ["xpColors"] = true, ["positions"] = true}
 -- Sub layout keys inside layouts that are accepted
-local subLayout = {["runebar"] = true, ["growth"] = true, ["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
+local subLayout = {["enabled"] = true, ["spacing"] = true, ["fullSize"] = true, ["attribPoint"] = true, ["runebar"] = true, ["growth"] = true, ["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
 
 function ShadowUF:OnInitialize()
 	self.defaults = {
@@ -80,22 +79,16 @@ function ShadowUF:OnInitialize()
 			
 			return tbl[index]
 	end})
-
-	-- Reset the "Defaults" layout as it's now named default
-	if( self.db.profile.layoutInfo.Defaults ) then
-		self.db.profile.layoutInfo.Defaults = nil
-		if( self.db.profile.activeLayout == "Defaults" ) then
-			self.db.profile.activeLayout = "default"
-		end
+			
+	-- No active layout, register the default one
+	if( not self.db.profile.loadedLayout ) then
+		self:LoadDefaultLayout()
 	end
-	
-	-- Load any layouts that were waiting
-	if( layoutQueue ) then
-		for name, data in pairs(layoutQueue) do
-			self:RegisterLayout(name, data)
-		end
-		
-		layoutQueue = nil
+
+	-- Upgrade code
+	if( self.db.profile.activeLayout ) then
+		self.db.profile.activeLayout = nil
+		DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99ShadowUF|r: Warning, a layout reset has been forced due to changes in the database format to improve performance and clean up the code. Sorry!")
 	end
 	
 	-- Hide any Blizzard frames
@@ -103,24 +96,6 @@ function ShadowUF:OnInitialize()
 	
 	-- Load SML info
 	self.Layout:LoadSML()
-
-	-- Upgrade power formats
-	if( ShadowUF.db.profile.powerColor ) then
-		ShadowUF.db.profile.healthColors = CopyTable(ShadowUF.db.profile.healthColor)
-		ShadowUF.db.profile.healthColor = nil
-		ShadowUF.db.profile.xpColors = CopyTable(ShadowUF.db.profile.xpColor)
-		ShadowUF.db.profile.xpColor = nil
-		ShadowUF.db.profile.powerColor = nil
-		ShadowUF.db.profile.powerColors = {
-			MANA = {r = 0.30, g = 0.50, b = 0.85}, 
-			RAGE = {r = 0.90, g = 0.20, b = 0.30},
-			FOCUS = {r = 1.0, g = 0.85, b = 0}, 
-			ENERGY = {r = 1.0, g = 0.85, b = 0.10}, 
-			HAPPINESS = {r = 0.50, g = 0.90, b = 0.70},
-			RUNES = {r = 0.50, g = 0.50, b = 0.50}, 
-			RUNIC_POWER = {b = 0.60, g = 0.45, r = 0.35}, 
-		}
-	end
 end
 
 local partyDisabled
@@ -167,77 +142,69 @@ function ShadowUF:LoadUnitDefaults()
 	for _, unit in pairs(units) do
 		self.defaults.profile.positions[unit] = {point = "", relativePoint = "", anchorPoint = "", anchorTo = "UIParent", x = 0, y = 0}
 		
+		-- The reason why the defaults are so sparse, is because the layout needs to specify most of this. The reason I set tables here is basically
+		-- as an indication that hey, the unit wants this, if it doesn't that it won't want it.
 		self.defaults.profile.units[unit] = {
-			height = 0, width = 0, scale = 1.0, enabled = false, effectiveScale = true,
-			healthBar = {enabled = true, colorType = "percent", reaction = true}, powerBar = {enabled = true}, portrait = {enabled = false, order = 0, type = "3D"}, runeBar = {enabled = false}, totemBar = {enabled = false},
-			incHeal = {enabled = false, showSelf = true}, range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
-			castBar = {enabled = false, castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0},},
-			fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60},xpBar = {enabled = false},
-			comboPoints = {enabled = false, anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0},
-			combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0},
-			text = {
-				{enabled = true, name = L["Left text"], width = 0.60, text = "[name]", anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0},
-				{enabled = true, name = L["Right text"], width = 0.40, text = "[curmaxhp]", anchorTo = "$healthBar", anchorPoint = "ICR", x = -3, y = 0},
-				{enabled = true, name = L["Left text"], width = 0.60, text = "[level] [race]", anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0},
-				{enabled = true, name = L["Right text"], width = 0.40, text = "[curmaxpp]", anchorTo = "$powerBar", anchorPoint = "ICR", x = -3, y = 0},
-			},
-			indicators = {
-				status = {enabled = false, size = 19, anchorPoint = "LB", anchorTo = "$parent", x = 0, y = 0},
-				pvp = {enabled = false, size = 22, anchorPoint = "BL", anchorTo = "$parent", x = 10, y = 2},
-				leader = {enabled = false, size = 14, anchorPoint = "TL", anchorTo = "$parent", x = 3, y = 2},
-				masterLoot = {enabled = false, size = 12, anchorPoint = "TL", anchorTo = "$parent",  x = 15, y = 2},
-				raidTarget = {enabled = true, size = 22, anchorPoint = "TC", anchorTo = "$parent", x = 0, y = -8},
-				happiness = {enabled = false, size = 16, anchorPoint = "BR", anchorTo = "$parent", x = 2, y = -2},	
-			},
+			enabled = false, height = 0, width = 0, scale = 1.0,
+			healthBar = {enabled = true, colorType = "percent", reaction = true},
+			powerBar = {enabled = true}, portrait = {enabled = false, type = "3D"},
+			range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
+			fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60},
+			text = {{enabled = true, name = L["Left text"], text = "[name]"}, {enabled = true, name = L["Right text"], text = "[curmaxhp]"}, {enabled = true, name = L["Left text"], text = "[level] [race]"}, {enabled = true, name = L["Right text"], text = "[curmaxpp]"}},
+			indicators = {raidTarget = {enabled = true}, pvp = {enabled = true}}, 
 			auras = {
-				buffs = {enabled = false, perRow = 11, maxRows = 4, prioritize = true, enlargeSelf = false, anchorPoint = "TOP", size = 16, x = 0, y = 0},
-				debuffs = {enabled = false, perRow = 11, maxRows = 4, enlargeSelf = true, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0},
+				buffs = {enabled = false, perRow = 11, maxRows = 4, prioritize = true, enlargeSelf = false},
+				debuffs = {enabled = false, perRow = 11, maxRows = 4, enlargeSelf = true},
 			},
 		}
-	end
+				
+		-- These modules are not enabled for "fake" units so don't bother with adding defaults
+		if( not string.match(unit, "%w+target") ) then
+			self.defaults.profile.units[unit].incHeal = {enabled = false, showSelf = true}
+			self.defaults.profile.units[unit].castBar = {enabled = false, castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0}}
+			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
+		end
 	
-	self.defaults.profile.units.player.enabled = true
-	self.defaults.profile.units.player.portrait.enabled = true
-	self.defaults.profile.units.player.indicators.status.enabled = true
-	self.defaults.profile.units.focus.enabled = true
-	self.defaults.profile.units.focustarget.enabled = true
-	self.defaults.profile.units.target.enabled = true
-	self.defaults.profile.units.target.portrait.enabled = true
-	self.defaults.profile.units.targettarget.enabled = true
-	self.defaults.profile.units.targettargettarget.enabled = true
-	self.defaults.profile.units.pet.enabled = true
-	self.defaults.profile.units.party.enabled = true
-	self.defaults.profile.units.party.portrait.enabled = true
-	self.defaults.profile.units.party.auras.debuffs.maxRows = 1
-	self.defaults.profile.units.party.auras.buffs.maxRows = 1
-
-	self.defaults.profile.units.raid.auras.debuffs.enabled = false
-	self.defaults.profile.units.raid.auras.buffs.enabled = false
-
-	self.defaults.profile.units.raid.groupBy = "GROUP"
-	self.defaults.profile.units.raid.sortOrder = "ASC"
-
-	self.defaults.profile.positions.partypet.anchorTo = "$parent"
-	self.defaults.profile.positions.partypet.anchorPoint = "RB"
-	self.defaults.profile.positions.partytarget.anchorTo = "$parent"
-	self.defaults.profile.positions.partytarget.anchorPoint = "RT"
-					
-	-- Only can show one row for party without clipping
-	self.defaults.profile.units.party.auras.buffs.rows = 1
-	
-	-- Disable all indicators quickly
-	for _, unit in pairs(units) do
-		if( unit == "player" or unit == "party" or unit == "target" ) then
-			self.defaults.profile.units[unit].indicators.pvp.enabled = true
-			self.defaults.profile.units[unit].indicators.leader.enabled = true
-			self.defaults.profile.units[unit].indicators.masterLoot.enabled = true
-
-			self.defaults.profile.units[unit].auras.buffs.enabled = true
-			self.defaults.profile.units[unit].auras.debuffs.enabled = true
-		elseif( unit == "pet" ) then
-			self.defaults.profile.units[unit].indicators.happiness.enabled = true
+		-- Want pvp/leader/ML enabled for these units
+		if( unit == "player" or unit == "party" or unit == "target" or unit == "raid" or unit == "focus" ) then
+			self.defaults.profile.units[unit].indicators.leader = {enabled = true}
+			self.defaults.profile.units[unit].indicators.masterLoot = {enabled = true}
 		end
 	end
+	
+	-- PLAYER
+	self.defaults.profile.units.player.enabled = true
+	self.defaults.profile.units.player.indicators.status = {enabled = true, size = 19, anchorPoint = "LB", anchorTo = "$parent", x = 0, y = 0}
+	self.defaults.profile.units.player.runeBar = {enabled = false}
+	self.defaults.profile.units.player.totemBar = {enabled = false}
+	self.defaults.profile.units.player.xpBar = {enabled = false}
+	-- PET
+	self.defaults.profile.units.pet.enabled = true
+	self.defaults.profile.units.pet.indicators.happiness = {enabled = true, size = 16, anchorPoint = "BR", anchorTo = "$parent", x = 2, y = -2}
+	self.defaults.profile.units.pet.xpBar = {enabled = false}
+	-- FOCUS
+	self.defaults.profile.units.focus.enabled = true
+	-- FOCUSTARGET
+	self.defaults.profile.units.focustarget.enabled = true
+	-- TARGET
+	self.defaults.profile.units.target.enabled = true
+	self.defaults.profile.units.target.comboPoints = {enabled = false, anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0}
+	-- TARGETTARGET/TARGETTARGETTARGET
+	self.defaults.profile.units.targettarget.enabled = true
+	self.defaults.profile.units.targettargettarget.enabled = true
+	-- PARTY
+	self.defaults.profile.units.party.enabled = true
+	self.defaults.profile.units.party.auras.debuffs.maxRows = 1
+	self.defaults.profile.units.party.auras.buffs.maxRows = 1
+	-- RAID
+	self.defaults.profile.units.raid.groupBy = "GROUP"
+	self.defaults.profile.units.raid.sortOrder = "ASC"
+	-- PARTYPET
+	self.defaults.profile.positions.partypet.anchorTo = "$parent"
+	self.defaults.profile.positions.partypet.anchorPoint = "RB"
+	-- PARTYTARGET
+	self.defaults.profile.positions.partytarget.anchorTo = "$parent"
+	self.defaults.profile.positions.partytarget.anchorPoint = "RT"
 	
 	-- Indicate that defaults were loaded
 	self:FireModuleEvent("OnDefaultsSet")
@@ -322,10 +289,14 @@ function ShadowUF:HideBlizzard(type)
 end
 
 -- Plugin APIs
-function ShadowUF:VerifyTable(tbl)
+function ShadowUF:VerifyTable(tbl, checkTable)
 	for key, value in pairs(tbl) do
 		if( type(value) == "table" ) then
-			tbl[key] = self:VerifyTable(value)
+			if( checkTable[key] ) then
+				tbl[key] = self:VerifyTable(value, checkTable[key])
+			else
+				tbl[key] = nil
+			end
 		elseif( not subLayout[key] ) then
 			tbl[key] = nil
 		end
@@ -335,6 +306,8 @@ function ShadowUF:VerifyTable(tbl)
 end
 
 local function mergeTable(parent, child, safeMerge)
+	if( not parent ) then return child end
+	
 	for key, value in pairs(child) do
 		if( type(parent[key]) == "table" ) then
 			parent[key] = mergeTable(parent[key], value, safeMerge)
@@ -353,13 +326,11 @@ local function mergeTable(parent, child, safeMerge)
 end
 
 function ShadowUF:SetLayout(name, importPositions)
-	if( not self.layoutInfo[name] ) then
-		return
-	end
-	
-	self.db.profile.activeLayout = name
+	if( not self.layoutInfo[name] ) then return end
+		
+	self.db.profile.loadedLayout = name
 	local layout = CopyTable(self.layoutInfo[name].layout)
-	
+		
 	-- Merge all parent module settings into the units module setting (If there are none)
 	for key in pairs(self.modules) do
 		if( layout[key] ) then
@@ -375,22 +346,21 @@ function ShadowUF:SetLayout(name, importPositions)
 	end
 	
 	-- Now go through and verify all of the unit settings
-	for unit in pairs(units) do
-		if( layout[unit] ) then
-			self:VerifyTable(layout[unit])
-		end
+	for _, unit in pairs(units) do
+		layout[unit] = layout[unit] or {}
+		layout[unit].enabled = nil
+		
+		-- Manually merge text in, they aren't a real module as you can't remove thenm
+		if( layout.text ) then layout[unit].text = mergeTable(layout[unit].text, layout.text, true) end
+		-- Strip out any invalid data
+		self:VerifyTable(layout[unit], ShadowUF.defaults.profile.units[unit])
+		-- Push the changes "life"
+		self.db.profile.units[unit] = mergeTable(ShadowUF.db.profile.units[unit], layout[unit])
 	end
 		
 	-- Don't overwrite positioning data
 	if( not importPositions ) then
 		layout.positions = nil
-	end
-	
-	-- Merge all the units now
-	for _, unit in pairs(units) do
-		if( layout[unit] ) then
-			ShadowUF.db.profile.units[unit] = mergeTable(ShadowUF.db.profile.units[unit], layout[unit])
-		end
 	end
 	
 	-- Do a full merge on the main layout keys, nothing we want to save in them
@@ -434,11 +404,6 @@ end
 function ShadowUF:RegisterLayout(id, data)
 	if( not id ) then
 		error(L["Cannot register layout, no name passed."])
-	-- We aren't ready for the layout yet, queue it and will load it once everything is initialized
-	elseif( not self.db ) then
-		layoutQueue = layoutQueue or {}
-		layoutQueue[id] = data
-		return
 	end
 	
 	if( type(data) == "table" ) then
@@ -447,14 +412,9 @@ function ShadowUF:RegisterLayout(id, data)
 		self.db.profile.layoutInfo[id] = self:UncompressLayout(data)
 	end
 	
-	-- Store a copy of the default DB, so if someone does a layout reset we can still keep data.
-	if( id == "default" ) then
-		defaultDB = self.db.profile.layoutInfo[id]
-	end
-
 	-- No layout is loaded, so set this as our active one
-	if( not self.db.profile.activeLayout ) then
-		self:SetLayout("default", true)
+	if( not self.db.profile.loadedLayout ) then
+		self:SetLayout(id, true)
 	end
 end
 
@@ -528,24 +488,14 @@ function ShadowUF:ProfilesChanged()
 	for k in pairs(self.tagFunc) do self.tagFunc[k] = nil end
 	for k in pairs(self.layoutInfo) do self.layoutInfo[k] = nil end
 	
-	-- It's possible that this new profile does not have the default layout loaded, so will need to do that too
-	if( not self.layoutInfo.default ) then
-		self.layoutInfo.default = nil
-		self.db.profile.layoutInfo.default = defaultDB
-	end
-	
-	-- Check if we need to reimport the layout
-	if( not self.db.profile.activeLayout ) then
-		self:SetLayout("default", true)
+	-- No active layout, register the default one
+	if( not self.db.profile.loadedLayout ) then
+		self:LoadDefaultLayout()
 	end
 
 	ShadowUF.Units:ProfileChanged()
 	ShadowUF:LoadUnits()
 	ShadowUF.Layout:ReloadAll()
-end
-
-function ShadowUF:Print(msg)
-	DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99ShadowUF|r: " .. msg)
 end
 
 local frame = CreateFrame("Frame")

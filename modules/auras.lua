@@ -41,10 +41,6 @@ local function cancelBuff(self)
 end
 
 function Auras:OnEnable(frame)
-	if( not frame.visibility.auras or not ShadowUF.db.profile.units[frame.unitType].auras ) then
-		return
-	end
-	
 	if( not canRemove ) then
 		self:CheckCures()
 	end

@@ -12,12 +12,6 @@ local function checkRange(self, elapsed)
 end
 
 function Range:OnEnable(frame)
-	if( not frame.visibility.range or frame.unitType == "player" ) then
-		return
-	elseif( frame.unitType ~= "raid" and frame.unitType ~= "party" and frame.unitType ~= "partypet" and frame.unitType ~= "pet" ) then
-		return
-	end
-		
 	if( not frame.range ) then
 		frame.range = CreateFrame("Frame", nil, frame)
 		frame.range:SetScript("OnUpdate", checkRange)

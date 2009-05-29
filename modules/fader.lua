@@ -25,8 +25,6 @@ local function startFading(self, type, alpha)
 end
 
 function Fader:OnEnable(frame)
-	if( not frame.visibility.fader or ( frame.unitType ~= "player" and frame.unitType ~= "focus" and frame.unitType ~= "party" and frame.unitType ~= "raid" ) ) then return end
-	
 	if( not frame.fader ) then
 		frame.fader = CreateFrame("Frame", nil, frame)
 		frame.fader.timeElapsed = 0
