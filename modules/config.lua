@@ -156,9 +156,9 @@ local function loadData()
 		local moduleKey, moduleSubKey, key = string.split(".", info.arg)
 		if( not moduleSubKey ) then key = moduleKey moduleKey = nil end
 		if( moduleSubKey and not key ) then key = moduleSubKey moduleSubKey = nil end
-		if( tonumber(moduleSubKey) ) then moduleSubKey = tonumber(moduleSubKey) end
 		if( moduleSubKey == "$parent" ) then moduleSubKey = info[#(info) - 1] end
 		if( moduleKey == "$parent" ) then moduleKey = info[#(info) - 1] end
+		if( tonumber(moduleSubKey) ) then moduleSubKey = tonumber(moduleSubKey) end
 		
 		return getVariable(info[2], moduleKey, moduleSubKey, key)
 	end
@@ -1015,7 +1015,8 @@ local function loadUnitOptions()
 						local unit = info[2]
 						local id = tonumber(info[#(info) - 2])
 						local key = info[#(info)]
-						local text = unit == "global" and globalConfig.text[id].text or ShadowUF.db.profile.units[unit].text[id].text
+						local text = getVariable(unit, "text", id, "text")
+						local tag = string.format("[%s]", key)
 						
 						if( value ) then
 							if( text == "" ) then
@@ -1031,15 +1032,25 @@ local function loadUnitOptions()
 						
 						if( unit == "global" ) then
 							for unit in pairs(modifyUnits) do
-								setVariable(unit, "text", id, "text", value)
+								setVariable(unit, "text", id, "text", text)
 							end
 
-							setVariable("global", "text", id, "text", value)
+							setVariable("global", "text", id, "text", text)
 						else
-							setVariable(unit, "text", id, "text", value)
+							setVariable(unit, "text", id, "text", text)
 						end
 					end,
-					get = function(info) return string.match(getVariable(unit, "text", tonumber(info[#(info) - 2]), "text"), string.format("%%[%s%%]", info[#(info)])) end,
+					get = function(info) 
+						local text = getVariable(info[2], "text", tonumber(info[#(info) - 2]), "text")
+						local tag = info[#(info)]
+						
+						-- FUN WITH PATTERN MATCHING
+						if( string.match(text, "%[" .. tag .. "%]") or string.match(text, "%)" .. tag .. "%]") or string.match(text, "%[" .. tag .. "%(") or string.match(text, "%)" .. tag .. "%(") ) then
+							return true
+						end
+						
+						return false
+					end,
 					args = tagList,
 				},
 			},
@@ -1477,7 +1488,7 @@ local function loadUnitOptions()
 	-- These are all always friendly, so don't show reaction setting
 	local isFriendlyUnit = {["player"] = true, ["pet"] = true, ["partypet"] = true, ["raid"] = true, ["party"] = true}
 	
-	local unitTable = {
+	Config.unitTable = {
 		type = "group",
 		childGroups = "tab",
 		order = getUnitOrder,
@@ -2382,12 +2393,12 @@ local function loadUnitOptions()
 	-- Load modules into the unit table
 	for key, module in pairs(ShadowUF.modules) do
 		if( module.moduleHasBar ) then
-			unitTable.args.widgetSize.args[key] = Config.barTable
+			Config.unitTable.args.widgetSize.args[key] = Config.barTable
 		end
 	end
 
 	-- Load global unit
-	for k, v in pairs(unitTable.args) do
+	for k, v in pairs(Config.unitTable.args) do
 		options.args.units.args.global.args[k] = v
 	end
 
@@ -2419,7 +2430,7 @@ local function loadUnitOptions()
 	for order, unit in pairs(ShadowUF.units) do
 		options.args.units.args.enabled.args[unit] = enabledUnits
 		options.args.units.args.global.args.units.args.units.args[unit] = perUnitList
-		options.args.units.args[unit] = unitTable
+		options.args.units.args[unit] = Config.unitTable
 	end
 end
 
@@ -2787,7 +2798,7 @@ local function loadVisibilityOptions()
 		args = {},
 	}
 	
-	local unitTable = {
+	Config.visibilityTable = {
 		type = "group",
 		order = getUnitOrder,
 		inline = true,
@@ -2828,12 +2839,12 @@ local function loadVisibilityOptions()
 		
 	for key, module in pairs(ShadowUF.modules) do
 		if( module.moduleName ) then
-			unitTable.args[key] = moduleTable
+			Config.visibilityTable.args[key] = moduleTable
 		end
 	end
 	
 	for _, unit in pairs(ShadowUF.units) do
-		areaTable.args[unit] = unitTable
+		areaTable.args[unit] = Config.visibilityTable
 	end
 	
 	options.args.visibility = {
@@ -2885,7 +2896,7 @@ local function loadOptions()
 	Config.options = options
 	
 	-- Options finished loading, fire callback for any non-default modules that want to be included
-	ShadowUF:FireModuleEvent("OnConfigurationLoad", options)
+	ShadowUF:FireModuleEvent("OnConfigurationLoad")
 end
 
 SLASH_SSUF1 = "/suf"

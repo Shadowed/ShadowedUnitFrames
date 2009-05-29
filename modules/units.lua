@@ -273,7 +273,6 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame.RegisterNormalEvent = RegisterNormalEvent
 	frame.RegisterUnitEvent = RegisterUnitEvent
 	frame.RegisterUpdateFunc = RegisterUpdateFunc
-	frame.UnregisterUpdateFunc = UnregisterUpdateFunc
 	frame.UnregisterAll = UnregisterAll
 	frame.FullUpdate = FullUpdate
 	frame.SetVisibility = SetVisibility

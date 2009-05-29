@@ -2,11 +2,11 @@
 	Shadow Unit Frames, Mayen/Selari from Illidan (US) PvP
 ]]
 
-ShadowUF = {raidUnits = {}, partyUnits = {}, modules = {}, moduleOrder = {}}
+ShadowUF = {raidUnits = {}, partyUnits = {}, modules = {}, moduleOrder = {}, units = {"player", "pet", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid"}}
 
 local L = ShadowUFLocals
 local layoutQueue, defaultDB
-local units = {"player", "pet", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid"}
+local units = ShadowUF.units
 
 -- Cache the units so we don't have to concat every time it updates
 for i=1, MAX_PARTY_MEMBERS do ShadowUF.partyUnits[i] = "party" .. i end
@@ -40,7 +40,6 @@ function ShadowUF:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileReset", "ProfilesChanged")
 	
 	-- Things other modules need to access
-	self.units = units
 	self.mainLayout = mainLayout
 	self.subLayout = subLayout
 	
@@ -239,6 +238,9 @@ function ShadowUF:LoadUnitDefaults()
 			self.defaults.profile.units[unit].indicators.happiness.enabled = true
 		end
 	end
+	
+	-- Indicate that defaults were loaded
+	self:FireModuleEvent("OnDefaultsSet")
 end
 
 -- Hiding Blizzard stuff (Stolen from haste)
