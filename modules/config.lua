@@ -1100,18 +1100,24 @@ local function loadUnitOptions()
 						local id = tonumber(info[#(info) - 2])
 						local key = info[#(info)]
 						local text = getVariable(unit, "text", id, "text")
-						local tag = string.format("[%s]", key)
-						
+
 						if( value ) then
 							if( text == "" ) then
-								text = tag
+								text = string.format("[%s]", key)
 							else
-								text = string.format("%s %s", text, tag)
+								text = string.format("%s [%s]", text, key)
 							end
 						else
-							text = string.gsub(text, string.format("%%[%s%%]", key), "")
-							text = string.gsub(text, "  ", "")
-							text = string.trim(text)
+							-- Ugly, but it works
+							for matchedTag in string.gmatch(text, "%[(.-)%]") do
+								local safeTag = "[" .. matchedTag .. "]"
+								if( string.match(safeTag, "%[" .. key .. "%]") or string.match(safeTag, "%)" .. key .. "%]") or string.match(safeTag, "%[" .. key .. "%(") or string.match(safeTag, "%)" .. key .. "%(") ) then
+									text = string.gsub(text, "%[" .. string.gsub(string.gsub(matchedTag, "%)", "%%)"), "%(", "%%(") .. "%]", "")
+									text = string.gsub(text, "  ", "")
+									text = string.trim(text)
+									break
+								end
+							end
 						end
 						
 						if( unit == "global" ) then
