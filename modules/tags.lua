@@ -298,7 +298,7 @@ Tags.defaultTags = {
 		return ShadowUF:FormatLargeNumber(health)
 	end]],
 	["colorname"] = [[function(unit) 
-		local color = ShadowUF:GetClassUnit(unit)
+		local color = ShadowUF:GetClassColor(unit)
 		if( not color ) then
 			return UnitName(unit)
 		end
