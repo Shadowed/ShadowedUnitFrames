@@ -154,6 +154,7 @@ ShadowUFLocals = {
 	["Portrait type"] = "Portrait type",
 	["3D"] = "3D",
 	["2D"] = "2D",
+	["Class icon"] = "Class icon",
 	["Text"] = "Text",
 	["Tag wizard"] = "Tag wizard",
 	["Show your auras only"] = "Show your auras only",
@@ -325,6 +326,7 @@ ShadowUFLocals = {
 		["masterLoot"] = "Master looter",
 		["raidTarget"] = "Raid target",
 		["happiness"] = "Happiness",
+		["ready"] = "Ready status",
 	},
 	
 	["classes"] = {

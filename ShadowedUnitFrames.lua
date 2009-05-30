@@ -90,6 +90,19 @@ function ShadowUF:OnInitialize()
 		self:LoadDefaultLayout()
 	end
 	
+	-- Quick upgrade code
+	if( not self.db.profile.units.player.indicators.ready.anchorTo ) then
+		for unit, data in pairs(self.db.profile.units) do
+			if( data.indicators and self.defaults.profile.units[unit].indicators.ready and not data.indicators.ready.anchorTo ) then
+				data.indicators.ready.anchorTo = "$parent"
+				data.indicators.ready.anchorPoint = "LC"
+				data.indicators.ready.size = 24
+				data.indicators.ready.x = 0
+				data.indicators.ready.y = 0
+			end
+		end
+	end
+	
 	-- Hide any Blizzard frames
 	self:HideBlizzardFrames()
 	
@@ -168,6 +181,10 @@ function ShadowUF:LoadUnitDefaults()
 		if( unit == "player" or unit == "party" or unit == "target" or unit == "raid" or unit == "focus" ) then
 			self.defaults.profile.units[unit].indicators.leader = {enabled = true}
 			self.defaults.profile.units[unit].indicators.masterLoot = {enabled = true}
+			
+			if( unit ~= "focus" and unit ~= "target" ) then
+				self.defaults.profile.units[unit].indicators.ready = {enabled = true}
+			end
 		end
 	end
 	

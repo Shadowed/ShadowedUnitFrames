@@ -1481,7 +1481,7 @@ local function loadUnitOptions()
 								order = 1,
 								type = "select",
 								name = L["Portrait type"],
-								values = {["2D"] = L["2D"], ["3D"] = L["3D"]},
+								values = {["class"] = L["Class icon"], ["2D"] = L["2D"], ["3D"] = L["3D"]},
 								arg = "portrait.type",
 							},
 							alignment = {
@@ -2266,6 +2266,7 @@ local function loadUnitOptions()
 					masterLoot = Config.indicatorTable,
 					raidTarget = Config.indicatorTable,
 					happiness = Config.indicatorTable,
+					ready = Config.indicatorTable,
 				},
 			},
 			tag = {

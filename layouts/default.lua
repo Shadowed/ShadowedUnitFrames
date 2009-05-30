@@ -92,6 +92,7 @@ function ShadowUF:LoadDefaultLayout()
 				masterLoot = {anchorTo = "$parent", anchorPoint = "TL", size = 12, x = 35, y = 3},
 				leader = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 2, y = 4},
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 40, y = 11},
+				ready = {anchorTo = "$parent", anchorPoint = "LC", size = 24, x = 16, y = 0},
 			},
 			healthBar = {
 				background = true,

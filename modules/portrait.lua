@@ -34,7 +34,7 @@ function Portrait:OnPreLayoutApply(frame)
 		return
 	end
 	
-	if( ShadowUF.db.profile.units[frame.unitType].portrait.type == "2D" ) then
+	if( ShadowUF.db.profile.units[frame.unitType].portrait.type == "2D" or ShadowUF.db.profile.units[frame.unitType].portrait.type == "class" ) then
 		frame.portrait = frame.portraitTexture
 		frame.portraitModel:Hide()
 		frame.portrait:Show()
@@ -55,7 +55,15 @@ function Portrait:UpdateFunc(frame)
 end
 
 function Portrait:Update(frame)
-	if( ShadowUF.db.profile.units[frame.unitType].portrait.type == "2D" ) then
+	if( ShadowUF.db.profile.units[frame.unitType].portrait.type == "class" ) then
+		local classToken = select(2, UnitClass(frame.unit))
+		if( classToken ) then
+			frame.portrait:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
+			frame.portrait:SetTexCoord(CLASS_ICON_TCOORDS[classToken][1], CLASS_ICON_TCOORDS[classToken][2], CLASS_ICON_TCOORDS[classToken][3], CLASS_ICON_TCOORDS[classToken][4])
+		else
+			frame.portrait:SetTexture("")
+		end
+	elseif( ShadowUF.db.profile.units[frame.unitType].portrait.type == "2D" ) then
 		frame.portrait:SetTexCoord(0.10, 0.90, 0.10, 0.90)
 		SetPortraitTexture(frame.portrait, frame.unit)
 	elseif( UnitIsVisible(frame.unit) and UnitIsConnected(frame.unit) ) then
@@ -67,5 +75,7 @@ function Portrait:Update(frame)
 		frame.portrait:SetModel("Interface\\Buttons\\talktomequestionmark.mdx")	
 	end
 end
+
+
 
 
