@@ -141,12 +141,6 @@ local function SetVisibility(self)
 	end
 end
 
-function Units:UpdateOnChange(frame)
-	if( frame.guid ~= UnitGUID(frame.unit) and UnitExists(frame.unit) ) then
-		frame.guid = UnitGUID(frame.unit)
-		frame:FullUpdate()
-	end
-end
 
 -- Frame is now initialized with a unit
 local function OnAttributeChanged(self, name, value)
@@ -178,23 +172,9 @@ local function OnAttributeChanged(self, name, value)
 	if( string.match(value, "%w+target") ) then
 		self.timeElapsed = 0
 		self:SetScript("OnUpdate", TargetUnitUpdate)
-		
 	-- Pet changed, going from pet -> vehicle for one
 	elseif( value == "pet" ) then
 		self:RegisterUnitEvent("UNIT_PET", self, "FullUpdate")
-	
-	--[[
-	-- Party changed, might need to do a full update
-	elseif( self.unitType == "party" ) then
-		self.guid = UnitGUID(self.unit)
-		self:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", Units, "UpdateOnChange")
-	
-	-- Raid changed, might need to do a full update
-	elseif( self.unitType == "raid" ) then
-		self.guid = UnitGUID(self.unit)
-		self:RegisterNormalEvent("RAID_ROSTER_UPDATE", Units, "UpdateOnChange")
-	]]
-	
 	-- Automatically do a full update on target change
 	elseif( value == "target" ) then
 		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
@@ -561,14 +541,26 @@ function Units:CreateBar(parent)
 	return frame
 end
 
--- Combat queuer
+-- Handles events related to all units and not a specific one
+local ownerAssociation = {["player"] = "pet", ["party1"] = "party1pet", ["party2"] = "party2pet", ["party3"] = "party3pet", ["party4"] = "party4pet"}
 local headerUpdated = {}
 local centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-centralFrame:SetScript("OnEvent", function(self, event)
-	if( event == "ZONE_CHANGED_NEW_AREA" ) then
+centralFrame:RegisterEvent("UNIT_PET")
+centralFrame:SetScript("OnEvent", function(self, event, unit)
+	if( event == "UNIT_PET" and ownerAssociation[unit] ) then
+		local frame = unitList[ownerAssociation[unit]]
+		if( not frame ) then return end
+		
+		local inVehicle = UnitInVehicle(unit)
+		if( inVehicle ~= frame.inVehicle ) then
+			frame:FullUpdate()
+			frame.inVehicle = inVehicle
+		end
+	
+	elseif( event == "ZONE_CHANGED_NEW_AREA" ) then
 		for _, frame in pairs(unitList) do
 			if( frame:GetAttribute("unit") ) then
 				frame:SetVisibility()
