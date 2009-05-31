@@ -43,7 +43,7 @@ local function loadData()
 	isUnitDisabled = function(info)
 		return not ShadowUF.db.profile.units[info[#(info)]].enabled
 	end
-
+	
 	mergeTables = function(parent, child)
 		for key, value in pairs(child) do
 			if( type(parent[key]) == "table" ) then
@@ -218,6 +218,21 @@ local function loadData()
 		local key = info[#(info)]
 		return key == "healthBar" and 1 or key == "powerBar" and 2 or key == "castBar" and 3 or 4
 	end
+	
+	-- Expose these for modules
+	Config.hideAdvancedOption = hideAdvancedOption
+	Config.isUnitDisabled = isUnitDisabled
+	Config.selectDialogGroup = selectDialogGroup
+	Config.getName = getName
+	Config.getUnitOrder = getUnitOrder
+	Config.isModifiersSet = isModifiersSet
+	Config.set = set
+	Config.get = get
+	Config.setUnit = setUnit
+	Config.setVariable = setVariable
+	Config.getUnit = getUnit
+	Config.getVariable = getVariable
+	Config.hideRestrictedOption = hideRestrictedOption
 end
 
 
@@ -449,7 +464,6 @@ local function loadGeneralOptions()
 								name = L["Happiness"],
 								hasAlpha = true,
 								arg = "powerColors.HAPPINESS",
-								width = "half",
 							},
 							RUNIC_POWER = {
 								order = 6,
@@ -457,17 +471,32 @@ local function loadGeneralOptions()
 								name = L["Runic Power"],
 								hasAlpha = true,
 								arg = "powerColors.RUNIC_POWER",
-								width = "half",
+							},
+							AMMOSLOT = {
+								order = 7,
+								type = "color",
+								name = L["Ammo"],
+								hasAlpha = true,
+								arg = "powerColors.AMMOSLOT",
+								hidden = hideAdvancedOption,
+							},
+							FUEL = {
+								order = 8,
+								type = "color",
+								name = L["Fuel"],
+								hasAlpha = true,
+								arg = "powerColors.FUEL",
+								hidden = hideAdvancedOption,
 							},
 							green = {
-								order = 7,
+								order = 9,
 								type = "color",
 								name = L["Health color"],
 								desc = L["Standard health bar color"],
 								arg = "healthColors.green",
 							},
 							yellow = {
-								order = 8,
+								order = 10,
 								type = "color",
 								name = L["Yellow health"],
 								desc = L["Health bar color to use when health bars are showing yellow, neutral units."],
@@ -475,29 +504,22 @@ local function loadGeneralOptions()
 								hidden = hideAdvancedOption,
 							},
 							red = {
-								order = 9,
+								order = 11,
 								type = "color",
 								name = L["Red health"],
 								desc = L["Health bar color to use when health bars are showing red, hostile units, transitional color from green -> red and so on."],
 								arg = "healthColors.red",
 								hidden = hideAdvancedOption,
 							},
-							sep = {
-								order = 10,
-								type = "description",
-								name = "",
-								width = "full",
-								hidden = hideAdvancedOption,
-							},
 							inc = {
-								order = 11,
+								order = 12,
 								type = "color",
 								name = L["Incoming heal"],
 								desc = L["Health bar color to use to show how much healing someone is about to receive."],
 								arg = "healthColors.inc",
 							},
 							enemyUnattack = {
-								order = 12,
+								order = 13,
 								type = "color",
 								name = L["Unattackable health"],
 								desc = L["Health bar color to use for hostile units who you cannot attack, used for reaction coloring."],
@@ -551,6 +573,7 @@ local function loadGeneralOptions()
 	end
 	
 	options.args.general.args.general.args.classColors.args.PET = Config.classTable
+	options.args.general.args.general.args.classColors.args.VEHICLE = Config.classTable
 	
 	options.args.general.args.profile.order = 1
 	
@@ -1028,11 +1051,10 @@ local function loadUnitOptions()
 				width = {
 					order = 1,
 					hidden = false,
-					name = L["Width"],
-					desc = L["Percentage of the frames width that this text should use."],
+					name = L["Width weight"],
+					desc = L["How much weight this should use when figuring out the total text width."],
 					type = "range",
-					min = 0, max = 1, step = 0.01,
-					isPercent = true,
+					min = 0, max = 10, step = 0.1,
 				},
 				anchorPoint = {
 					order = 2,
@@ -1504,6 +1526,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Combat fader"],
+						hidden = hideRestrictedOption,
 						args = {
 							fader = {
 								order = 0,
@@ -2306,7 +2329,7 @@ local function loadUnitOptions()
 					help = {
 						order = 0,
 						type = "description",
-						name = L["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText (Advanced only) - Allows changing how the text anchors and the offset, you can set tags here as well.\n\nTag Wizard - Quickly add and remove tags to text."],
+						name = L["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText Text - Quickly add and remove tags to text, when advanced settings are enabled you can also change the width and positioning of text."],
 					},
 				},
 			},

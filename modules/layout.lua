@@ -190,7 +190,7 @@ function Layout:AnchorFrame(parent, frame, config, isRecurse)
 	if( config.anchorTo == "UIParent" and frame.unitType ) then
 		scale = frame:GetEffectiveScale()
 	end
-	
+		
 	if( config.anchorPoint and config.anchorPoint ~= "" ) then
 		frame:ClearAllPoints()
 		frame:SetPoint(preDefPoint[config.anchorPoint], anchorTo, preDefRelative[config.anchorPoint], config.x / scale, config.y / scale)
@@ -317,6 +317,7 @@ local function updateShadows(fontString)
 	end
 end
 
+local totalWeight = {}
 function Layout:ApplyText(frame, config)
 	-- Update cast bar text
 	if( frame.castBar and frame.castBar:IsShown() ) then
@@ -364,9 +365,12 @@ function Layout:ApplyText(frame, config)
 		fontString:Hide()
 	end
 	
+	for k in pairs(totalWeight) do totalWeight[k] = nil end
+	
+	-- Update the actual text, and figure out the weighting information now
 	for id, row in pairs(config.text) do
 		local parent = row.anchorTo == "$parent" and frame or frame[string.sub(row.anchorTo, 2)]
-		if( parent and row.enabled ) then
+		if( parent and row.enabled and row.text ~= "" ) then
 			local fontString = frame.fontStrings[id] or frame:CreateFontString(nil, "ARTWORK")
 			fontString:SetFont(mediaPath.font, ShadowUF.db.profile.font.size)
 			fontString:SetText(row.text)
@@ -374,8 +378,11 @@ function Layout:ApplyText(frame, config)
 			fontString:SetJustifyH(self:GetJustify(row))
 			self:AnchorFrame(frame, fontString, row)
 			
-			fontString:SetWidth(parent:GetWidth() * row.width)
-			fontString:SetHeight(ShadowUF.db.profile.font.size + 1)
+			local anchorPoint = (row.anchorPoint == "ITR" or row.anchorPoint == "ITL") and "IT" or (row.anchorPoint == "ICL" or row.anchorPoint == "ICR" ) and "IC" or row.anchorPoint
+			
+			fontString.availableWidth = parent:GetWidth()
+			fontString.widthID = row.anchorTo .. anchorPoint
+			totalWeight[fontString.widthID] = (totalWeight[fontString.widthID] or 0) + row.width
 			
 			updateShadows(fontString)
 			
@@ -385,6 +392,18 @@ function Layout:ApplyText(frame, config)
 			
 			frame.fontStrings[id] = fontString
 			frame:RegisterUpdateFunc(fontString, "UpdateTags")
+		
+		-- Tag was enabled, but it no longer is
+		elseif( frame.fontStrings[id] ) then
+			frame.fontStrings[id]:Hide()
+		end
+	end
+
+	-- Now set all of the width using our weightings
+	for id, fontString in pairs(frame.fontStrings) do
+		if( fontString:IsShown() ) then
+			fontString:SetWidth(fontString.availableWidth * (config.text[id].width / totalWeight[fontString.widthID]))
+			fontString:SetHeight(ShadowUF.db.profile.font.size + 1)
 		end
 	end
 end
@@ -447,7 +466,7 @@ local function positionAuras(self, config)
 				else
 					button:SetPoint("LEFT", self.buttons[id - 1], "RIGHT", 1, 0)
 				end
-			elseif( id % config.maxRows == 1 ) then
+			elseif( id % config.maxRows == 1 or config.maxRows == 1 ) then
 				if( config.anchorPoint == "RIGHT" ) then
 					button:SetPoint("LEFT", self.buttons[id - config.maxRows], "RIGHT", 1, 0)
 				else

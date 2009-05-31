@@ -42,7 +42,7 @@ ShadowUFLocals = {
 	-- Help
 	["Help"] = "Help",
 	["Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.\n\nShift click a unit to select all/unselect all."] = "Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.\n\nShift click a unit to select all/unselect all.",
-	["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText (Advanced only) - Allows changing how the text anchors and the offset, you can set tags here as well.\n\nTag Wizard - Quickly add and remove tags to text."] = "In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText (Advanced only) - Allows changing how the text anchors and the offset, you can set tags here as well.\n\nTag Wizard - Quickly add and remove tags to text.",
+	["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText Text - Quickly add and remove tags to text, when advanced settings are enabled you can also change the width and positioning of text."] = "In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText Text - Quickly add and remove tags to text, when advanced settings are enabled you can also change the width and positioning of text.",
 	
 	-- Layout
 	["|cffffffffActive:|r "] = "|cffffffffActive:|r ",
@@ -117,6 +117,7 @@ ShadowUFLocals = {
 	["Color health by"] = "Color health by",
 	["Reaction"] = "Reaction",
 	["Class"] = "Class",
+	["Width weight"] = "Width weight",
 	["Static"] = "Static",
 	["Health percent"] = "Health percent",
 	["Color on aggro"] = "Color on aggro",
@@ -132,6 +133,7 @@ ShadowUFLocals = {
 	["If you casted the aura, then the buff icon will be increased in size to make it more visible."] = "If you casted the aura, then the buff icon will be increased in size to make it more visible.",
 	["Anchor to"] = "Anchor to",
 	["How you want this aura to be anchored to the unit frame."] = "How you want this aura to be anchored to the unit frame.",
+	["How much weight this should use when figuring out the total text width."] = "How much weight this should use when figuring out the total text width.",
 	["X Offset"] = "X Offset",
 	["Y Offset"] = "Y Offset",
 	["Buffs"] = "Buffs",
@@ -199,6 +201,8 @@ ShadowUFLocals = {
 	["Per column"] = "Per column",
 	["Raid groups to show"] = "Raid groups to show",
 	["Group %d"] = "Group %d",
+	["Fuel"] = "Fuel",
+	["Ammo"] = "Ammo",
 	
 	-- Layout
 	["Layout"] = "Layout",
@@ -341,6 +345,7 @@ ShadowUFLocals = {
 		["WARRIOR"] = "Warrior",
 		["DEATHKNIGHT"] = "Death Knight",
 		["PET"] = "Pet",
+		["VEHICLE"] = "Vehicle",
 	},
 	
 	-- Instance types

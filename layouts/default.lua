@@ -47,6 +47,7 @@ function ShadowUF:LoadDefaultLayout()
 				WARRIOR = {r = 0.78, g = 0.61, b = 0.43},
 				DEATHKNIGHT = {r = 0.77, g = 0.12 , b = 0.23},
 				PET = {r = 0.20, g = 0.90, b = 0.20},
+				VEHICLE = {r = 0.40, g = 0.85, b = 0.48}
 			},
 			powerColors = {
 				MANA = {r = 0.30, g = 0.50, b = 0.85}, 
@@ -55,7 +56,9 @@ function ShadowUF:LoadDefaultLayout()
 				ENERGY = {r = 1.0, g = 0.85, b = 0.10}, 
 				HAPPINESS = {r = 0.50, g = 0.90, b = 0.70},
 				RUNES = {r = 0.50, g = 0.50, b = 0.50}, 
-				RUNIC_POWER = {b = 0.60, g = 0.45, r = 0.35}, 
+				RUNIC_POWER = {b = 0.60, g = 0.45, r = 0.35},
+				AMMOSLOT = {r = 0.85, g = 0.60, b = 0.55},
+				FUEL = {r = 0.85, g = 0.47, b = 0.36},
 			},
 			healthColors = {
 				tapped = {r = 0.5, g = 0.5, b = 0.5},
@@ -81,11 +84,11 @@ function ShadowUF:LoadDefaultLayout()
 				debuffs = {enabled = false, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0},
 			},
 			text = {
-				{width = 0.60, anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0},
-				{width = 0.40, anchorTo = "$healthBar", anchorPoint = "ICR", x = -3, y = 0},
+				{width = 0.40, anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0},
+				{width = 0.60, anchorTo = "$healthBar", anchorPoint = "ICR", x = -3, y = 0},
 
-				{width = 0.60, anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0},
-				{width = 0.40, anchorTo = "$powerBar", anchorPoint = "ICR", x = -3, y = 0},
+				{width = 0.40, anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0},
+				{width = 0.60, anchorTo = "$powerBar", anchorPoint = "ICR", x = -3, y = 0},
 			},
 			indicators = {
 				raidTarget = {anchorTo = "$parent", anchorPoint = "TC", size = 20, x = 0, y = -14},
@@ -162,7 +165,7 @@ function ShadowUF:LoadDefaultLayout()
 					{text = "[group( )][afk( )][name]"},
 					{text = "[curhp]"},
 					{text = ""},
-					{text = "[curpp]", width = 1.0},
+					{text = "[curpp]"},
 				},
 			},
 			player = {

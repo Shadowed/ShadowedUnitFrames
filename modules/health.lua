@@ -77,6 +77,8 @@ function Health:UpdateColor(frame)
 	local unit = frame.unit
 	if( not UnitIsTappedByPlayer(unit) and UnitIsTapped(unit) ) then
 		color = ShadowUF.db.profile.healthColors.tapped
+	elseif( frame.unitOwner ) then
+		color = ShadowUF.db.profile.classColors.VEHICLE
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and not UnitIsFriend(unit, "player") ) then
 		frame.healthBar.hasReaction = true
 		if( UnitPlayerControlled(unit) ) then
@@ -109,8 +111,10 @@ function Health:UpdateColor(frame)
 	end
 	
 	if( color ) then
+		frame.healthBar.hasPercent = false
 		setBarColor(frame.healthBar, color.r, color.g, color.b)
 	else
+		frame.healthBar.hasPercent = true
 		setGradient(frame.healthBar, unit)
 	end
 end
@@ -135,7 +139,7 @@ function Health:Update(frame)
 		
 	if( isOffline ) then
 		setBarColor(frame.healthBar, 0.50, 0.50, 0.50)
-	elseif( not frame.healthBar.hasReaction and not frame.healthBar.hasAggro and ShadowUF.db.profile.units[frame.unitType].healthBar.colorType == "percent" ) then
+	elseif( frame.healthBar.hasPercent ) then
 		setGradient(frame.healthBar, unit)
 	end
 end

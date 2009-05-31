@@ -1,11 +1,18 @@
 local Units = {unitFrames = {}}
-local unitList, unitEvents, loadedUnits, queuedCombat = {}, {}, {}, {}, {}
+local vehicleAssociations = {["player"] = "pet", ["party1"] = "party1pet", ["party2"] = "party2pet", ["party3"] = "party3pet", ["party4"] = "party4pet", ["pet"] = "player", ["party1pet"] = "party1", ["party2pet"] = "party2", ["party3pet"] = "party3", ["party4pet"] = "party4"}
+local vehicleMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
+local friendlyUnits = {["player"] = true, ["pet"] = true, ["partypet"] = true, ["raid"] = true, ["party"] = true}
+local unitEvents, loadedUnits, queuedCombat = {}, {}, {}, {}
 local unitFrames = Units.unitFrames
 local inCombat, needPartyFrame
 local FRAME_LEVEL_MAX = 5
 
+
 ShadowUF.Units = Units
 ShadowUF:RegisterModule(Units, "units")
+
+-- Add in more stuff so if a raid member gets on a vehicle, they swap to the vehicles thing too
+for i=1, MAX_RAID_MEMBERS do vehicleAssociations["raid" .. i] = "raid" .. i .. "pet" end
 
 -- Frame shown, do a full update
 local function FullUpdate(self)
@@ -141,51 +148,88 @@ local function SetVisibility(self)
 	end
 end
 
-
 -- Frame is now initialized with a unit
-local function OnAttributeChanged(self, name, value)
-	if( name ~= "unit" or not value ) then return end
-	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
-	if( inCombat ) then
-		queuedCombat[self] = true
+local function OnAttributeChanged(self, name, unit)
+	if( name ~= "unit" or not unit ) then return end
+	-- If we have a parent set, it means the unit entered a vehicle and we need to force it to update
+	if( self:GetAttribute("unitVehicle") ) then
+		if( self.unit ~= unit ) then
+			self.unit = unit
+			self.unitOwner = self:GetAttribute("originalUnit")
+			self:FullUpdate()
+		end
 		return
-	-- The unit was removed (Left party/raid) meaning we need to kill the unitid info we saved for them, and stop all events
-	elseif( not value ) then
-		self.unit = nil
-		self.unitID = nil
-		self.unitType = nil
-		
-		self:SetScript("OnEvent", nil)
+	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
+	elseif( inCombat ) then
+		queuedCombat[self] = true
 		return
 	end
 	
-	self.unit = value
-	self.unitID = tonumber(string.match(value, "([0-9]+)"))
-	self.unitType = string.gsub(value, "([0-9]+)", "")
+	self.unit = unit
+	self.unitID = tonumber(string.match(unit, "([0-9]+)"))
+	self.unitType = string.gsub(unit, "([0-9]+)", "")
+	self:SetAttribute("originalUnit", unit)
 	
-	unitList[value] = self
-	
-	-- Now set what is enabled
-	self:SetVisibility()
-	
+	unitFrames[unit] = self
+
+	-- If we were in a vehicle, then we need to do a full update to show the player again, otherwise check visibility
+	if( not self:GetAttribute("unitVehicle") and not self.unitOwner ) then
+		self:SetVisibility()
+	else
+		self.unitOwner = nil
+		self:SetAttribute("unitVehicle", nil)
+		self:FullUpdate()
+	end
+		
 	-- Is it an invalid unit?
-	if( string.match(value, "%w+target") ) then
+	if( string.match(unit, "%w+target") ) then
 		self.timeElapsed = 0
 		self:SetScript("OnUpdate", TargetUnitUpdate)
 	-- Pet changed, going from pet -> vehicle for one
-	elseif( value == "pet" ) then
+	elseif( unit == "pet" ) then
 		self:RegisterUnitEvent("UNIT_PET", self, "FullUpdate")
 	-- Automatically do a full update on target change
-	elseif( value == "target" ) then
+	elseif( unit == "target" ) then
 		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
 	-- Automatically do a full update on focus change
-	elseif( value == "focus" ) then
+	elseif( unit == "focus" ) then
 		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "FullUpdate")
 	end
 		
 	-- Add to Clique
 	ClickCastFrames = ClickCastFrames or {}
 	ClickCastFrames[self] = true
+
+	-- Check if we need to wrap our scripts around it
+	if( not self.scriptsWrapped and ( unit == "player" or unit == "pet" ) ) then
+		
+		local vehicleUnit = vehicleAssociations[unit]
+		if( unit == "pet" or self.unitType == "partypet" ) then
+			RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, nohelp, noharm][target=%s, exists] none; %s", vehicleUnit, unit, unit))
+			vehicleMonitor:WrapScript(self, "OnAttributeChanged", [[
+				if( name ~= "state-vehicleupdated" ) then return end
+				self:SetAttribute("unit", value ~= "none" and unit or nil)
+			]])
+
+			-- Check if we logged out in a vehicle and need to show the vehicle shit
+			if( not UnitCanAssist(vehicleUnit, "player") ) then
+				self:SetAttribute("unit", nil)
+			end
+		else
+			RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, help][target=%s, noexists] none; %s", unit, vehicleUnit, vehicleUnit))
+			vehicleMonitor:WrapScript(self, "OnAttributeChanged", [[
+				if( name ~= "state-vehicleupdated" ) then return end
+				self:SetAttribute("unitVehicle", value ~= "none" and true or false)
+				self:SetAttribute("unit", value == "none" and self:GetAttribute("originalUnit") or value)
+			]])
+			
+			-- Check if we logged out in a vehicle and need to show the vehicle shit
+			if( not UnitCanAssist(unit, "player") ) then
+				self:SetAttribute("unitVehicle", true)
+				self:SetAttribute("unit", vehicleUnit)
+			end
+		end
+	end
 end
 
 function Units:LoadUnit(config, unit)
@@ -309,7 +353,7 @@ function Units:ReloadUnit(type)
 end
 
 function Units:ProfileChanged()
-	for _, frame in pairs(unitList) do
+	for _, frame in pairs(unitFrames) do
 		if( frame:GetAttribute("unit") ) then
 			frame:SetVisibility()
 			frame:FullUpdate()
@@ -542,7 +586,7 @@ function Units:CreateBar(parent)
 end
 
 -- Handles events related to all units and not a specific one
-local ownerAssociation = {["player"] = "pet", ["party1"] = "party1pet", ["party2"] = "party2pet", ["party3"] = "party3pet", ["party4"] = "party4pet"}
+local ownerAssociation = {["party1"] = "party1pet", ["party2"] = "party2pet", ["party3"] = "party3pet", ["party4"] = "party4pet"}
 local headerUpdated = {}
 local centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -551,17 +595,17 @@ centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 centralFrame:RegisterEvent("UNIT_PET")
 centralFrame:SetScript("OnEvent", function(self, event, unit)
 	if( event == "UNIT_PET" and ownerAssociation[unit] ) then
-		local frame = unitList[ownerAssociation[unit]]
+		local frame = unitFrames[ownerAssociation[unit]]
 		if( not frame ) then return end
 		
 		local inVehicle = UnitInVehicle(unit)
 		if( inVehicle ~= frame.inVehicle ) then
-			frame:FullUpdate()
 			frame.inVehicle = inVehicle
+			frame:FullUpdate()
 		end
 	
 	elseif( event == "ZONE_CHANGED_NEW_AREA" ) then
-		for _, frame in pairs(unitList) do
+		for _, frame in pairs(unitFrames) do
 			if( frame:GetAttribute("unit") ) then
 				frame:SetVisibility()
 			end

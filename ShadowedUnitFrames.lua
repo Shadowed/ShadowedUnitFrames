@@ -103,6 +103,20 @@ function ShadowUF:OnInitialize()
 		end
 	end
 	
+	-- More upgrading
+	if( not self.db.profile.powerColors.AMMOSLOT ) then
+		self.db.profile.powerColors.AMMOSLOT = {r = 0.85, g = 0.60, b = 0.55}
+		self.db.profile.powerColors.FUEL = {r = 0.85, g = 0.47, b = 0.36}
+		self.db.profile.classColors.VEHICLE = {r = 0.40, g = 0.85, b = 0.48}
+		
+		-- Disable fader on units that it shouldn't have been enabled for
+		self.db.profile.units.focus.fader = nil
+		self.db.profile.units.focustarget.fader = nil
+		self.db.profile.units.target.fader = nil
+		self.db.profile.units.targettarget.fader = nil
+		self.db.profile.units.targettargettarget.fader = nil
+	end
+	
 	-- Hide any Blizzard frames
 	self:HideBlizzardFrames()
 	
@@ -161,7 +175,6 @@ function ShadowUF:LoadUnitDefaults()
 			healthBar = {enabled = true, colorType = "percent", reaction = true},
 			powerBar = {enabled = true}, portrait = {enabled = false, type = "3D"},
 			range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
-			fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60},
 			text = {{enabled = true, name = L["Left text"], text = "[name]", anchorTo = "$healthBar"}, {enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorTo = "$healthBar"}, {enabled = true, name = L["Left text"], text = "[level] [race]", anchorTo = "$powerBar"}, {enabled = true, name = L["Right text"], text = "[curmaxpp]", anchorTo = "$powerBar"}},
 			indicators = {raidTarget = {enabled = true}, pvp = {enabled = true}}, 
 			auras = {
@@ -176,7 +189,7 @@ function ShadowUF:LoadUnitDefaults()
 			self.defaults.profile.units[unit].castBar = {enabled = false, castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0}}
 			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
 		end
-	
+			
 		-- Want pvp/leader/ML enabled for these units
 		if( unit == "player" or unit == "party" or unit == "target" or unit == "raid" or unit == "focus" ) then
 			self.defaults.profile.units[unit].indicators.leader = {enabled = true}
@@ -187,16 +200,18 @@ function ShadowUF:LoadUnitDefaults()
 			end
 		end
 	end
-	
+		
 	-- PLAYER
 	self.defaults.profile.units.player.enabled = true
 	self.defaults.profile.units.player.indicators.status = {enabled = true, size = 19, anchorPoint = "LB", anchorTo = "$parent", x = 0, y = 0}
 	self.defaults.profile.units.player.runeBar = {enabled = false}
 	self.defaults.profile.units.player.totemBar = {enabled = false}
 	self.defaults.profile.units.player.xpBar = {enabled = false}
+	self.defaults.profile.units.player.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	-- PET
 	self.defaults.profile.units.pet.enabled = true
 	self.defaults.profile.units.pet.indicators.happiness = {enabled = true, size = 16, anchorPoint = "BR", anchorTo = "$parent", x = 2, y = -2}
+	self.defaults.profile.units.pet.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.pet.xpBar = {enabled = false}
 	-- FOCUS
 	self.defaults.profile.units.focus.enabled = true
@@ -212,16 +227,22 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.party.enabled = true
 	self.defaults.profile.units.party.auras.debuffs.maxRows = 1
 	self.defaults.profile.units.party.auras.buffs.maxRows = 1
+	self.defaults.profile.units.party.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
+	self.defaults.profile.units.party.combatText.enabled = false
 	-- RAID
 	self.defaults.profile.units.raid.groupBy = "GROUP"
 	self.defaults.profile.units.raid.sortOrder = "ASC"
 	self.defaults.profile.units.raid.filters = {[1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [8] = true}
+	self.defaults.profile.units.raid.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
+	self.defaults.profile.units.raid.combatText.enabled = false
 	-- PARTYPET
 	self.defaults.profile.positions.partypet.anchorTo = "$parent"
 	self.defaults.profile.positions.partypet.anchorPoint = "RB"
+	self.defaults.profile.units.partypet.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	-- PARTYTARGET
 	self.defaults.profile.positions.partytarget.anchorTo = "$parent"
 	self.defaults.profile.positions.partytarget.anchorPoint = "RT"
+	self.defaults.profile.units.partytarget.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	
 	-- Indicate that defaults were loaded
 	self:FireModuleEvent("OnDefaultsSet")
@@ -509,9 +530,10 @@ function ShadowUF:ProfilesChanged()
 	if( not self.db.profile.loadedLayout ) then
 		self:LoadDefaultLayout()
 	end
-
+	
 	ShadowUF.Units:ProfileChanged()
 	ShadowUF:LoadUnits()
+	ShadowUF.Layout:CheckMedia()
 	ShadowUF.Layout:ReloadAll()
 end
 

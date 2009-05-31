@@ -148,8 +148,8 @@ function Tags:Register(parent, fontString, tags)
 					local pre = hasPre and string.sub(tag, 2, startOff - 2) or ""
 					local ap = hasAp and string.sub(tag, endOff + 2, -2) or ""
 					
-					cachedFunc = function(unit)
-						local str = tagFunc(unit)
+					cachedFunc = function(unit, unitOwner)
+						local str = tagFunc(unit, unitOwner)
 						if( str ) then
 							return pre .. str .. ap
 						end
@@ -173,8 +173,9 @@ function Tags:Register(parent, fontString, tags)
 		-- Create our update function now
 		updateFunc = function(fontString)
 			local unit = fontString.parent.unit
+			local unitOwner = fontString.parent.unitOwner
 			for id, func in pairs(args) do
-				temp[id] = func(unit) or ""
+				temp[id] = func(unit, unitOwner) or ""
 			end
 			
 			fontString:SetFormattedText(formattedText, unpack(temp))
@@ -297,7 +298,8 @@ Tags.defaultTags = {
 		end
 		return ShadowUF:FormatLargeNumber(health)
 	end]],
-	["colorname"] = [[function(unit) 
+	["colorname"] = [[function(unit, unitOwner)
+		unit = unitOwner or unit
 		local color = ShadowUF:GetClassColor(unit)
 		if( not color ) then
 			return UnitName(unit)
@@ -386,7 +388,7 @@ Tags.defaultTags = {
 		return "-" .. ShadowUF:FormatLargeNumber(UnitHealthMax(unit) - UnitHealth(unit)) 
 	end]],
 	["missingpp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPowerMax(unit) - UnitPower(unit)) end]],
-	["name"] = [[function(unit) return UnitName(unit) end]],
+	["name"] = [[function(unit, unitOwner) return UnitName(unitOwner or unit) end]],
 	["offline"] = [[function(unit) return  (not UnitIsConnected(unit) and ShadowUFLocals["Offline"]) end]],
 	["perhp"] = [[function(unit)
 		local offline = ShadowUF.tagFunc.offline(unit)
@@ -442,8 +444,8 @@ Tags.defaultTags = {
 		local c = UnitClassification(unit)
 		return c == "rare" and "R" or c == "eliterare" and "R+" or c == "elite" and "+" or c == "worldboss" and "B"
 	end]],
-	["group"] = [[function(unit)
-		local name, server = UnitName(unit)
+	["group"] = [[function(unit, unitOwner)
+		local name, server = UnitName(unitOwner or unit)
 		if( server and server ~= "" ) then
 			name = string.format("%s-%s", name, server)
 		end
