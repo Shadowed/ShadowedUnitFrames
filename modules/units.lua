@@ -185,7 +185,7 @@ local function OnAttributeChanged(self, name, unit)
 		self.timeElapsed = 0
 		self:SetScript("OnUpdate", TargetUnitUpdate)
 	-- Pet changed, going from pet -> vehicle for one
-	elseif( unit == "pet" ) then
+	elseif( unit == "pet" or self.unitType == "partypet" ) then
 		self:RegisterUnitEvent("UNIT_PET", self, "FullUpdate")
 	-- Automatically do a full update on target change
 	elseif( unit == "target" ) then
