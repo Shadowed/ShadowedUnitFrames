@@ -232,12 +232,12 @@ function ShadowUF:LoadDefaultLayout()
 				height = 55,
 				scale = 1.0,
 				portrait = {enabled = true},
-				comboPoints = {anchorTo = "$parent", anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -3, growth = "UP"},
+				comboPoints = {anchorTo = "$parent", anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "UP"},
 				indicators = {
 					raidTarget = {anchorTo = "$parent", anchorPoint = "TC", size = 20, y = -15},
 					masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -37, y = -9},
 					leader = {anchorTo = "$parent", anchorPoint = "TR", size = 14, x = -2, y = -10},
-					pvp = {anchorTo = "$parent", anchorPoint = "BR", size = 22, y = 11, x = 12},
+					pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = -3, y = 11},
 				},
 				auras = {
 					buffs = {enabled = true},

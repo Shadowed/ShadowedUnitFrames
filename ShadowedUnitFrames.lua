@@ -117,6 +117,12 @@ function ShadowUF:OnInitialize()
 		self.db.profile.units.targettargettarget.fader = nil
 	end
 	
+	if( self.db.profile.units.targettarget.indicators.pvp ) then
+		self.db.profile.units.focustarget.indicators.pvp = nil
+		self.db.profile.units.targettarget.indicators.pvp = nil
+		self.db.profile.units.targettargettarget.indicators.pvp = nil
+	end
+	
 	-- Hide any Blizzard frames
 	self:HideBlizzardFrames()
 	
@@ -176,7 +182,7 @@ function ShadowUF:LoadUnitDefaults()
 			powerBar = {enabled = true}, portrait = {enabled = false, type = "3D"},
 			range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
 			text = {{enabled = true, name = L["Left text"], text = "[name]", anchorTo = "$healthBar"}, {enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorTo = "$healthBar"}, {enabled = true, name = L["Left text"], text = "[level] [race]", anchorTo = "$powerBar"}, {enabled = true, name = L["Right text"], text = "[curmaxpp]", anchorTo = "$powerBar"}},
-			indicators = {raidTarget = {enabled = true}, pvp = {enabled = true}}, 
+			indicators = {raidTarget = {enabled = true}}, 
 			auras = {
 				buffs = {enabled = false, perRow = 11, maxRows = 4, prioritize = true, enlargeSelf = false},
 				debuffs = {enabled = false, perRow = 11, maxRows = 4, enlargeSelf = true},
@@ -194,6 +200,7 @@ function ShadowUF:LoadUnitDefaults()
 		if( unit == "player" or unit == "party" or unit == "target" or unit == "raid" or unit == "focus" ) then
 			self.defaults.profile.units[unit].indicators.leader = {enabled = true}
 			self.defaults.profile.units[unit].indicators.masterLoot = {enabled = true}
+			self.defaults.profile.units[unit].indicators.pvp = {enabled = true}
 			
 			if( unit ~= "focus" and unit ~= "target" ) then
 				self.defaults.profile.units[unit].indicators.ready = {enabled = true}

@@ -1,7 +1,6 @@
 local Units = {unitFrames = {}}
-local vehicleAssociations = {["player"] = "pet", ["party1"] = "party1pet", ["party2"] = "party2pet", ["party3"] = "party3pet", ["party4"] = "party4pet", ["pet"] = "player", ["party1pet"] = "party1", ["party2pet"] = "party2", ["party3pet"] = "party3", ["party4pet"] = "party4"}
-local vehicleMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
-local friendlyUnits = {["player"] = true, ["pet"] = true, ["partypet"] = true, ["raid"] = true, ["party"] = true}
+--local vehicleAssociations = {["player"] = "pet", ["party1"] = "party1pet", ["party2"] = "party2pet", ["party3"] = "party3pet", ["party4"] = "party4pet", ["pet"] = "player", ["party1pet"] = "party1", ["party2pet"] = "party2", ["party3pet"] = "party3", ["party4pet"] = "party4"}
+--local vehicleMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 local unitEvents, loadedUnits, queuedCombat = {}, {}, {}, {}
 local unitFrames = Units.unitFrames
 local inCombat, needPartyFrame
@@ -12,7 +11,7 @@ ShadowUF.Units = Units
 ShadowUF:RegisterModule(Units, "units")
 
 -- Add in more stuff so if a raid member gets on a vehicle, they swap to the vehicles thing too
-for i=1, MAX_RAID_MEMBERS do vehicleAssociations["raid" .. i] = "raid" .. i .. "pet" end
+--for i=1, MAX_RAID_MEMBERS do vehicleAssociations["raid" .. i] = "raid" .. i .. "pet" end
 
 -- Frame shown, do a full update
 local function FullUpdate(self)
@@ -200,36 +199,50 @@ local function OnAttributeChanged(self, name, unit)
 	ClickCastFrames = ClickCastFrames or {}
 	ClickCastFrames[self] = true
 
+	--[[
+	Secure headers are annoying.
+	Need to come up with a solution that will work while in combat and not conflict with the unit watcher.
+	Probably need to do a little more script wrapping, as well as changing the unit watcher to do it as a state rather than directly
+	showing or hiding to make it work better.
+	
 	-- Check if we need to wrap our scripts around it
 	if( not self.scriptsWrapped and ( unit == "player" or unit == "pet" ) ) then
 		
 		local vehicleUnit = vehicleAssociations[unit]
 		if( unit == "pet" or self.unitType == "partypet" ) then
-			RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, nohelp, noharm][target=%s, exists] none; %s", vehicleUnit, unit, unit))
-			vehicleMonitor:WrapScript(self, "OnAttributeChanged", [[
+			
+			-- If the owner (player) cannot be helped or harmed, and the pet (pet) exists then change to none
+			-- Else, if the pet exists, change it to the pet
+			RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, nohelp, noharm][target=%s, exists] none; [target=%s, exists] %s", vehicleUnit, unit, unit, unit))
+			vehicleMonitor:WrapScript(self, "OnAttributeChanged", [ [
 				if( name ~= "state-vehicleupdated" ) then return end
-				self:SetAttribute("unit", value ~= "none" and unit or nil)
-			]])
+				self:SetAttribute("unit", value ~= "none" and value or nil)
+				print(value, self:GetAttribute("unit"))
+			] ])
 
 			-- Check if we logged out in a vehicle and need to show the vehicle shit
-			if( not UnitCanAssist(vehicleUnit, "player") ) then
+			if( not UnitCanAssist(vehicleUnit, "player") and UnitExists(unit) ) then
 				self:SetAttribute("unit", nil)
+				print(vehicleUnit, "cannot assist player", unit, "exists so hiding.")
 			end
 		else
+			-- If the owner cannot be helped (player), and the pet (pet) doesn't exist then change it to none
+			-- Else, show the pet
 			RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, help][target=%s, noexists] none; %s", unit, vehicleUnit, vehicleUnit))
-			vehicleMonitor:WrapScript(self, "OnAttributeChanged", [[
+			vehicleMonitor:WrapScript(self, "OnAttributeChanged", [ [
 				if( name ~= "state-vehicleupdated" ) then return end
 				self:SetAttribute("unitVehicle", value ~= "none" and true or false)
 				self:SetAttribute("unit", value == "none" and self:GetAttribute("originalUnit") or value)
-			]])
+			] ])
 			
 			-- Check if we logged out in a vehicle and need to show the vehicle shit
-			if( not UnitCanAssist(unit, "player") ) then
+			if( not UnitCanAssist(unit, "player") and UnitExists(vehicleUnit) ) then
 				self:SetAttribute("unitVehicle", true)
 				self:SetAttribute("unit", vehicleUnit)
 			end
 		end
 	end
+	]]
 end
 
 function Units:LoadUnit(config, unit)
@@ -586,7 +599,7 @@ function Units:CreateBar(parent)
 end
 
 -- Handles events related to all units and not a specific one
-local ownerAssociation = {["party1"] = "party1pet", ["party2"] = "party2pet", ["party3"] = "party3pet", ["party4"] = "party4pet"}
+local ownerAssociation = {["player"] = "pet", ["party1"] = "party1pet", ["party2"] = "party2pet", ["party3"] = "party3pet", ["party4"] = "party4pet"}
 local headerUpdated = {}
 local centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")

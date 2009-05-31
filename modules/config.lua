@@ -595,12 +595,12 @@ local function loadGeneralOptions()
 	
 	local layoutData = {author = UnitName("player")}
 	local layoutTable = {
-		order = function(info) return ShadowUF.db.profile.activeLayout == info[#(info)] and 0 or 1 end,
+		order = function(info) return ShadowUF.db.profile.loadedLayout == info[#(info)] and 0 or 1 end,
 		type = "group",
 		inline = true,
 		name = function(info)
 			local layout = ShadowUF.layoutInfo[info[#(info)]]
-			local prefix = ShadowUF.db.profile.activeLayout == info[#(info)] and  L["|cffffffffActive:|r "] or ""
+			local prefix = ShadowUF.db.profile.loadedLayout == info[#(info)] and  L["|cffffffffActive:|r "] or ""
 			if( layout.author ) then
 				return string.format(L["%s%s by %s"], prefix, layout.name, layout.author)
 			else
@@ -624,7 +624,7 @@ local function loadGeneralOptions()
 				order = 2,
 				type = "execute",
 				name = L["Activate"],
-				disabled = function(info) return info[#(info) - 1] == ShadowUF.db.profile.activeLayout end,
+				disabled = function(info) return info[#(info) - 1] == ShadowUF.db.profile.loadedLayout end,
 				confirm = true,
 				confirmText = L["By activating this layout, all of your positioning, sizing and so on settings will be reset to load this layout, are you sure you want to activate this?"],
 				func = function(info)
@@ -644,7 +644,7 @@ local function loadGeneralOptions()
 					local data = ""
 					local newInfo = {id = id, name = ShadowUF.layoutInfo[id].name, author = ShadowUF.layoutInfo[id].author, description = ShadowUF.layoutInfo[id].description}
 					-- If it's not the active layout we can just directly use the layout
-					if( ShadowUF.db.profile.activeLayout ~= id ) then
+					if( ShadowUF.db.profile.loadedLayout ~= id ) then
 						newInfo.layout = ShadowUF.layoutInfo[id].layout
 					-- ... and if it's not, we extract the data manually
 					else
@@ -751,7 +751,7 @@ local function loadGeneralOptions()
 									local id = "layout" .. time()
 									local layout = {id = id, name = layoutData.name, author = layoutData.author, description = layoutData.description, layout = storeActiveLayout({units = {}})}
 									ShadowUF.db.profile.layoutInfo[id] = ShadowUF:WriteTable(layout)
-									ShadowUF.db.profile.activeLayout = id
+									ShadowUF.db.profile.loadedLayout = id
 									
 									layoutData.name = nil
 									layoutData.author = nil
@@ -1642,7 +1642,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Combo points"],
-						hidden = function(info) if( info[2] == "global" ) then return true end return hideRestrictedOption end,
+						hidden = function(info) if( info[2] == "global" ) then return true end return hideRestrictedOption(info) end,
 						args = {
 							enabled = {
 								order = 0,
@@ -1657,7 +1657,7 @@ local function loadUnitOptions()
 								type = "description",
 								name = "",
 								width = "full",
-								hidden = hideadvancedOption,
+								hidden = hideAdvancedOption,
 							},
 							growth = {
 								order = 2,
@@ -1683,39 +1683,29 @@ local function loadUnitOptions()
 								hidden = hideAdvancedOption,
 								arg = "comboPoints.spacing",
 							},
-							sep2 = {
-								order = 4,
-								type = "description",
-								name = "",
-								width = "full",
-								hidden = false,
-							},
 							anchorPoint = {
 								order = 5,
 								type = "select",
 								name = L["Anchor point"],
 								values = positionList,
-								set = setPosition,
-								get = getPosition,
 								hidden = false,
+								arg = "comboPoints.anchorPoint",
 							},
 							x = {
 								order = 6,
 								type = "range",
 								name = L["X Offset"],
 								min = -20, max = 20, step = 1,
-								set = setPosition,
-								get = getPosition,
 								hidden = false,
+								arg = "comboPoints.x",
 							},
 							y = {
 								order = 7,
 								type = "range",
 								name = L["Y Offset"],
 								min = -20, max = 20, step = 1,
-								set = setPosition,
-								get = getPosition,
 								hidden = false,
+								arg = "comboPoints.y",
 							},
 						}
 					},
