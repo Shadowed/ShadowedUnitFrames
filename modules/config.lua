@@ -1748,7 +1748,7 @@ local function loadUnitOptions()
 								name = L["X Offset"],
 								min = -50, max = 50, step = 1,
 								hidden = function(info)
-									local point = getVariable(info[2], nil, "attribPoint")
+									local point = getVariable(info[2], nil, nil, "attribPoint")
 									return point ~= "LEFT" and point ~= "RIGHT"
 								end,
 								arg = "xOffset",
@@ -1759,7 +1759,7 @@ local function loadUnitOptions()
 								name = L["Y Offset"],
 								min = -50, max = 50, step = 1,
 								hidden = function(info)
-									local point = getVariable(info[2], nil, "attribPoint")
+									local point = getVariable(info[2], nil, nil, "attribPoint")
 									return point ~= "TOP" and point ~= "BOTTOM"
 								end,
 								arg = "yOffset",
@@ -2319,7 +2319,7 @@ local function loadUnitOptions()
 					help = {
 						order = 0,
 						type = "description",
-						name = L["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText Text - Quickly add and remove tags to text, when advanced settings are enabled you can also change the width and positioning of text."],
+						name = L["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText - Quickly add and remove tags to text, when advanced settings are enabled you can also change the width and positioning of text."],
 					},
 				},
 			},
