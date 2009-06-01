@@ -347,6 +347,8 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame:SetAttribute("*type1", "target")
 	frame:SetAttribute("*type2", "menu")
 	frame:SetAttribute("toggleForVehicle", true)
+	-- allowVehicleTarget
+	--[16:42] <+alestane> Shadowed: It says whether a unit defined as, for instance, "party1target" should be remapped to "partypet1target" when party1 is in a vehicle.
 	frame.menu = Units.ShowMenu
 
 	if( hookVisibility ) then

@@ -948,6 +948,7 @@ local function loadUnitOptions()
 	end
 
 	-- This makes sure  we don't end up with any messed up positioning due to two different anchors being used
+	local numberList = {}
 	local function fixPositions(info)
 		local unit = info[2]
 		local key = info[#(info)]
@@ -959,13 +960,16 @@ local function loadUnitOptions()
 			ShadowUF.db.profile.positions[unit].point = ""
 			ShadowUF.db.profile.positions[unit].relativePoint = ""
 		end
-	end
-	
-	--[[
-		if( info.arg == "positions" and ( unit == "raid" or unit == "party" or unit == "partypet" or unit == "partytarget" ) ) then
-			ShadowUF.Units:ReloadHeader(unit)
+
+		-- Reset offset if it was a manually positioned frame, and it got anchored
+		if( ( key == "anchorPoint" or key == "anchorTo" ) and ( ShadowUF.db.profile.positions[unit].point ~= "" or ShadowUF.db.profile.positions[unit].relativePoint ~= "" ) ) then
+			ShadowUF.db.profile.positions[unit].x = 100
+			ShadowUF.db.profile.positions[unit].y = -100
+			
+			numberList[unit .. "x"] = nil
+			numberList[unit .. "y"] = nil
 		end
-	]]
+	end
 		
 	-- Hide raid option in party config
 	local function hideRaidOption(info)
@@ -988,6 +992,7 @@ local function loadUnitOptions()
 	
 	local function setPosition(info, value)
 		ShadowUF.db.profile.positions[info[2]][info[#(info)]] = value
+		fixPositions(info)
 		
 		if( info[2] == "raid" or info[2] == "party" ) then
 			ShadowUF.Units:ReloadHeader(info[2])
@@ -1000,7 +1005,6 @@ local function loadUnitOptions()
 		return ShadowUF.db.profile.positions[info[2]][info[#(info)]]
 	end
 
-	local numberList = {}
 	local function setNumber(info, value)
 		local unit = info[2]
 		local key = info[#(info)]

@@ -445,6 +445,7 @@ Tags.defaultTags = {
 		return c == "rare" and "R" or c == "eliterare" and "R+" or c == "elite" and "+" or c == "worldboss" and "B"
 	end]],
 	["group"] = [[function(unit, unitOwner)
+		if( GetNumRaidMembers() == 0 ) then return nil end
 		local name, server = UnitName(unitOwner or unit)
 		if( server and server ~= "" ) then
 			name = string.format("%s-%s", name, server)
@@ -537,7 +538,7 @@ Tags.defaultEvents = {
 	["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
 	["level"]				= "PARTY_MEMBERS_CHANGED UNIT_LEVEL",
 	["dechp"]				= "UNIT_HEALTH UNIT_MAXHEALTH",
-	["group"]				= "RAID_ROSTER_UPDATE",
+	["group"]				= "RAID_ROSTER_UPDATE PARTY_MEMBERS_CHANGED",
 }
 
 Tags.powerEvents = {
