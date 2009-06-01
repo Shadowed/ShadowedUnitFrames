@@ -99,7 +99,7 @@ ShadowUFLocals = {
 	["Hide Blizzard"] = "Hide Blizzard",
 	["Hide %s"] = "Hide %s",
 	["Cast bars"] = "Cast bars",
-	["You must do a /console reloadui for an object to show up again."] = "You must do a /console reloadui for an object to show up again.",
+	["If you hide a frame, you will have to do a /console reloadui for them to show back up again."] = "If you hide a frame, you will have to do a /console reloadui for them to show back up again.",
 
 	-- Units
 	["Full size"] = "Full size",
@@ -225,6 +225,8 @@ ShadowUFLocals = {
 	["Show background"] = "Show background",
 	
 	-- General
+	["Hide tooltips in combat"] = "Hide tooltips in combat",
+	["Sets if unit tooltips should be hidden while in combat."] = "Sets if unit tooltips should be hidden while in combat.",
 	["Lock frames"] = "Lock frames",
 	["Advanced"] = "Advanced",
 	["Enabling advanced settings will allow you to further tweak settings. This is meant for people who want to tweak every single thing, and should not be enabled by default as it increases the options."] = "Enabling advanced settings will allow you to further tweak settings. This is meant for people who want to tweak every single thing, and should not be enabled by default as it increases the options.",
@@ -311,8 +313,11 @@ ShadowUFLocals = {
 	["Search"] = "Search",
 	["Search tags"] = "Search tags",
 	["Frame"] = "Frame",
-	["Hide in raid"] = "Hide in raid",
+	["Hide in 5-man raid"] = "Hide in 5-man raid",
+	["Hide in any raid"] = "Hide in any raid",
+	["Party frames are hidden while in any sort of raid no matter how many people."] = "Party frames are hidden while in any sort of raid no matter how many people.",
 	["Party frames are hidden while in a raid group with more than 5 people inside."] = "Party frames are hidden while in a raid group with more than 5 people inside.",
+	["Frames"] = "Frames",
 	
 	-- Visibility
 	["Visibility"] = "Visibility",

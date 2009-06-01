@@ -1,17 +1,12 @@
 local Units = {unitFrames = {}}
---local vehicleAssociations = {["player"] = "pet", ["party1"] = "party1pet", ["party2"] = "party2pet", ["party3"] = "party3pet", ["party4"] = "party4pet", ["pet"] = "player", ["party1pet"] = "party1", ["party2pet"] = "party2", ["party3pet"] = "party3", ["party4pet"] = "party4"}
---local vehicleMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
+local vehicleMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 local unitEvents, loadedUnits, queuedCombat = {}, {}, {}, {}
 local unitFrames = Units.unitFrames
 local inCombat, needPartyFrame
 local FRAME_LEVEL_MAX = 5
 
-
 ShadowUF.Units = Units
 ShadowUF:RegisterModule(Units, "units")
-
--- Add in more stuff so if a raid member gets on a vehicle, they swap to the vehicles thing too
---for i=1, MAX_RAID_MEMBERS do vehicleAssociations["raid" .. i] = "raid" .. i .. "pet" end
 
 -- Frame shown, do a full update
 local function FullUpdate(self)
@@ -33,8 +28,15 @@ local function RegisterNormalEvent(self, event, handler, func)
 	if( self.registeredEvents[event][handler] ) then
 		return
 	end
-		
+			
 	self.registeredEvents[event][handler] = func
+end
+
+-- Unregister an event
+local function UnregisterEvent(self, event, handler)
+	if( self and self.registeredEvents[handler] ) then
+		self.registeredEvents[event][handler] = nil
+	end
 end
 
 -- Register an event thats only called if it's for the actual unit
@@ -102,64 +104,92 @@ local function SetVisibility(self)
 	local zone = select(2, IsInInstance())
 	-- Selectively disable modules
 	for _, module in pairs(ShadowUF.moduleOrder) do
-		local key = module.moduleKey
-		local enabled = ShadowUF.db.profile.units[self.unitType][key] and ShadowUF.db.profile.units[self.unitType][key].enabled
-		
-		-- Make sure at least one option is enabled if it's an aura or indicator
-		if( key == "auras" or key == "indicators" ) then
-			enabled = false
-			for _, option in pairs(ShadowUF.db.profile.units[self.unitType][key]) do
-				if( option.enabled ) then
-					enabled = true
-					break
+		if( module.OnEnable and module.OnDisable ) then
+			local key = module.moduleKey
+			local enabled = ShadowUF.db.profile.units[self.unitType][key] and ShadowUF.db.profile.units[self.unitType][key].enabled
+			
+			-- Make sure at least one option is enabled if it's an aura or indicator
+			if( key == "auras" or key == "indicators" ) then
+				enabled = false
+				for _, option in pairs(ShadowUF.db.profile.units[self.unitType][key]) do
+					if( option.enabled ) then
+						enabled = true
+						break
+					end
 				end
 			end
-		end
-				
-		if( zone ~= "none" ) then
-			if( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == false ) then
-				enabled = false
-			elseif( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == true ) then
-				enabled = true
+					
+			if( zone ~= "none" ) then
+				if( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == false ) then
+					enabled = false
+				elseif( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == true ) then
+					enabled = true
+				end
 			end
-		end
-		
-		-- Options changed, will need to do a layout update
-		local wasEnabled = self.visibility[key]
-		if( self.visibility[key] ~= enabled ) then
-			layoutUpdate = true
-		end
-		
-		self.visibility[key] = enabled
-		
-		-- Module isn't enabled all the time, only in this zone so we need to force it to be enabled
-		if( enabled and ( not self[key] or self[key].disabled )) then
-			module:OnEnable(self)
-		elseif( not enabled and wasEnabled ) then
-			module:OnDisable(self)
-			if( self[key] ) then self[key].disabled = true end
+			
+			-- Options changed, will need to do a layout update
+			local wasEnabled = self.visibility[key]
+			if( self.visibility[key] ~= enabled ) then
+				layoutUpdate = true
+			end
+			
+			self.visibility[key] = enabled
+			
+			-- Module isn't enabled all the time, only in this zone so we need to force it to be enabled
+			if( enabled and ( not self[key] or self[key].disabled )) then
+				module:OnEnable(self)
+			elseif( not enabled and wasEnabled ) then
+				module:OnDisable(self)
+				if( self[key] ) then self[key].disabled = true end
+			end
 		end
 	end
 	
 	-- We had a module update, so redo everything
 	if( layoutUpdate ) then
 		ShadowUF.Layout:ApplyAll(self)
+		self:FullUpdate()
 	end
+end
+
+function Units:GotVehicleData(frame)
+	if( UnitHealthMax(frame.unit) > 0 ) then
+		--print("Got data", UnitName(frame.unit), UnitName(frame.unitOwner))
+		UnregisterEvent(frame, "UNIT_PET", Units)
+		frame:FullUpdate()
+	end
+end
+
+-- Vehicle status changed for the unit, we need to put it all together again, kind of like the humpty dumpty of the 21st sentry
+function Units:VehicleEntered(frame, event, unit)
+	if( frame.unitOwner ~= unit ) then return end
+	
+	frame.inVehicle = true
+	frame.unit = frame.vehicleUnit
+	frame:FullUpdate()
+
+	if( UnitHealthMax(frame.unit) > 0 ) then
+		--print("Entered vehicle with data", frame:GetName(), UnitName(frame.unit), UnitName(frame.unitOwner))
+	else
+		--print("Entered vehicle without data", frame:GetName(), UnitName(frame.unit), UnitName(frame.unitOwner))
+		frame:RegisterUnitEvent("UNIT_PET", Units, "GotVehicleData")
+	end
+end
+
+function Units:VehicleLeft(frame, event, unit)
+	if( frame.unitOwner ~= unit ) then return end
+	frame.inVehicle = false
+	frame.unit = frame.unitOwner
+	frame:FullUpdate()
+	
+	--print("Left vehicle", frame:GetName(), UnitName(frame.unit), frame.unit)
 end
 
 -- Frame is now initialized with a unit
 local function OnAttributeChanged(self, name, unit)
-	if( name ~= "unit" or not unit ) then return end
-	-- If we have a parent set, it means the unit entered a vehicle and we need to force it to update
-	if( self:GetAttribute("unitVehicle") ) then
-		if( self.unit ~= unit ) then
-			self.unit = unit
-			self.unitOwner = self:GetAttribute("originalUnit")
-			self:FullUpdate()
-		end
-		return
+	if( name ~= "unit" or not unit or unit == self.unitOwner ) then return end
 	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
-	elseif( inCombat ) then
+	if( inCombat ) then
 		queuedCombat[self] = true
 		return
 	end
@@ -167,79 +197,61 @@ local function OnAttributeChanged(self, name, unit)
 	self.unit = unit
 	self.unitID = tonumber(string.match(unit, "([0-9]+)"))
 	self.unitType = string.gsub(unit, "([0-9]+)", "")
-	self:SetAttribute("originalUnit", unit)
+	self.unitOwner = unit
 	
 	unitFrames[unit] = self
 
-	-- If we were in a vehicle, then we need to do a full update to show the player again, otherwise check visibility
-	if( not self:GetAttribute("unitVehicle") and not self.unitOwner ) then
-		self:SetVisibility()
-	else
-		self.unitOwner = nil
-		self:SetAttribute("unitVehicle", nil)
-		self:FullUpdate()
+	-- Update module status
+	self:SetVisibility()
+	
+	-- Update vehicle status
+	if( not self.inVehicle and UnitHasVehicleUI(unit) ) then
+		Units:VehicleEntered(self, nil, unit)
+	elseif( self.inVehicle ) then
+		Units:VehicleLeft(self, nil, unit)
 	end
 		
-	-- Is it an invalid unit?
-	if( string.match(unit, "%w+target") ) then
-		self.timeElapsed = 0
-		self:SetScript("OnUpdate", TargetUnitUpdate)
+	-- Add to Clique
+	ClickCastFrames = ClickCastFrames or {}
+	ClickCastFrames[self] = true
+	
 	-- Pet changed, going from pet -> vehicle for one
-	elseif( unit == "pet" or self.unitType == "partypet" ) then
-		self:RegisterUnitEvent("UNIT_PET", self, "FullUpdate")
+	if( unit == "pet" or self.unitType == "partypet" ) then
 	-- Automatically do a full update on target change
 	elseif( unit == "target" ) then
 		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
 	-- Automatically do a full update on focus change
 	elseif( unit == "focus" ) then
 		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "FullUpdate")
+	-- *target units are not real units, thus they do not receive events and must be polled for data
+	elseif( string.match(unit, "%w+target") ) then
+		self.timeElapsed = 0
+		self:SetScript("OnUpdate", TargetUnitUpdate)
 	end
-		
-	-- Add to Clique
-	ClickCastFrames = ClickCastFrames or {}
-	ClickCastFrames[self] = true
 
-	--[[
-	Secure headers are annoying.
-	Need to come up with a solution that will work while in combat and not conflict with the unit watcher.
-	Probably need to do a little more script wrapping, as well as changing the unit watcher to do it as a state rather than directly
-	showing or hiding to make it work better.
+	-- You got to love programming without documentation, ~3 hours spent making this work with raids and such properly, turns out? It's a simple attribute
+	-- and all you have to do is set it up so the unit variables are properly changed based on being in a vehicle... which is what will do now
+	if( unit ~= "pet" and self.unitType ~= "partypet" ) then
+		-- player -> pet, party -> partypet#, raid -> raidpet# (party#pet/raid#pet work too, the secure headers automatically translate it to *pet# thought.
+		self.vehicleUnit = unit == "player" and "pet" or self.unitType == "party" and "partypet" .. self.unitID or self.unitType == "raid" and "raidpet" .. self.unitID
+		self:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", Units, "VehicleEntered")
+		self:RegisterNormalEvent("UNIT_EXITED_VEHICLE", Units, "VehicleLeft")
+	end	
 	
-	-- Check if we need to wrap our scripts around it
-	if( not self.scriptsWrapped and ( unit == "player" or unit == "pet" ) ) then
-		
-		local vehicleUnit = vehicleAssociations[unit]
-		if( unit == "pet" or self.unitType == "partypet" ) then
-			
-			-- If the owner (player) cannot be helped or harmed, and the pet (pet) exists then change to none
-			-- Else, if the pet exists, change it to the pet
-			RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, nohelp, noharm][target=%s, exists] none; [target=%s, exists] %s", vehicleUnit, unit, unit, unit))
-			vehicleMonitor:WrapScript(self, "OnAttributeChanged", [ [
-				if( name ~= "state-vehicleupdated" ) then return end
-				self:SetAttribute("unit", value ~= "none" and value or nil)
-				print(value, self:GetAttribute("unit"))
-			] ])
+	--[[
+	-- Hide any pet that became a vehicle, we detect this by the player being untargetable but we have a pet out
+	else
+		local vehicleUnit = unit == "pet" and "player" or self.unitType == "partypet" and ShadowUF.partyUnits[self.unitID]
+		RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, help][target=%s, exists] %s; none", vehicleUnit, unit, unit))
+		vehicleMonitor:WrapScript(self, "OnAttributeChanged", [ [
+			if( name ~= "state-vehicleupdated" ) then return end
+			self:SetAttribute("unit", value ~= "none" and value or nil)
+			print(value, self:GetAttribute("unit"))
+		] ])
 
-			-- Check if we logged out in a vehicle and need to show the vehicle shit
-			if( not UnitCanAssist(vehicleUnit, "player") and UnitExists(unit) ) then
-				self:SetAttribute("unit", nil)
-				print(vehicleUnit, "cannot assist player", unit, "exists so hiding.")
-			end
-		else
-			-- If the owner cannot be helped (player), and the pet (pet) doesn't exist then change it to none
-			-- Else, show the pet
-			RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, help][target=%s, noexists] none; %s", unit, vehicleUnit, vehicleUnit))
-			vehicleMonitor:WrapScript(self, "OnAttributeChanged", [ [
-				if( name ~= "state-vehicleupdated" ) then return end
-				self:SetAttribute("unitVehicle", value ~= "none" and true or false)
-				self:SetAttribute("unit", value == "none" and self:GetAttribute("originalUnit") or value)
-			] ])
-			
-			-- Check if we logged out in a vehicle and need to show the vehicle shit
-			if( not UnitCanAssist(unit, "player") and UnitExists(vehicleUnit) ) then
-				self:SetAttribute("unitVehicle", true)
-				self:SetAttribute("unit", vehicleUnit)
-			end
+		-- Logged out in a vehicle
+		if( not UnitCanAssist(vehicleUnit, "player") and UnitExists(unit) ) then
+			self:SetAttribute("unit", nil)
 		end
 	end
 	]]
@@ -300,6 +312,13 @@ local function OnDragStop(self)
 	position.y = y * scale
 end
 
+-- Show tooltip
+local function OnEnter(...)
+	if( not ShadowUF.db.profile.tooltipCombat or not inCombat ) then
+		UnitFrame_OnEnter(...)
+	end
+end
+
 -- Create the generic things that we want in every secure frame regardless if it's a button or a header
 function Units:CreateUnit(frame,  hookVisibility)
 	frame.barFrame = CreateFrame("Frame", nil, frame)
@@ -318,7 +337,7 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame:SetScript("OnDragStart", OnDragStart)
 	frame:SetScript("OnDragStop", OnDragStop)
 	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
-	frame:SetScript("OnEnter", 	UnitFrame_OnEnter)
+	frame:SetScript("OnEnter", 	OnEnter)
 	frame:SetScript("OnLeave", 	UnitFrame_OnLeave)
 	frame:SetScript("OnEvent", OnEvent)
 
@@ -327,6 +346,7 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame:RegisterForClicks("AnyUp")	
 	frame:SetAttribute("*type1", "target")
 	frame:SetAttribute("*type2", "menu")
+	frame:SetAttribute("toggleForVehicle", true)
 	frame.menu = Units.ShowMenu
 
 	if( hookVisibility ) then
@@ -343,8 +363,15 @@ local function initUnit(self)
 	Units:CreateUnit(self)
 end
 
-function Units:ReloadUnit(type)
-	-- Force any attribute changes to take affect.
+function Units:ReloadHeader(type)
+	-- Update the main header
+	local frame = unitFrames[type]
+	if( frame ) then
+		self:SetFrameAttributes(frame, type)
+		ShadowUF.Layout:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[type])
+	end
+
+	-- Now update it's children
 	if( type == "partypet" or type == "partytarget" ) then
 		for i=1, MAX_PARTY_MEMBERS do
 			local frame = unitFrames[type .. i]
@@ -357,12 +384,6 @@ function Units:ReloadUnit(type)
 			end
 		end
 	end
-	
-	local frame = unitFrames[type]
-	if( frame ) then
-		self:SetFrameAttributes(frame, type)
-		ShadowUF.Layout:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[type])
-	end
 end
 
 function Units:ProfileChanged()
@@ -373,8 +394,8 @@ function Units:ProfileChanged()
 		end
 	end
 	
-	self:ReloadUnit("raid")
-	self:ReloadUnit("party")
+	self:ReloadHeader("raid")
+	self:ReloadHeader("party")
 end
 
 function Units:SetFrameAttributes(frame, type)
@@ -429,13 +450,11 @@ function Units:SetFrameAttributes(frame, type)
 	end
 end
 
-
-
 function Units:LoadGroupHeader(config, type)
 	if( unitFrames[type] ) then
-			self:SetFrameAttributes(unitFrames[type], type)
-			unitFrames[type]:Show()
-			return
+		self:SetFrameAttributes(unitFrames[type], type)
+		unitFrames[type]:Show()
+		return
 	end
 	
 	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent, "SecureGroupHeaderTemplate")
@@ -466,7 +485,6 @@ function Units:LoadPartyChildUnit(config, parentHeader, type, unit)
 		return
 	elseif( unitFrames[unit] ) then
 		self:SetFrameAttributes(unitFrames[unit], unitFrames[unit].unitType)
-
 		RegisterUnitWatch(unitFrames[unit])
 		return
 	end
@@ -522,11 +540,7 @@ local function disableChildren(...)
 	for i=1, select("#", ...) do
 		local frame = select(i, ...)
 		if( frame.unit ) then
-			ShadowUF:FireModuleEvent("OnDisable", frame)
 			frame:SetAttribute("unit", nil)
-
-			-- Flag unit as disabled so if it's reenabled visibility will take care of the initialization
-			for _, module in pairs(ShadowUF.modules) do module.disabled = true end
 		end
 	end
 end
@@ -542,11 +556,7 @@ function Units:UninitializeFrame(config, type)
 			if( frame.unit ~= type ) then
 				disableChildren(frame:GetChildren())
 			else
-				ShadowUF:FireModuleEvent("OnDisable", frame)
 				frame:SetAttribute("unit", nil)
-				
-				-- Flag unit as disabled so if it's reenabled visibility will take care of the initialization
-				for _, module in pairs(ShadowUF.modules) do module.disabled = true end
 			end
 
 			frame:Hide()
@@ -554,9 +564,9 @@ function Units:UninitializeFrame(config, type)
 	end
 end
 
-function Units:OnLayoutApplied(frame)
-	frame:FullUpdate()
-end
+--function Units:OnLayoutApplied(frame)
+--	frame:FullUpdate()
+--end
 
 function Units.ShowMenu(frame)
 	local menuFrame
@@ -599,7 +609,6 @@ function Units:CreateBar(parent)
 end
 
 -- Handles events related to all units and not a specific one
-local ownerAssociation = {["player"] = "pet", ["party1"] = "party1pet", ["party2"] = "party2pet", ["party3"] = "party3pet", ["party4"] = "party4pet"}
 local headerUpdated = {}
 local centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
@@ -607,17 +616,7 @@ centralFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 centralFrame:RegisterEvent("UNIT_PET")
 centralFrame:SetScript("OnEvent", function(self, event, unit)
-	if( event == "UNIT_PET" and ownerAssociation[unit] ) then
-		local frame = unitFrames[ownerAssociation[unit]]
-		if( not frame ) then return end
-		
-		local inVehicle = UnitInVehicle(unit)
-		if( inVehicle ~= frame.inVehicle ) then
-			frame.inVehicle = inVehicle
-			frame:FullUpdate()
-		end
-	
-	elseif( event == "ZONE_CHANGED_NEW_AREA" ) then
+	if( event == "ZONE_CHANGED_NEW_AREA" ) then
 		for _, frame in pairs(unitFrames) do
 			if( frame:GetAttribute("unit") ) then
 				frame:SetVisibility()
@@ -634,8 +633,7 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 			queuedCombat[frame] = nil
 			
 			-- When parties change in combat, the overall height/width of the secure header will change, we need to force a secure group update
-			-- in order for all of the sizing information to be set correctly, I bet this causes taint errors, but not positive.
-			-- I'm sure I'll find out because someone will be like, "THIS BROKE IN THE MIDDLE OF MY RAID YOU FUCKER I HATE YOU" and I'll laugh at their hatred
+			-- in order for all of the sizing information to be set correctly.
 			if( frame.unitType ~= frame.unit and not headerUpdated[frame.unitType] ) then
 				local header = unitFrames[frame.unitType]
 				if( header and header:GetHeight() == 0 and header:GetWidth() == 0 ) then

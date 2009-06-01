@@ -263,7 +263,6 @@ local function loadGeneralOptions()
 			local key = info[#(info)]
 			return string.format(L["Hide %s"], L.units[key] or key == "cast" and L["Cast bars"] or key == "runes" and L["Rune bar"] or key == "buffs" and L["Buff icons"])
 		end,
-		desc = L["You must do a /console reloadui for an object to show up again."],
 		set = function(info, value)
 			set(info, value)
 			if( value ) then ShadowUF:HideBlizzard(info[#(info)]) end
@@ -303,8 +302,15 @@ local function loadGeneralOptions()
 								desc = L["Enabling advanced settings will allow you to further tweak settings. This is meant for people who want to tweak every single thing, and should not be enabled by default as it increases the options."],
 								arg = "advanced",
 							},
+							hideCombat = {
+								order = 3,
+								type = "toggle",
+								name = L["Hide tooltips in combat"],
+								desc = L["Sets if unit tooltips should be hidden while in combat."],
+								arg = "tooltipCombat",
+							},
 							statusbar = {
-								order = 2,
+								order = 4,
 								type = "select",
 								name = L["Bar texture"],
 								dialogControl = "LSM30_Statusbar",
@@ -319,64 +325,8 @@ local function loadGeneralOptions()
 						inline = true,
 						name = L["Background/border"],
 						args = {
-							background = {
-								order = 1,
-								type = "select",
-								name = L["Background"],
-								dialogControl = "LSM30_Background",
-								values = getMediaData,
-								arg = "backdrop.backgroundTexture",
-							},
-							border = {
-								order = 2,
-								type = "select",
-								name = L["Border"],
-								dialogControl = "LSM30_Border",
-								values = getMediaData,
-								arg = "backdrop.borderTexture",
-							},
-							sep1 = {
-								order = 3,
-								type = "description",
-								name = "",
-								width = "full",
-							},
-							edgeSize = {
-								order = 4,
-								type = "range",
-								name = L["Edge size"],
-								desc = L["How large the edges should be."],
-								hidden = hideAdvancedOption,
-								min = 0, max = 20, step = 1,
-								arg = "backdrop.edgeSiz",
-							},
-							tileSize = {
-								order = 5,
-								type = "range",
-								name = L["Tile size"],
-								desc = L["How large the background should tile"],
-								hidden = hideAdvancedOption,
-								min = 0, max = 20, step = 1,
-								arg = "backdrop.tileSize",
-							},
-							clip = {
-								order = 6,
-								type = "range",
-								name = L["Clip"],
-								desc = L["How close the frame should clip with the border."],
-								hidden = hideAdvancedOption,
-								min = 0, max = 20, step = 1,
-								arg = "backdrop.clip",
-							},
-							sep2 = {
-								order = 7,
-								type = "description",
-								name = "",
-								width = "full",
-								hidden = hideAdvancedOption,
-							},
 							backgroundColor = {
-								order = 8,
+								order = 1,
 								type = "color",
 								name = L["Background color"],
 								hasAlpha = true,
@@ -385,13 +335,69 @@ local function loadGeneralOptions()
 								arg = "backdrop.backgroundColor",
 							},
 							borderColor = {
-								order = 9,
+								order = 2,
 								type = "color",
 								name = L["Border color"],
 								hasAlpha = true,
 								set = setColor,
 								get = getColor,
 								arg = "backdrop.borderColor",
+							},
+							sep = {
+								order = 3,
+								type = "description",
+								name = "",
+								width = "full",
+							},
+							background = {
+								order = 4,
+								type = "select",
+								name = L["Background"],
+								dialogControl = "LSM30_Background",
+								values = getMediaData,
+								arg = "backdrop.backgroundTexture",
+							},
+							border = {
+								order = 5,
+								type = "select",
+								name = L["Border"],
+								dialogControl = "LSM30_Border",
+								values = getMediaData,
+								arg = "backdrop.borderTexture",
+							},
+							sep2 = {
+								order = 6,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = hideAdvancedOption,
+							},
+							edgeSize = {
+								order = 7,
+								type = "range",
+								name = L["Edge size"],
+								desc = L["How large the edges should be."],
+								hidden = hideAdvancedOption,
+								min = 0, max = 20, step = 1,
+								arg = "backdrop.edgeSiz",
+							},
+							tileSize = {
+								order = 8,
+								type = "range",
+								name = L["Tile size"],
+								desc = L["How large the background should tile"],
+								hidden = hideAdvancedOption,
+								min = 0, max = 20, step = 1,
+								arg = "backdrop.tileSize",
+							},
+							clip = {
+								order = 9,
+								type = "range",
+								name = L["Clip"],
+								desc = L["How close the frame should clip with the border."],
+								hidden = hideAdvancedOption,
+								min = 0, max = 20, step = 1,
+								arg = "backdrop.clip",
 							},
 						},
 					},
@@ -545,15 +551,36 @@ local function loadGeneralOptions()
 				order = 3,
 				name = L["Hide Blizzard"],
 				args = {
-					player = Config.hideTable,
-					pet = Config.hideTable,
-					target = Config.hideTable,
-					party = Config.hideTable,
-					focus = Config.hideTable,
-					targettarget = Config.hideTable,
-					buffs = Config.hideTable,
-					cast = Config.hideTable,
-					runes = Config.hideTable,
+					help = {
+						order = 0,
+						type = "group",
+						name = L["Help"],
+						inline = true,
+						args = {
+							description = {
+								type = "description",
+								name = L["If you hide a frame, you will have to do a /console reloadui for them to show back up again."],
+								width = "full",
+							},
+						},
+					},
+					hide = {
+						order = 1,
+						type = "group",
+						name = L["Frames"],
+						inline = true,
+						args = {
+							player = Config.hideTable,
+							pet = Config.hideTable,
+							target = Config.hideTable,
+							party = Config.hideTable,
+							focus = Config.hideTable,
+							targettarget = Config.hideTable,
+							buffs = Config.hideTable,
+							cast = Config.hideTable,
+							runes = Config.hideTable,
+						},
+					},
 				},
 			},
 		},
@@ -936,7 +963,7 @@ local function loadUnitOptions()
 	
 	--[[
 		if( info.arg == "positions" and ( unit == "raid" or unit == "party" or unit == "partypet" or unit == "partytarget" ) ) then
-			ShadowUF.Units:ReloadUnit(unit)
+			ShadowUF.Units:ReloadHeader(unit)
 		end
 	]]
 		
@@ -963,7 +990,7 @@ local function loadUnitOptions()
 		ShadowUF.db.profile.positions[info[2]][info[#(info)]] = value
 		
 		if( info[2] == "raid" or info[2] == "party" ) then
-			ShadowUF.Units:ReloadUnit(info[2])
+			ShadowUF.Units:ReloadHeader(info[2])
 		else
 			ShadowUF.Layout:ReloadAll(info[2])
 		end
@@ -1718,7 +1745,7 @@ local function loadUnitOptions()
 				hidden = function(info) return info[#(info) - 1] ~= "raid" and info[#(info) - 1] ~= "party" end,
 				set = function(info, value)
 					setUnit(info, value)
-					ShadowUF.Units:ReloadUnit(info[2])
+					ShadowUF.Units:ReloadHeader(info[2])
 				end,
 				get = getUnit,
 				args = {
@@ -1729,18 +1756,46 @@ local function loadUnitOptions()
 						name = L["General"],
 						hidden = false,
 						args = {
-							hideInRaid = {
+							hideSemiRaid = {
 								order = 0,
 								type = "toggle",
-								name = L["Hide in raid"],
+								name = L["Hide in 5-man raid"],
 								desc = L["Party frames are hidden while in a raid group with more than 5 people inside."],
-								hidden = function(info) return info[#(info) - 3] == "raid" end,
+								hidden = function(info) return info[2] == "raid" end,
 								set = function(info, value)
-									setUnit(info, value)
-									ShadowUF.Units:ReloadUnit(info[#(info) - 3])
+									if( value ) then
+										setVariable(info[2], nil, nil, "hideAnyRaid", false)
+									end
+
+									setVariable(info[2], nil, nil, "hideSemiRaid", value)
+									ShadowUF.Units:ReloadHeader(info[#(info) - 3])
 									ShadowUF:RAID_ROSTER_UPDATE()
 								end,
-								arg = "hideInRaid",
+								arg = "hideSemiRaid",
+							},
+							hideRaid = {
+								order = 0.5,
+								type = "toggle",
+								name = L["Hide in any raid"],
+								desc = L["Party frames are hidden while in any sort of raid no matter how many people."],
+								hidden = function(info) return info[2] == "raid" end,
+								set = function(info, value)
+									if( value ) then
+										setVariable(info[2], nil, nil, "hideSemiRaid", false)
+									end
+
+									setVariable(info[2], nil, nil, "hideAnyRaid", value)
+									ShadowUF.Units:ReloadHeader(info[#(info) - 3])
+									ShadowUF:RAID_ROSTER_UPDATE()
+								end,
+								arg = "hideAnyRaid",
+							},
+							sep = { 
+								order = 0.75,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = function(info) return info[2] == "raid" end,
 							},
 							xOffset = {
 								order = 1,
@@ -1841,7 +1896,7 @@ local function loadUnitOptions()
 									tbl[key] = value
 									
 									setVariable(info[2], "filters", nil, tbl)
-									ShadowUF.Units:ReloadUnit("raid")
+									ShadowUF.Units:ReloadHeader("raid")
 								end,
 								get = function(info, key)
 									local tbl = getVariable(info[2], nil, nil, "filters")
@@ -2131,7 +2186,7 @@ local function loadUnitOptions()
 							},
 						},
 					},
-					cast = {
+					castBar = {
 						order = 4,
 						type = "group",
 						inline = true,
@@ -2748,7 +2803,7 @@ local function loadVisibilityOptions()
 		if( key == "" ) then
 			ShadowUF:LoadUnits()
 		else
-			ShadowUF.Units:ReloadUnit(unit)
+			ShadowUF.Units:ReloadHeader(unit)
 		end
 	end
 	

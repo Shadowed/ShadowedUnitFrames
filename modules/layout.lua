@@ -64,6 +64,7 @@ function Layout:ReloadAll(unit)
 		if( not unit or frame.unitType == unit ) then
 			frame:SetVisibility()
 			self:ApplyAll(frame)
+			frame:FullUpdate()
 		end
 	end
 end

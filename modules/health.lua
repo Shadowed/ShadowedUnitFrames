@@ -75,10 +75,10 @@ function Health:UpdateColor(frame)
 	
 	local color
 	local unit = frame.unit
-	if( not UnitIsTappedByPlayer(unit) and UnitIsTapped(unit) ) then
-		color = ShadowUF.db.profile.healthColors.tapped
-	elseif( frame.unitOwner ) then
+	if( frame.inVehicle ) then
 		color = ShadowUF.db.profile.classColors.VEHICLE
+	elseif( not UnitIsTappedByPlayer(unit) and UnitIsTapped(unit) and UnitCanAttack("player", unit) ) then
+		color = ShadowUF.db.profile.healthColors.tapped
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and not UnitIsFriend(unit, "player") ) then
 		frame.healthBar.hasReaction = true
 		if( UnitPlayerControlled(unit) ) then

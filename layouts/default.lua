@@ -47,7 +47,7 @@ function ShadowUF:LoadDefaultLayout()
 				WARRIOR = {r = 0.78, g = 0.61, b = 0.43},
 				DEATHKNIGHT = {r = 0.77, g = 0.12 , b = 0.23},
 				PET = {r = 0.20, g = 0.90, b = 0.20},
-				VEHICLE = {r = 0.40, g = 0.85, b = 0.48}
+				VEHICLE = {r = 0.23, g = 0.41, b = 0.23},
 			},
 			powerColors = {
 				MANA = {r = 0.30, g = 0.50, b = 0.85}, 
@@ -95,7 +95,7 @@ function ShadowUF:LoadDefaultLayout()
 				masterLoot = {anchorTo = "$parent", anchorPoint = "TL", size = 12, x = 35, y = 3},
 				leader = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 2, y = 4},
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 40, y = 11},
-				ready = {anchorTo = "$parent", anchorPoint = "LC", size = 24, x = 16, y = 0},
+				ready = {anchorTo = "$parent", anchorPoint = "C", size = 24, x = 0, y = 0},
 			},
 			healthBar = {
 				background = true,
@@ -162,7 +162,7 @@ function ShadowUF:LoadDefaultLayout()
 					pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
 				},
 				text = {
-					{text = "[group( )][afk( )][name]"},
+					{text = "[group( )][afk( )][name]", width = 0.50},
 					{text = "[curhp]"},
 					{text = ""},
 					{text = "[curpp]"},

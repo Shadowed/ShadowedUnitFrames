@@ -21,6 +21,7 @@ function ShadowUF:OnInitialize()
 		profile = {
 			locked = false,
 			advanced = false,
+			tooltipCombat = false,
 			tags = {},
 			units = {},
 			layoutInfo = {},
@@ -123,6 +124,11 @@ function ShadowUF:OnInitialize()
 		self.db.profile.units.targettargettarget.indicators.pvp = nil
 	end
 	
+	if( self.db.profile.units.party.hideInRaid ) then
+		self.db.profile.units.party.hideSemiRaid = self.db.profile.units.party.hideInRaid
+		self.db.profile.units.party.hideInRaid = nil
+	end
+	
 	-- Hide any Blizzard frames
 	self:HideBlizzardFrames()
 	
@@ -132,7 +138,9 @@ end
 
 local partyDisabled
 function ShadowUF:RAID_ROSTER_UPDATE()
-	if( GetNumRaidMembers() > 5 and self.db.profile.units.party.enabled and self.db.profile.units.party.hideInRaid ) then
+	if( not self.db.profile.units.party.enabled ) then return end
+	
+	if( ( self.db.profile.units.party.hideSemiRaid and GetNumRaidMembers() > 5 ) or ( self.db.profile.units.party.hideAnyRaid and GetNumRaidMembers() > 0 ) ) then
 		if( not partyDisabled ) then
 			partyDisabled = true
 			self.Units:UninitializeFrame(self.db.profile.units.party, "party")
