@@ -1102,14 +1102,14 @@ local function loadUnitOptions()
 					hidden = false,
 					type = "range",
 					name = L["X Offset"],
-					min = -50, max = 50, step = 1,
+					min = -100, max = 100, step = 1,
 				},
 				y = {
 					order = 5,
 					hidden = false,
 					type = "range",
 					name = L["Y Offset"],
-					min = -50, max = 50, step = 1
+					min = -100, max = 100, step = 1
 				},
 			},
 		}

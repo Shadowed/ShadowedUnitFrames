@@ -15,12 +15,12 @@ function Cast:OnEnable(frame, unit)
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_STOP", self, "EventStopCast")
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", self, "EventStopCast")
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTED", self, "EventInterruptCast")
-	frame:RegisterUnitEvent("UNIT_SPELLCAST_DELAYED", self, "EventUpdateCast")
+	frame:RegisterUnitEvent("UNIT_SPELLCAST_DELAYED", self, "EventUpdateDelay")
 
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", self, "EventUpdateCast")
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", self, "EventStopCast")
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_INTERRUPTED", self, "EventInterruptCast")
-	frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", self, "EventUpdateCast")
+	frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", self, "EventUpdateDelay")
 	
 	frame:RegisterUpdateFunc(self, "UpdateCurrentCast")
 end
@@ -35,8 +35,6 @@ local function setBarColor(self, r, g, b)
 	self.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.backgroundAlpha)
 end
 
-
--- GOOD JOB DUMBASS, YOU FORGOT TO LOCAL _
 function Cast:UpdateCurrentCast(frame)
 	local spell, rank, startTime, endTime, event, _
 	if( UnitCastingInfo(frame.unit) ) then
@@ -125,7 +123,7 @@ local function channelOnUpdate(self, elapsed)
 	end
 end
 
--- Cast started, or it was delayed
+-- Cast started
 function Cast:EventUpdateCast(frame, event)
 	local spell, rank, _, _, startTime, endTime = castFuncs[event](frame.unit)
 	if( endTime ) then
@@ -133,12 +131,20 @@ function Cast:EventUpdateCast(frame, event)
 	end
 end
 
+-- Cast delayed
+function Cast:EventUpdateDelay(frame, event)
+	local spell, rank, _, _, startTime, endTime = castFuncs[event](frame.unit)
+	if( endTime ) then
+		self:UpdateDelay(frame, event, frame.unit, spell, rank, startTime, endTime)
+	end
+end
+
 -- Cast finished
-function Cast:EventStopCast(frame, event)
-	if( not frame.castBar.spellName ) then
+function Cast:EventStopCast(frame, event, unit, spell)
+	if( not frame.castBar.spellName or frame.castBar.spellName ~= spell ) then
 		return
 	end
-	
+		
 	setBarColor(frame.castBar, 1.0, 0.0, 0.0)
 
 	frame.castBar.spellName = nil
@@ -150,11 +156,11 @@ function Cast:EventStopCast(frame, event)
 end
 
 -- Cast interrupted
-function Cast:EventInterruptCast(frame, event)
-	if( not frame.castBar.spellName ) then
+function Cast:EventInterruptCast(frame, event, unit, spell)
+	if( not frame.castBar.spellName or frame.castBar.spellName ~= spell ) then
 		return
 	end
-
+	
 	setBarColor(frame.castBar, 1.0, 0.0, 0.0)
 
 	frame.castBar.spellName = nil
@@ -164,26 +170,32 @@ function Cast:EventInterruptCast(frame, event)
 	frame.castBar:SetValue(1)
 end
 
--- Update the actual bar
-function Cast:UpdateCast(frame, event, unit, spell, rank, startTime, endTime)
+
+function Cast:UpdateDelay(frame, event, unit, spell, rank, startTime, endTime)
+	local cast = frame.castBar
 	startTime = startTime / 1000
 	endTime = endTime / 1000
 	
-	local cast = frame.castBar
-	if( event == "UNIT_SPELLCAST_DELAYED" or event == "UNIT_SPELLCAST_CHANNEL_UPDATE" ) then
-		-- For a channel, delay is a negative value so using plus is fine here
-		local delay = startTime - cast.startTime
-		if( not cast.isChannelled ) then
-			cast.endSeconds = cast.endSeconds + delay
-			cast:SetMinMaxValues(0, cast.endSeconds)
-		else
-			cast.elapsed = cast.elapsed + delay
-		end
-
-		cast.pushback = cast.pushback + delay
-		cast.lastUpdate = GetTime()
-		return
+	-- For a channel, delay is a negative value so using plus is fine here
+	local delay = startTime - cast.startTime
+	if( not cast.isChannelled ) then
+		cast.endSeconds = cast.endSeconds + delay
+		cast:SetMinMaxValues(0, cast.endSeconds)
+	else
+		cast.elapsed = cast.elapsed + delay
 	end
+
+	cast.pushback = cast.pushback + delay
+	cast.lastUpdate = GetTime()
+	cast.startTime = startTime
+	cast.endTime = endTime
+end
+
+-- Update the actual bar
+function Cast:UpdateCast(frame, event, unit, spell, rank, startTime, endTime)
+	local cast = frame.castBar
+	startTime = startTime / 1000
+	endTime = endTime / 1000
 	
 	-- Set casted spell
 	if( rank ~= "" ) then
@@ -195,8 +207,9 @@ function Cast:UpdateCast(frame, event, unit, spell, rank, startTime, endTime)
 	local secondsLeft = endTime - startTime
 	
 	-- Setup cast info
-	cast.isChannelled = (self.event == "UNIT_SPELLCAST_CHANNEL_START")
+	cast.isChannelled = event == "UNIT_SPELLCAST_CHANNEL_START"
 	cast.startTime = startTime
+	cast.endTime = endTime
 	cast.elapsed = cast.isChannelled and secondsLeft or 0
 	cast.endSeconds = secondsLeft
 	cast.spellName = spell
