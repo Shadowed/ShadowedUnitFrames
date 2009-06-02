@@ -200,7 +200,7 @@ function ShadowUF:LoadUnitDefaults()
 		-- These modules are not enabled for "fake" units so don't bother with adding defaults
 		if( not string.match(unit, "%w+target") ) then
 			self.defaults.profile.units[unit].incHeal = {enabled = false, showSelf = true}
-			self.defaults.profile.units[unit].castBar = {enabled = false, castName = {anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, castTime = {anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0}}
+			self.defaults.profile.units[unit].castBar = {enabled = false, castName = {enabled = true, anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, castTime = {enabled = true, anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0}}
 			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
 		end
 			
@@ -218,6 +218,7 @@ function ShadowUF:LoadUnitDefaults()
 		
 	-- PLAYER
 	self.defaults.profile.units.player.enabled = true
+	self.defaults.profile.units.player.powerBar.predicted = true
 	self.defaults.profile.units.player.indicators.status = {enabled = true, size = 19, anchorPoint = "LB", anchorTo = "$parent", x = 0, y = 0}
 	self.defaults.profile.units.player.runeBar = {enabled = false}
 	self.defaults.profile.units.player.totemBar = {enabled = false}
@@ -411,10 +412,10 @@ function ShadowUF:SetLayout(name, importPositions)
 		if( layout.text ) then layout[unit].text = mergeTable(layout[unit].text, layout.text, true) end
 		-- Strip out any invalid data
 		self:VerifyTable(layout[unit], ShadowUF.defaults.profile.units[unit])
-		-- Push the changes "life"
+		-- Push the changes "live"
 		self.db.profile.units[unit] = mergeTable(ShadowUF.db.profile.units[unit], layout[unit])
 	end
-		
+			
 	-- Don't overwrite positioning data
 	if( not importPositions ) then
 		layout.positions = nil

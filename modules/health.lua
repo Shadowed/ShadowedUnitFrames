@@ -11,7 +11,8 @@ function Health:OnEnable(frame)
 	frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdateColor")
 	frame:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", self, "UpdateThreat")
 	
-	frame:RegisterUpdateFunc(self, "UpdateAll")
+	frame:RegisterUpdateFunc(self, "UpdateColor")
+	frame:RegisterUpdateFunc(self, "Update")
 end
 
 function Health:OnDisable(frame)
@@ -143,10 +144,3 @@ function Health:Update(frame)
 		setGradient(frame.healthBar, unit)
 	end
 end
-
-function Health:UpdateAll(frame)
-	self:UpdateColor(frame)
-	self:UpdateThreat(frame)
-	self:Update(frame)
-end
-

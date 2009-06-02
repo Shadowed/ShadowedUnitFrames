@@ -2140,8 +2140,7 @@ local function loadUnitOptions()
 						order = 2,
 						type = "group",
 						inline = true,
-						name = L["General bars"],
-						width = "half",
+						name = L["General"],
 						args = {
 							runeBar = {
 								order = 0,
@@ -2181,13 +2180,6 @@ local function loadUnitOptions()
 								hidden = hideRestrictedOption,
 								arg = "xpBar.enabled",
 							},
-							castBar = {
-								order = 3,
-								type = "toggle",
-								name = string.format(L["Enable %s"], L["Cast bar"]),
-								arg = "castBar.enabled",
-								hidden = function(info) if( ShadowUF.db.profile.advanced ) then return true end return hideRestrictedOption(info) end,
-							},
 						},
 					},
 					castBar = {
@@ -2195,7 +2187,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Cast bar"],
-						hidden = function(info) if( not ShadowUF.db.profile.advanced ) then return true end return hideRestrictedOption(info) end,
+						hidden = hideRestrictedOption,
 						args = {
 							enabled = {
 								order = 0,
@@ -2203,11 +2195,26 @@ local function loadUnitOptions()
 								name = string.format(L["Enable %s"], L["Cast bar"]),
 								arg = "castBar.enabled",
 							},
+							castIcon = {
+								order = 0.25,
+								type = "toggle",
+								name = L["Show cast icon"],
+								arg = "castBar.showIcon",
+								hidden = true,
+							},
 							castName = {
 								order = 0.50,
 								type = "header",
 								name = L["Cast name"],
 								hidden = hideAdvancedOption,
+							},
+							nameEnabled = {
+								order = 0.75,
+								type = "toggle",
+								name = L["Show cast name"],
+								arg = "castBar.castName.enabled",
+								hidden = hideAdvancedOption,
+								width = "full",
 							},
 							nameAnchor = {
 								order = 1,
@@ -2245,6 +2252,14 @@ local function loadUnitOptions()
 								type = "header",
 								name = L["Cast time"],
 								hidden = hideAdvancedOption,
+							},
+							castEnabled = {
+								order = 4.50,
+								type = "toggle",
+								name = L["Show cast time"],
+								arg = "castBar.castTime.enabled",
+								hidden = hideAdvancedOption,
+								width = "full",
 							},
 							timeAnchor = {
 								order = 5,

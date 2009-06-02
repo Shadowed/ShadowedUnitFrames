@@ -25,7 +25,7 @@ local function RegisterTagEvents(fontString, tags)
 				RegisterEvent(fontString, event)
 				
 				-- If it's for the player, and the tag uses a power event, flag it as needing to be OnUpdate monitored
-				if( fontString.parent.unit == "player" and Tags.powerEvents[event] ) then
+				if( ShadowUF.db.profile.units[fontString.parent.unitType].powerBar.predicted and Tags.powerEvents[event] ) then
 					fastTagUpdates[fontString] = true
 				end
 			end
@@ -460,50 +460,87 @@ Tags.defaultTags = {
 		
 		return nil
 	end]],
+	["druid:curpp"] = [[function(unit)
+		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
+		local powerType = UnitPowerType(unit)
+		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
+		return ShadowUF:FormatLargeNumber(UnitPower(unit, 0))
+	end]],
+	["druid:abscurpp"] = [[function(unit)
+		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
+		local powerType = UnitPowerType(unit)
+		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
+		return UnitPower(unit, 0)
+	end]],
+	["druid:curmaxpp"] = [[function(unit)
+		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
+		local powerType = UnitPowerType(unit)
+		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
+		
+		local maxPower = UnitPowerMax(unit, 0)
+		local power = UnitPower(unit, 0)
+		if( UnitIsDeadOrGhost(unit) ) then
+			return string.format("0/%s", maxPower)
+		elseif( maxPower == 0 and power == 0 ) then
+			return nil
+		end
+		
+		return string.format("%s/%s", ShadowUF:FormatLargeNumber(power), ShadowUF:FormatLargeNumber(maxPower))
+	end]],
+	["druid:absolutepp"] = [[function(unit)
+		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
+		local powerType = UnitPowerType(unit)
+		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
+		return UnitPower(unit, 0)
+	end]],
 }
 
 Tags.defaultHelp = {
-	["afk"] = L["Shows AFK or DND flags if they are toggled."],
-	["cpoints"] = L["Total number of combo points you have on your target."],
-	["smartlevel"] = L["Smart level, returns Boss for bosses, +50 for a level 50 elite mob, or just 80 for a level 80."],
-	["classification"] = L["Units classification, Rare, Rare Elite, Elite, Boss, nothing is shown if they aren't any of those."],
-	["shortclassification"] = L["Short classifications, R for Rare, R+ for Rare Elite, + for Elite, B for boss, nothing is shown if they aren't any of those."],
-	["rare"] = L["Returns Rare if the unit is a rare or rare elite mob."],
-	["plus"] = L["Returns + if the unit is an elite or rare elite mob."],
-	["sex"] = L["Returns the units sex."],
-	["smartclass"] = L["For players, it will return a class, for mobs than it will return their creature type."],
-	["status"] = L["Units status, Dead, Ghost, Offline, nothing is shown if they aren't any of those."],
-	["race"] = L["Unit race, for a Blood Elf then Blood Elf is returned, for a Night Elf than Night Elf is returned and so on."],
-	["level"] = L["Level without any coloring."],
-	["maxhp"] = L["Max health, uses a short format, 17750 is formatted as 17.7k, values below 10000 are formatted as is."],
-	["maxpp"] = L["Max power, uses a short format, 16000 is formatted as 16k, values below 10000 are formatted as is."],
-	["missinghp"] = L["Amount of health missing, if none is missing nothing is shown. Uses a short format, -18500 is shown as -18.5k, values below 10000 are formatted as is."],
-	["missingpp"] = L["Amount of power missing,  if none is missing nothing is shown. Uses a short format, -13850 is shown as 13.8k, values below 10000 are formatted as is."],
-	["name"] = L["Unit name"],
-	["offline"] = L["Returns Offline if the unit is offline, otherwise nothing is shown."],
-	["perhp"] = L["Returns current health as a percentage, if the unit is dead or offline than that is shown instead."],
-	["perpp"] = L["Returns current power as a percentage."],
-	["class"] = L["Class name, use [classcolor][class][close] if you want a colored class name."],
-	["classcolor"] = L["Color code for the class, use [classcolor][class][close] if you want the class text to be colored by class"],
-	["creature"] = L["Create type, for example, if you're targeting a Felguard then this will return Felguard."],
-	["curhp"] = L["Current health, uses a short format, 11500 is formatted as 11.5k, values below 10000 are formatted as is."],
-	["curpp"] = L["Current power, uses a short format, 12750 is formatted as 12.7k, values below 10000 are formatted as is."],
-	["curmaxhp"] = L["Current and maximum health, formatted as [curhp]/[maxhp], if the unit is dead or offline then that is shown instead."],
-	["curmaxpp"] = L["Current and maximum power, formatted as [curpp]/[maxpp]."],
-	["dead"] = L["If the unit is dead, returns dead, if they are a ghost then ghost is returned, if they aren't either then nothing is shown."],
-	["levelcolor"] = L["Colored level by difficulty, no color used if you cannot attack the unit."],
-	["faction"] = L["Units alignment, Thrall will return Horde, Magni Bronzebeard will return Alliance."],
-	["colorname"] = L["Unit name colored by class."],
-	["absolutepp"] = L["Absolute current/max power, without any formating so 17750 is still formatted as 17750."],
-	["absolutehp"] = L["Absolute current/max health, without any formating so 17750 is still formatted as 17750."],
-	["absmaxhp"] = L["Absolute maximum health value without any formating so 15000 is still shown as 15000."],
-	["abscurhp"] = L["Absolute current health value without any formating so 15000 is still shown as 15000."],
-	["absmaxpp"] = L["Absolute maximum power value without any formating so 15000 is still shown as 15000."],
-	["abscurpp"] = L["Absolute current power value without any formating so 15000 is still shown as 15000."],
-	["reactcolor"] = L["Reaction color code, use [reactcolor][name][close] to color the units name by their reaction."],
-	["dechp"] = L["Shows the units health as a percentage rounded to the first decimal, meaning 61 out of 110 health is shown as 55.4%."],
-	["group"] = L["Shows the current group number of the unit."],
-	["close"] = L["Closes a color code, pretends colors from showing up on text that you do not want it to."],
+	["afk"]					= L["Shows AFK or DND flags if they are toggled."],
+	["cpoints"]				= L["Total number of combo points you have on your target."],
+	["smartlevel"]			= L["Smart level, returns Boss for bosses, +50 for a level 50 elite mob, or just 80 for a level 80."],
+	["classification"]		= L["Units classification, Rare, Rare Elite, Elite, Boss, nothing is shown if they aren't any of those."],
+	["shortclassification"]	= L["Short classifications, R for Rare, R+ for Rare Elite, + for Elite, B for boss, nothing is shown if they aren't any of those."],
+	["rare"]				= L["Returns Rare if the unit is a rare or rare elite mob."],
+	["plus"]				= L["Returns + if the unit is an elite or rare elite mob."],
+	["sex"]					= L["Returns the units sex."],
+	["smartclass"]			= L["For players, it will return a class, for mobs than it will return their creature type."],
+	["status"]				= L["Units status, Dead, Ghost, Offline, nothing is shown if they aren't any of those."],
+	["race"]				= L["Unit race, for a Blood Elf then Blood Elf is returned, for a Night Elf than Night Elf is returned and so on."],
+	["level"]				= L["Level without any coloring."],
+	["maxhp"]				= L["Max health, uses a short format, 17750 is formatted as 17.7k, values below 10000 are formatted as is."],
+	["maxpp"]				= L["Max power, uses a short format, 16000 is formatted as 16k, values below 10000 are formatted as is."],
+	["missinghp"]			= L["Amount of health missing, if none is missing nothing is shown. Uses a short format, -18500 is shown as -18.5k, values below 10000 are formatted as is."],
+	["missingpp"]			= L["Amount of power missing,  if none is missing nothing is shown. Uses a short format, -13850 is shown as 13.8k, values below 10000 are formatted as is."],
+	["name"]				= L["Unit name"],
+	["offline"]				= L["Returns Offline if the unit is offline, otherwise nothing is shown."],
+	["perhp"]				= L["Returns current health as a percentage, if the unit is dead or offline than that is shown instead."],
+	["perpp"]				= L["Returns current power as a percentage."],
+	["class"]				= L["Class name, use [classcolor][class][close] if you want a colored class name."],
+	["classcolor"]			= L["Color code for the class, use [classcolor][class][close] if you want the class text to be colored by class"],
+	["creature"]			= L["Create type, for example, if you're targeting a Felguard then this will return Felguard."],
+	["curhp"]				= L["Current health, uses a short format, 11500 is formatted as 11.5k, values below 10000 are formatted as is."],
+	["curpp"]				= L["Current power, uses a short format, 12750 is formatted as 12.7k, values below 10000 are formatted as is."],
+	["curmaxhp"]			= L["Current and maximum health, formatted as [curhp]/[maxhp], if the unit is dead or offline then that is shown instead."],
+	["curmaxpp"]			= L["Current and maximum power, formatted as [curpp]/[maxpp]."],
+	["dead"]				= L["If the unit is dead, returns dead, if they are a ghost then ghost is returned, if they aren't either then nothing is shown."],
+	["levelcolor"]			= L["Colored level by difficulty, no color used if you cannot attack the unit."],
+	["faction"]				= L["Units alignment, Thrall will return Horde, Magni Bronzebeard will return Alliance."],
+	["colorname"]			= L["Unit name colored by class."],
+	["absolutepp"]			= L["Absolute current/max power, without any formating so 17750 is still formatted as 17750."],
+	["absolutehp"]			= L["Absolute current/max health, without any formating so 17750 is still formatted as 17750."],
+	["absmaxhp"]			= L["Absolute maximum health value without any formating so 15000 is still shown as 15000."],
+	["abscurhp"]			= L["Absolute current health value without any formating so 15000 is still shown as 15000."],
+	["absmaxpp"]			= L["Absolute maximum power value without any formating so 15000 is still shown as 15000."],
+	["abscurpp"]			= L["Absolute current power value without any formating so 15000 is still shown as 15000."],
+	["reactcolor"]			= L["Reaction color code, use [reactcolor][name][close] to color the units name by their reaction."],
+	["dechp"]				= L["Shows the units health as a percentage rounded to the first decimal, meaning 61 out of 110 health is shown as 55.4%."],
+	["group"]				= L["Shows the current group number of the unit."],
+	["close"]				= L["Closes a color code, pretends colors from showing up on text that you do not want it to."],
+	["druid:curpp"]         = string.format(L["Same tag as %s, but this only shows up if the unit is in Bear or Cat form."], "curpp"),
+	["druid:abscurpp"]      = string.format(L["Same tag as %s, but this only shows up if the unit is in Bear or Cat form."], "abscurpp"),
+	["druid:curmaxpp"]		= string.format(L["Same tag as %s, but this only shows up if the unit is in Bear or Cat form."], "curmaxpp"),
+	["druid:absolutepp"]	= string.format(L["Same tag as %s, but this only shows up if the unit is in Bear or Cat form."], "absolutepp"),
 }
 
 -- Default tag events
@@ -517,6 +554,10 @@ Tags.defaultEvents = {
 	["abscurpp"]            = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER",
 	["curmaxpp"]			= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
 	["absolutepp"]			= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
+	["druid:curpp"]      = "UNIT_MANA UNIT_DISPLAYPOWER",
+	["druid:abscurpp"]      = "UNIT_MANA UNIT_DISPLAYPOWER",
+	["druid:curmaxpp"]		= "UNIT_MANA UNIT_MAXMANA UNIT_DISPLAYPOWER",
+	["druid:absolutepp"]	= "UNIT_MANA UNIT_MAXMANA UNIT_DISPLAYPOWER",
 	["dead"]                = "UNIT_HEALTH",
 	["level"]               = "UNIT_LEVEL PLAYER_LEVEL_UP",
 	["maxhp"]               = "UNIT_MAXHEALTH",
@@ -556,6 +597,7 @@ Tags.unitlessEvents = {
 }
 
 -- Checker function, makes sure tags are all happy
+--[[
 function Tags:Verify()
 	local fine = true
 	for tag, events in pairs(self.defaultEvents) do
@@ -594,3 +636,4 @@ function Tags:Verify()
 		print("Verified tags, everything is fine.")
 	end
 end
+]]

@@ -322,21 +322,32 @@ local totalWeight = {}
 function Layout:ApplyText(frame, config)
 	-- Update cast bar text
 	if( frame.castBar and frame.castBar:IsShown() ) then
+		-- Set the font at the very least, so it doesn't error when we set text on it even if it isn't being shown
 		frame.castBar.name:SetFont(mediaPath.font, ShadowUF.db.profile.font.size)
-		frame.castBar.name:SetWidth(frame.castBar:GetWidth() * 0.75)
-		frame.castBar.name:SetHeight(ShadowUF.db.profile.font.size + 1)
-		frame.castBar.name:SetJustifyH(self:GetJustify(config.castBar.castName))
-		self:AnchorFrame(frame.castBar, frame.castBar.name, config.castBar.castName)
+		if( config.castBar.castName.enabled ) then
+			frame.castBar.name:SetWidth(frame.castBar:GetWidth() * 0.75)
+			frame.castBar.name:SetHeight(ShadowUF.db.profile.font.size + 1)
+			frame.castBar.name:SetJustifyH(self:GetJustify(config.castBar.castName))
+			frame.castBar.name:Show()
+			self:AnchorFrame(frame.castBar, frame.castBar.name, config.castBar.castName)
 
-		updateShadows(frame.castBar.name)
+			updateShadows(frame.castBar.name)
+		else
+			frame.castBar.name:Hide()
+		end
 		
 		frame.castBar.time:SetFont(mediaPath.font, ShadowUF.db.profile.font.size)
-		frame.castBar.time:SetWidth(frame.castBar:GetWidth() * 0.25)
-		frame.castBar.time:SetHeight(ShadowUF.db.profile.font.size + 1)
-		frame.castBar.time:SetJustifyH(self:GetJustify(config.castBar.castTime))
-		self:AnchorFrame(frame.castBar, frame.castBar.time, config.castBar.castTime)
+		if( config.castBar.castTime.enabled ) then
+			frame.castBar.time:SetWidth(frame.castBar:GetWidth() * 0.25)
+			frame.castBar.time:SetHeight(ShadowUF.db.profile.font.size + 1)
+			frame.castBar.time:SetJustifyH(self:GetJustify(config.castBar.castTime))
+			frame.castBar.time:Show()
+			self:AnchorFrame(frame.castBar, frame.castBar.time, config.castBar.castTime)
 
-		updateShadows(frame.castBar.time)
+			updateShadows(frame.castBar.time)
+		else
+			frame.castBar.time:Hide()
+		end
 	end
 	
 	-- Update feedback text

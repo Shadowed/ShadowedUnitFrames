@@ -10,12 +10,9 @@ ShadowUF:RegisterModule(Units, "units")
 
 -- Frame shown, do a full update
 local function FullUpdate(self)
-	for handler, func in pairs(self.fullUpdates) do
-		if( func == true ) then
-			handler(self)
-		else
-			handler[func](handler, self)
-		end
+	for i=1, #(self.fullUpdates), 2 do
+		local handler = self.fullUpdates[i]
+		handler[self.fullUpdates[i + 1]](handler, self)
 	end
 end
 
@@ -48,13 +45,26 @@ end
 
 -- Register a function to be called in an OnUpdate if it's an invalid unit (targettarget/etc)
 local function RegisterUpdateFunc(self, handler, func)
-	self.fullUpdates[handler] = func or true
+	for i=1, #(self.fullUpdates), 2 do
+		local data = self.fullUpdates[i]
+		if( data == handler and self.fullUpdates[i + 1] == func ) then
+			return
+		end
+	end
+	
+	table.insert(self.fullUpdates, handler)
+	table.insert(self.fullUpdates, func)
 end
 
 -- Used when something is disabled, removes all callbacks etc to it
 local function UnregisterAll(self, handler)
-	self.fullUpdates[handler] = nil
-	
+	for i=#(self.fullUpdates), 1, -1 do
+		if( self.fullUpdates[i] == handler ) then
+			table.remove(self.fullUpdates, i + 1)
+			table.remove(self.fullUpdates, i)
+		end
+	end
+
 	for event, list in pairs(self.registeredEvents) do
 		list[handler] = nil
 		
@@ -277,9 +287,7 @@ end
 
 local function OnDragStart(self)
 	if( ShadowUF.db.profile.locked or self.isMoving ) then return end
-	if( self.unitType == "party" or self.unitType == "raid" ) then
-		self = unitFrames[self.unitType]
-	end
+	self = unitFrames[self.unitType] or self
 	
 	self.isMoving = true
 	self:StartMoving()
@@ -288,9 +296,7 @@ local function OnDragStart(self)
 end
 
 local function OnDragStop(self)
-	if( self.unitType == "party" or self.unitType == "raid" ) then
-		self = unitFrames[self.unitType]
-	end
+	self = unitFrames[self.unitType] or self
 	
 	if( not self.isMoving ) then
 		return
@@ -301,7 +307,6 @@ local function OnDragStop(self)
 	
 	local scale = self:GetEffectiveScale()
 	local position = ShadowUF.db.profile.positions[self.unitType]
-	
 	local point, _, relativePoint, x, y = self:GetPoint()
 		
 	position.anchorPoint = ""
@@ -467,6 +472,7 @@ function Units:LoadGroupHeader(config, type)
 	headerFrame.initialConfigFunction = initUnit
 	headerFrame.unitType = type
 	headerFrame:SetMovable(true)
+	headerFrame:SetClampedToScreen(true)
 	headerFrame:RegisterForDrag("LeftButton")
 	headerFrame:Show()
 
@@ -551,16 +557,21 @@ function Units:UninitializeFrame(config, type)
 	if( not loadedUnits[type] ) then return end
 	loadedUnits[type] = nil
 	
+	-- We're trying to disable a header
+	if( unitFrames[type] ) then
+		UnregisterUnitWatch(unitFrames[type])
+		unitFrames[type]:Hide()
+		
+		disableChildren(unitFrames[type]:GetChildren())
+		return
+	end
+	
+	-- Otherwise, we're disabling a specific unit
 	for _, frame in pairs(unitFrames) do
 		if( frame.unitType == type ) then
 			UnregisterUnitWatch(frame)
-			
-			if( frame.unit ~= type ) then
-				disableChildren(frame:GetChildren())
-			else
-				frame:SetAttribute("unit", nil)
-			end
 
+			frame:SetAttribute("unit", nil)
 			frame:Hide()
 		end
 	end

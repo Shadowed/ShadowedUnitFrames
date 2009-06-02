@@ -5,8 +5,6 @@ local indicatorList = {"status", "pvp", "leader", "masterLoot", "raidTarget", "h
 ShadowUF:RegisterModule(Indicators, "indicators", ShadowUFLocals["Indicators"])
 
 function Indicators:UpdateHappiness(frame)
-	if( not frame.indicators.happiness or not frame.indicators.happiness.enabled ) then return end
-	
 	local happyHappy = GetPetHappiness()
 	if( not happyHappy ) then
 		frame.indicators.happiness:Hide()
@@ -23,8 +21,6 @@ function Indicators:UpdateHappiness(frame)
 end
 
 function Indicators:UpdateMasterLoot(frame)
-	if( not frame.indicators.masterLoot or not frame.indicators.masterLoot.enabled ) then return end
-	
 	local lootType, partyID, raidID = GetLootMethod()
 	if( lootType ~= "master" ) then
 		frame.indicators.masterLoot:Hide()
@@ -36,8 +32,6 @@ function Indicators:UpdateMasterLoot(frame)
 end
 			
 function Indicators:UpdateRaidTarget(frame)
-	if( not frame.indicators.raidTarget or not frame.indicators.raidTarget.enabled ) then return end
-	
 	if( UnitExists(frame.unit) and GetRaidTargetIndex(frame.unit) ) then
 		SetRaidTargetIconTexture(frame.indicators.raidTarget, GetRaidTargetIndex(frame.unit))
 		frame.indicators.raidTarget:Show()
@@ -47,9 +41,6 @@ function Indicators:UpdateRaidTarget(frame)
 end
 			
 function Indicators:UpdateLeader(frame)
-	Indicators:UpdateMasterLoot(frame)
-	if( not frame.indicators.leader or not frame.indicators.leader.enabled ) then return end
-	
 	if( UnitIsPartyLeader(frame.unit) ) then
 		frame.indicators.leader:Show()
 	else
@@ -58,8 +49,6 @@ function Indicators:UpdateLeader(frame)
 end
 
 function Indicators:UpdatePVPFlag(frame)
-	if( not frame.indicators.pvp or not frame.indicators.pvp.enabled ) then return end
-	
 	if( UnitIsPVP(frame.unit) and UnitFactionGroup(frame.unit) ) then
 		frame.indicators.pvp:SetTexture(string.format("Interface\\TargetingFrame\\UI-PVP-%s", UnitFactionGroup(frame.unit)))
 		frame.indicators.pvp:Show()
@@ -72,8 +61,6 @@ function Indicators:UpdatePVPFlag(frame)
 end
 
 function Indicators:UpdateStatus(frame)
-	if( not frame.indicators.status or not frame.indicators.status.enabled ) then return end
-	
 	if( UnitAffectingCombat(frame.unit) ) then
 		frame.indicators.status:SetTexCoord(0.50, 1.0, 0.0, 0.49)
 		frame.indicators.status:Show()
@@ -98,8 +85,6 @@ local function fadeReadyStatus(self, elapsed)
 end
 
 function Indicators:UpdateReadyCheck(frame, event)
-	if( not frame.indicators.ready or not frame.indicators.ready.enabled ) then return end
-
 	-- We're done, and should fade it out if it's shown
 	if( event == "READY_CHECK_FINISHED" ) then
 		if( frame.indicators.ready:IsShown() ) then
@@ -130,19 +115,7 @@ function Indicators:UpdateReadyCheck(frame, event)
 	frame.indicators.ready:Show()
 end
 
-function Indicators:UpdateAll(frame)
-	self:UpdateStatus(frame)
-	self:UpdatePVPFlag(frame)
-	self:UpdateLeader(frame)
-	self:UpdateMasterLoot(frame)
-	self:UpdateRaidTarget(frame)
-	self:UpdateHappiness(frame)
-	self:UpdateReadyCheck(frame)
-end
-
 function Indicators:OnEnable(frame)
-	frame:RegisterUpdateFunc(self, "UpdateAll")
-	
 	-- Forces the indicators to be above the bars/portraits/etc
 	if( not frame.indicators ) then
 		frame.indicators = CreateFrame("Frame", nil, frame)
@@ -156,6 +129,7 @@ function Indicators:OnEnable(frame)
 		frame:RegisterNormalEvent("PLAYER_REGEN_DISABLED", self, "UpdateStatus")
 		frame:RegisterNormalEvent("PLAYER_UPDATE_RESTING", self, "UpdateStatus")
 		frame:RegisterNormalEvent("UPDATE_FACTION", self, "UpdateStatus")
+		frame:RegisterUpdateFunc(self, "UpdateStatus")
 
 		frame.indicators.status = frame.indicators.status or frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.status:SetTexture("Interface\\CharacterFrame\\UI-StateIcon")
@@ -165,6 +139,7 @@ function Indicators:OnEnable(frame)
 	if( config.indicators.pvp ) then
 		frame:RegisterUnitEvent("PLAYER_FLAGS_CHANGED", self, "UpdatePVPFlag")
 		frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdatePVPFlag")
+		frame:RegisterUpdateFunc(self, "UpdatePVPFlag")
 
 		frame.indicators.pvp = frame.indicators.pvp or frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.pvp:Hide()
@@ -173,6 +148,7 @@ function Indicators:OnEnable(frame)
 	if( config.indicators.leader ) then
 		frame:RegisterNormalEvent("PARTY_LEADER_CHANGED", self, "UpdateLeader")
 		frame:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", self, "UpdateLeader")
+		frame:RegisterUpdateFunc(self, "UpdateLeader")
 
 		frame.indicators.leader = frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.leader:SetTexture("Interface\\GroupFrame\\UI-Group-LeaderIcon")
@@ -181,6 +157,7 @@ function Indicators:OnEnable(frame)
 		
 	if( config.indicators.masterLoot ) then
 		frame:RegisterNormalEvent("PARTY_LOOT_METHOD_CHANGED", self, "UpdateMasterLoot")
+		frame:RegisterUpdateFunc(self, "UpdateMasterLoot")
 
 		frame.indicators.masterLoot = frame.indicators.masterLoot or frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.masterLoot:SetTexture("Interface\\GroupFrame\\UI-Group-MasterLooter")
@@ -189,7 +166,8 @@ function Indicators:OnEnable(frame)
 		
 	if( config.indicators.raidTarget ) then
 		frame:RegisterNormalEvent("RAID_TARGET_UPDATE", self, "UpdateRaidTarget")
-
+		frame:RegisterUpdateFunc(self, "UpdateRaidTarget")
+		
 		frame.indicators.raidTarget = frame.indicators.raidTarget or frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.raidTarget:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
 		frame.indicators.raidTarget:Hide()
@@ -199,7 +177,8 @@ function Indicators:OnEnable(frame)
 		frame:RegisterNormalEvent("READY_CHECK", self, "UpdateReadyCheck")
 		frame:RegisterNormalEvent("READY_CHECK_CONFIRM", self, "UpdateReadyCheck")
 		frame:RegisterNormalEvent("READY_CHECK_FINISHED", self, "UpdateReadyCheck")
-
+		frame:RegisterUpdateFunc(self, "UpdateReadyCheck")
+		
 		frame.indicators.ready = frame.indicators.raidTarget or frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.ready:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
 		frame.indicators.ready:Hide()
@@ -207,7 +186,8 @@ function Indicators:OnEnable(frame)
 	
 	if( config.indicators.happiness ) then
 		frame:RegisterUnitEvent("UNIT_HAPPINESS", self, "UpdateHappiness")
-
+		frame:RegisterUpdateFunc(self, "UpdateHappiness")
+		
 		frame.indicators.happiness = frame.indicators.happiness or frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.happiness:SetTexture("Interface\\PetPaperDollFrame\\UI-PetHappiness")
 		frame.indicators.happiness:Hide()

@@ -52,8 +52,8 @@ function Cast:UpdateCurrentCast(frame)
 		
 		frame.castBar.spellName = nil
 		frame.castBar:SetScript("OnUpdate", nil)
-		frame.castBar.name:Hide()
-		frame.castBar.time:Hide()
+		frame.castBar.name:SetText("")
+		frame.castBar.time:SetText("")
 		frame.castBar:SetMinMaxValues(0, 1)
 		frame.castBar:SetValue(0)
 	end
@@ -65,8 +65,8 @@ local function fadeOnUpdate(self, elapsed)
 	self:SetAlpha(self.fadeElapsed / FADE_TIME)
 	
 	if( self.fadeElapsed <= 0 ) then
-		self.name:Hide()
-		self.time:Hide()
+		self.name:SetText("")
+		self.time:SetText("")
 		self.fadeElapsed = nil
 		self:SetScript("OnUpdate", nil)
 	end
@@ -220,8 +220,6 @@ function Cast:UpdateCast(frame, event, unit, spell, rank, startTime, endTime)
 	cast:SetValue(cast.elapsed)
 	cast:SetAlpha(ShadowUF.db.profile.bars.alpha)
 	cast.hasCast = true
-	cast.name:Show()
-	cast.time:Show()
 	
 	if( cast.isChannelled ) then
 		setBarColor(cast, 0.25, 0.25, 1.0)

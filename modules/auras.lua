@@ -1,5 +1,5 @@
-local Auras = {}
-local canRemove
+local Auras = {canRemove = {}}
+local canRemove = Auras.canRemove
 ShadowUF:RegisterModule(Auras, "auras", ShadowUFLocals["Auras"])
 
 function Auras:CheckCures()

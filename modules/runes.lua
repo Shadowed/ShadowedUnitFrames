@@ -30,7 +30,8 @@ function Runes:OnEnable(frame)
 	
 	frame:RegisterNormalEvent("RUNE_POWER_UPDATE", self, "UpdateUsable")
 	frame:RegisterNormalEvent("RUNE_TYPE_UPDATE", self, "Update")
-	frame:RegisterUpdateFunc(self, "UpdateAll")
+	frame:RegisterUpdateFunc(self, "Update")
+	frame:RegisterUpdateFunc(self, "UpdateUsable")
 end
 
 function Runes:OnDisable(frame)
@@ -93,9 +94,4 @@ function Runes:Update(frame, event, rune)
 			indicator:SetStatusBarColor(runeColors[type].r, runeColors[type].g, runeColors[type].b)
 		end
 	end
-end
-
-function Runes:UpdateAll(frame)
-	self:Update(frame)
-	self:UpdateUsable(frame)
 end

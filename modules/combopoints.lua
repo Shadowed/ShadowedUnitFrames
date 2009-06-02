@@ -16,7 +16,8 @@ function Combo:OnEnable(frame)
 	frame:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", self, "CheckUnit")
 	frame:RegisterNormalEvent("UNIT_EXITED_VEHICLE", self, "CheckUnit")
 	frame:RegisterNormalEvent("UNIT_COMBO_POINTS", self, "Update")
-	frame:RegisterUpdateFunc(self, "UpdateAll")
+	frame:RegisterUpdateFunc(self, "CheckUnit")
+	frame:RegisterUpdateFunc(self, "Update")
 end
 
 function Combo:OnPreLayoutApply(frame)

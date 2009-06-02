@@ -119,6 +119,9 @@ ShadowUFLocals = {
 	["Class"] = "Class",
 	["Width weight"] = "Width weight",
 	["Static"] = "Static",
+	["Show cast icon"] = "Show cast icon",
+	["Show cast name"] = "Show cast name",
+	["Show cast time"] = "Show cast time",
 	["Health percent"] = "Health percent",
 	["Color on aggro"] = "Color on aggro",
 	["Threat"] = "Threat",
@@ -395,6 +398,7 @@ ShadowUFLocals = {
 	["Range indicator"] = "Range indicator",
 	
 	-- Tag help
+	["Same tag as %s, but this only shows up if the unit is in Bear or Cat form."] = "Same tag as %s, but this only shows up if the unit is in Bear or Cat form.",
 	["Closes a color code, pretends colors from showing up on text that you do not want it to."] = "Closes a color code, pretends colors from showing up on text that you do not want it to.",
 	["Shows the current group number of the unit."] = "Shows the current group number of the unit.",
 	["Reaction color code, use [reactcolor][name][close] to color the units name by their reaction."] = "Reaction color code, use [reactcolor][name][close] to color the units name by their reaction.",
