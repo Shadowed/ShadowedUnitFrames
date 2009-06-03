@@ -206,6 +206,7 @@ ShadowUFLocals = {
 	["Group %d"] = "Group %d",
 	["Fuel"] = "Fuel",
 	["Ammo"] = "Ammo",
+	["Let's you modify the base font size to either make it larger or smaller."] = "Let's you modify the base font size to either make it larger or smaller.",
 	
 	-- Layout
 	["Layout"] = "Layout",

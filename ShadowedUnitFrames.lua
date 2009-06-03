@@ -14,7 +14,7 @@ for i=1, MAX_RAID_MEMBERS do ShadowUF.raidUnits[i] = "raid" .. i end
 -- Main layout keys, this does not include units or inherited module options
 local mainLayout = {["classColors"] = true, ["bars"] = true, ["backdrop"] = true, ["font"] = true, ["powerColors"] = true, ["healthColors"] = true, ["xpColors"] = true, ["positions"] = true}
 -- Sub layout keys inside layouts that are accepted
-local subLayout = {["enabled"] = true, ["spacing"] = true, ["fullSize"] = true, ["attribPoint"] = true, ["runebar"] = true, ["growth"] = true, ["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
+local subLayout = {["size"] = true, ["enabled"] = true, ["spacing"] = true, ["fullSize"] = true, ["attribPoint"] = true, ["runebar"] = true, ["growth"] = true, ["name"] = true, ["text"] = true, ["alignment"] = true, ["width"] = true, ["background"] = true, ["order"] = true, ["height"] = true, ["scale"] = true, ["xOffset"] = true, ["yOffset"] = true, ["maxColumns"] = true, ["unitsPerColumn"] = true, ["columnSpacing"] = true, ["attribAnchorPoint"] = true, ["size"] = true, ["point"] = true,["anchorTo"] = true, ["anchorPoint"] = true, ["relativePoint"] = true, ["x"] = true, ["y"] = true}
 
 function ShadowUF:OnInitialize()
 	self.defaults = {
@@ -193,7 +193,7 @@ function ShadowUF:LoadUnitDefaults()
 			healthBar = {enabled = true, colorType = "percent", reaction = true},
 			powerBar = {enabled = true}, portrait = {enabled = false, type = "3D"},
 			range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
-			text = {{enabled = true, name = L["Left text"], text = "[name]", anchorTo = "$healthBar"}, {enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorTo = "$healthBar"}, {enabled = true, name = L["Left text"], text = "[level] [race]", anchorTo = "$powerBar"}, {enabled = true, name = L["Right text"], text = "[curmaxpp]", anchorTo = "$powerBar"}},
+			text = {{enabled = true, name = L["Left text"], text = "[name]", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Left text"], text = "[level] [race]", anchorTo = "$powerBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxpp]", anchorTo = "$powerBar", size = 0}},
 			indicators = {raidTarget = {enabled = true}}, 
 			auras = {
 				buffs = {enabled = false, perRow = 11, maxRows = 4, prioritize = true, enlargeSelf = false},

@@ -1076,23 +1076,30 @@ local function loadUnitOptions()
 					order = 0,
 					type = "input",
 					name = L["Text"],
-					width = "full",
 					hidden = false,
 				},
-				width = {
+				anchorPoint = {
 					order = 1,
+					hidden = false,
+					type = "select",
+					name = L["Anchor point"],
+					values = {["ITR"] = L["Inside Top Right"], ["ITL"] = L["Inside Top Left"], ["ICL"] = L["Inside Center Left"], ["IC"] = L["Inside Center"], ["ICR"] = L["Inside Center Right"]},
+				},
+				width = {
+					order = 2,
 					hidden = false,
 					name = L["Width weight"],
 					desc = L["How much weight this should use when figuring out the total text width."],
 					type = "range",
 					min = 0, max = 10, step = 0.1,
 				},
-				anchorPoint = {
-					order = 2,
+				size = {
+					order = 2.5,
 					hidden = false,
-					type = "select",
-					name = L["Anchor point"],
-					values = {["ITR"] = L["Inside Top Right"], ["ITL"] = L["Inside Top Left"], ["ICL"] = L["Inside Center Left"], ["IC"] = L["Inside Center"], ["ICR"] = L["Inside Center Right"]},
+					name = L["Size"],
+					desc = L["Let's you modify the base font size to either make it larger or smaller."],
+					type = "range",
+					min = -5, max = 5, step = 1,
 				},
 				sep = {
 					order = 3,

@@ -384,7 +384,7 @@ function Layout:ApplyText(frame, config)
 		local parent = row.anchorTo == "$parent" and frame or frame[string.sub(row.anchorTo, 2)]
 		if( parent and row.enabled and row.text ~= "" ) then
 			local fontString = frame.fontStrings[id] or frame:CreateFontString(nil, "ARTWORK")
-			fontString:SetFont(mediaPath.font, ShadowUF.db.profile.font.size)
+			fontString:SetFont(mediaPath.font, ShadowUF.db.profile.font.size + row.size)
 			fontString:SetText(row.text)
 			fontString:SetParent(parent)
 			fontString:SetJustifyH(self:GetJustify(row))
