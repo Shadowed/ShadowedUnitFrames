@@ -163,8 +163,7 @@ local function SetVisibility(self)
 end
 
 function Units:GotVehicleData(frame)
-	if( UnitHealthMax(frame.unit) > 0 ) then
-		--print("Got data", UnitName(frame.unit), UnitName(frame.unitOwner))
+	if( UnitIsConnected(frame.unit) or UnitHealthMax(frame.unit) > 0 ) then
 		UnregisterEvent(frame, "UNIT_PET", Units)
 		frame:FullUpdate()
 	end
@@ -173,15 +172,15 @@ end
 -- Vehicle status changed for the unit, we need to put it all together again, kind of like the humpty dumpty of the 21st sentry
 function Units:VehicleEntered(frame, event, unit)
 	if( frame.unitOwner ~= unit ) then return end
-	
+
+	-- Ugly yes, but for some reason on raid frames this is not set, not really sure why thought.
+	-- player -> pet, party -> partypet#, raid -> raidpet# (party#pet/raid#pet work too, the secure headers automatically translate it to *pet# thought.
+	frame.vehicleUnit = frame.unitOwner == "player" and "pet" or frame.unitType == "party" and "partypet" .. frame.unitID or frame.unitType == "raid" and "raidpet" .. frame.unitID
 	frame.inVehicle = true
 	frame.unit = frame.vehicleUnit
 	frame:FullUpdate()
 
-	if( UnitHealthMax(frame.unit) > 0 ) then
-		--print("Entered vehicle with data", frame:GetName(), UnitName(frame.unit), UnitName(frame.unitOwner))
-	else
-		--print("Entered vehicle without data", frame:GetName(), UnitName(frame.unit), UnitName(frame.unitOwner))
+	if( not UnitIsConnected(frame.unit) or UnitHealthMax(frame.unit) == 0 ) then
 		frame:RegisterUnitEvent("UNIT_PET", Units, "GotVehicleData")
 	end
 end
@@ -191,8 +190,6 @@ function Units:VehicleLeft(frame, event, unit)
 	frame.inVehicle = false
 	frame.unit = frame.unitOwner
 	frame:FullUpdate()
-	
-	--print("Left vehicle", frame:GetName(), UnitName(frame.unit), frame.unit)
 end
 
 -- Frame is now initialized with a unit
@@ -217,7 +214,7 @@ local function OnAttributeChanged(self, name, unit)
 	-- Update vehicle status
 	if( not self.inVehicle and UnitHasVehicleUI(unit) ) then
 		Units:VehicleEntered(self, nil, unit)
-	elseif( self.inVehicle ) then
+	elseif( self.inVehicle and not UnitHasVehicleUI(unit) ) then
 		Units:VehicleLeft(self, nil, unit)
 	end
 		
@@ -242,8 +239,6 @@ local function OnAttributeChanged(self, name, unit)
 	-- You got to love programming without documentation, ~3 hours spent making this work with raids and such properly, turns out? It's a simple attribute
 	-- and all you have to do is set it up so the unit variables are properly changed based on being in a vehicle... which is what will do now
 	if( unit ~= "pet" and self.unitType ~= "partypet" ) then
-		-- player -> pet, party -> partypet#, raid -> raidpet# (party#pet/raid#pet work too, the secure headers automatically translate it to *pet# thought.
-		self.vehicleUnit = unit == "player" and "pet" or self.unitType == "party" and "partypet" .. self.unitID or self.unitType == "raid" and "raidpet" .. self.unitID
 		self:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", Units, "VehicleEntered")
 		self:RegisterNormalEvent("UNIT_EXITED_VEHICLE", Units, "VehicleLeft")
 	end	

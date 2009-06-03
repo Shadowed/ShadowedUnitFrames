@@ -236,7 +236,7 @@ function ShadowUF:LoadDefaultLayout()
 				indicators = {
 					raidTarget = {anchorTo = "$parent", anchorPoint = "TC", size = 20, y = -15},
 					masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -37, y = -9},
-					leader = {anchorTo = "$parent", anchorPoint = "TR", size = 14, x = -2, y = -10},
+					leader = {anchorTo = "$parent", anchorPoint = "TR", size = 14, x = -2, y = 0},
 					pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = -3, y = 11},
 				},
 				auras = {

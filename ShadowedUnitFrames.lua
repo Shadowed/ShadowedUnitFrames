@@ -129,6 +129,10 @@ function ShadowUF:OnInitialize()
 		self.db.profile.units.party.hideInRaid = nil
 	end
 	
+	if( self.db.profile.units.player.range ) then
+		self.db.profile.units.player.range = nil
+	end
+	
 	-- Hide any Blizzard frames
 	self:HideBlizzardFrames()
 	
@@ -224,6 +228,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.totemBar = {enabled = false}
 	self.defaults.profile.units.player.xpBar = {enabled = false}
 	self.defaults.profile.units.player.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
+	self.defaults.profile.units.player.range = nil
 	-- PET
 	self.defaults.profile.units.pet.enabled = true
 	self.defaults.profile.units.pet.indicators.happiness = {enabled = true, size = 16, anchorPoint = "BR", anchorTo = "$parent", x = 2, y = -2}
