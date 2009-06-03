@@ -90,8 +90,19 @@ end
 
 -- Do a full update OnShow, and stop watching for events when it's not visible
 local function OnShow(self)
-	FullUpdate(self)
+	-- Reset the event handler
 	self:SetScript("OnEvent", OnEvent)
+	
+	-- Party and raid frames love to show/hide themselves, so we're going to block it from doing a full update if the GUID never changed
+	if( self.unitType == "raid" or self.unitType == "party" ) then
+		local guid = UnitGUID(self.unit)
+		if( guid == self.guid ) then return end
+		
+		self.guid = guid
+	end
+	
+	-- Force a full update
+	self:FullUpdate()
 end
 
 local function OnHide(self)
@@ -170,16 +181,16 @@ function Units:GotVehicleData(frame)
 end
 
 -- Vehicle status changed for the unit, we need to put it all together again, kind of like the humpty dumpty of the 21st sentry
-function Units:VehicleEntered(frame, event, unit)
+function Units:VehicleEntered(frame, event, unit, skipUpdate)
 	if( frame.unitOwner ~= unit ) then return end
 
-	-- Ugly yes, but for some reason on raid frames this is not set, not really sure why thought.
-	-- player -> pet, party -> partypet#, raid -> raidpet# (party#pet/raid#pet work too, the secure headers automatically translate it to *pet# thought.
-	frame.vehicleUnit = frame.unitOwner == "player" and "pet" or frame.unitType == "party" and "partypet" .. frame.unitID or frame.unitType == "raid" and "raidpet" .. frame.unitID
 	frame.inVehicle = true
 	frame.unit = frame.vehicleUnit
-	frame:FullUpdate()
-
+	
+	if( not skipUpdate ) then
+		frame:FullUpdate()
+	end
+		
 	if( not UnitIsConnected(frame.unit) or UnitHealthMax(frame.unit) == 0 ) then
 		frame:RegisterUnitEvent("UNIT_PET", Units, "GotVehicleData")
 	end
@@ -190,6 +201,16 @@ function Units:VehicleLeft(frame, event, unit)
 	frame.inVehicle = false
 	frame.unit = frame.unitOwner
 	frame:FullUpdate()
+end
+
+function Units:CheckVehicleStatus(frame)
+	-- Update vehicle status
+	if( not frame.inVehicle and UnitHasVehicleUI(frame.unitOwner) ) then
+		self:VehicleEntered(frame, nil, frame.unitOwner, true)
+	elseif( frame.inVehicle and not UnitHasVehicleUI(frame.unitOwner) ) then
+		frame.inVehicle = false
+		frame.unit = frame.unitOwner
+	end
 end
 
 -- Frame is now initialized with a unit
@@ -207,17 +228,7 @@ local function OnAttributeChanged(self, name, unit)
 	self.unitOwner = unit
 	
 	unitFrames[unit] = self
-
-	-- Update module status
-	self:SetVisibility()
-	
-	-- Update vehicle status
-	if( not self.inVehicle and UnitHasVehicleUI(unit) ) then
-		Units:VehicleEntered(self, nil, unit)
-	elseif( self.inVehicle and not UnitHasVehicleUI(unit) ) then
-		Units:VehicleLeft(self, nil, unit)
-	end
-		
+			
 	-- Add to Clique
 	ClickCastFrames = ClickCastFrames or {}
 	ClickCastFrames[self] = true
@@ -234,15 +245,28 @@ local function OnAttributeChanged(self, name, unit)
 	elseif( string.match(unit, "%w+target") ) then
 		self.timeElapsed = 0
 		self:SetScript("OnUpdate", TargetUnitUpdate)
+	-- When a player is force ressurected by releasing in naxx/tk/etc then they might freeze
+	elseif( unit == "player" ) then
+		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
 	end
 
 	-- You got to love programming without documentation, ~3 hours spent making this work with raids and such properly, turns out? It's a simple attribute
 	-- and all you have to do is set it up so the unit variables are properly changed based on being in a vehicle... which is what will do now
-	if( unit ~= "pet" and self.unitType ~= "partypet" ) then
+	if( unit == "player" or self.unitType == "party" or self.unitType == "raid" ) then
+		-- player -> pet, party -> partypet#, raid -> raidpet# (party#pet/raid#pet work too, the secure headers automatically translate it to *pet# thought.
+		frame.vehicleUnit = frame.unitOwner == "player" and "pet" or frame.unitType == "party" and "partypet" .. frame.unitID or frame.unitType == "raid" and "raidpet" .. frame.unitID
+
 		self:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", Units, "VehicleEntered")
 		self:RegisterNormalEvent("UNIT_EXITED_VEHICLE", Units, "VehicleLeft")
+		self:RegisterUpdateFunc(Units, "CheckVehicleStatus")
+
+		-- Check if they are in a vehicle
+		Units:CheckVehicleStatus(self)
 	end	
-	
+
+	-- Update module status
+	self:SetVisibility()
+
 	--[[
 	-- Hide any pet that became a vehicle, we detect this by the player being untargetable but we have a pet out
 	else
@@ -622,7 +646,6 @@ local centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-centralFrame:RegisterEvent("UNIT_PET")
 centralFrame:SetScript("OnEvent", function(self, event, unit)
 	if( event == "ZONE_CHANGED_NEW_AREA" ) then
 		for _, frame in pairs(unitFrames) do

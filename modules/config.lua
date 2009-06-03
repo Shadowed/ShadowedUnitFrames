@@ -1570,6 +1570,7 @@ local function loadUnitOptions()
 								order = 0,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Combat fader"]),
+								hidden = false,
 								arg = "fader.enabled",
 							},
 							combatAlpha = {
@@ -1579,6 +1580,7 @@ local function loadUnitOptions()
 								desc = L["Alpha to use when you are in combat for this unit."],
 								min = 0, max = 1.0, step = 0.1,
 								arg = "fader.combatAlpha",
+								hidden = false,
 								isPercent = true,
 							},
 							inactiveAlpha = {
@@ -1588,6 +1590,7 @@ local function loadUnitOptions()
 								desc = L["Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%."],
 								min = 0, max = 1.0, step = 0.1,
 								arg = "fader.inactiveAlpha",
+								hidden = false,
 								isPercent = true,
 							},
 						}
@@ -2093,20 +2096,20 @@ local function loadUnitOptions()
 						name = L["Health bar"],
 						args = {
 							enabled = {
-								order = 0,
+								order = 1,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Health bar"]),
 								arg = "healthBar.enabled",
 							},
 							enabledHeal = {
-								order = 1,
+								order = 2,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Incoming heals"]),
 								arg = "incHeal.enabled",
 								hidden = function(info) return string.match(info[2], "%w+target") end,
 							},
 							enabledSelf = {
-								order = 2,
+								order = 3,
 								type = "toggle",
 								name = L["Show your heals"],
 								desc = L["When showing incoming heals, include your heals in the total incoming."],
@@ -2114,27 +2117,27 @@ local function loadUnitOptions()
 								hidden = function(info) return string.match(info[2], "%w+target") end,
 							},
 							sep = {
-								order = 2.5,
+								order = 4,
 								type = "description",
 								name = "",
 								width = "full",
 								hidden = function(info) return not string.match(info[2], "%w+target") end,
 							},
 							healthColor = {
-								order = 4,
+								order = 5,
 								type = "select",
 								name = L["Color health by"],
 								values = {["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"]},
 								arg = "healthBar.colorType",
 							},
 							colorAggro = {
-								order = 5,
+								order = 6,
 								type = "toggle",
 								name = L["Color on aggro"],
 								arg = "healthBar.colorAggro",
 							},
 							reaction = {
-								order = 6,
+								order = 7,
 								type = "toggle",
 								name = L["Color by reaction"],
 								desc = L["If the unit is hostile, the reaction color will override any color health by options."],

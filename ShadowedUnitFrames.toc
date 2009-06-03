@@ -1,6 +1,6 @@
 ## Interface: 30100
 ## Title: Shadowed Unit Frames
-## Notes: The official unit frames of #elitistjerks
+## Notes: Shadowed presents Shadowed Unit Frames a mod by Shadowed
 ## Author: Mayen/Selari
 ## SavedVariables: ShadowedUFDB
 

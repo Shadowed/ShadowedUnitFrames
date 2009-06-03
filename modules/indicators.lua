@@ -112,6 +112,7 @@ function Indicators:UpdateReadyCheck(frame, event)
 	frame.indicators.ready.status = status
 	frame.indicators.ready:SetAlpha(1.0)
 	frame.indicators.ready:SetTexture("Interface\\RaidFrame\\ReadyCheck-" .. name)
+	frame.indicators:SetScript("OnUpdate", nil)
 	frame.indicators.ready:Show()
 end
 
