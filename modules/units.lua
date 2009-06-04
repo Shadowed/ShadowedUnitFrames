@@ -235,6 +235,7 @@ local function OnAttributeChanged(self, name, unit)
 	
 	-- Pet changed, going from pet -> vehicle for one
 	if( unit == "pet" or self.unitType == "partypet" ) then
+		self:RegisterUnitEvent("UNIT_PET", self, "FullUpdate")
 	-- Automatically do a full update on target change
 	elseif( unit == "target" ) then
 		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
