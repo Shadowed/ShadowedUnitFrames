@@ -317,7 +317,7 @@ local function OnDragStart(self)
 	if( self.unitType == "raid" ) then
 		centralFrame:RegisterEvent("RAID_ROSTER_UPDATE")
 	elseif( self.unitType == "party" ) then
-		centralFrame:RegisterEvent("PARTY_MEMBERS_CHANGED)
+		centralFrame:RegisterEvent("PARTY_MEMBERS_CHANGED")
 	end
 
 
