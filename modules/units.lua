@@ -254,7 +254,7 @@ local function OnAttributeChanged(self, name, unit)
 	-- and all you have to do is set it up so the unit variables are properly changed based on being in a vehicle... which is what will do now
 	if( unit == "player" or self.unitType == "party" or self.unitType == "raid" ) then
 		-- player -> pet, party -> partypet#, raid -> raidpet# (party#pet/raid#pet work too, the secure headers automatically translate it to *pet# thought.
-		frame.vehicleUnit = frame.unitOwner == "player" and "pet" or frame.unitType == "party" and "partypet" .. frame.unitID or frame.unitType == "raid" and "raidpet" .. frame.unitID
+		self.vehicleUnit = self.unitOwner == "player" and "pet" or self.unitType == "party" and "partypet" .. self.unitID or self.unitType == "raid" and "raidpet" .. self.unitID
 
 		self:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", Units, "VehicleEntered")
 		self:RegisterNormalEvent("UNIT_EXITED_VEHICLE", Units, "VehicleLeft")
