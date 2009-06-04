@@ -2,7 +2,7 @@ local Units = {unitFrames = {}}
 local vehicleMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 local unitEvents, loadedUnits, queuedCombat = {}, {}, {}, {}
 local unitFrames = Units.unitFrames
-local inCombat, needPartyFrame
+local inCombat, needPartyFrame, frameMoving, centralFrame
 local FRAME_LEVEL_MAX = 5
 
 ShadowUF.Units = Units
@@ -312,6 +312,15 @@ local function OnDragStart(self)
 	self.isMoving = true
 	self:StartMoving()
 
+	frameMoving = self
+	
+	if( self.unitType == "raid" ) then
+		centralFrame:RegisterEvent("RAID_ROSTER_UPDATE")
+	elseif( self.unitType == "party" ) then
+		centralFrame:RegisterEvent("PARTY_MEMBERS_CHANGED)
+	end
+
+
 	GameTooltip:Hide()
 end
 
@@ -335,7 +344,10 @@ local function OnDragStop(self)
 	position.relativePoint = relativePoint
 	position.x = x * scale
 	position.y = y * scale
+	
+	frameMoving = nil
 end
+
 
 -- Show tooltip
 local function OnEnter(...)
@@ -492,7 +504,6 @@ function Units:LoadGroupHeader(config, type)
 	headerFrame.initialConfigFunction = initUnit
 	headerFrame.unitType = type
 	headerFrame:SetMovable(true)
-	headerFrame:SetClampedToScreen(true)
 	headerFrame:RegisterForDrag("LeftButton")
 	headerFrame:Show()
 
@@ -643,12 +654,19 @@ end
 
 -- Handles events related to all units and not a specific one
 local headerUpdated = {}
-local centralFrame = CreateFrame("Frame")
+
+centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 centralFrame:SetScript("OnEvent", function(self, event, unit)
-	if( event == "ZONE_CHANGED_NEW_AREA" ) then
+	if( event == "RAID_ROSTER_UPDATE" or event == "PARTY_MEMBERS_CHANGED" ) then
+		if( not frameMoving ) then return end
+		self:UnregisterEvent(event)
+
+		OnDragStop(frameMoving)
+	
+	elseif( event == "ZONE_CHANGED_NEW_AREA" ) then
 		for _, frame in pairs(unitFrames) do
 			if( frame:GetAttribute("unit") ) then
 				frame:SetVisibility()
