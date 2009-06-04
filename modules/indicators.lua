@@ -5,6 +5,8 @@ local indicatorList = {"status", "pvp", "leader", "masterLoot", "raidTarget", "h
 ShadowUF:RegisterModule(Indicators, "indicators", ShadowUFLocals["Indicators"])
 
 function Indicators:UpdateHappiness(frame)
+	if( not frame.indicators.happiness.enabled ) then return end
+
 	local happyHappy = GetPetHappiness()
 	if( not happyHappy ) then
 		frame.indicators.happiness:Hide()
@@ -21,6 +23,8 @@ function Indicators:UpdateHappiness(frame)
 end
 
 function Indicators:UpdateMasterLoot(frame)
+	if( not frame.indicators.masterLoot.enabled ) then return end
+
 	local lootType, partyID, raidID = GetLootMethod()
 	if( lootType ~= "master" ) then
 		frame.indicators.masterLoot:Hide()
@@ -32,6 +36,8 @@ function Indicators:UpdateMasterLoot(frame)
 end
 			
 function Indicators:UpdateRaidTarget(frame)
+	if( not frame.indicators.raidTarget.enabled ) then return end
+
 	if( UnitExists(frame.unit) and GetRaidTargetIndex(frame.unit) ) then
 		SetRaidTargetIconTexture(frame.indicators.raidTarget, GetRaidTargetIndex(frame.unit))
 		frame.indicators.raidTarget:Show()
@@ -41,6 +47,8 @@ function Indicators:UpdateRaidTarget(frame)
 end
 			
 function Indicators:UpdateLeader(frame)
+	if( not frame.indicators.leader.enabled ) then return end
+
 	if( UnitIsPartyLeader(frame.unit) ) then
 		frame.indicators.leader:Show()
 	else
@@ -49,6 +57,8 @@ function Indicators:UpdateLeader(frame)
 end
 
 function Indicators:UpdatePVPFlag(frame)
+	if( not frame.indicators.pvp.enabled ) then return end
+
 	if( UnitIsPVP(frame.unit) and UnitFactionGroup(frame.unit) ) then
 		frame.indicators.pvp:SetTexture(string.format("Interface\\TargetingFrame\\UI-PVP-%s", UnitFactionGroup(frame.unit)))
 		frame.indicators.pvp:Show()
@@ -61,6 +71,8 @@ function Indicators:UpdatePVPFlag(frame)
 end
 
 function Indicators:UpdateStatus(frame)
+	if( not frame.indicators.status.enabled ) then return end
+
 	if( UnitAffectingCombat(frame.unit) ) then
 		frame.indicators.status:SetTexCoord(0.50, 1.0, 0.0, 0.49)
 		frame.indicators.status:Show()
@@ -85,6 +97,8 @@ local function fadeReadyStatus(self, elapsed)
 end
 
 function Indicators:UpdateReadyCheck(frame, event)
+	if( not frame.indicators.ready.enabled ) then return end
+
 	-- We're done, and should fade it out if it's shown
 	if( event == "READY_CHECK_FINISHED" ) then
 		if( frame.indicators.ready:IsShown() ) then
@@ -122,10 +136,20 @@ function Indicators:OnEnable(frame)
 		frame.indicators = CreateFrame("Frame", nil, frame)
 		frame.indicators:SetFrameLevel(frame.topFrameLevel)
 		frame.indicators.list = indicatorList
-	end
+	else
+		-- Just start off fresh
+		frame:UnregisterAll(self)
 		
+		for _, key in pairs(frame.indicators.list) do
+			if( frame.indicators[key] ) then
+				frame.indicators[key]:Hide()
+			end
+		end
+	end
+	
+	-- Now lets enable all the indicators
 	local config = ShadowUF.db.profile.units[frame.unitType]
-	if( config.indicators.status ) then
+	if( config.indicators.status and config.indicators.status.enabled ) then
 		frame:RegisterNormalEvent("PLAYER_REGEN_ENABLED", self, "UpdateStatus")
 		frame:RegisterNormalEvent("PLAYER_REGEN_DISABLED", self, "UpdateStatus")
 		frame:RegisterNormalEvent("PLAYER_UPDATE_RESTING", self, "UpdateStatus")
@@ -137,7 +161,7 @@ function Indicators:OnEnable(frame)
 		frame.indicators.status:Hide()
 	end
 		
-	if( config.indicators.pvp ) then
+	if( config.indicators.pvp and config.indicators.pvp.enabled ) then
 		frame:RegisterUnitEvent("PLAYER_FLAGS_CHANGED", self, "UpdatePVPFlag")
 		frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdatePVPFlag")
 		frame:RegisterUpdateFunc(self, "UpdatePVPFlag")
@@ -146,7 +170,7 @@ function Indicators:OnEnable(frame)
 		frame.indicators.pvp:Hide()
 	end
 		
-	if( config.indicators.leader ) then
+	if( config.indicators.leader and config.indicators.leader.enabled ) then
 		frame:RegisterNormalEvent("PARTY_LEADER_CHANGED", self, "UpdateLeader")
 		frame:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", self, "UpdateLeader")
 		frame:RegisterUpdateFunc(self, "UpdateLeader")
@@ -156,7 +180,7 @@ function Indicators:OnEnable(frame)
 		frame.indicators.leader:Hide()
 	end
 		
-	if( config.indicators.masterLoot ) then
+	if( config.indicators.masterLoot and config.indicators.masterLoot.enabled ) then
 		frame:RegisterNormalEvent("PARTY_LOOT_METHOD_CHANGED", self, "UpdateMasterLoot")
 		frame:RegisterUpdateFunc(self, "UpdateMasterLoot")
 
@@ -165,7 +189,7 @@ function Indicators:OnEnable(frame)
 		frame.indicators.masterLoot:Hide()
 	end
 		
-	if( config.indicators.raidTarget ) then
+	if( config.indicators.raidTarget and config.indicators.raidTarget.enabled ) then
 		frame:RegisterNormalEvent("RAID_TARGET_UPDATE", self, "UpdateRaidTarget")
 		frame:RegisterUpdateFunc(self, "UpdateRaidTarget")
 		
@@ -174,7 +198,7 @@ function Indicators:OnEnable(frame)
 		frame.indicators.raidTarget:Hide()
 	end
 
-	if( config.indicators.ready ) then
+	if( config.indicators.ready and config.indicators.ready.enabled ) then
 		frame:RegisterNormalEvent("READY_CHECK", self, "UpdateReadyCheck")
 		frame:RegisterNormalEvent("READY_CHECK_CONFIRM", self, "UpdateReadyCheck")
 		frame:RegisterNormalEvent("READY_CHECK_FINISHED", self, "UpdateReadyCheck")
@@ -185,7 +209,7 @@ function Indicators:OnEnable(frame)
 		frame.indicators.ready:Hide()
 	end
 	
-	if( config.indicators.happiness ) then
+	if( config.indicators.happiness and config.indicators.happiness.enabled ) then
 		frame:RegisterUnitEvent("UNIT_HAPPINESS", self, "UpdateHappiness")
 		frame:RegisterUpdateFunc(self, "UpdateHappiness")
 		
