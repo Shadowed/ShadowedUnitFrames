@@ -173,6 +173,7 @@ local function SetVisibility(self)
 	end
 end
 
+-- We don't always have vehicle data as soon as we enter them, this tells us that we officially have data thought
 function Units:GotVehicleData(frame)
 	if( UnitIsConnected(frame.unit) or UnitHealthMax(frame.unit) > 0 ) then
 		UnregisterEvent(frame, "UNIT_PET", Units)
@@ -182,13 +183,15 @@ end
 
 -- Vehicle status changed for the unit, we need to put it all together again, kind of like the humpty dumpty of the 21st sentry
 function Units:VehicleEntered(frame, event, unit, skipUpdate)
-	if( frame.unitOwner ~= unit ) then return end
+	if( frame.unitOwner ~= unit or not UnitHasVehicleUI(frame.unitOwner) ) then return end
 
 	frame.inVehicle = true
 	frame.unit = frame.vehicleUnit
 	
 	if( not skipUpdate ) then
 		frame:FullUpdate()
+	else
+		return
 	end
 		
 	if( not UnitIsConnected(frame.unit) or UnitHealthMax(frame.unit) == 0 ) then
@@ -197,7 +200,7 @@ function Units:VehicleEntered(frame, event, unit, skipUpdate)
 end
 
 function Units:VehicleLeft(frame, event, unit)
-	if( frame.unitOwner ~= unit ) then return end
+	if( frame.unitOwner ~= unit or not frame.inVehicle ) then return end
 	frame.inVehicle = false
 	frame.unit = frame.unitOwner
 	frame:FullUpdate()
