@@ -556,9 +556,9 @@ function ShadowUF:ProfilesChanged()
 		self:LoadDefaultLayout()
 	end
 	
+	ShadowUF.Layout:CheckMedia()
 	ShadowUF.Units:ProfileChanged()
 	ShadowUF:LoadUnits()
-	ShadowUF.Layout:CheckMedia()
 	ShadowUF.Layout:ReloadAll()
 end
 

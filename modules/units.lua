@@ -173,29 +173,34 @@ local function SetVisibility(self)
 	end
 end
 
--- We don't always have vehicle data as soon as we enter them, this tells us that we officially have data thought
-function Units:GotVehicleData(frame)
-	if( UnitIsConnected(frame.unit) or UnitHealthMax(frame.unit) > 0 ) then
-		UnregisterEvent(frame, "UNIT_PET", Units)
-		frame:FullUpdate()
+-- Annoying, but a pure OnUpdate seems to be the most accurate way of ensuring we got data if it was delayed
+local function checkVehicleData(self, elapsed)
+	self.timeElapsed = self.timeElapsed + elapsed
+	if( self.timeElapsed >= 0.20 ) then
+		self.timeElapsed = 0
+		self.dataAttempts = self.dataAttempts + 1
+		
+		-- Either we got data already, or it took over 5 seconds (25 tries) to get it
+		if( UnitIsConnected(self.unit) or UnitHealthMax(self.unit) > 0 or self.dataAttempts >= 25 ) then
+			self:SetScript("OnUpdate", nil)
+			self:FullUpdate()
+		end
 	end
 end
 
 -- Vehicle status changed for the unit, we need to put it all together again, kind of like the humpty dumpty of the 21st sentry
-function Units:VehicleEntered(frame, event, unit, skipUpdate)
-	if( frame.unitOwner ~= unit or not UnitHasVehicleUI(frame.unitOwner) ) then return end
+function Units:VehicleEntered(frame, event, unit)
+	if( frame.unitOwner ~= unit or not UnitHasVehicleUI(frame.unitOwner) or frame.unit == frame.vehicleUnit ) then return end
 
 	frame.inVehicle = true
 	frame.unit = frame.vehicleUnit
-	
-	if( not skipUpdate ) then
-		frame:FullUpdate()
-	else
-		return
-	end
-		
+
 	if( not UnitIsConnected(frame.unit) or UnitHealthMax(frame.unit) == 0 ) then
-		frame:RegisterUnitEvent("UNIT_PET", Units, "GotVehicleData")
+		frame.timeElapsed = 0
+		frame.dataAttempts = 0
+		frame:SetScript("OnUpdate", checkVehicleData)
+	else
+		frame:FullUpdate()
 	end
 end
 
@@ -258,12 +263,12 @@ local function OnAttributeChanged(self, name, unit)
 	-- and all you have to do is set it up so the unit variables are properly changed based on being in a vehicle... which is what will do now
 	if( unit == "player" or self.unitType == "party" or self.unitType == "raid" ) then
 		-- player -> pet, party -> partypet#, raid -> raidpet# (party#pet/raid#pet work too, the secure headers automatically translate it to *pet# thought.
-		self.vehicleUnit = self.unitOwner == "player" and "pet" or self.unitType == "party" and "partypet" .. self.unitID or self.unitType == "raid" and "raidpet" .. self.unitID
+		self.vehicleUnit = self.unitOwner == "player" and "vehicle" or self.unitType == "party" and "partypet" .. self.unitID or self.unitType == "raid" and "raidpet" .. self.unitID
 
 		self:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", Units, "VehicleEntered")
 		self:RegisterNormalEvent("UNIT_EXITED_VEHICLE", Units, "VehicleLeft")
 		self:RegisterUpdateFunc(Units, "CheckVehicleStatus")
-
+		
 		-- Check if they are in a vehicle
 		Units:CheckVehicleStatus(self)
 	end	
@@ -271,23 +276,20 @@ local function OnAttributeChanged(self, name, unit)
 	-- Update module status
 	self:SetVisibility()
 
-	--[[
 	-- Hide any pet that became a vehicle, we detect this by the player being untargetable but we have a pet out
-	else
-		local vehicleUnit = unit == "pet" and "player" or self.unitType == "partypet" and ShadowUF.partyUnits[self.unitID]
-		RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, help][target=%s, exists] %s; none", vehicleUnit, unit, unit))
-		vehicleMonitor:WrapScript(self, "OnAttributeChanged", [ [
-			if( name ~= "state-vehicleupdated" ) then return end
-			self:SetAttribute("unit", value ~= "none" and value or nil)
-			print(value, self:GetAttribute("unit"))
-		] ])
+	if( unit == "pet" ) then
+		RegisterStateDriver(self, "vehicleupdated", "[target=vehicle,exists] none; pet")
+		vehicleMonitor:WrapScript(self, "OnAttributeChanged", [[
+			if( name == "state-vehicleupdated" ) then
+				self:SetAttribute("unit", value ~= "none" and value or nil)
+			end
+		]])
 
 		-- Logged out in a vehicle
-		if( not UnitCanAssist(vehicleUnit, "player") and UnitExists(unit) ) then
+		if( UnitHasVehicleUI("player") ) then
 			self:SetAttribute("unit", nil)
 		end
 	end
-	]]
 end
 
 function Units:LoadUnit(config, unit)
@@ -429,13 +431,24 @@ function Units:ReloadHeader(type)
 end
 
 function Units:ProfileChanged()
+	-- Force all of the module changes
 	for _, frame in pairs(unitFrames) do
 		if( frame:GetAttribute("unit") ) then
+			-- Force all enabled modules to disable
+			for key, module in pairs(ShadowUF.modules) do
+				if( frame[key] and frame[key].disabled ) then
+					frame[key].disabled = true
+					module:OnDisable(frame)
+				end
+			end
+			
+			-- Now enable whatever we need to
 			frame:SetVisibility()
 			frame:FullUpdate()
 		end
 	end
 	
+	-- Force headers to update
 	self:ReloadHeader("raid")
 	self:ReloadHeader("party")
 end
@@ -610,10 +623,6 @@ function Units:UninitializeFrame(config, type)
 		end
 	end
 end
-
---function Units:OnLayoutApplied(frame)
---	frame:FullUpdate()
---end
 
 function Units.ShowMenu(frame)
 	local menuFrame
