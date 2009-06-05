@@ -73,10 +73,12 @@ function Health:UpdateColor(frame)
 	
 	-- Tapped by a non-party member
 	frame.healthBar.hasReaction = false
+	frame.healthBar.wasOffline = false
 	
 	local color
 	local unit = frame.unit
 	if( not UnitIsConnected(unit) ) then
+		frame.healthBar.wasOffline = true
 		setBarColor(frame.healthBar, 0.50, 0.50, 0.50)
 		return
 	elseif( frame.inVehicle ) then
@@ -140,9 +142,16 @@ function Health:Update(frame)
 	if( frame.incHeal and frame.incHeal.nextUpdate ) then
 		frame.incHeal:Hide()
 	end
-		
+	
+	-- Unit is offline, fill bar up + grey it
 	if( isOffline ) then
+		frame.healthBar.wasOffline = true
 		setBarColor(frame.healthBar, 0.50, 0.50, 0.50)
+	-- The unit was offline, but they no longer are so we need to do a forced color update
+	elseif( frame.healthBar.wasOffline ) then
+		frame.healthBar.wasOffline = false
+		self:UpdateColor(frame)
+	-- Color health by percentage
 	elseif( frame.healthBar.hasPercent ) then
 		setGradient(frame.healthBar, unit)
 	end
