@@ -398,7 +398,7 @@ function Layout:ApplyText(frame, config)
 			local anchorPoint = (row.anchorPoint == "ITR" or row.anchorPoint == "ITL") and "IT" or (row.anchorPoint == "ICL" or row.anchorPoint == "ICR" ) and "IC" or row.anchorPoint
 			
 			fontString.availableWidth = parent:GetWidth()
-			fontString.widthID = row.anchorTo .. anchorPoint
+			fontString.widthID = row.anchorTo .. anchorPoint .. row.y
 			totalWeight[fontString.widthID] = (totalWeight[fontString.widthID] or 0) + row.width
 			
 			updateShadows(fontString)

@@ -39,6 +39,10 @@ local function loadData()
 	hideAdvancedOption = function(info)
 		return not ShadowUF.db.profile.advanced
 	end
+	
+	hideBasicOption = function(info)
+		return ShadowUF.db.profile.advanced
+	end
 
 	isUnitDisabled = function(info)
 		return not ShadowUF.db.profile.units[info[#(info)]].enabled
@@ -233,6 +237,7 @@ local function loadData()
 	Config.getUnit = getUnit
 	Config.getVariable = getVariable
 	Config.hideRestrictedOption = hideRestrictedOption
+	Config.hideBasicOption = hideBasicOption
 end
 
 
@@ -1055,12 +1060,11 @@ local function loadUnitOptions()
 		
 		local quickIDMap = {}
 		Config.advanceTextTable = {
-			order = 0,
+			order = 1,
 			name = function(info) return getVariable(info[2], "text", quickIDMap[info[#(info)]], "name") end,
 			type = "group",
 			inline = true,
 			hidden = function(info)
-				if( not ShadowUF.db.profile.advanced ) then return true end
 				return string.sub(getVariable(info[2], "text", quickIDMap[info[#(info)]], "anchorTo"), 2) ~= info[#(info) - 1]
 			end,
 			set = function(info, value)
@@ -1072,21 +1076,24 @@ local function loadUnitOptions()
 				return getUnit(info)
 			end,
 			args = {
-				text = {
-					order = 0,
-					type = "input",
-					name = L["Text"],
-					hidden = false,
-				},
 				anchorPoint = {
 					order = 1,
 					hidden = false,
 					type = "select",
 					name = L["Anchor point"],
 					values = {["ITR"] = L["Inside Top Right"], ["ITL"] = L["Inside Top Left"], ["ICL"] = L["Inside Center Left"], ["IC"] = L["Inside Center"], ["ICR"] = L["Inside Center Right"]},
+					hidden = hideAdvancedOption,
+				},
+				sep = {
+					order = 2,
+					hidden = false,
+					type = "description",
+					name = "",
+					width = "full",
+					hidden = hideAdvancedOption,
 				},
 				width = {
-					order = 2,
+					order = 3,
 					hidden = false,
 					name = L["Width weight"],
 					desc = L["How much weight this should use when figuring out the total text width."],
@@ -1094,33 +1101,28 @@ local function loadUnitOptions()
 					min = 0, max = 10, step = 0.1,
 				},
 				size = {
-					order = 2.5,
+					order = 4,
 					hidden = false,
 					name = L["Size"],
 					desc = L["Let's you modify the base font size to either make it larger or smaller."],
 					type = "range",
 					min = -5, max = 5, step = 1,
 				},
-				sep = {
-					order = 3,
-					hidden = false,
-					type = "description",
-					name = "",
-					width = "full",
-				},
 				x = {
-					order = 4,
+					order = 5,
 					hidden = false,
 					type = "range",
 					name = L["X Offset"],
 					min = -100, max = 100, step = 1,
+					hidden = hideAdvancedOption,
 				},
 				y = {
-					order = 5,
+					order = 6,
 					hidden = false,
 					type = "range",
 					name = L["Y Offset"],
-					min = -100, max = 100, step = 1
+					min = -100, max = 100, step = 1,
+					hidden = hideAdvancedOption,
 				},
 			},
 		}
@@ -1211,10 +1213,26 @@ local function loadUnitOptions()
 			parentList[text.anchorTo] = parentList[text.anchorTo] or {}
 			parentList[text.anchorTo][id] = text
 		end
+		
+		local nagityNagNagTable = {
+			order = 0,
+			type = "group",
+			name = L["Help"],
+			inline = true,
+			hidden = hideBasicOption,
+			args = {
+				help = {
+					order = 0,
+					type = "description",
+					name = L["Select a text widget from the left side panel to set tags, you can use this page to change the truncate width and sizing."],
+				},
+			},
+		}
 	
 		for parent, list in pairs(parentList) do
 			parent = string.sub(parent, 2)
 			tagWizard[parent] = parentTable
+			parentTable.args.help = nagityNagNagTable
 			
 			for id in pairs(list) do
 				tagWizard[parent].args[tostring(id)] = Config.tagTextTable
