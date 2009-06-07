@@ -1,5 +1,5 @@
 local IncHeal = {}
-local frames, playerHeals = {}, {}
+local frames, playerHeals, totalHealing = {}, {}, {}
 local playerName = UnitName("player")
 local HealComm
 local OH_WARNING = 1.30
@@ -53,7 +53,6 @@ function IncHeal:Setup()
 	HealComm.RegisterCallback(self, "HealComm_DirectHealStop", "DirectHealStop")
 	HealComm.RegisterCallback(self, "HealComm_DirectHealDelayed", "DirectHealDelayed")
 	HealComm.RegisterCallback(self, "HealComm_HealModifierUpdate", "HealModifierUpdate")
-
 end
 
 local function setBarColor(bar, r, g, b)
@@ -95,36 +94,22 @@ end
 function IncHeal:UpdateFrame(frame)
 	local name = getName(frame.unit)
 	if( name and frame.incHeal ) then
-		local amount = HealComm:UnitIncomingHealGet(frame.unit, GetTime()) or 0
-		if( playerHeals[name] and ShadowUF.db.profile.units[frame.unitType].incHeal.showSelf ) then
-			amount = amount + playerHeals[name]
-		end
-		
-		updateHealthBar(frame, name, amount, true)
+		updateHealthBar(frame, name, totalHealing[name] or 0)
 	end
 end
 
 function IncHeal:UpdateIncoming(healer, amount, succeeded, ...)
 	for i=1, select("#", ...) do
-		local target = select(i, ...)
-		if( target == playerName ) then
-			playerHeals[target] = amount
-		end
-		
-		self:UpdateHealing(target, succeeded)
+		self:UpdateHealing(select(i, ...), amount, succeeded)
 	end
 end
 
-function IncHeal:UpdateHealing(target, succeeded)
-	local amount = HealComm:UnitIncomingHealGet(target, GetTime() + 10) or 0
+function IncHeal:UpdateHealing(target, amount, succeeded)
+	totalHealing[target] = (totalHealing[target] or 0) + amount
+	
 	for frame in pairs(frames) do
 		if( frame:IsVisible() and frame.unit and getName(frame.unit) == target ) then
-			local healed = amount
-			if( playerHeals[target] and ShadowUF.db.profile.units[frame.unitType].incHeal.showSelf ) then
-				healed = healed + playerHeals[target]
-			end
-			
-			updateHealthBar(frame, target, healed, succeeded)
+			updateHealthBar(frame, target, totalHealing[target], succeeded)
 		end
 	end
 end
@@ -135,15 +120,15 @@ function IncHeal:DirectHealStart(event, healerName, amount, endTime, ...)
 end
 
 function IncHeal:DirectHealStop(event, healerName, amount, succeeded, ...)
-	self:UpdateIncoming(healerName, 0, succeeded, ...)
+	self:UpdateIncoming(healerName, -amount, succeeded, ...)
 end
 
 function IncHeal:DirectHealDelayed(event, healerName, amount, endTime, ...)
-	self:UpdateIncoming(healerName, amount, nil, ...)
+	self:UpdateIncoming(healerName, 0, nil, ...)
 end
 
 function IncHeal:HealModifierUpdate(event, unit, targetName, healMod)
-	self:UpdateHealing(targetName)
+	self:UpdateHealing(targetName, 0)
 end
 
 

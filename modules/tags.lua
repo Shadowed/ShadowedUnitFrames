@@ -389,7 +389,7 @@ Tags.defaultTags = {
 		end
 	end]],
 	["faction"] = [[function(unit) return UnitFactionGroup(unit) end]],
-	["level"] = [[function(unit) local l = UnitLevel(unit) return (l > 0) and l or ShadowUFLocals["??"] end]],
+	["level"] = [[function(unit) local l = UnitLevel(unit) return l > 0 and l or ShadowUFLocals["??"] end]],
 	["maxhp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitHealthMax(unit)) end]],
 	["maxpp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPowerMax(unit)) end]],
 	["missinghp"] = [[function(unit)

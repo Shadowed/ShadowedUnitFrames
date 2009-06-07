@@ -2126,20 +2126,12 @@ local function loadUnitOptions()
 								arg = "incHeal.enabled",
 								hidden = function(info) return string.match(info[2], "%w+target") end,
 							},
-							enabledSelf = {
-								order = 3,
-								type = "toggle",
-								name = L["Show your heals"],
-								desc = L["When showing incoming heals, include your heals in the total incoming."],
-								arg = "incHeal.showSelf",
-								hidden = function(info) return string.match(info[2], "%w+target") end,
-							},
 							sep = {
 								order = 4,
 								type = "description",
 								name = "",
 								width = "full",
-								hidden = function(info) return not string.match(info[2], "%w+target") end,
+								--hidden = function(info) return not string.match(info[2], "%w+target") end,
 							},
 							healthColor = {
 								order = 5,

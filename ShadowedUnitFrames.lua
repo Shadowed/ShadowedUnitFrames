@@ -203,7 +203,7 @@ function ShadowUF:LoadUnitDefaults()
 				
 		-- These modules are not enabled for "fake" units so don't bother with adding defaults
 		if( not string.match(unit, "%w+target") ) then
-			self.defaults.profile.units[unit].incHeal = {enabled = false, showSelf = true}
+			self.defaults.profile.units[unit].incHeal = {enabled = false}
 			self.defaults.profile.units[unit].castBar = {enabled = false, castName = {enabled = true, anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, castTime = {enabled = true, anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0}}
 			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
 		end
