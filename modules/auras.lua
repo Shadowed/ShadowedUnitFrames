@@ -192,7 +192,7 @@ function Auras:Scan(frame, filter, type, unit, specialFilters)
 		local name, rank, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(unit, index, filter)
 		if( not name ) then break end
 		
-		if( ( not specialFilters.curable or debuffType and canRemove[debuffType] ) and ( not specialFilters.player or caster == "player" )  ) then
+		if( ( not specialFilters.curable or debuffType and canRemove[debuffType] ) and ( not specialFilters.player or ( caster == "player" or caster == "vehicle" ) )  ) then
 			frame.totalAuras = frame.totalAuras + 1
 			if( frame.totalAuras >= frame.maxAuras ) then
 				frame.totalAuras = frame.maxAuras
@@ -209,7 +209,7 @@ function Auras:Scan(frame, filter, type, unit, specialFilters)
 			button.auraEnd = endTime
 			button.auraStealable = isStealable
 			button.auraCaster = caster
-			button.auraPlayers = caster == "player"
+			button.auraPlayers = caster == "player" or caster == "vehicle"
 			button.auraID = index
 			button.filter = filter
 			button.type = type

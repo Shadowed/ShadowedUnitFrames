@@ -154,14 +154,14 @@ function Layout:AnchorFrame(parent, frame, config, isRecurse)
 		return
 	end
 		
-	-- $ = Indicates we're asking for one of the sub-frames inside the parent
-	-- # = Indicates we're asking for one of SSUF's frames, and that it might not be created yet
 	local anchorTo
 	local prefix = string.sub(config.anchorTo, 0, 1)
 	if( config.anchorTo == "$parent" ) then
 		anchorTo = parent
+	-- $ is used as an indicator of a sub-frame inside a parent, $healthBar -> parent.healthBar and so on
 	elseif( prefix == "$" ) then
 		anchorTo = parent[string.sub(config.anchorTo, 2)]
+	-- # is used as an indicator of an actual frame created by SUF, SUFUnittarget, etc. It also means, that the frame might not have been created yet
 	elseif( prefix == "#" ) then
 		anchorTo = string.sub(config.anchorTo, 2)
 		if( not getglobal(anchorTo) ) then
@@ -325,6 +325,7 @@ function Layout:ApplyText(frame, config)
 		-- Set the font at the very least, so it doesn't error when we set text on it even if it isn't being shown
 		frame.castBar.name:SetFont(mediaPath.font, ShadowUF.db.profile.font.size)
 		if( config.castBar.castName.enabled ) then
+			frame.castBar.name:SetParent(frame.highFrame)
 			frame.castBar.name:SetWidth(frame.castBar:GetWidth() * 0.75)
 			frame.castBar.name:SetHeight(ShadowUF.db.profile.font.size + 1)
 			frame.castBar.name:SetJustifyH(self:GetJustify(config.castBar.castName))
@@ -338,6 +339,7 @@ function Layout:ApplyText(frame, config)
 		
 		frame.castBar.time:SetFont(mediaPath.font, ShadowUF.db.profile.font.size)
 		if( config.castBar.castTime.enabled ) then
+			frame.castBar.time:SetParent(frame.highFrame)
 			frame.castBar.time:SetWidth(frame.castBar:GetWidth() * 0.25)
 			frame.castBar.time:SetHeight(ShadowUF.db.profile.font.size + 1)
 			frame.castBar.time:SetJustifyH(self:GetJustify(config.castBar.castTime))
@@ -348,6 +350,9 @@ function Layout:ApplyText(frame, config)
 		else
 			frame.castBar.time:Hide()
 		end
+	elseif( frame.castBar ) then
+		frame.castBar.time:Hide()
+		frame.castBar.name:Hide()
 	end
 	
 	-- Update feedback text
@@ -382,11 +387,11 @@ function Layout:ApplyText(frame, config)
 	-- Update the actual text, and figure out the weighting information now
 	for id, row in pairs(config.text) do
 		local parent = row.anchorTo == "$parent" and frame or frame[string.sub(row.anchorTo, 2)]
-		if( parent and row.enabled and row.text ~= "" ) then
+		if( parent and parent:IsShown() and row.enabled and row.text ~= "" ) then
 			local fontString = frame.fontStrings[id] or frame:CreateFontString(nil, "ARTWORK")
 			fontString:SetFont(mediaPath.font, ShadowUF.db.profile.font.size + row.size)
 			fontString:SetText(row.text)
-			fontString:SetParent(parent)
+			fontString:SetParent(frame.highFrame)
 			fontString:SetJustifyH(self:GetJustify(row))
 			self:AnchorFrame(frame, fontString, row)
 			

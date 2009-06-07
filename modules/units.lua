@@ -268,6 +268,8 @@ local function OnAttributeChanged(self, name, unit)
 		self:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", Units, "VehicleEntered")
 		self:RegisterNormalEvent("UNIT_EXITED_VEHICLE", Units, "VehicleLeft")
 		self:RegisterUpdateFunc(Units, "CheckVehicleStatus")
+		-- This unit can be a vehicle, so will want to be able to target the vehicle if they enter one
+		self:SetAttribute("toggleForVehicle", true)
 		
 		-- Check if they are in a vehicle
 		Units:CheckVehicleStatus(self)
@@ -376,6 +378,11 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame.SetVisibility = SetVisibility
 	frame.topFrameLevel = FRAME_LEVEL_MAX
 	
+	-- Ensures that text is the absolute highest thing there is
+	frame.highFrame = CreateFrame("Frame", nil, frame)
+	frame.highFrame:SetFrameLevel(frame.topFrameLevel + 1)
+	frame.highFrame:SetAllPoints(frame)
+	
 	frame:SetScript("OnDragStart", OnDragStart)
 	frame:SetScript("OnDragStop", OnDragStop)
 	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
@@ -388,7 +395,6 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame:RegisterForClicks("AnyUp")	
 	frame:SetAttribute("*type1", "target")
 	frame:SetAttribute("*type2", "menu")
-	frame:SetAttribute("toggleForVehicle", true)
 	-- allowVehicleTarget
 	--[16:42] <+alestane> Shadowed: It says whether a unit defined as, for instance, "party1target" should be remapped to "partypet1target" when party1 is in a vehicle.
 	frame.menu = Units.ShowMenu

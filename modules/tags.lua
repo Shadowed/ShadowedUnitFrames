@@ -292,11 +292,16 @@ Tags.defaultTags = {
 	["classcolor"] = [[function(unit) return ShadowUF:GetClassColor(unit) end]],
 	["creature"] = [[function(unit) return UnitCreatureFamily(unit) or UnitCreatureType(unit) end]],
 	["curhp"] = [[function(unit)
-		local health = UnitHealth(unit)
-		if( health == 1 or UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) ) then
-			health = 0
+		if( UnitIsDead(unit) ) then
+			return ShadowUFLocals["Dead"]
+		elseif( UnitIsGhost(unit) ) then
+			return ShadowUFLocals["Ghost"]
+		elseif( not UnitIsConnected(unit) ) then
+			return ShadowUFLocals["Offline"]
 		end
-		return ShadowUF:FormatLargeNumber(health)
+
+		local health = UnitHealth(unit)
+		return health > 1 and ShadowUF:FormatLargeNumber(health) or 0
 	end]],
 	["colorname"] = [[function(unit, unitOwner)
 		unit = unitOwner or unit
@@ -309,14 +314,12 @@ Tags.defaultTags = {
 	end]],
 	["curpp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPower(unit)) end]],
 	["curmaxhp"] = [[function(unit)
-		local offline = ShadowUF.tagFunc.offline(unit)
-		if( offline ) then
-			return offline
-		end
-
-		local dead = ShadowUF.tagFunc.dead(unit)
-		if( dead ) then
-			return dead
+		if( UnitIsDead(unit) ) then
+			return ShadowUFLocals["Dead"]
+		elseif( UnitIsGhost(unit) ) then
+			return ShadowUFLocals["Ghost"]
+		elseif( not UnitIsConnected(unit) ) then
+			return ShadowUFLocals["Offline"]
 		end
 		
 		local health = UnitHealth(unit)
@@ -324,21 +327,29 @@ Tags.defaultTags = {
 		return string.format("%s/%s", ShadowUF:FormatLargeNumber(health), ShadowUF:FormatLargeNumber(maxHealth))
 	end]],
 	["absolutehp"] = [[function(unit)
-		local offline = ShadowUF.tagFunc.offline(unit)
-		if( offline ) then
-			return offline
-		end
-
-		local dead = ShadowUF.tagFunc.dead(unit)
-		if( dead ) then
-			return dead 
+		if( UnitIsDead(unit) ) then
+			return ShadowUFLocals["Dead"]
+		elseif( UnitIsGhost(unit) ) then
+			return ShadowUFLocals["Ghost"]
+		elseif( not UnitIsConnected(unit) ) then
+			return ShadowUFLocals["Offline"]
 		end
 		
 		local health = UnitHealth(unit)
 		local maxHealth = UnitHealthMax(unit)
 		return string.format("%s/%s", health, maxHealth)
 	end]],
-	["abscurhp"] = [[function(unit)	return UnitHealth(unit) end]],
+	["abscurhp"] = [[function(unit)
+		if( UnitIsDead(unit) ) then
+			return ShadowUFLocals["Dead"]
+		elseif( UnitIsGhost(unit) ) then
+			return ShadowUFLocals["Ghost"]
+		elseif( not UnitIsConnected(unit) ) then
+			return ShadowUFLocals["Offline"]
+		end
+		
+		return UnitHealth(unit)
+	end]],
 	["absmaxhp"] = [[function(unit) return UnitHealthMax(unit) end]],
 	["abscurpp"] = [[function(unit)	return UnitPower(unit) end]],
 	["absmaxpp"] = [[function(unit) return UnitPowerMax(unit) end]],
@@ -364,7 +375,6 @@ Tags.defaultTags = {
 		
 		return string.format("%s/%s", ShadowUF:FormatLargeNumber(power), ShadowUF:FormatLargeNumber(maxPower))
 	end]],
-	["dead"] = [[function(unit) return UnitIsDead(unit) and ShadowUFLocals["Dead"] or UnitIsGhost(unit) and ShadowUFLocals["Ghost"] end]],
 	["levelcolor"] = [[function(unit)
 		local level = UnitLevel(unit);
 		if( UnitCanAttack("player", unit) ) then
@@ -383,22 +393,31 @@ Tags.defaultTags = {
 	["maxhp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitHealthMax(unit)) end]],
 	["maxpp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPowerMax(unit)) end]],
 	["missinghp"] = [[function(unit)
-		local missing = UnitHealthMax(unit) - UnitHealth(unit)
-		if( missing <= 0 ) then return nil end
-		return "-" .. ShadowUF:FormatLargeNumber(UnitHealthMax(unit) - UnitHealth(unit)) 
-	end]],
-	["missingpp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPowerMax(unit) - UnitPower(unit)) end]],
-	["name"] = [[function(unit, unitOwner) return UnitName(unitOwner or unit) end]],
-	["offline"] = [[function(unit) return  (not UnitIsConnected(unit) and ShadowUFLocals["Offline"]) end]],
-	["perhp"] = [[function(unit)
-		local offline = ShadowUF.tagFunc.offline(unit)
-		if( offline ) then
-			return offline
+		if( UnitIsDead(unit) ) then
+			return ShadowUFLocals["Dead"]
+		elseif( UnitIsGhost(unit) ) then
+			return ShadowUFLocals["Ghost"]
+		elseif( not UnitIsConnected(unit) ) then
+			return ShadowUFLocals["Offline"]
 		end
 
-		local dead = ShadowUF.tagFunc.dead(unit)
-		if( dead ) then
-			return dead
+		local missing = UnitHealthMax(unit) - UnitHealth(unit)
+		if( missing <= 0 ) then return nil end
+		return "-" .. ShadowUF:FormatLargeNumber(missing) 
+	end]],
+	["missingpp"] = [[function(unit)
+		local missing = UnitPowerMax(unit) - UnitPower(unit)
+		if( missing <= 0 ) then return nil end
+		return "-" .. ShadowUF:FormatLargeNumber(missing)
+	end]],
+	["name"] = [[function(unit, unitOwner) return UnitName(unitOwner or unit) end]],
+	["perhp"] = [[function(unit)
+		if( UnitIsDead(unit) ) then
+			return ShadowUFLocals["Dead"]
+		elseif( UnitIsGhost(unit) ) then
+			return ShadowUFLocals["Ghost"]
+		elseif( not UnitIsConnected(unit) ) then
+			return ShadowUFLocals["Offline"]
 		end
 		
 		local max = UnitHealthMax(unit);
@@ -513,7 +532,6 @@ Tags.defaultHelp = {
 	["missinghp"]			= L["Amount of health missing, if none is missing nothing is shown. Uses a short format, -18500 is shown as -18.5k, values below 10000 are formatted as is."],
 	["missingpp"]			= L["Amount of power missing,  if none is missing nothing is shown. Uses a short format, -13850 is shown as 13.8k, values below 10000 are formatted as is."],
 	["name"]				= L["Unit name"],
-	["offline"]				= L["Returns Offline if the unit is offline, otherwise nothing is shown."],
 	["perhp"]				= L["Returns current health as a percentage, if the unit is dead or offline than that is shown instead."],
 	["perpp"]				= L["Returns current power as a percentage."],
 	["class"]				= L["Class name, use [classcolor][class][close] if you want a colored class name."],
@@ -523,7 +541,6 @@ Tags.defaultHelp = {
 	["curpp"]				= L["Current power, uses a short format, 12750 is formatted as 12.7k, values below 10000 are formatted as is."],
 	["curmaxhp"]			= L["Current and maximum health, formatted as [curhp]/[maxhp], if the unit is dead or offline then that is shown instead."],
 	["curmaxpp"]			= L["Current and maximum power, formatted as [curpp]/[maxpp]."],
-	["dead"]				= L["If the unit is dead, returns dead, if they are a ghost then ghost is returned, if they aren't either then nothing is shown."],
 	["levelcolor"]			= L["Colored level by difficulty, no color used if you cannot attack the unit."],
 	["faction"]				= L["Units alignment, Thrall will return Horde, Magni Bronzebeard will return Alliance."],
 	["colorname"]			= L["Unit name colored by class."],
@@ -548,27 +565,25 @@ Tags.defaultEvents = {
 	["afk"]					= "PLAYER_FLAGS_CHANGED", -- Yes, I know it's called PLAYER_FLAGS_CHANGED, but arg1 is the unit including non-players.
 	["curhp"]               = "UNIT_HEALTH",
 	["abscurhp"]			= "UNIT_HEALTH",
-	["curmaxhp"]			= "UNIT_HEALTH UNIT_MAXHEALTH",
+	["curmaxhp"]			= "UNIT_HEALTH UNIT_MAXHEALTH UNIT_FACTION",
 	["absolutehp"]			= "UNIT_HEALTH UNIT_MAXHEALTH",
 	["curpp"]               = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER",
 	["abscurpp"]            = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER",
 	["curmaxpp"]			= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
 	["absolutepp"]			= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
-	["druid:curpp"]      = "UNIT_MANA UNIT_DISPLAYPOWER",
+	["druid:curpp"]  	    = "UNIT_MANA UNIT_DISPLAYPOWER",
 	["druid:abscurpp"]      = "UNIT_MANA UNIT_DISPLAYPOWER",
 	["druid:curmaxpp"]		= "UNIT_MANA UNIT_MAXMANA UNIT_DISPLAYPOWER",
 	["druid:absolutepp"]	= "UNIT_MANA UNIT_MAXMANA UNIT_DISPLAYPOWER",
-	["dead"]                = "UNIT_HEALTH",
 	["level"]               = "UNIT_LEVEL PLAYER_LEVEL_UP",
 	["maxhp"]               = "UNIT_MAXHEALTH",
-	["absmaxhp"]			= "UNIT_MAXHEALTH",
+	["absmaxhp"]			= "UNIT_MAXHEALTH UNIT_FACTION",
 	["maxpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
 	["absmaxpp"]			= "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
 	["missinghp"]           = "UNIT_HEALTH UNIT_MAXHEALTH",
 	["missingpp"]           = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_MAXRUNIC_POWER UNIT_RUNIC_POWER",
 	["name"]                = "UNIT_NAME_UPDATE",
 	["colorname"]			= "UNIT_NAME_UPDATE",
-	["offline"]             = "UNIT_HEALTH",
 	["perhp"]               = "UNIT_HEALTH UNIT_MAXHEALTH",
 	["perpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_MAXRUNIC_POWER UNIT_RUNIC_POWER",
 	["status"]              = "UNIT_HEALTH PLAYER_UPDATE_RESTING",
@@ -579,7 +594,7 @@ Tags.defaultEvents = {
 	["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
 	["level"]				= "PARTY_MEMBERS_CHANGED UNIT_LEVEL",
 	["dechp"]				= "UNIT_HEALTH UNIT_MAXHEALTH",
-	["group"]				= "RAID_ROSTER_UPDATE PARTY_MEMBERS_CHANGED",
+	["group"]				= "RAID_ROSTER_UPDATE PARTY_MEMBERS_CHANGED PLAYER_ENTERING_WORLD",
 }
 
 Tags.powerEvents = {
@@ -594,6 +609,7 @@ Tags.powerEvents = {
 Tags.unitlessEvents = {
 	["PARTY_MEMBERS_CHANGED"] = true,
 	["RAID_ROSTER_UPDATE"] = true,
+	["PLAYER_ENTERING_WORLD"] = true,
 }
 
 -- Checker function, makes sure tags are all happy

@@ -52,9 +52,9 @@ end
 	3 = tanking, all others have less than 100% raw percentage threat (red indicator shown)
 ]]
 
-local invalidUnit = {["focustarget"] = true, ["targettarget"] = true, ["targettargettarget"] = true}
+local invalidUnit = {["partytarget"] = true, ["focustarget"] = true, ["targettarget"] = true, ["targettargettarget"] = true}
 function Health:UpdateThreat(frame)
-	if( not invalidUnit[frame.unit] and ShadowUF.db.profile.units[frame.unitType].healthBar.colorAggro and UnitThreatSituation(frame.unit) == 3 ) then
+	if( not invalidUnit[frame.unitType] and ShadowUF.db.profile.units[frame.unitType].healthBar.colorAggro and UnitThreatSituation(frame.unit) == 3 ) then
 		setBarColor(frame.healthBar, ShadowUF.db.profile.healthColors.red.r, ShadowUF.db.profile.healthColors.red.g, ShadowUF.db.profile.healthColors.red.b)
 		frame.healthBar.hasAggro = true
 	elseif( frame.healthBar.hasAggro ) then
