@@ -88,6 +88,8 @@ ShadowUFLocals = {
 	["Top Left"] = "Top Left",
 	["Inside Top Right"] = "Inside Top Right",
 	["Inside Top Left"] = "Inside Top Left",
+	["Inside Bottom Right"] = "Inside Bottom Right",
+	["Inside Bottom Left"] = "Inside Bottom Left",
 
 	["Inside"] = "Inside",
 	["Bottom"] = "Bottom",
