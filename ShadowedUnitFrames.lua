@@ -1,5 +1,5 @@
 --[[ 
-	Shadow Unit Frames, Mayen/Selari from Illidan (US) PvP
+	Shadow Unit Frames, Mayen of Mal'Ganis (US) PvP
 ]]
 
 ShadowUF = {raidUnits = {}, partyUnits = {}, modules = {}, moduleOrder = {}, units = {"player", "pet", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid"}}

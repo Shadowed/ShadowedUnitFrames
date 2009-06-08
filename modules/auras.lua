@@ -54,6 +54,9 @@ end
 
 function Auras:OnDisable(frame)
 	frame:UnregisterAll(self)
+	
+	for _, button in pairs(frame.auras.buffs.buttons) do button:Hide() end
+	for _, button in pairs(frame.auras.debuffs.buttons) do button:Hide() end
 end
 
 local filterTable = {}
@@ -117,17 +120,6 @@ local function createAnchor(self, key, config)
 	Auras:UpdateFilter(aura, ShadowUF.db.profile.units[self.unitType].auras[key])
 end
 
-function Auras:OnPreLayoutApply(frame)
-	self:CreateIcons(frame)
-
-	frame.auras.anchor = "buffs"
-	if( not ShadowUF.db.profile.units[frame.unitType].auras.buffs.enabled ) then
-		frame.auras.anchor = "debuffs"
-	end
-
-	self:Update(frame)
-end
-
 function Auras:CreateIcons(frame)
 	frame.auras = frame.auras or {}
 	
@@ -135,8 +127,21 @@ function Auras:CreateIcons(frame)
 	createAnchor(frame, "debuffs", ShadowUF.db.profile.units[frame.unitType].auras.debuffs)
 end
 
+function Auras:OnPreLayoutApply(frame)
+	if( frame.auras and frame.visibility.auras ) then
+		self:CreateIcons(frame)
+
+		frame.auras.anchor = "buffs"
+		if( not ShadowUF.db.profile.units[frame.unitType].auras.buffs.enabled ) then
+			frame.auras.anchor = "debuffs"
+		end
+
+		self:Update(frame)
+	end
+end
+
 function Auras:OnLayoutApplied(frame)
-	if( frame.auras and ShadowUF.db.profile.units[frame.unitType].auras ) then
+	if( frame.auras and frame.auras.enabled ) then
 		self:UpdateFilter(frame.auras.buffs, ShadowUF.db.profile.units[frame.unitType].auras.buffs)
 		self:UpdateFilter(frame.auras.debuffs, ShadowUF.db.profile.units[frame.unitType].auras.debuffs)
 		
@@ -221,6 +226,7 @@ end
 function Auras:Update(frame)
 	local unit = frame.unit
 	local config = ShadowUF.db.profile.units[frame.unitType].auras
+	
 	if( config.buffs.anchorPoint == config.debuffs.anchorPoint ) then
 		frame.auras[frame.auras.anchor].totalAuras = 0
 				
