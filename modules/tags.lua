@@ -377,7 +377,9 @@ Tags.defaultTags = {
 	end]],
 	["levelcolor"] = [[function(unit)
 		local level = UnitLevel(unit);
-		if( UnitCanAttack("player", unit) ) then
+		if( level <= 0 ) then
+			return nil
+		elseif( UnitCanAttack("player", unit) ) then
 			local color = ShadowUF:Hex(GetDifficultyColor(level > 0 and level or 99))
 			if( not color ) then
 				return level

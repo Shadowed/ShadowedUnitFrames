@@ -227,6 +227,7 @@ local function loadData()
 	Config.hideAdvancedOption = hideAdvancedOption
 	Config.isUnitDisabled = isUnitDisabled
 	Config.selectDialogGroup = selectDialogGroup
+	Config.selectTabGroup = selectTabGroup
 	Config.getName = getName
 	Config.getUnitOrder = getUnitOrder
 	Config.isModifiersSet = isModifiersSet
@@ -2765,11 +2766,13 @@ local function loadTagOptions()
 										tagData.error = nil
 										tagData.funcError = nil
 									end
+									--|cffbc64aa
 									
 									AceRegistry:NotifyChange("ShadowedUF")
 									return tagData.error and "" or true
 								end,
 								set = function(info, value)
+									value = string.gsub(value, "\124", "|")
 									set(info, value)
 									
 									ShadowUF.Tags:FullUpdate(tagData.name)
