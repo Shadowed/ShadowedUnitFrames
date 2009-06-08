@@ -221,47 +221,17 @@ function Units:CheckVehicleStatus(frame)
 	end
 end
 
--- Frame is now initialized with a unit
-local function OnAttributeChanged(self, name, unit)
-	if( name ~= "unit" or not unit or unit == self.unitOwner ) then return end
-	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
-	if( inCombat ) then
-		queuedCombat[self] = true
-		return
-	end
-	
-	self.unit = unit
-	self.unitID = tonumber(string.match(unit, "([0-9]+)"))
-	self.unitType = string.gsub(unit, "([0-9]+)", "")
-	self.unitOwner = unit
-	
-	unitFrames[unit] = self
+-- Sets up the unit and all that good stuff
+local function SetupUnitFrame(self)
+	unitFrames[self.unit] = self
 			
 	-- Add to Clique
 	ClickCastFrames = ClickCastFrames or {}
 	ClickCastFrames[self] = true
 	
-	-- Pet changed, going from pet -> vehicle for one
-	if( unit == "pet" or self.unitType == "partypet" ) then
-		self:RegisterUnitEvent("UNIT_PET", self, "FullUpdate")
-	-- Automatically do a full update on target change
-	elseif( unit == "target" ) then
-		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
-	-- Automatically do a full update on focus change
-	elseif( unit == "focus" ) then
-		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "FullUpdate")
-	-- *target units are not real units, thus they do not receive events and must be polled for data
-	elseif( string.match(unit, "%w+target") ) then
-		self.timeElapsed = 0
-		self:SetScript("OnUpdate", TargetUnitUpdate)
-	-- When a player is force ressurected by releasing in naxx/tk/etc then they might freeze
-	elseif( unit == "player" ) then
-		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
-	end
-
 	-- You got to love programming without documentation, ~3 hours spent making this work with raids and such properly, turns out? It's a simple attribute
 	-- and all you have to do is set it up so the unit variables are properly changed based on being in a vehicle... which is what will do now
-	if( unit == "player" or self.unitType == "party" or self.unitType == "raid" ) then
+	if( self.unit == "player" or self.unitType == "party" or self.unitType == "raid" ) then
 		-- player -> pet, party -> partypet#, raid -> raidpet# (party#pet/raid#pet work too, the secure headers automatically translate it to *pet# thought.
 		self.vehicleUnit = self.unitOwner == "player" and "vehicle" or self.unitType == "party" and "partypet" .. self.unitID or self.unitType == "raid" and "raidpet" .. self.unitID
 
@@ -277,9 +247,46 @@ local function OnAttributeChanged(self, name, unit)
 
 	-- Update module status
 	self:SetVisibility()
+end
+
+-- Attribute set, something changed
+local function OnAttributeChanged(self, name, unit)
+	if( name ~= "unit" ) then return end
+	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
+	if( inCombat ) then
+		queuedCombat[self] = true
+		return
+	-- No change, or the unit was killed
+	elseif( unit == self.unitOwner or not unit ) then
+		return
+	end
+	
+	-- Setup identification data
+	self.unit = unit
+	self.unitID = tonumber(string.match(unit, "([0-9]+)"))
+	self.unitType = string.gsub(unit, "([0-9]+)", "")
+	self.unitOwner = unit
+
+	-- Pet changed, going from pet -> vehicle for one
+	if( self.unit == "pet" or self.unitType == "partypet" ) then
+		self:RegisterUnitEvent("UNIT_PET", self, "FullUpdate")
+	-- Automatically do a full update on target change
+	elseif( self.unit == "target" ) then
+		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
+	-- Automatically do a full update on focus change
+	elseif( self.unit == "focus" ) then
+		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "FullUpdate")
+	-- *target units are not real units, thus they do not receive events and must be polled for data
+	elseif( string.match(self.unit, "%w+target") ) then
+		self.timeElapsed = 0
+		self:SetScript("OnUpdate", TargetUnitUpdate)
+	-- When a player is force ressurected by releasing in naxx/tk/etc then they might freeze
+	elseif( self.unit == "player" ) then
+		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
+	end
 
 	-- Hide any pet that became a vehicle, we detect this by the player being untargetable but we have a pet out
-	if( unit == "pet" ) then
+	if( self.unit == "pet" ) then
 		RegisterStateDriver(self, "vehicleupdated", "[target=vehicle,exists] none; pet")
 		vehicleMonitor:WrapScript(self, "OnAttributeChanged", [[
 			if( name == "state-vehicleupdated" ) then
@@ -292,6 +299,8 @@ local function OnAttributeChanged(self, name, unit)
 			self:SetAttribute("unit", nil)
 		end
 	end
+	
+	SetupUnitFrame(self)
 end
 
 function Units:LoadUnit(config, unit)
@@ -693,11 +702,11 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 		
 	elseif( event == "PLAYER_REGEN_ENABLED" ) then
 		inCombat = nil
-			
+	
 		for k in pairs(headerUpdated) do headerUpdated[k] = nil end
-				
+		
 		for frame in pairs(queuedCombat) do
-			OnAttributeChanged(frame, "unit", frame:GetAttribute("unit"))
+			SetupUnitFrame(frame)
 			queuedCombat[frame] = nil
 			
 			-- When parties change in combat, the overall height/width of the secure header will change, we need to force a secure group update
