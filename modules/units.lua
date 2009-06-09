@@ -211,6 +211,10 @@ function Units:VehicleLeft(frame, event, unit)
 	frame:FullUpdate()
 end
 
+function Units:CheckLogin(frame, event, unit, spell)
+	if( spell == "LOGINEFFECT" ) then frame:FullUpdate() end
+end
+
 function Units:CheckVehicleStatus(frame)
 	-- Update vehicle status
 	if( not frame.inVehicle and UnitHasVehicleUI(frame.unitOwner) ) then
@@ -284,6 +288,9 @@ local function OnAttributeChanged(self, name, unit)
 	elseif( self.unit == "player" ) then
 		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
 	end
+	
+	-- This checks if the person just logged in and needs to be updated
+	--self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", Units, "CheckLogin")
 
 	-- Hide any pet that became a vehicle, we detect this by the player being untargetable but we have a pet out
 	if( self.unit == "pet" ) then
@@ -706,9 +713,13 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 		for k in pairs(headerUpdated) do headerUpdated[k] = nil end
 		
 		for frame in pairs(queuedCombat) do
-			SetupUnitFrame(frame)
 			queuedCombat[frame] = nil
-			
+
+			if( not frame.unit ) then
+				OnAttributeChanged(frame, "unit", frame:GetAttribute("unit"))
+			else
+				SetupUnitFrame(frame)
+			end
 			-- When parties change in combat, the overall height/width of the secure header will change, we need to force a secure group update
 			-- in order for all of the sizing information to be set correctly.
 			if( frame.unitType ~= frame.unit and not headerUpdated[frame.unitType] ) then
