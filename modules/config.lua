@@ -385,7 +385,7 @@ local function loadGeneralOptions()
 								desc = L["How large the edges should be."],
 								hidden = hideAdvancedOption,
 								min = 0, max = 20, step = 1,
-								arg = "backdrop.edgeSiz",
+								arg = "backdrop.edgeSize",
 							},
 							tileSize = {
 								order = 8,

@@ -6,9 +6,7 @@ local mediaRequired
 ShadowUF.Layout = Layout
 
 local function loadMedia(type, name, default)
-	if( name == "" ) then
-		return ""
-	end
+	if( name == "" ) then return "" end
 	
 	local media = SML:Fetch(type, name, true)
 	if( not media ) then
@@ -97,6 +95,7 @@ function Layout:LoadSML()
 	SML.RegisterCallback(self, "LibSharedMedia_SetGlobal", "MediaForced")
 
 	SML:Register(SML.MediaType.FONT, "Myriad Condensed Web", "Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf")
+	SML:Register(SML.MediaType.BORDER, "Square Clean", "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\ABFBorder")
 	SML:Register(SML.MediaType.BACKGROUND, "Chat Frame", "Interface\\ChatFrame\\ChatFrameBackground")
 	SML:Register(SML.MediaType.STATUSBAR, "BantoBar", "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\banto")
 	SML:Register(SML.MediaType.STATUSBAR, "Smooth",   "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\smooth")
