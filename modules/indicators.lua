@@ -113,20 +113,12 @@ function Indicators:UpdateReadyCheck(frame, event)
 		return
 	end
 	
-	-- No status, hide indicator
+	-- Have a state change in ready status
 	local status = GetReadyCheckStatus(frame.unit)
-	if( not status ) then
-		frame.indicators.ready.status = nil
-		frame.indicators.ready:Hide()
-		return
-	end
-	
-	-- Annd set the actual icon, compressed if statements are awesome
-	local name = status == "ready" and "Ready" or status == "notready" and "NotReady" or status == "waiting" and "Waiting"
+	frame.indicators:SetScript("OnUpdate", nil)
 	frame.indicators.ready.status = status
 	frame.indicators.ready:SetAlpha(1.0)
-	frame.indicators.ready:SetTexture("Interface\\RaidFrame\\ReadyCheck-" .. name)
-	frame.indicators:SetScript("OnUpdate", nil)
+	frame.indicators.ready:SetTexture((status == "ready" and READY_CHECK_READY_TEXTURE or status == "notready" and READY_CHECK_NOT_READY_TEXTURE or status == "waiting" and READY_CHECK_WAITING_TEXTURE))
 	frame.indicators.ready:Show()
 end
 
@@ -205,7 +197,6 @@ function Indicators:OnEnable(frame)
 		frame:RegisterUpdateFunc(self, "UpdateReadyCheck")
 		
 		frame.indicators.ready = frame.indicators.raidTarget or frame.indicators:CreateTexture(nil, "OVERLAY")
-		frame.indicators.ready:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
 		frame.indicators.ready:Hide()
 	end
 	
