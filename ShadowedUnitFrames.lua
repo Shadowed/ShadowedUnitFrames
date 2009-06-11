@@ -91,7 +91,7 @@ function ShadowUF:OnInitialize()
 		self:LoadDefaultLayout()
 	end
 	
-	-- Quick upgrade code
+	-- UPGRADING CODE
 	if( not self.db.profile.units.player.indicators.ready.anchorTo ) then
 		for unit, data in pairs(self.db.profile.units) do
 			if( data.indicators and self.defaults.profile.units[unit].indicators.ready and not data.indicators.ready.anchorTo ) then
@@ -104,7 +104,6 @@ function ShadowUF:OnInitialize()
 		end
 	end
 	
-	-- More upgrading
 	if( not self.db.profile.powerColors.AMMOSLOT ) then
 		self.db.profile.powerColors.AMMOSLOT = {r = 0.85, g = 0.60, b = 0.55}
 		self.db.profile.powerColors.FUEL = {r = 0.85, g = 0.47, b = 0.36}
@@ -131,6 +130,12 @@ function ShadowUF:OnInitialize()
 	
 	if( self.db.profile.units.player.range ) then
 		self.db.profile.units.player.range = nil
+	end
+	
+	if( not self.db.profile.healthColors.friendly ) then
+		self.db.profile.healthColors.friendly = CopyTable(self.db.profile.healthColors.green)
+		self.db.profile.healthColors.neutral = CopyTable(self.db.profile.healthColors.yellow)
+		self.db.profile.healthColors.hostile = CopyTable(self.db.profile.healthColors.red)
 	end
 	
 	-- Hide any Blizzard frames

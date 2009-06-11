@@ -12,13 +12,17 @@ function IncHeal:OnEnable(frame)
 	frame.incHeal:SetFrameLevel(frame.topFrameLevel - 2)
 
 	frame:RegisterUpdateFunc(self, "UpdateFrame")
-
+	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
+	frame:RegisterUnitEvent("Unit_HEALTH", self, "UpdateFrame")
+	
 	self:Setup()
 end
 
 function IncHeal:OnDisable(frame)
 	frames[frame] = nil
+
 	self:Setup()
+	self:UnregisterAll(self)
 end
 
 function IncHeal:OnLayoutApplied(frame)
@@ -32,6 +36,7 @@ function IncHeal:OnLayoutApplied(frame)
 	end
 end
 
+-- Check if we need to register callbacks
 function IncHeal:Setup()
 	local enabled
 	for frame in pairs(frames) do
@@ -59,7 +64,7 @@ end
 
 local function getName(unit)
 	local name, server = UnitName(unit)
-	if( server ) then
+	if( server and server ~= "" ) then
 		name = string.format("%s-%s", name, server)
 	end
 	
@@ -82,6 +87,7 @@ local function updateHealthBar(frame, target, healed, succeeded)
 			frame.incHeal:Hide()
 		end
 		
+		-- If it's an overheal, we won't have anything to do on a next update anyway
 		local maxHealth = UnitHealthMax(frame.unit)
 		if( maxHealth < frame.incHeal.total ) then
 			frame.incHeal:SetValue(maxHealth)
@@ -89,10 +95,10 @@ local function updateHealthBar(frame, target, healed, succeeded)
 	end
 end
 
-function IncHeal:UpdateFrame(frame)
+function IncHeal:UpdateFrame(frame, event)
 	local name = getName(frame.unit)
-	if( name and frame.incHeal ) then
-		updateHealthBar(frame, name, totalHealing[name] or 0)
+	if( name ) then
+		updateHealthBar(frame, name, totalHealing[name] or 0, event)
 	end
 end
 

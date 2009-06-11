@@ -85,22 +85,22 @@ function Health:UpdateColor(frame)
 		color = ShadowUF.db.profile.classColors.VEHICLE
 	elseif( not UnitIsTappedByPlayer(unit) and UnitIsTapped(unit) and UnitCanAttack("player", unit) ) then
 		color = ShadowUF.db.profile.healthColors.tapped
-	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and not UnitIsFriend(unit, "player") ) then
+	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and ( not UnitIsPlayer(unit) or not UnitIsFriend(unit, "player") ) ) then
 		frame.healthBar.hasReaction = true
 		if( UnitPlayerControlled(unit) ) then
 			if( UnitCanAttack("player", unit) ) then
-				color = ShadowUF.db.profile.healthColors.red
+				color = ShadowUF.db.profile.healthColors.hostile
 			else
 				color = ShadowUF.db.profile.healthColors.enemyUnattack
 			end
 		elseif( UnitReaction(unit, "player") ) then
 			local reaction = UnitReaction(unit, "player")
 			if( reaction > 4 ) then
-				color = ShadowUF.db.profile.healthColors.green
+				color = ShadowUF.db.profile.healthColors.friendly
 			elseif( reaction == 4 ) then
-				color = ShadowUF.db.profile.healthColors.yellow
+				color = ShadowUF.db.profile.healthColors.neutral
 			elseif( reaction < 4 ) then
-				color = ShadowUF.db.profile.healthColors.red
+				color = ShadowUF.db.profile.healthColors.hostile
 			end
 		end
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorType == "class" and ( UnitIsPlayer(unit) or UnitCreatureFamily(unit) ) ) then
@@ -132,7 +132,7 @@ function Health:Update(frame)
 	local isOffline = not UnitIsConnected(unit)
 	if( isOffline ) then
 		current = max
-	elseif( current == 1 or UnitIsDeadOrGhost(unit) ) then
+	elseif( UnitIsDeadOrGhost(unit) ) then
 		current = 0
 	end
 	

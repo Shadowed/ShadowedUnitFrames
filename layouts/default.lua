@@ -67,6 +67,9 @@ function ShadowUF:LoadDefaultLayout()
 				yellow = {r = 0.93, g = 0.93, b = 0.0},
 				inc = {r = 0, g = 0.35, b = 0.23},
 				enemyUnattack = {r = 0.60, g = 0.20, b = 0.20},
+				hostile = {r = 0.90, g = 0.0, b = 0.0},
+				friendly = {r = 0.20, g = 0.90, b = 0.20},
+				neutral = {r = 0.93, g = 0.93, b = 0.0},
 			},
 			xpColors = {
 				normal = {r = 0.58, g = 0.0, b = 0.55},

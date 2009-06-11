@@ -312,7 +312,12 @@ Tags.defaultTags = {
 	
 		return color .. UnitName(unit) .. "|r"
 	end]],
-	["curpp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPower(unit)) end]],
+	["curpp"] = [[function(unit) 
+		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
+			return nil
+		end
+		return ShadowUF:FormatLargeNumber(UnitPower(unit))
+	end]],
 	["curmaxhp"] = [[function(unit)
 		if( UnitIsDead(unit) ) then
 			return ShadowUFLocals["Dead"]
@@ -351,8 +356,19 @@ Tags.defaultTags = {
 		return UnitHealth(unit)
 	end]],
 	["absmaxhp"] = [[function(unit) return UnitHealthMax(unit) end]],
-	["abscurpp"] = [[function(unit)	return UnitPower(unit) end]],
-	["absmaxpp"] = [[function(unit) return UnitPowerMax(unit) end]],
+	["abscurpp"] = [[function(unit)
+		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
+			return nil
+		end
+	
+		return UnitPower(unit)
+	end]],
+	["absmaxpp"] = [[function(unit)
+		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
+			return nil
+		end
+		return UnitPowerMax(unit)
+	end]],
 	["absolutepp"] = [[function(unit)
 		local maxPower = UnitPowerMax(unit)
 		local power = UnitPower(unit)
@@ -393,7 +409,13 @@ Tags.defaultTags = {
 	["faction"] = [[function(unit) return UnitFactionGroup(unit) end]],
 	["level"] = [[function(unit) local l = UnitLevel(unit) return l > 0 and l or ShadowUFLocals["??"] end]],
 	["maxhp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitHealthMax(unit)) end]],
-	["maxpp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitPowerMax(unit)) end]],
+	["maxpp"] = [[function(unit)
+		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
+			return nil
+		end
+		
+		return ShadowUF:FormatLargeNumber(UnitPowerMax(unit))
+	end]],
 	["missinghp"] = [[function(unit)
 		if( UnitIsDead(unit) ) then
 			return ShadowUFLocals["Dead"]
@@ -408,6 +430,10 @@ Tags.defaultTags = {
 		return "-" .. ShadowUF:FormatLargeNumber(missing) 
 	end]],
 	["missingpp"] = [[function(unit)
+		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
+			return nil
+		end
+
 		local missing = UnitPowerMax(unit) - UnitPower(unit)
 		if( missing <= 0 ) then return nil end
 		return "-" .. ShadowUF:FormatLargeNumber(missing)
@@ -426,7 +452,13 @@ Tags.defaultTags = {
 		
 		return max == 0 and 0 or math.floor(UnitHealth(unit) / max * 100 + 0.5) .. "%"
 	end]],
-	["perpp"] = [[function(unit) local m = UnitPowerMax(unit); return m == 0 and 0 or math.floor(UnitPower(unit)/m*100+0.5) .. "%" end]],
+	["perpp"] = [[function(unit)
+		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
+			return nil
+		end
+		
+		local m = UnitPowerMax(unit); return m == 0 and 0 or math.floor(UnitPower(unit)/m*100+0.5) .. "%"
+	end]],
 	["plus"] = [[function(unit) local c = UnitClassification(unit); return (c == "elite" or c == "rareelite") and "+" end]],
 	["race"] = [[function(unit) return UnitRace(unit) end]],
 	["rare"] = [[function(unit) local c = UnitClassification(unit); return (c == "rare" or c == "rareelite") and ShadowUFLocals["Rare"] end]],
