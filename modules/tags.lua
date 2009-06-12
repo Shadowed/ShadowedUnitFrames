@@ -10,15 +10,22 @@ ShadowUF.Tags = Tags
 local function RegisterEvent(fontString, event)
 	events[event] = events[event] or {}
 	table.insert(events[event], fontString)
-	
+		
 	frame:RegisterEvent(event)
 end
 
 -- Register the associated events with all the tags
 local function RegisterTagEvents(fontString, tags)
 	-- Strip parantheses and anything inside them
-	tags = string.gsub(tags, "%b()", "")
 	for tag in string.gmatch(tags, "%[(.-)%]") do
+		-- The reason the original %b() match won't work, is [( ()group())] (or any sort of tag with ( or )
+		-- was breaking the logic and stripping the entire tag, this is a quick fix to stop that.
+		local tagKey = select(2, string.match(tag, "(%b())([%w]+)(%b())"))
+		if( not tagKey ) then tagKey = select(2, string.match(tag, "(%b())([%w]+)")) end
+		if( not tagKey ) then tagKey = string.match(tag, "([%w]+)(%b())") end
+		
+		tag = tagKey or tag
+		
 		local tagEvents = Tags.defaultEvents[tag] or ShadowUF.db.profile.tags[tag] and ShadowUF.db.profile.tags[tag].events
 		if( tagEvents ) then
 			for event in string.gmatch(tagEvents, "%S+") do
@@ -441,6 +448,12 @@ Tags.defaultTags = {
 		if( missing <= 0 ) then return nil end
 		return "-" .. ShadowUF:FormatLargeNumber(missing)
 	end]],
+	["def:name"] = [[function(unit, unitOwner)
+		local deficit = ShadowUF.tagFunc.missinghp(unit, unitOwner)
+		if( deficit ) then return deficit end
+		
+		return ShadowUF.tagFunc.name(unit, unitOwner)
+	end]],
 	["name"] = [[function(unit, unitOwner) return UnitName(unitOwner or unit) end]],
 	["perhp"] = [[function(unit)
 		if( UnitIsDead(unit) ) then
@@ -580,6 +593,7 @@ Tags.defaultHelp = {
 	["curmaxhp"]			= L["Current and maximum health, formatted as [curhp]/[maxhp], if the unit is dead or offline then that is shown instead."],
 	["curmaxpp"]			= L["Current and maximum power, formatted as [curpp]/[maxpp]."],
 	["levelcolor"]			= L["Colored level by difficulty, no color used if you cannot attack the unit."],
+	["def:name"]			= L["When the unit is mising health, the [missinghp] tag is shown, when they are at full health then the [name] tag is shown. This lets you see -1000 when they are missing 1000 HP, but their name when they are not missing any."],
 	["faction"]				= L["Units alignment, Thrall will return Horde, Magni Bronzebeard will return Alliance."],
 	["colorname"]			= L["Unit name colored by class."],
 	["absolutepp"]			= L["Absolute current/max power, without any formating so 17750 is still formatted as 17750."],
@@ -615,6 +629,7 @@ Tags.defaultEvents = {
 	["druid:absolutepp"]	= "UNIT_MANA UNIT_MAXMANA UNIT_DISPLAYPOWER",
 	["level"]               = "UNIT_LEVEL PLAYER_LEVEL_UP",
 	["maxhp"]               = "UNIT_MAXHEALTH",
+	["def:name"]			= "UNIT_NAME_UPDATE UNIT_MAXHEALTH UNIT_HEALTH",
 	["absmaxhp"]			= "UNIT_MAXHEALTH UNIT_FACTION",
 	["maxpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
 	["absmaxpp"]			= "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
@@ -632,7 +647,7 @@ Tags.defaultEvents = {
 	["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
 	["level"]				= "PARTY_MEMBERS_CHANGED UNIT_LEVEL",
 	["dechp"]				= "UNIT_HEALTH UNIT_MAXHEALTH",
-	["group"]				= "RAID_ROSTER_UPDATE PARTY_MEMBERS_CHANGED PLAYER_ENTERING_WORLD",
+	["group"]				= "RAID_ROSTER_UPDATE",
 }
 
 Tags.powerEvents = {

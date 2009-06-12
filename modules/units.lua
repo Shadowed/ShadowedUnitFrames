@@ -96,9 +96,9 @@ local function OnShow(self)
 	-- Party and raid frames love to show/hide themselves, so we're going to block it from doing a full update if the GUID never changed
 	if( self.unitType == "raid" or self.unitType == "party" ) then
 		local guid = UnitGUID(self.unit)
-		if( guid == self.guid ) then return end
+		if( guid == self.unitGUID ) then return end
 		
-		self.guid = guid
+		self.unitGUID = guid
 	end
 	
 	-- Force a full update
@@ -107,6 +107,14 @@ end
 
 local function OnHide(self)
 	self:SetScript("OnEvent", nil)
+	
+	-- While we don't want frames to do full updates from the headers being shown/hidden with the same unit, we do want them to be full updated
+	-- if you leave a group, then rejoin it so will eset the GUIDs in that case.
+	if( ( self.unitType == "raid" or self.unitType == "party" ) ) then
+		self.unitGUID = UnitGUID(self.unitOwner)
+	else
+		self.unitGUID = nil
+	end
 end
 
 -- For targettarget/focustarget/etc units that don't give us real events
@@ -211,9 +219,9 @@ function Units:VehicleLeft(frame, event, unit)
 	frame:FullUpdate()
 end
 
-function Units:CheckLogin(frame, event, unit, spell)
-	if( spell == "LOGINEFFECT" ) then frame:FullUpdate() end
-end
+--function Units:CheckLogin(frame, event, unit, spell)
+--	if( spell == "LOGINEFFECT" ) then frame:FullUpdate() end
+--end
 
 function Units:CheckVehicleStatus(frame)
 	-- Update vehicle status
@@ -255,10 +263,14 @@ end
 
 -- Attribute set, something changed
 local function OnAttributeChanged(self, name, unit)
-	if( name ~= "unit" ) then return end
+	if( name ~= "unit" or ( not unit and not self.unit ) ) then return end
 	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
 	if( inCombat ) then
-		queuedCombat[self] = true
+		-- Either the unit was reset, or the unit's actually changed
+		if( not unit or self.unitGUID ~= UnitGUID(unit) ) then
+			self.unitGUID = unit and UnitGUID(unit)
+			queuedCombat[self] = true
+		end
 		return
 	-- No change, or the unit was killed
 	elseif( unit == self.unitOwner or not unit ) then
@@ -270,7 +282,7 @@ local function OnAttributeChanged(self, name, unit)
 	self.unitID = tonumber(string.match(unit, "([0-9]+)"))
 	self.unitType = string.gsub(unit, "([0-9]+)", "")
 	self.unitOwner = unit
-
+	
 	-- Pet changed, going from pet -> vehicle for one
 	if( self.unit == "pet" or self.unitType == "partypet" ) then
 		self:RegisterUnitEvent("UNIT_PET", self, "FullUpdate")
@@ -288,7 +300,7 @@ local function OnAttributeChanged(self, name, unit)
 	elseif( self.unit == "player" ) then
 		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
 	end
-	
+
 	-- This checks if the person just logged in and needs to be updated
 	--self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", Units, "CheckLogin")
 
@@ -307,6 +319,7 @@ local function OnAttributeChanged(self, name, unit)
 		end
 	end
 	
+	-- Initialize all of the frame visuals
 	SetupUnitFrame(self)
 end
 
@@ -337,13 +350,6 @@ local function OnDragStart(self)
 
 	frameMoving = self
 	
-	if( self.unitType == "raid" ) then
-		centralFrame:RegisterEvent("RAID_ROSTER_UPDATE")
-	elseif( self.unitType == "party" ) then
-		centralFrame:RegisterEvent("PARTY_MEMBERS_CHANGED")
-	end
-
-
 	GameTooltip:Hide()
 end
 
@@ -693,11 +699,11 @@ centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+centralFrame:RegisterEvent("PARTY_MEMBERS_CHANGED")
+centralFrame:RegisterEvent("RAID_ROSTER_UPDATE")
 centralFrame:SetScript("OnEvent", function(self, event, unit)
 	if( event == "RAID_ROSTER_UPDATE" or event == "PARTY_MEMBERS_CHANGED" ) then
 		if( not frameMoving ) then return end
-		self:UnregisterEvent(event)
-
 		OnDragStop(frameMoving)
 	
 	elseif( event == "ZONE_CHANGED_NEW_AREA" ) then
@@ -714,17 +720,18 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 		
 		for frame in pairs(queuedCombat) do
 			queuedCombat[frame] = nil
-
-			if( not frame.unit ) then
+		
+		if( not frame.unit ) then
 				OnAttributeChanged(frame, "unit", frame:GetAttribute("unit"))
 			else
 				SetupUnitFrame(frame)
 			end
+			
 			-- When parties change in combat, the overall height/width of the secure header will change, we need to force a secure group update
 			-- in order for all of the sizing information to be set correctly.
 			if( frame.unitType ~= frame.unit and not headerUpdated[frame.unitType] ) then
 				local header = unitFrames[frame.unitType]
-				if( header and header:GetHeight() == 0 and header:GetWidth() == 0 ) then
+				if( header and header:GetHeight() <= 0 and header:GetWidth() <= 0 ) then
 					SecureGroupHeader_Update(header)
 				end
 				

@@ -115,6 +115,12 @@ function Indicators:UpdateReadyCheck(frame, event)
 	
 	-- Have a state change in ready status
 	local status = GetReadyCheckStatus(frame.unit)
+	if( not status ) then
+		frame.indicators.ready.status = nil
+		frame.indicators.ready:Hide()
+		return
+	end
+	
 	frame.indicators:SetScript("OnUpdate", nil)
 	frame.indicators.ready.status = status
 	frame.indicators.ready:SetAlpha(1.0)

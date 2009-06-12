@@ -413,6 +413,7 @@ ShadowUFLocals = {
 	["Range indicator"] = "Range indicator",
 	
 	-- Tag help
+	["When the unit is mising health, the [missinghp] tag is shown, when they are at full health then the [name] tag is shown. This lets you see -1000 when they are missing 1000 HP, but their name when they are not missing any."] = "When the unit is mising health, the [missinghp] tag is shown, when they are at full health then the [name] tag is shown. This lets you see -1000 when they are missing 1000 HP, but their name when they are not missing any.",
 	["Same tag as %s, but this only shows up if the unit is in Bear or Cat form."] = "Same tag as %s, but this only shows up if the unit is in Bear or Cat form.",
 	["Closes a color code, pretends colors from showing up on text that you do not want it to."] = "Closes a color code, pretends colors from showing up on text that you do not want it to.",
 	["Shows the current group number of the unit."] = "Shows the current group number of the unit.",
