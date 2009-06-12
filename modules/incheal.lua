@@ -31,7 +31,8 @@ function IncHeal:OnLayoutApplied(frame)
 		frame.incHeal:SetHeight(frame.healthBar:GetHeight())
 		frame.incHeal:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 		frame.incHeal:SetStatusBarColor(ShadowUF.db.profile.healthColors.inc.r, ShadowUF.db.profile.healthColors.inc.g, ShadowUF.db.profile.healthColors.inc.b, ShadowUF.db.profile.bars.alpha)
-		frame.incHeal:SetPoint("TOPLEFT", frame.healthBar, "TOPLEFT", 0, 0)
+		frame.incHeal:SetPoint("TOPLEFT", frame.healthBar)
+		frame.incHeal:SetPoint("BOTTOMLEFT", frame.healthBar)
 		frame.incHeal:Hide()
 	end
 end

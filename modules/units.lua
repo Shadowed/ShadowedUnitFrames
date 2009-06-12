@@ -219,9 +219,15 @@ function Units:VehicleLeft(frame, event, unit)
 	frame:FullUpdate()
 end
 
---function Units:CheckLogin(frame, event, unit, spell)
---	if( spell == "LOGINEFFECT" ) then frame:FullUpdate() end
---end
+-- Handles checking for GUID changes for doing a full update, this fixes frames sometimes showing the wrong unit when they change
+function Units:CheckUnitChange(frame)
+	local guid = UnitGUID(frame.unit)
+	if( guid ~= frame.updateGUID ) then
+		frame:FullUpdate()
+	end
+	
+	frame.updateGUID = guid
+end
 
 function Units:CheckVehicleStatus(frame)
 	-- Update vehicle status
@@ -282,6 +288,7 @@ local function OnAttributeChanged(self, name, unit)
 	self.unitID = tonumber(string.match(unit, "([0-9]+)"))
 	self.unitType = string.gsub(unit, "([0-9]+)", "")
 	self.unitOwner = unit
+	self.updateGUID = UnitGUID(unit)
 	
 	-- Pet changed, going from pet -> vehicle for one
 	if( self.unit == "pet" or self.unitType == "partypet" ) then
@@ -299,10 +306,12 @@ local function OnAttributeChanged(self, name, unit)
 	-- When a player is force ressurected by releasing in naxx/tk/etc then they might freeze
 	elseif( self.unit == "player" ) then
 		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
+	-- Check for a unit guid to do a full update
+	elseif( self.unitType == "raid" ) then
+		self:RegisterNormalEvent("RAID_ROSTER_UPDATE", Units, "CheckUnitChange")
+	elseif( self.unitType == "party" ) then
+		self:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", Units, "CheckUnitChange")
 	end
-
-	-- This checks if the person just logged in and needs to be updated
-	--self:RegisterUnitEvent("UNIT_SPELLCAST_SUCCEEDED", Units, "CheckLogin")
 
 	-- Hide any pet that became a vehicle, we detect this by the player being untargetable but we have a pet out
 	if( self.unit == "pet" ) then
