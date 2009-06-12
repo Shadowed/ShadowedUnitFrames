@@ -87,7 +87,7 @@ function Health:UpdateColor(frame)
 		color = ShadowUF.db.profile.healthColors.tapped
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and ( not UnitIsPlayer(unit) or not UnitIsFriend(unit, "player") ) ) then
 		frame.healthBar.hasReaction = true
-		if( UnitPlayerControlled(unit) ) then
+		if( not UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) ) then
 			if( UnitCanAttack("player", unit) ) then
 				color = ShadowUF.db.profile.healthColors.hostile
 			else

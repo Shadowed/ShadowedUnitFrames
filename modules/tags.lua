@@ -364,10 +364,11 @@ Tags.defaultTags = {
 		return UnitPower(unit)
 	end]],
 	["absmaxpp"] = [[function(unit)
-		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
+		local power = UnitPowerMax(unit)
+		if( power == 0 and not UnitIsPlayer(unit) ) then
 			return nil
 		end
-		return UnitPowerMax(unit)
+		return power
 	end]],
 	["absolutepp"] = [[function(unit)
 		local maxPower = UnitPowerMax(unit)
@@ -410,11 +411,12 @@ Tags.defaultTags = {
 	["level"] = [[function(unit) local l = UnitLevel(unit) return l > 0 and l or ShadowUFLocals["??"] end]],
 	["maxhp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitHealthMax(unit)) end]],
 	["maxpp"] = [[function(unit)
-		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
+		local power = UnitPowerMax(unit)
+		if( power == 0 and not UnitIsPlayer(unit) ) then
 			return nil
 		end
 		
-		return ShadowUF:FormatLargeNumber(UnitPowerMax(unit))
+		return ShadowUF:FormatLargeNumber(power)
 	end]],
 	["missinghp"] = [[function(unit)
 		if( UnitIsDead(unit) ) then
@@ -430,11 +432,12 @@ Tags.defaultTags = {
 		return "-" .. ShadowUF:FormatLargeNumber(missing) 
 	end]],
 	["missingpp"] = [[function(unit)
-		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
+		local power = UnitPowerMax(unit)
+		if( power == 0 and not UnitIsPlayer(unit) ) then
 			return nil
 		end
 
-		local missing = UnitPowerMax(unit) - UnitPower(unit)
+		local missing = power - UnitPower(unit)
 		if( missing <= 0 ) then return nil end
 		return "-" .. ShadowUF:FormatLargeNumber(missing)
 	end]],
@@ -453,11 +456,12 @@ Tags.defaultTags = {
 		return max == 0 and 0 or math.floor(UnitHealth(unit) / max * 100 + 0.5) .. "%"
 	end]],
 	["perpp"] = [[function(unit)
-		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
+		local maxPower = UnitPowerMax(unit)
+		if( maxPower == 0 and not UnitIsPlayer(unit) ) then
 			return nil
 		end
 		
-		local m = UnitPowerMax(unit); return m == 0 and 0 or math.floor(UnitPower(unit)/m*100+0.5) .. "%"
+		return string.format("%d%%", math.floor(UnitPower(unit) / maxPower * 100 + 0.5))
 	end]],
 	["plus"] = [[function(unit) local c = UnitClassification(unit); return (c == "elite" or c == "rareelite") and "+" end]],
 	["race"] = [[function(unit) return UnitRace(unit) end]],
