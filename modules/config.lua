@@ -2153,7 +2153,7 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Incoming heals"]),
 								arg = "incHeal.enabled",
-								hidden = function(info) return string.match(info[2], "%w+target") end,
+								hidden = function(info) return string.match(info[2], "%w+target") or hideRestrictedOption(info) end,
 							},
 							sep = {
 								order = 4,
