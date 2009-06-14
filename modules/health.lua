@@ -1,14 +1,6 @@
 local Health = {}
 ShadowUF:RegisterModule(Health, "healthBar", ShadowUFLocals["Health bar"], true)
 
--- Don't really want to do all of the other checks in an OnUpdate, they'll still be ran normally when UNIT_HEALTH fires, we just don't need them to be
--- 100% accurate like we want the actual health bar to be.
-local function updateTimer(self)
-	local frame = self.parent
-	frame.healthBar:SetMinMaxValues(0, UnitHealthMax(frame.unit))
-	frame.healthBar:SetValue(UnitHealth(frame.unit))
-end
-
 function Health:OnEnable(frame)
 	if( not frame.healthBar ) then
 		frame.healthBar = ShadowUF.Units:CreateBar(frame)
@@ -55,6 +47,17 @@ local function setGradient(healthBar, unit)
 	end
 	
 	setBarColor(healthBar, r, g, b)
+end
+
+-- The other checks don't need to be as accurate as the bar/gradient are
+local function updateTimer(self)
+	local frame = self.parent
+	frame.healthBar:SetMinMaxValues(0, UnitHealthMax(frame.unit))
+	frame.healthBar:SetValue(UnitHealth(frame.unit))
+
+	if( not frame.healthBar.wasOffline and frame.healthBar.hasPercent ) then
+		setGradient(frame.healthBar, frame.unit)
+	end
 end
 
 --[[
@@ -157,7 +160,7 @@ function Health:Update(frame)
 	if( frame.incHeal and frame.incHeal.nextUpdate ) then
 		frame.incHeal:Hide()
 	end
-	
+		
 	-- Unit is offline, fill bar up + grey it
 	if( isOffline ) then
 		frame.healthBar.wasOffline = true
