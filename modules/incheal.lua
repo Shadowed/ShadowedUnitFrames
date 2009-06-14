@@ -10,10 +10,10 @@ function IncHeal:OnEnable(frame)
 	frames[frame] = true
 	frame.incHeal = frame.incHeal or ShadowUF.Units:CreateBar(frame)
 	frame.incHeal:SetFrameLevel(frame.topFrameLevel - 2)
-
-	frame:RegisterUpdateFunc(self, "UpdateFrame")
+	
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
-	frame:RegisterUnitEvent("Unit_HEALTH", self, "UpdateFrame")
+	frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
+	frame:RegisterUpdateFunc(self, "UpdateFrame")
 	
 	self:Setup()
 end
