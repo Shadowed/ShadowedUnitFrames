@@ -212,6 +212,10 @@ ShadowUFLocals = {
 	["Fuel"] = "Fuel",
 	["Ammo"] = "Ammo",
 	["Let's you modify the base font size to either make it larger or smaller."] = "Let's you modify the base font size to either make it larger or smaller.",
+	["Enable quick health"] = "Enable quick health",
+	["Enable quick power"] = "Enable quick power",
+	["This will enable fast updating of the health bar, giving you more slightly faster health bar information than you normally would get."] = "This will enable fast updating of the health bar, giving you more slightly faster health bar information than you normally would get.",
+	["This will enable fast updating of the power bar, giving you more slightly faster power information than you normally would get."] = "This will enable fast updating of the power bar, giving you more slightly faster power information than you normally would get.",
 	
 	-- Layout
 	["Layout"] = "Layout",

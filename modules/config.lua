@@ -2155,6 +2155,13 @@ local function loadUnitOptions()
 								arg = "incHeal.enabled",
 								hidden = function(info) return string.match(info[2], "%w+target") or hideRestrictedOption(info) end,
 							},
+							predictedHealth = {
+								order = 3,
+								type = "toggle",
+								name = L["Enable quick health"],
+								desc = L["This will enable fast updating of the health bar, giving you more slightly faster health bar information than you normally would get."],
+								arg = "healthBar.predicted",
+							},
 							sep = {
 								order = 4,
 								type = "description",
@@ -2191,43 +2198,54 @@ local function loadUnitOptions()
 						inline = true,
 						name = L["General"],
 						args = {
-							runeBar = {
-								order = 0,
-								type = "toggle",
-								name = string.format(L["Enable %s"], L["Rune bar"]),
-								hidden = function(info)
-									local hidden = hideRestrictedOption(info)
-									if( hidden ) then return true end
-									
-									return hideRestrictedOption(info)
-								end,
-								arg = "runeBar.enabled",
-							},
-							totemBar = {
-								order = 0,
-								type = "toggle",
-								name = string.format(L["Enable %s"], L["Totem bar"]),
-								hidden = function(info)
-									local hidden = hideRestrictedOption(info)
-									if( hidden ) then return true end
-									
-									return hideRestrictedOption(info)
-								end,
-								arg = "totemBar.enabled",
-							},
 							powerBar = {
 								order = 1,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Power bar"]),
 								arg = "powerBar.enabled",
 							},
-							xpBar = {
+							predictPower = {
 								order = 2,
+								type = "toggle",
+								name = L["Enable quick power"],
+								desc = L["This will enable fast updating of the power bar, giving you more slightly faster power information than you normally would get."],
+								arg = "powerBar.predicted",
+							},
+							sep = {
+								order = 3,
+								type = "description",
+								name = "",
+								hidden = function(info)
+									local unit = info[2]
+									if( unit == "player" and ( select(2, UnitClass("player")) == "SHAMAN" or select(2, UnitClass("player")) == "DEATHKNIGHT" ) ) then
+										return false
+									end
+									
+									return true
+								end,
+								width = "full",
+							},
+							xpBar = {
+								order = 4,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["XP/Rep bar"]),
 								desc = L["This bar will automatically hide when you are at the level cap, or you do not have any reputations tracked."],
 								hidden = hideRestrictedOption,
 								arg = "xpBar.enabled",
+							},
+							runeBar = {
+								order = 5,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Rune bar"]),
+								hidden = hideRestrictedOption,
+								arg = "runeBar.enabled",
+							},
+							totemBar = {
+								order = 6,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Totem bar"]),
+								hidden = hideRestrictedOption,
+								arg = "totemBar.enabled",
 							},
 						},
 					},

@@ -28,6 +28,8 @@ function Power:OnEnable(frame)
 	if( ShadowUF.db.profile.units[frame.unitType].powerBar.predicted ) then
 		frame.powerBar:SetScript("OnUpdate", updateTimer)
 		frame.powerBar.parent = frame
+	else
+		frame.powerBar:SetScript("OnUpdate", nil)
 	end
 end
 

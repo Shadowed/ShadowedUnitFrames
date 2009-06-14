@@ -34,6 +34,8 @@ local function RegisterTagEvents(fontString, tags)
 				-- If it's for the player, and the tag uses a power event, flag it as needing to be OnUpdate monitored
 				if( ShadowUF.db.profile.units[fontString.parent.unitType].powerBar.predicted and Tags.powerEvents[event] ) then
 					fastTagUpdates[fontString] = true
+				elseif( ShadowUF.db.profile.units[fontString.parent.unitType].healthBar.predicted and Tags.healthEvents[event] ) then
+					fastTagUpdates[fontString] = true
 				end
 			end
 		end
@@ -656,6 +658,11 @@ Tags.powerEvents = {
 	["UNIT_MANA"] = true,
 	["UNIT_RAGE"] = true,
 	["UNIT_RUNIC_POWER"] = true,
+}
+
+Tags.healthEvents = {
+	["UNIT_HEALTH"] = true,
+	["UNIT_MAXHEALTH"] = true,
 }
 
 -- Events that do not provide a unit, so if the fontstring registered it, it's called regardless

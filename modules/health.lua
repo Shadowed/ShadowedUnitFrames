@@ -1,6 +1,14 @@
 local Health = {}
 ShadowUF:RegisterModule(Health, "healthBar", ShadowUFLocals["Health bar"], true)
 
+-- Don't really want to do all of the other checks in an OnUpdate, they'll still be ran normally when UNIT_HEALTH fires, we just don't need them to be
+-- 100% accurate like we want the actual health bar to be.
+local function updateTimer(self)
+	local frame = self.parent
+	frame.healthBar:SetMinMaxValues(0, UnitHealthMax(frame.unit))
+	frame.healthBar:SetValue(UnitHealth(frame.unit))
+end
+
 function Health:OnEnable(frame)
 	if( not frame.healthBar ) then
 		frame.healthBar = ShadowUF.Units:CreateBar(frame)
@@ -13,6 +21,13 @@ function Health:OnEnable(frame)
 	
 	frame:RegisterUpdateFunc(self, "UpdateColor")
 	frame:RegisterUpdateFunc(self, "Update")
+
+	if( ShadowUF.db.profile.units[frame.unitType].healthBar.predicted ) then
+		frame.healthBar:SetScript("OnUpdate", updateTimer)
+		frame.healthBar.parent = frame
+	else
+		frame.healthBar:SetScript("OnUpdate", nil)
+	end
 end
 
 function Health:OnDisable(frame)
