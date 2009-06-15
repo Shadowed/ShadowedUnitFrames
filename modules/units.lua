@@ -570,6 +570,7 @@ function Units:SetFrameAttributes(frame, type)
 			end
 		end
 	elseif( type == "partypet" or type == "partytarget" ) then
+		frame:SetAttribute("framePositioned", false)
 		frame:SetAttribute("framePoint", ShadowUF.Layout:GetPoint(ShadowUF.db.profile.positions[type].anchorPoint))
 		frame:SetAttribute("frameRelative", ShadowUF.Layout:GetRelative(ShadowUF.db.profile.positions[type].anchorPoint))
 		frame:SetAttribute("frameX", ShadowUF.db.profile.positions[type].x)
@@ -622,12 +623,15 @@ function Units:LoadPartyChildUnit(config, parentHeader, type, unit)
 	frame:SetAttribute("unit", unit)
 	frame:SetAttribute("unitOwner", "party" .. (string.match(unit, "(%d+)")))
 	frame:SetAttribute("_onshow", [[
+		if( self:GetAttribute("framePositioned") ) then return end
+		
 		local children = table.new(self:GetFrameRef("partyHeader"):GetChildren())
 		for _, child in pairs(children) do
 			if( child:GetAttribute("unit") == self:GetAttribute("unitOwner") ) then
 				self:SetParent(child)
 				self:ClearAllPoints()
 				self:SetPoint(self:GetAttribute("framePoint"), child, self:GetAttribute("frameRelative"), self:GetAttribute("frameX"), self:GetAttribute("frameY"))
+				self:SetAttribute("framePositioned", true)
 			end
 		end
 	]])
