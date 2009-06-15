@@ -1,6 +1,6 @@
 -- Thanks to haste for the original tagging code, which I then mostly ripped apart and stole!
 local Tags = {}
-local eventlessUnits, events, tagPool, functionPool, fastTagUpdates, temp, regFontStrings = {}, {}, {}, {}, {}, {}, {}
+local eventlessUnits, events, tagPool, functionPool, temp, regFontStrings = {}, {}, {}, {}, {}, {}, {}
 local frame
 local L = ShadowUFLocals
 
@@ -33,9 +33,11 @@ local function RegisterTagEvents(fontString, tags)
 				
 				-- If it's for the player, and the tag uses a power event, flag it as needing to be OnUpdate monitored
 				if( ShadowUF.db.profile.units[fontString.parent.unitType].powerBar.predicted and Tags.powerEvents[event] ) then
-					fastTagUpdates[fontString] = true
-				elseif( ShadowUF.db.profile.units[fontString.parent.unitType].healthBar.predicted and Tags.healthEvents[event] ) then
-					fastTagUpdates[fontString] = true
+					fontString.fastPower = true
+				end
+				
+				if( ShadowUF.db.profile.units[fontString.parent.unitType].healthBar.predicted and Tags.healthEvents[event] ) then
+					fontString.fastHealth = true
 				end
 			end
 		end
@@ -55,9 +57,12 @@ local function UnregisterTagEvents(fontString)
 			end
 		end
 	end
+	
+	fontString.fastPower = nil
+	fontString.fastHealth = nil
 end
 
--- Tag needs an update!
+-- This is for regular tag updates
 local timeElapsed = 0
 frame = CreateFrame("Frame")
 frame:Hide()
@@ -88,14 +93,6 @@ frame:SetScript("OnEvent", function(self, event, unit)
 	end	
 end)
 
--- Tag updating for power to make it smooth
-local fastFrame = CreateFrame("Frame")
-fastFrame:SetScript("OnUpdate", function(self, elapsed)
-	for fontString in pairs(fastTagUpdates) do
-		fontString:UpdateTags()
-	end
-end)
-
 -- This pretty much means a tag was updated in some way (or deleted) so we have to do a full update to get the new values shown
 function Tags:FullUpdate(tag)
 	-- Specific tag changed, kill the functions we cached for it
@@ -124,7 +121,6 @@ function Tags:Register(parent, fontString, tags)
 	
 	fontString.parent = parent
 		
-	fastTagUpdates[fontString] = nil
 	regFontStrings[fontString] = tags
 	
 	local updateFunc = tagPool[tags]
@@ -194,7 +190,7 @@ function Tags:Register(parent, fontString, tags)
 	end
 	
 	fontString.UpdateTags = updateFunc
-	
+		
 	local unit = parent.unit
 	if( unit and string.match(unit, "%w+target") ) then
 		table.insert(eventlessUnits, fontString)
@@ -217,7 +213,6 @@ function Tags:Unregister(fontString)
 		frame:Hide()
 	end
 	
-	fastTagUpdates[fontString] = nil
 	regFontStrings[fontString] = nil
 	
 	fontString.UpdateTags = nil

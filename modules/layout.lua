@@ -367,15 +367,6 @@ function Layout:ApplyText(frame, config)
 	end
 
 	-- Update tag text
-	if( not config.text ) then
-		if( frame.fontStrings ) then
-			for _, fontString in pairs(frame.fontStrings) do
-				fontString:Hide()
-			end
-		end
-		return
-	end
-	
 	frame.fontStrings = frame.fontStrings or {}
 	for _, fontString in pairs(frame.fontStrings) do
 		fontString:Hide()
@@ -411,6 +402,8 @@ function Layout:ApplyText(frame, config)
 		
 		-- Tag was enabled, but it no longer is
 		elseif( frame.fontStrings[id] ) then
+			frame.fontStrings[id].fastPower = nil
+			frame.fontStrings[id].fastHealth = nil
 			frame.fontStrings[id]:Hide()
 		end
 	end

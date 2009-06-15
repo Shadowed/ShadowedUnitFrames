@@ -3,6 +3,12 @@ ShadowUF:RegisterModule(Power, "powerBar", ShadowUFLocals["Power bar"], true)
 
 local function updateTimer(self, elapsed)
 	Power:Update(self.parent)
+
+	for _, fontString in pairs(self.parent.fontStrings) do
+		if( fontString.fastPower ) then
+			fontString:UpdateTags()
+		end
+	end
 end
 
 function Power:OnEnable(frame)

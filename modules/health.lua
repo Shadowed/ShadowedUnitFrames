@@ -54,6 +54,12 @@ local function updateTimer(self)
 	local frame = self.parent
 	frame.healthBar:SetMinMaxValues(0, UnitHealthMax(frame.unit))
 	frame.healthBar:SetValue(UnitHealth(frame.unit))
+	
+	for _, fontString in pairs(frame.fontStrings) do
+		if( fontString.fastHealth ) then
+			fontString:UpdateTags()
+		end
+	end
 
 	if( not frame.healthBar.wasOffline and frame.healthBar.hasPercent ) then
 		setGradient(frame.healthBar, frame.unit)

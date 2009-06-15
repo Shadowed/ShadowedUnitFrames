@@ -209,7 +209,7 @@ end
 -- When a frames GUID changes,
 -- Handles checking for GUID changes for doing a full update, this fixes frames sometimes showing the wrong unit when they change
 function Units:CheckUnitGUID(frame)
-	local guid = UnitGUID(frame.unit)
+	local guid = frame.unit and UnitGUID(frame.unit)
 	if( guid ~= frame.unitGUID ) then
 		frame:FullUpdate()
 	end
