@@ -282,16 +282,23 @@ local function OnAttributeChanged(self, name, unit)
 		self:RegisterNormalEvent("UNIT_PET", Units, "CheckUnitUpdated")
 
 		-- Hide any pet that became a vehicle, we detect this by the player being untargetable but we have a pet out
-		RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s,nohelp,noharm][target=%s,noexists] none; %s", self.unitRealOwner, self.unit, self.unit))
+		local text = string.format("[target=%s, nohelp,noharm] vehicle; [target=%s, exists] pet", self.unitRealOwner, self.unit)
+		RegisterStateDriver(self, "vehicleupdated", text)
 		vehicleMonitor:WrapScript(self, "OnAttributeChanged", [[
 			if( name == "state-vehicleupdated" ) then
-				self:SetAttribute("unit", value ~= "none" and value or nil)
+				self:SetAttribute("unitIsVehicle", value == "vehicle" and true or false)
+			elseif( name == "state-unitexists" ) then
+				if( not value or self:GetAttribute("unitIsVehicle") ) then
+					self:Hide()
+				elseif( value ) then
+					self:Show()
+				end
 			end
 		]])
-
+		
 		-- Logged out in a vehicle
-		if( UnitHasVehicleUI(self.unitReaOwner) ) then
-			self:SetAttribute("unit", nil)
+		if( UnitHasVehicleUI(self.unitRealOwner) ) then
+			self:SetAttribute("unitIsVehicle", true)
 		end
 
 	-- Automatically do a full update on target change
@@ -342,7 +349,7 @@ function Units:LoadUnit(config, unit)
 	-- Already be loaded, just enable
 	if( unitFrames[unit] ) then
 		unitFrames[unit]:SetAttribute("unit", unit)
-		RegisterUnitWatch(unitFrames[unit])
+		RegisterUnitWatch(unitFrames[unit], unit == "pet")
 		return
 	end
 	
@@ -353,7 +360,7 @@ function Units:LoadUnit(config, unit)
 	unitFrames[unit] = frame
 		
 	-- Annd lets get this going
-	RegisterUnitWatch(frame)
+	RegisterUnitWatch(frame, unit == "pet")
 end
 
 local function OnDragStart(self)
@@ -600,7 +607,7 @@ end
 function Units:LoadPartyChildUnit(config, parentHeader, type, unit)
 	if( unitFrames[unit] ) then
 		self:SetFrameAttributes(unitFrames[unit], unitFrames[unit].unitType)
-		RegisterUnitWatch(unitFrames[unit])
+		RegisterUnitWatch(unitFrames[unit], type == "partypet")
 		return
 	end
 	
@@ -628,7 +635,7 @@ function Units:LoadPartyChildUnit(config, parentHeader, type, unit)
 	unitFrames[unit] = frame
 
 	-- Annd lets get this going
-	RegisterUnitWatch(frame)
+	RegisterUnitWatch(frame, type == "partypet")
 end
 
 function Units:InitializeFrame(config, type)

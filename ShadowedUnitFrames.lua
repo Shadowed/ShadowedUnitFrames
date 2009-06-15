@@ -119,9 +119,19 @@ function ShadowUF:OnInitialize()
 		
 		-- June 15th
 		if( type(self.db.profile.loadedLayout) == "string" ) then
-			--self.db.profile.loadedLayout = true
-					
-			ShadowUF.db.profile.units.pet.indicators.happiness.size = ShadowUF.db.profile.units.pet.indicators.happiness.size or 0
+			self.db.profile.loadedLayout = true
+			if( self.db.profile.positions.partypet.anchorPoint == "" and self.db.profile.positions.partypet.point == "" and self.db.profile.positions.partypet.relativePoint == "" ) then
+				self.db.profile.positions.partypet.anchorTo = "$parent"
+				self.db.profile.positions.partypet.anchorPoint = "RB"
+			end
+			
+			if( self.db.profile.positions.partytarget.anchorPoint == "" and self.db.profile.positions.partytarget.point == "" and self.db.profile.positions.partytarget.relativePoint == "" ) then
+				self.db.profile.positions.partytarget.anchorTo = "$parent"
+				self.db.profile.positions.partytarget.anchorPoint = "RT"
+			end
+				
+			self.db.profile.units.pet.indicators.happiness.size = self.db.profile.units.pet.indicators.happiness.size or 0
+			
 			for _, config in pairs(ShadowUF.db.profile.units) do
 				config.text[1].name = L["Left text"]
 				config.text[1].text = config.text[1].text or "[afk( )][name]"
