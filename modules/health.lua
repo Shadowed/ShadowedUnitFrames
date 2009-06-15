@@ -53,18 +53,22 @@ local function setGradient(healthBar, unit)
 	setBarColor(healthBar, eR * inverseModifier + sR * modifier, eG * inverseModifier + sG * modifier, eB * inverseModifier + sB * modifier)
 end
 
--- The other checks don't need to be as accurate as the bar/gradient are
+-- Not doing full health update, because other checks can lag behind without much issue
 local function updateTimer(self)
+	if( self.isDead ) then return end
+	
 	local frame = self.parent
 	frame.healthBar:SetMinMaxValues(0, UnitHealthMax(frame.unit))
 	frame.healthBar:SetValue(UnitHealth(frame.unit))
-	
+		
+	-- As much as I would rather not have to do this in an OnUpdate, I don't have much choice.
+	-- large health changes in a single update will make them very clearly be lagging behind
 	for _, fontString in pairs(frame.fontStrings) do
 		if( fontString.fastHealth ) then
 			fontString:UpdateTags()
 		end
 	end
-
+		
 	if( not frame.healthBar.wasOffline and frame.healthBar.hasPercent ) then
 		setGradient(frame.healthBar, frame.unit)
 	end
@@ -158,9 +162,11 @@ function Health:Update(frame)
 	local max = UnitHealthMax(unit)
 	local current = UnitHealth(unit)
 	local isOffline = not UnitIsConnected(unit)
+	frame.isDead = UnitIsDeadOrGhost(unit)
+
 	if( isOffline ) then
 		current = max
-	elseif( UnitIsDeadOrGhost(unit) ) then
+	elseif( frame.isDead ) then
 		current = 0
 	end
 	

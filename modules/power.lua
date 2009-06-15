@@ -2,7 +2,8 @@ local Power = {}
 ShadowUF:RegisterModule(Power, "powerBar", ShadowUFLocals["Power bar"], true)
 
 local function updateTimer(self, elapsed)
-	Power:Update(self.parent)
+	if( self.isDead ) then return end
+	self:SetValue(UnitPower(self.parent.unit))
 
 	for _, fontString in pairs(self.parent.fontStrings) do
 		if( fontString.fastPower ) then
@@ -52,6 +53,7 @@ function Power:UpdateColor(frame)
 end
 
 function Power:Update(frame)
+	frame.powerBar.isDead = UnitIsDeadOrGhost(frame.unit)
 	frame.powerBar:SetMinMaxValues(0, UnitPowerMax(frame.unit))
-	frame.powerBar:SetValue(UnitPower(frame.unit))
+	frame.powerBar:SetValue(frame.powerBar.isDead and 0 or UnitPower(frame.unit))
 end
