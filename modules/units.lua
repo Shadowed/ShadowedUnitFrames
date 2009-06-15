@@ -93,26 +93,14 @@ local function OnShow(self)
 	-- Reset the event handler
 	self:SetScript("OnEvent", OnEvent)
 	
-	-- Party and raid frames love to show/hide themselves, so we're going to block it from doing a full update if the GUID never changed
-	if( self.unitType == "raid" or self.unitType == "party" ) then
-		local guid = UnitGUID(self.unit)
-		if( guid == self.unitGUID ) then return end
-		
-		self.unitGUID = guid
-	end
-	
-	-- Force a full update
-	self:FullUpdate()
+	Units:CheckUnitGUID(self)
 end
 
 local function OnHide(self)
 	self:SetScript("OnEvent", nil)
 	
-	-- While we don't want frames to do full updates from the headers being shown/hidden with the same unit, we do want them to be full updated
-	-- if you leave a group, then rejoin it so will eset the GUIDs in that case.
-	if( ( self.unitType == "raid" or self.unitType == "party" ) ) then
-		self.unitGUID = UnitGUID(self.unitOwner)
-	else
+	-- If it's a non-static unit like target or focus, will reset the flag and force an update when it's shown.
+	if( self.unitType ~= "party" and self.unitType ~= "partypet" and self.unitType ~= "partytarget" and self.unitType ~= "player" and self.unitType ~= "raid" ) then
 		self.unitGUID = nil
 	end
 end
@@ -196,47 +184,44 @@ local function checkVehicleData(self, elapsed)
 	end
 end
 
--- Vehicle status changed for the unit, we need to put it all together again, kind of like the humpty dumpty of the 21st sentry
-function Units:VehicleEntered(frame, event, unit)
-	if( frame.unitOwner ~= unit or not UnitHasVehicleUI(frame.unitOwner) or frame.unit == frame.vehicleUnit ) then return end
-
-	frame.inVehicle = true
-	frame.unit = frame.vehicleUnit
-
-	if( not UnitIsConnected(frame.unit) or UnitHealthMax(frame.unit) == 0 ) then
-		frame.timeElapsed = 0
-		frame.dataAttempts = 0
-		frame:SetScript("OnUpdate", checkVehicleData)
-	else
-		frame:FullUpdate()
-	end
-end
-
-function Units:VehicleLeft(frame, event, unit)
-	if( frame.unitOwner ~= unit or not frame.inVehicle ) then return end
-	frame.inVehicle = false
-	frame.unit = frame.unitOwner
-	frame:FullUpdate()
-end
-
--- Handles checking for GUID changes for doing a full update, this fixes frames sometimes showing the wrong unit when they change
-function Units:CheckUnitChange(frame)
-	local guid = UnitGUID(frame.unit)
-	if( guid ~= frame.updateGUID ) then
-		frame:FullUpdate()
-	end
-	
-	frame.updateGUID = guid
-end
-
+-- Check if a unit entered a vehicle
 function Units:CheckVehicleStatus(frame)
-	-- Update vehicle status
+	-- Not in a vehicle yet, and they entered one that has a UI 
 	if( not frame.inVehicle and UnitHasVehicleUI(frame.unitOwner) ) then
-		self:VehicleEntered(frame, nil, frame.unitOwner, true)
+		frame.inVehicle = true
+		frame.unit = frame.vehicleUnit
+
+		if( not UnitIsConnected(frame.unit) or UnitHealthMax(frame.unit) == 0 ) then
+			frame.timeElapsed = 0
+			frame.dataAttempts = 0
+			frame:SetScript("OnUpdate", checkVehicleData)
+		else
+			frame:FullUpdate()
+		end
+	-- Was in a vehicle, no longer has a UI
 	elseif( frame.inVehicle and not UnitHasVehicleUI(frame.unitOwner) ) then
 		frame.inVehicle = false
 		frame.unit = frame.unitOwner
+		frame:FullUpdate()
 	end
+end
+
+-- When a frames GUID changes,
+-- Handles checking for GUID changes for doing a full update, this fixes frames sometimes showing the wrong unit when they change
+function Units:CheckUnitGUID(frame)
+	local guid = UnitGUID(frame.unit)
+	if( guid ~= frame.unitGUID ) then
+		frame:FullUpdate()
+	end
+	
+	frame.unitGUID = guid
+end
+
+
+-- When player summons a new pet, UNIT_PET fires for player, when party1 summons a new one, party1 fires not partypet1/party1pet
+function Units:CheckUnitUpdated(frame, event, unit)
+	if( unit ~= frame.unitRealOwner or not UnitExists(unit) ) then return end
+	frame:FullUpdate()
 end
 
 -- Sets up the unit and all that good stuff
@@ -253,9 +238,10 @@ local function SetupUnitFrame(self)
 		-- player -> pet, party -> partypet#, raid -> raidpet# (party#pet/raid#pet work too, the secure headers automatically translate it to *pet# thought.
 		self.vehicleUnit = self.unitOwner == "player" and "vehicle" or self.unitType == "party" and "partypet" .. self.unitID or self.unitType == "raid" and "raidpet" .. self.unitID
 
-		self:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", Units, "VehicleEntered")
-		self:RegisterNormalEvent("UNIT_EXITED_VEHICLE", Units, "VehicleLeft")
+		self:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", Units, "CheckVehicleStatus")
+		self:RegisterNormalEvent("UNIT_EXITED_VEHICLE", Units, "CheckVehicleStatus")
 		self:RegisterUpdateFunc(Units, "CheckVehicleStatus")
+		
 		-- This unit can be a vehicle, so will want to be able to target the vehicle if they enter one
 		self:SetAttribute("toggleForVehicle", true)
 		
@@ -273,8 +259,8 @@ local function OnAttributeChanged(self, name, unit)
 	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
 	if( inCombat ) then
 		-- Either the unit was reset, or the unit's actually changed
-		if( not unit or self.unitGUID ~= UnitGUID(unit) ) then
-			self.unitGUID = unit and UnitGUID(unit)
+		if( not unit or self.updateGUID ~= UnitGUID(unit) ) then
+			self.updateGUID = unit and UnitGUID(unit)
 			queuedCombat[self] = true
 		end
 		return
@@ -292,30 +278,11 @@ local function OnAttributeChanged(self, name, unit)
 	
 	-- Pet changed, going from pet -> vehicle for one
 	if( self.unit == "pet" or self.unitType == "partypet" ) then
-		self:RegisterUnitEvent("UNIT_PET", self, "FullUpdate")
-	-- Automatically do a full update on target change
-	elseif( self.unit == "target" ) then
-		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
-	-- Automatically do a full update on focus change
-	elseif( self.unit == "focus" ) then
-		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "FullUpdate")
-	-- *target units are not real units, thus they do not receive events and must be polled for data
-	elseif( string.match(self.unit, "%w+target") ) then
-		self.timeElapsed = 0
-		self:SetScript("OnUpdate", TargetUnitUpdate)
-	-- When a player is force ressurected by releasing in naxx/tk/etc then they might freeze
-	elseif( self.unit == "player" ) then
-		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
-	-- Check for a unit guid to do a full update
-	elseif( self.unitType == "raid" ) then
-		self:RegisterNormalEvent("RAID_ROSTER_UPDATE", Units, "CheckUnitChange")
-	elseif( self.unitType == "party" ) then
-		self:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", Units, "CheckUnitChange")
-	end
+		self.unitRealOwner = self.unit == "pet" and "player" or ShadowUF.partyUnits[self.unitID]
+		self:RegisterNormalEvent("UNIT_PET", Units, "CheckUnitUpdated")
 
-	-- Hide any pet that became a vehicle, we detect this by the player being untargetable but we have a pet out
-	if( self.unit == "pet" ) then
-		RegisterStateDriver(self, "vehicleupdated", "[target=vehicle,exists] none; pet")
+		-- Hide any pet that became a vehicle, we detect this by the player being untargetable but we have a pet out
+		RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s,nohelp,noharm][target=%s,noexists] none; %s", self.unitRealOwner, self.unit, self.unit))
 		vehicleMonitor:WrapScript(self, "OnAttributeChanged", [[
 			if( name == "state-vehicleupdated" ) then
 				self:SetAttribute("unit", value ~= "none" and value or nil)
@@ -323,8 +290,47 @@ local function OnAttributeChanged(self, name, unit)
 		]])
 
 		-- Logged out in a vehicle
-		if( UnitHasVehicleUI("player") ) then
+		if( UnitHasVehicleUI(self.unitReaOwner) ) then
 			self:SetAttribute("unit", nil)
+		end
+
+	-- Automatically do a full update on target change
+	elseif( self.unit == "target" ) then
+		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
+
+		-- Automatically do a full update on focus change
+	elseif( self.unit == "focus" ) then
+		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "FullUpdate")
+
+	-- *target units are not real units, thus they do not receive events and must be polled for data
+	elseif( string.match(self.unit, "%w+target") ) then
+		self.timeElapsed = 0
+		self:SetScript("OnUpdate", TargetUnitUpdate)
+		
+		-- This speeds up updating of fake units, if party1 changes target than party1target is force updated, if target changes target, then targettarget and targettarget are force updated
+		-- same goes for focus changing target, focustarget is forced to update.
+		self.unitRealOwner = self.unitType == "partytarget" and ShadowUF.partyUnits[self.unitID] or self.unitType == "focustarget" and "focus" or "target"
+		self:RegisterNormalEvent("UNIT_TARGET", Units, "CheckUnitUpdated")
+	
+	-- When a player is force ressurected by releasing in naxx/tk/etc then they might freeze
+	elseif( self.unit == "player" ) then
+		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
+	
+	-- Check for a unit guid to do a full update
+	elseif( self.unitType == "raid" ) then
+		self:RegisterNormalEvent("RAID_ROSTER_UPDATE", Units, "CheckUnitGUID")
+	
+	-- Party members need to watch for changes
+	elseif( self.unitType == "party" ) then
+		self:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", Units, "CheckUnitGUID")
+
+		-- Party frame has been loaded, so initialize it's sub-frames if they are enabled
+		if( loadedUnits.partypet ) then
+			Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partypet, SUFHeaderparty, "partypet", "partypet" .. self.unitID)
+		end
+		
+		if( loadedUnits.partytarget ) then
+			Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partytarget, SUFHeaderparty, "partytarget", "party" .. self.unitID .. "target")
 		end
 	end
 	
@@ -394,6 +400,34 @@ local function OnEnter(...)
 	end
 end
 
+local function ShowMenu(frame)
+	local menuFrame
+	if( frame.unit == "player" ) then
+		menuFrame = PlayerFrameDropDown
+	elseif( frame.unit == "pet" ) then
+		menuFrame = PetFrameDropDown
+	elseif( frame.unit == "target" ) then
+		menuFrame = TargetFrameDropDown
+	elseif( frame.unitType == "party" ) then
+		menuFrame = getglobal("PartyMemberFrame" .. frame.unitID .. "DropDown")
+	elseif( frame.unitType == "raid" ) then
+		menuFrame = FriendsDropDown
+		menuFrame.displayMode = "MENU"
+		menuFrame.initialize = RaidFrameDropDown_Initialize
+		menuFrame.userData = frame.unitID
+	end
+		
+	if( not menuFrame ) then
+		return
+	end
+	
+	HideDropDownMenu(1)
+	menuFrame.unit = frame.unit
+	menuFrame.name = UnitName(frame.unit)
+	menuFrame.id = frame.unitID
+	ToggleDropDownMenu(1, nil, menuFrame, "cursor")
+end
+
 -- Create the generic things that we want in every secure frame regardless if it's a button or a header
 function Units:CreateUnit(frame,  hookVisibility)
 	frame.barFrame = CreateFrame("Frame", nil, frame)
@@ -428,7 +462,7 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame:SetAttribute("*type2", "menu")
 	-- allowVehicleTarget
 	--[16:42] <+alestane> Shadowed: It says whether a unit defined as, for instance, "party1target" should be remapped to "partypet1target" when party1 is in a vehicle.
-	frame.menu = Units.ShowMenu
+	frame.menu = ShowMenu
 
 	if( hookVisibility ) then
 		frame:HookScript("OnShow", OnShow)
@@ -437,11 +471,6 @@ function Units:CreateUnit(frame,  hookVisibility)
 		frame:SetScript("OnShow", OnShow)
 		frame:SetScript("OnHide", OnHide)
 	end
-end
-
-local function initUnit(self)
-	self.ignoreAnchor = true
-	Units:CreateUnit(self)
 end
 
 function Units:ReloadHeader(type)
@@ -454,9 +483,8 @@ function Units:ReloadHeader(type)
 
 	-- Now update it's children
 	if( type == "partypet" or type == "partytarget" ) then
-		for i=1, MAX_PARTY_MEMBERS do
-			local frame = unitFrames[type .. i]
-			if( frame ) then
+		for _, frame in pairs(unitframes) do
+			if( frame.unitType == type ) then
 				self:SetFrameAttributes(frame, type)
 				if( UnitExists(frame.unit) ) then
 					frame:Hide()
@@ -542,6 +570,11 @@ function Units:SetFrameAttributes(frame, type)
 	end
 end
 
+local function initializeUnit(self)
+	self.ignoreAnchor = true
+	Units:CreateUnit(self)
+end
+
 function Units:LoadGroupHeader(config, type)
 	if( unitFrames[type] ) then
 		self:SetFrameAttributes(unitFrames[type], type)
@@ -554,7 +587,7 @@ function Units:LoadGroupHeader(config, type)
 	
 	headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
 	headerFrame:SetAttribute("initial-unitWatch", true)
-	headerFrame.initialConfigFunction = initUnit
+	headerFrame.initialConfigFunction = initializeUnit
 	headerFrame.unitType = type
 	headerFrame:SetMovable(true)
 	headerFrame:RegisterForDrag("LeftButton")
@@ -562,20 +595,10 @@ function Units:LoadGroupHeader(config, type)
 
 	unitFrames[type] = headerFrame
 	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, ShadowUF.db.profile.positions[type])
-	
-	if( type == "party" and needPartyFrame ) then
-		needPartyFrame = nil
-		
-		Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partypet, headerFrame, "partypet")
-		Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partypet, headerFrame, "partytarget")
-	end
 end
 
 function Units:LoadPartyChildUnit(config, parentHeader, type, unit)
-	if( not parentHeader ) then
-		needPartyFrame = true
-		return
-	elseif( unitFrames[unit] ) then
+	if( unitFrames[unit] ) then
 		self:SetFrameAttributes(unitFrames[unit], unitFrames[unit].unitType)
 		RegisterUnitWatch(unitFrames[unit])
 		return
@@ -583,6 +606,7 @@ function Units:LoadPartyChildUnit(config, parentHeader, type, unit)
 	
 	local frame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate,SecureHandlerShowHideTemplate")
 	frame.ignoreAnchor = true
+	frame:Hide()
 
 	self:SetFrameAttributes(frame, type)
 	
@@ -615,13 +639,19 @@ function Units:InitializeFrame(config, type)
 		self:LoadGroupHeader(config, type)
 	elseif( type == "raid" ) then
 		self:LoadGroupHeader(config, type)
+	-- Since I delay the partypet/partytarget creation until the owners were loaded, we don't want to actually initialize them here
+	-- unless the pets were already loaded, this mainly accounts for the fact that you might enable a unit in arenas, but not in raids, etc.
 	elseif( type == "partypet" ) then
-		for _, unit in pairs(ShadowUF.partyUnits) do
-			self:LoadPartyChildUnit(config, SUFHeaderparty, type, unit .. "pet")
+		for id, unit in pairs(ShadowUF.partyUnits) do
+			if( unitFrames[unit] ) then
+				Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partypet, SUFHeaderparty, "partypet", "partypet" .. id)
+			end
 		end
 	elseif( type == "partytarget" ) then
-		for _, unit in pairs(ShadowUF.partyUnits) do
-			self:LoadPartyChildUnit(config, SUFHeaderparty, type, unit .. "target")
+		for id, unit in pairs(ShadowUF.partyUnits) do
+			if( unitFrames[unit] ) then
+				Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partytarget, SUFHeaderparty, "partytarget", "party" .. id .. "target")
+			end
 		end
 	else
 		self:LoadUnit(config, type)
@@ -659,34 +689,6 @@ function Units:UninitializeFrame(config, type)
 			frame:Hide()
 		end
 	end
-end
-
-function Units.ShowMenu(frame)
-	local menuFrame
-	if( frame.unit == "player" ) then
-		menuFrame = PlayerFrameDropDown
-	elseif( frame.unit == "pet" ) then
-		menuFrame = PetFrameDropDown
-	elseif( frame.unit == "target" ) then
-		menuFrame = TargetFrameDropDown
-	elseif( frame.unitType == "party" ) then
-		menuFrame = getglobal("PartyMemberFrame" .. frame.unitID .. "DropDown")
-	elseif( frame.unitType == "raid" ) then
-		menuFrame = FriendsDropDown
-		menuFrame.displayMode = "MENU"
-		menuFrame.initialize = RaidFrameDropDown_Initialize
-		menuFrame.userData = frame.unitID
-	end
-		
-	if( not menuFrame ) then
-		return
-	end
-	
-	HideDropDownMenu(1)
-	menuFrame.unit = frame.unit
-	menuFrame.name = UnitName(frame.unit)
-	menuFrame.id = frame.unitID
-	ToggleDropDownMenu(1, nil, menuFrame, "cursor")
 end
 
 function Units:CreateBar(parent)
