@@ -34,19 +34,23 @@ end
 local function setGradient(healthBar, unit)
 	local current, max = UnitHealth(unit), UnitHealthMax(unit)
 	local percent = current / max
-	local r, g, b = 0, 0, 0
+	if( percent == 1 ) then return setBarColor(healthBar, ShadowUF.db.profile.healthColors.green.r, ShadowUF.db.profile.healthColors.green.g, ShadowUF.db.profile.healthColors.green.b) end
+	if( percent == 0 ) then return setBarColor(healthBar, ShadowUF.db.profile.healthColors.red.r, ShadowUF.db.profile.healthColors.red.g, ShadowUF.db.profile.healthColors.red.b) end
 	
-	if( percent == 1.0 ) then
-		r, g, b = ShadowUF.db.profile.healthColors.green.r, ShadowUF.db.profile.healthColors.green.g, ShadowUF.db.profile.healthColors.green.b
-	elseif( percent > 0.50 ) then
-		r = (ShadowUF.db.profile.healthColors.red.r - percent) * 2
-		g = ShadowUF.db.profile.healthColors.green.g
+	local sR, sG, sB, eR, eG, eB, modifier, inverseModifier = 0, 0, 0, 0, 0, 0, percent * 2, 0
+	if( percent > 0.50 ) then
+		sR, sG, sB = ShadowUF.db.profile.healthColors.green.r, ShadowUF.db.profile.healthColors.green.g, ShadowUF.db.profile.healthColors.green.b
+		eR, eG, eB = ShadowUF.db.profile.healthColors.yellow.r, ShadowUF.db.profile.healthColors.yellow.g, ShadowUF.db.profile.healthColors.yellow.b
+
+		modifier = modifier - 1
+		inverseModifier = 1 - modifier
 	else
-		r = ShadowUF.db.profile.healthColors.red.r
-		g = percent * 2
+		sR, sG, sB = ShadowUF.db.profile.healthColors.yellow.r, ShadowUF.db.profile.healthColors.yellow.g, ShadowUF.db.profile.healthColors.yellow.b
+		eR, eG, eB = ShadowUF.db.profile.healthColors.red.r, ShadowUF.db.profile.healthColors.red.g, ShadowUF.db.profile.healthColors.red.b
+		inverseModifier = 1 - modifier
 	end
 	
-	setBarColor(healthBar, r, g, b)
+	setBarColor(healthBar, eR * inverseModifier + sR * modifier, eG * inverseModifier + sG * modifier, eB * inverseModifier + sB * modifier)
 end
 
 -- The other checks don't need to be as accurate as the bar/gradient are

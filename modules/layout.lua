@@ -322,7 +322,7 @@ function Layout:ApplyText(frame, config)
 	-- Update cast bar text
 	if( frame.castBar and frame.castBar:IsShown() ) then
 		-- Set the font at the very least, so it doesn't error when we set text on it even if it isn't being shown
-		frame.castBar.name:SetFont(mediaPath.font, ShadowUF.db.profile.font.size)
+		frame.castBar.name:SetFont(mediaPath.font, ShadowUF.db.profile.font.size, ShadowUF.db.profile.font.extra)
 		if( config.castBar.castName.enabled ) then
 			frame.castBar.name:SetParent(frame.highFrame)
 			frame.castBar.name:SetWidth(frame.castBar:GetWidth() * 0.75)
@@ -336,7 +336,7 @@ function Layout:ApplyText(frame, config)
 			frame.castBar.name:Hide()
 		end
 		
-		frame.castBar.time:SetFont(mediaPath.font, ShadowUF.db.profile.font.size)
+		frame.castBar.time:SetFont(mediaPath.font, ShadowUF.db.profile.font.size, ShadowUF.db.profile.font.extra)
 		if( config.castBar.castTime.enabled ) then
 			frame.castBar.time:SetParent(frame.highFrame)
 			frame.castBar.time:SetWidth(frame.castBar:GetWidth() * 0.25)
@@ -379,7 +379,7 @@ function Layout:ApplyText(frame, config)
 		local parent = row.anchorTo == "$parent" and frame or frame[string.sub(row.anchorTo, 2)]
 		if( parent and parent:IsShown() and row.enabled and row.text ~= "" ) then
 			local fontString = frame.fontStrings[id] or frame:CreateFontString(nil, "ARTWORK")
-			fontString:SetFont(mediaPath.font, ShadowUF.db.profile.font.size + row.size)
+			fontString:SetFont(mediaPath.font, ShadowUF.db.profile.font.size + row.size, ShadowUF.db.profile.font.extra)
 			fontString:SetText(row.text)
 			fontString:SetParent(frame.highFrame)
 			fontString:SetJustifyH(self:GetJustify(row))

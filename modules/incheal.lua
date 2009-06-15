@@ -19,10 +19,10 @@ function IncHeal:OnEnable(frame)
 end
 
 function IncHeal:OnDisable(frame)
+	frame:UnregisterAll(self)
 	frames[frame] = nil
 
 	self:Setup()
-	self:UnregisterAll(self)
 end
 
 function IncHeal:OnLayoutApplied(frame)
