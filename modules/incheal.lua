@@ -1,7 +1,7 @@
 local IncHeal = {}
 local frames, playerHeals, totalHealing = {}, {}, {}
 local playerName = UnitName("player")
-local HealComm
+local HealComm, resetFrame
 local OH_WARNING = 1.30
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUFLocals["Incoming heals"])
 
@@ -48,15 +48,32 @@ function IncHeal:Setup()
 	if( not enabled ) then
 		if( HealComm ) then
 			HealComm:UnregisterAllCallbacks(IncHeal)
+			resetFrame:UnregisterAllEvents()
 		end
 		return
 	end
-	
+
 	HealComm = HealComm or LibStub("LibHealComm-3.0")
 	HealComm.RegisterCallback(self, "HealComm_DirectHealStart", "DirectHealStart")
 	HealComm.RegisterCallback(self, "HealComm_DirectHealStop", "DirectHealStop")
 	HealComm.RegisterCallback(self, "HealComm_DirectHealDelayed", "DirectHealDelayed")
 	HealComm.RegisterCallback(self, "HealComm_HealModifierUpdate", "HealModifierUpdate")
+
+	-- When you leave a raid or party, all incoming heal data must be reset to stop it from locking and showing the incoming heal bar
+	if( not resetFrame ) then
+		resetFrame = CreateFrame("Frame")
+		resetFrame:SetScript("OnEvent", function(self, event)
+			if( ( event == "PARTY_MEMBERS_CHANGED" and GetNumPartyMembers() == 0 ) or ( event == "RAID_ROSTER_UPDATE" and GetNumRaidMembers() == 0 ) ) then
+				for k in pairs(totalHealing) do totalHealing[k] = nil end
+				for frame in pairs(frames) do
+					frame.incHeal:Hide()
+				end
+			end
+		end)
+	end
+
+	resetFrame:RegisterEvent("RAID_ROSTER_UPDATE")
+	resetFrame:RegisterEvent("PARTY_MEMBERS_CHANGED")
 end
 
 local function setBarColor(bar, r, g, b)

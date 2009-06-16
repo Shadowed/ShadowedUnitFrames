@@ -8,6 +8,33 @@ ShadowUF.Config = Config
 --[[
 	Interface design is a complex process, you might ask what goes into it? Well this is what it requires:
 	10% bullshit, 15% tears, 15% hackery, 20% yelling at code, 40% magic
+	
+	TOC note suggestions from the IRC-crazies
+
+	[28:58] <Aikiwoce> Shadow Unit Frames now with 100% less fail
+	[30:44] <+forostie> Shadowed Unit Frames: Compeletly unique and not rehashed, or your money back
+	[32:11] <Aikiwoce> Shadowed Unit Frames, Made from the best stuff on Azeroth.
+	[33:24] <Aikiwoce> Shadowed Unit Frames, Only you can prevent people from standing in fire.
+	[33:29] <+forostie> Shadowed Unit Frames - Go hard or get mrgggl'd
+	[33:54] <+forostie> Shadowed Unit Frames - Live long and be prosperous
+	[34:24] <+forostie> Shadowed Unit Frames - Dick Don't Pay For Strange
+	[34:24] <Aikiwoce> Shadowed Unit Frames, The champagne of unit frames.
+	[34:31] <+Darkside> SUF: Carrying bad arena teams to glad since S5
+	[34:44] <+forostie> Shadowed Unit Frames - The basement your daughter never had
+	[35:11] <Aikiwoce> SUF: Where's the cream filling?
+	[35:29] <+forostie> SUF: Almost SUP, but heaps not
+	[35:35] <TNSe> Shadowed Unit Frames: Now you know what SUF stands for.
+	[35:39] <+Darkside> SUF: Happy cows make happy unit frames. CAAALIFORNIA
+	[36:09] <TNSe> Shadowed Unit Frames: Not the cause of BRG.
+	[36:09] <+forostie> Shadowed Unit Frames: Made by the guy who also made that arena thing
+	[36:59] <Aikiwoce> Shadowed Unit Frames: So easy a caveman can do it.
+	[37:01] <+forostie> and post it on wowi
+	[37:02] <L_J> should change the name tbh, there's no shadows in SUF :I
+	[37:05] <friar> Shadowed Unit Frames: Probably no shadow option.
+	[37:07] <@jabowah> Shadowed Unit Frames: CRUSHING ALL THE OPPOSITION W/ OUR MIGHTY LASER CANNON
+	[41:57] <friar> SUF: Single Undead Female
+	[42:48] <Kalroth> SUF: Six Under Feet.
+	[44:51] <Aikiwoce> SUF: Kid tested, EJ-approved
 ]]
 
 local selectDialogGroup, selectTabGroup, hideAdvancedOption, getName, getUnitOrder, set, get, setVariable, getVariable
@@ -2293,7 +2320,7 @@ local function loadTagOptions()
 			return ""
 		end
 		
-		return string.gsub(text, "\t", "")
+		return string.gsub(string.gsub(text, "|", "||"), "\t", "")
 	end
 	
 	local function get(info)
@@ -2374,47 +2401,68 @@ local function loadTagOptions()
 				type = "group",
 				name = L["Add new tag"],
 				args = {
-					error = {
+					help = {
 						order = 0,
-						type = "description",
-						name = function() return tagData.addError or "" end,
-						hidden = function() return not tagData.addError end,
+						type = "group",
+						inline = true,
+						name = L["Help"],
+						args = {
+							help = {
+								order = 0,
+								type = "description",
+								name = L["You can find more information on creating your own custom tags in the \"Lua help\" tab above."],
+							},
+						},
 					},
-					errorHeader = {
-						order = 0.50,
-						type = "header",
-						name = "",
-						hidden = function() return not tagData.addError end,
-					},
-					tag = {
+					add = {
 						order = 1,
-						type = "input",
-						name = L["Tag name"],
-						desc = L["Tag that you will use to access this code, do not wrap it in brackets or parenthesis it's automatically done. For example, you would enter \"foobar\" and then access it with [foobar]."],
-						validate = function(info, text)
-							if( text == "" ) then
-								tagData.addError = L["You must enter a tag name."]
-							elseif( string.match(text, "[%[%]%(%)]") ) then
-								tagData.addError = string.format(L["You cannot name a tag \"%s\", tag names should contain no brackets or parenthesis."], text)
-							elseif( ShadowUF:IsTagRegistered(text) ) then
-								tagData.addError = string.format(L["The tag \"%s\" already exists."], text)
-							else
-								tagData.addError = nil
-							end
-							
-							AceRegistry:NotifyChange("ShadowedUF")
-							return tagData.addError and "" or true
-						end,
-						set = function(info, text)
-							tagData.name = text
-							tagData.error = nil
-							tagData.addError = nil
-							
-							ShadowUF.db.profile.tags[text] = {func = "function(unit)\n\nend"}
-							options.args.tags.args.general.args.list.args[text] = tagTable
-							
-							selectDialogGroup("tags", "edit")
-						end,
+						type = "group",
+						inline = true,
+						name = L["Add new tag"],
+						args = {
+							error = {
+								order = 0,
+								type = "description",
+								name = function() return tagData.addError or "" end,
+								hidden = function() return not tagData.addError end,
+							},
+							errorHeader = {
+								order = 0.50,
+								type = "header",
+								name = "",
+								hidden = function() return not tagData.addError end,
+							},
+							tag = {
+								order = 1,
+								type = "input",
+								name = L["Tag name"],
+								desc = L["Tag that you will use to access this code, do not wrap it in brackets or parenthesis it's automatically done. For example, you would enter \"foobar\" and then access it with [foobar]."],
+								validate = function(info, text)
+									if( text == "" ) then
+										tagData.addError = L["You must enter a tag name."]
+									elseif( string.match(text, "[%[%]%(%)]") ) then
+										tagData.addError = string.format(L["You cannot name a tag \"%s\", tag names should contain no brackets or parenthesis."], text)
+									elseif( ShadowUF.tagFunc[text] ) then
+										tagData.addError = string.format(L["The tag \"%s\" already exists."], text)
+									else
+										tagData.addError = nil
+									end
+									
+									AceRegistry:NotifyChange("ShadowedUF")
+									return tagData.addError and "" or true
+								end,
+								set = function(info, text)
+									tagData.name = text
+									tagData.error = nil
+									tagData.addError = nil
+									
+									ShadowUF.db.profile.tags[text] = {func = "function(unit, unitOwner)\n\nend"}
+									options.args.tags.args.general.args.list.args[text] = tagTable
+									
+									selectDialogGroup("tags", "edit")
+								end,
+							},
+						},
 					},
 				},
 			},
@@ -2424,11 +2472,25 @@ local function loadTagOptions()
 				name = L["Edit tag"],
 				hidden = function() return not tagData.name end,
 				args = {
+					help = {
+						order = 0,
+						type = "group",
+						inline = true,
+						name = L["Help"],
+						args = {
+							help = {
+								order = 0,
+								type = "description",
+								name = L["You can find more information on creating your own custom tags in the \"Lua help\" tab above.\nSUF will attempt to automatically detect what events your tag will need, so you do not generally need to fill out the events field."],
+							},
+						},
+					},
 					tag = {
-							type = "group",
-							inline = true,
-							name = function() return string.format(L["Editing %s"], tagData.name or "") end,
-							args = {
+						order = 1,
+						type = "group",
+						inline = true,
+						name = function() return string.format(L["Editing %s"], tagData.name or "") end,
+						args = {
 							error = {
 								order = 0,
 								type = "description",
@@ -2441,14 +2503,14 @@ local function loadTagOptions()
 								name = "",
 								hidden = function() return not tagData.error end,
 							},
-							help = {
-								order = 2,
-								type = "input",
-								name = L["Help text"],
-								desc = L["Help text to show that describes what this tag does."],
+							discovery = {
+								order = 1,
+								type = "toggle",
+								name = L["Disable event discovery"],
+								desc = L["This will disable the automatic detection of what events this tag will need, you should leave this unchecked unless you know what you are doing."],
+								set = function(info, value) tagData.discovery = value end,
+								get = function() return tagData.discovery end,
 								width = "full",
-								set = set,
-								get = get,
 							},
 							events = {
 								order = 3,
@@ -2504,14 +2566,19 @@ local function loadTagOptions()
 										tagData.error = nil
 										tagData.funcError = nil
 									end
-									--|cffbc64aa
 									
 									AceRegistry:NotifyChange("ShadowedUF")
 									return tagData.error and "" or true
 								end,
 								set = function(info, value)
-									value = string.gsub(value, "\124", "|")
+									value = string.gsub(value, "||", "|")
 									set(info, value)
+									
+									-- Try and automatically identify the events this tag is going to want to use
+									if( not tagData.discovery ) then
+										tagData.eventError = nil
+										ShadowUF.db.profile.tags[tagData.name].events = ShadowUF.Tags:IdentifyEvents(value) or ""
+									end
 									
 									ShadowUF.Tags:Reload(tagData.name)
 								end,
@@ -2545,6 +2612,86 @@ local function loadTagOptions()
 							},
 						},
 					},
+				},
+			},
+			help = {
+				order = 3,
+				type = "group",
+				name = L["Lua help"],
+				--childGroups = "tab",
+				args = {
+					--[[general = {
+						order = 0,
+						type = "group",
+						name = L["Help"],
+						args = {]]
+					resources = {
+						order = 0,
+						type = "group",
+						inline = true,
+						name = L["Resources"],
+						args = {
+							lua = {
+								order = 0,
+								type = "input",
+								name = L["Programming in Lua"],
+								desc = L["This is a good guide on how to get started with programming in Lua, while you do not need to read the entire thing it is a helpful for understanding the basics of Lua syntax and API's."],
+								set = false,
+								get = function() return "http://www.lua.org/pil/" end,
+							},
+							wow = {
+								order = 1,
+								type = "input",
+								name = L["WoW Programming"],
+								desc = L["WoW Programming is a good resource for finding out what difference API's do and how to call them."],
+								set = false,
+								get = function() return "http://wowprogramming.com/docs" end,
+							},
+						},
+					},
+					information = {
+						order = 1,
+						type = "group",
+						name = L["Information"],
+						inline = true,
+						args = {
+							description = {
+								order = 0,
+								type = "description",
+								name = L["Learning how to use Lua is fairly straightforward, Programming in Lua (Link above) is a good resource for learning the basic syntax, and WoW Programming (Link above) has information on WoW specific API's you need to create.\n\nTags support basic prefix and suffix if the tag itself contains anything, for example: [(()name())] will prefix \"(\" and suffix \")\" to the [name] tag if it is showing anything."],
+							},
+						},
+					},
+					--[[
+					},
+					first = {
+						order = 2,
+						type = "group",
+						name = string.format(L["Example #%d"], 1),
+						args = {
+							description = {
+								order = 0,
+								type = "group",
+							},
+						},
+					},
+					second = {
+						order = 3,
+						type = "group",
+						name = string.format(L["Example #%d"], 3),
+						args = {
+
+						},
+					},
+					third = {
+						order = 4,
+						type = "group",
+						name = string.format(L["Example #%d"], 3),
+						args = {
+
+						},
+					},
+					]]
 				},
 			},
 		},

@@ -148,7 +148,7 @@ function Tags:Unregister(fontString)
 	fontString.fastPower = nil
 	fontString.fastHealth = nil
 	fontString.UpdateTags = nil
-	fontString:Hide()
+	fontString:SetText("")
 end
 
 -- Helper functions for tags, the reason I store it in ShadowUF is it's easier to type ShadowUF than ShadowUF.modules.Tags, and simpler for users who want to implement it.

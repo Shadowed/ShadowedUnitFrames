@@ -44,29 +44,6 @@ ShadowUFLocals = {
 	["Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.\n\nShift click a unit to select all/unselect all."] = "Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.\n\nShift click a unit to select all/unselect all.",
 	["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText - Quickly add and remove tags to text, when advanced settings are enabled you can also change the width and positioning of text."] = "In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText - Quickly add and remove tags to text, when advanced settings are enabled you can also change the width and positioning of text.",
 	
-	-- Layout
-	["|cffffffffActive:|r "] = "|cffffffffActive:|r ",
-	["%s%s by %s"] = "%s%s by %s",
-	["Activate"] = "Activate",
-	["Export"] = "Export",
-	["Delete"] = "Delete",
-	["By activating this layout, all of your positioning, sizing and so on settings will be reset to load this layout, are you sure you want to activate this?"] = "By activating this layout, all of your positioning, sizing and so on settings will be reset to load this layout, are you sure you want to activate this?",
-	["Exporting %s"] = "Exporting %s",
-	["You can now give the string below to other Shadowed Unit Frames users, they can then import it through the import tab to use this layout."] = "You can now give the string below to other Shadowed Unit Frames users, they can then import it through the import tab to use this layout.",
-	["Create"] = "Create",
-	["Create a new layout using your current layout as a template. You must fill out all of the fields before you can create it."] = "Create a new layout using your current layout as a template. You must fill out all of the fields before you can create it.",
-	["Layout name"] = "Layout name",
-	["Author"] = "Author",
-	["Description"] = "Description",
-	["Are you sure you want to delete this layout?"] = "Are you sure you want to delete this layout?",
-	["Importing"] = "Importing",
-	["Data"] = "Data",
-	["Import a new layout using the layout data string another user gave you."] = "Import a new layout using the layout data string another user gave you.",
-	["Failed to import layout:\n\n%s"] = "Failed to import layout:\n\n%s",
-	["No layout data entered."] = "No layout data entered.",
-	["Layout information fields are not all set, make sure that id, name, description and author was included."] = "Layout information fields are not all set, make sure that id, name, description and author was included.",
-	["You already have a layout named %s, delete it first if you want to reimport it."] = "You already have a layout named %s, delete it first if you want to reimport it.",
-	
 	-- Positions
 	["Up"] = "Up",
 	["Center"] = "Center",
@@ -216,6 +193,22 @@ ShadowUFLocals = {
 	["Enable quick power"] = "Enable quick power",
 	["This will enable fast updating of the health bar, giving you more slightly faster health bar information than you normally would get."] = "This will enable fast updating of the health bar, giving you more slightly faster health bar information than you normally would get.",
 	["This will enable fast updating of the power bar, giving you more slightly faster power information than you normally would get."] = "This will enable fast updating of the power bar, giving you more slightly faster power information than you normally would get.",
+	["You can find more information on creating your own custom tags in the \"Lua help\" tab above.\nSUF will attempt to automatically detect what events your tag will need, so you do not generally need to fill out the events field."] = "You can find more information on creating your own custom tags in the \"Lua help\" tab above.\nSUF will attempt to automatically detect what events your tag will need, so you do not generally need to fill out the events field.",
+	["Disable event discovery"] = "Disable event discovery",
+	["This will disable the automatic detection of what events this tag will need, you should leave this unchecked unless you know what you are doing."] = "This will disable the automatic detection of what events this tag will need, you should leave this unchecked unless you know what you are doing.",
+	["You can find more information on creating your own custom tags in the \"Lua help\" tab above."] = "You can find more information on creating your own custom tags in the \"Lua help\" tab above.",
+	["Learning how to use Lua is fairly straightforward, Programming in Lua (Link above) is a good resource for learning the basic syntax, and WoW Programming (Link above) has information on WoW specific API's you need to create.\n\nTags support basic prefix and suffix if the tag itself contains anything, for example: [(()name())] will prefix \"(\" and suffix \")\" to the [name] tag if it is showing anything."] = "Learning how to use Lua is fairly straightforward, Programming in Lua (Link above) is a good resource for learning the basic syntax, and WoW Programming (Link above) has information on WoW specific API's you need to create.\n\nTags support basic prefix and suffix if the tag itself contains anything, for example: [(()name())] will prefix \"(\" and suffix \")\" to the [name] tag if it is showing anything.",
+	
+	-- Lua help
+	["Lua help"] = "Lua help",
+	["Resources"] = "Resources",
+	["WoW Programming"] = "WoW Programming",
+	["WoW Programming is a good resource for finding out what difference API's do and how to call them."] = "WoW Programming is a good resource for finding out what difference API's do and how to call them.",
+	["Programming in Lua"] = "Programming in Lua",
+	["This is a good guide on how to get started with programming in Lua, while you do not need to read the entire thing it is a helpful for understanding the basics of Lua syntax and API's."] = "This is a good guide on how to get started with programming in Lua, while you do not need to read the entire thing it is a helpful for understanding the basics of Lua syntax and API's.",
+	["Information"] = "Information",
+	["Learning how to use Lua is fairly straightforward, Programming in Lua (Link above) is a good resource for learning the basic syntax, and WoW Programming (Link above) has information on WoW specific API's you need to create.\n\nSee the above example tabs for examples on basic tag creation.\n\nTags also support basic prefix and suffix if the tag itself contains anything, for example: [(()name())] will prefix \"(\" and suffix \")\" to the [name] tag if it is showing anything."] = "Learning how to use Lua is fairly straightforward, Programming in Lua (Link above) is a good resource for learning the basic syntax, and WoW Programming (Link above) has information on WoW specific API's you need to create.\n\nSee the above example tabs for examples on basic tag creation.\n\nTags also support basic prefix and suffix if the tag itself contains anything, for example: [(()name())] will prefix \"(\" and suffix \")\" to the [name] tag if it is showing anything.",
+	["Example #%d"] = "Example #%d",
 	
 	-- Layout
 	["Layout"] = "Layout",
