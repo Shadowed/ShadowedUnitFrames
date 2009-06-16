@@ -117,6 +117,16 @@ function Health:UpdateColor(frame)
 		color = ShadowUF.db.profile.classColors.VEHICLE
 	elseif( not UnitIsTappedByPlayer(unit) and UnitIsTapped(unit) and UnitCanAttack("player", unit) ) then
 		color = ShadowUF.db.profile.healthColors.tapped
+	elseif( unit == "pet" and ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and GetPetHappiness() ) then
+		local happiness = GetPetHappiness()
+		if( happiness == 3 ) then
+			color = ShadowUF.db.profile.healthColors.friendly
+		elseif( happiness == 2 ) then
+			color = ShadowUF.db.profile.healthColors.neutral
+		elseif( happiness == 1 ) then
+			color = ShadowUF.db.profile.healthColors.hostile
+		end
+		
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and ( not UnitIsPlayer(unit) or not UnitIsFriend(unit, "player") ) ) then
 		frame.healthBar.hasReaction = true
 		if( not UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) ) then
