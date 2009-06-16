@@ -39,7 +39,6 @@ end
 -- Register an event thats only called if it's for the actual unit
 local function RegisterUnitEvent(self, event, handler, func)
 	unitEvents[event] = true
-
 	RegisterNormalEvent(self, event, handler, func)
 end
 
@@ -305,19 +304,9 @@ local function OnAttributeChanged(self, name, unit)
 	elseif( self.unit == "target" ) then
 		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
 
-		-- Automatically do a full update on focus change
+	-- Automatically do a full update on focus change
 	elseif( self.unit == "focus" ) then
 		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "FullUpdate")
-
-	-- *target units are not real units, thus they do not receive events and must be polled for data
-	elseif( string.match(self.unit, "%w+target") ) then
-		self.timeElapsed = 0
-		self:SetScript("OnUpdate", TargetUnitUpdate)
-		
-		-- This speeds up updating of fake units, if party1 changes target than party1target is force updated, if target changes target, then targettarget and targettarget are force updated
-		-- same goes for focus changing target, focustarget is forced to update.
-		self.unitRealOwner = self.unitType == "partytarget" and ShadowUF.partyUnits[self.unitID] or self.unitType == "focustarget" and "focus" or "target"
-		self:RegisterNormalEvent("UNIT_TARGET", Units, "CheckUnitUpdated")
 	
 	-- When a player is force ressurected by releasing in naxx/tk/etc then they might freeze
 	elseif( self.unit == "player" ) then
@@ -326,7 +315,7 @@ local function OnAttributeChanged(self, name, unit)
 	-- Check for a unit guid to do a full update
 	elseif( self.unitType == "raid" ) then
 		self:RegisterNormalEvent("RAID_ROSTER_UPDATE", Units, "CheckUnitGUID")
-	
+		
 	-- Party members need to watch for changes
 	elseif( self.unitType == "party" ) then
 		self:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", Units, "CheckUnitGUID")
@@ -338,6 +327,24 @@ local function OnAttributeChanged(self, name, unit)
 		
 		if( loadedUnits.partytarget ) then
 			Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partytarget, SUFHeaderparty, "partytarget", "party" .. self.unitID .. "target")
+		end
+
+	-- *target units are not real units, thus they do not receive events and must be polled for data
+	elseif( string.match(self.unit, "%w+target") ) then
+		self.timeElapsed = 0
+		self:SetScript("OnUpdate", TargetUnitUpdate)
+		
+		-- This speeds up updating of fake units, if party1 changes target than party1target is force updated, if target changes target, then targettarget and targettarget are force updated
+		-- same goes for focus changing target, focustarget is forced to update.
+		self.unitRealOwner = self.unitType == "partytarget" and ShadowUF.partyUnits[self.unitID] or self.unitType == "focustarget" and "focus" or "target"
+		self:RegisterNormalEvent("UNIT_TARGET", Units, "CheckUnitUpdated")
+		
+		-- Another speed up, if the focus changes then of course the focustarget has to be force updated
+		if( self.unit == "focustarget" ) then
+			self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "FullUpdate")
+		-- If the player changes targets, then we know the targettarget and targettargettarget definitely changed
+		elseif( self.unit == "targettarget" or self.unit == "targettargettarget" ) then
+			self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
 		end
 	end
 	

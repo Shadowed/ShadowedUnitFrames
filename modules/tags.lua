@@ -1,21 +1,12 @@
 -- Thanks to haste for the original tagging code, which I then mostly ripped apart and stole!
 local Tags = {}
-local eventlessUnits, events, tagPool, functionPool, temp, regFontStrings = {}, {}, {}, {}, {}, {}, {}
-local frame
+local tagPool, functionPool, temp, regFontStrings = {}, {}, {}, {}
 local L = ShadowUFLocals
 
 ShadowUF.Tags = Tags
 
--- Event management
-local function RegisterEvent(fontString, event)
-	events[event] = events[event] or {}
-	table.insert(events[event], fontString)
-		
-	frame:RegisterEvent(event)
-end
-
 -- Register the associated events with all the tags
-local function RegisterTagEvents(fontString, tags)
+function Tags:RegisterEvents(parent, fontString, tags)
 	-- Strip parantheses and anything inside them
 	for tag in string.gmatch(tags, "%[(.-)%]") do
 		-- The reason the original %b() match won't work, is [( ()group())] (or any sort of tag with ( or )
@@ -29,14 +20,17 @@ local function RegisterTagEvents(fontString, tags)
 		local tagEvents = Tags.defaultEvents[tag] or ShadowUF.db.profile.tags[tag] and ShadowUF.db.profile.tags[tag].events
 		if( tagEvents ) then
 			for event in string.gmatch(tagEvents, "%S+") do
-				RegisterEvent(fontString, event)
-				
-				-- If it's for the player, and the tag uses a power event, flag it as needing to be OnUpdate monitored
-				if( ShadowUF.db.profile.units[fontString.parent.unitType].powerBar.predicted and Tags.powerEvents[event] ) then
-					fontString.fastPower = true
+				if( Tags.unitlessEvents[event] ) then
+					parent:RegisterNormalEvent(event, fontString, "UpdateTags")
+				else
+					parent:RegisterUnitEvent(event, fontString, "UpdateTags")
 				end
 				
-				if( ShadowUF.db.profile.units[fontString.parent.unitType].healthBar.predicted and Tags.healthEvents[event] ) then
+				-- Check if the unit has a power or health event, if they do we need to flag it as such so the power/health bar will do speedy updating
+				if( ShadowUF.db.profile.units[parent.unitType].powerBar.predicted and Tags.powerEvents[event] ) then
+					fontString.fastPower = true
+				end
+				if( ShadowUF.db.profile.units[parent.unitType].healthBar.predicted and Tags.healthEvents[event] ) then
 					fontString.fastHealth = true
 				end
 			end
@@ -44,57 +38,8 @@ local function RegisterTagEvents(fontString, tags)
 	end
 end
 
--- Unregister all events for this tag
-local function UnregisterTagEvents(fontString)
-	for event, fsList in pairs(events) do
-		for i=#(fsList), 1, -1 do
-			if( fsList[i] == fontString ) then
-				table.remove(fsList, i)
-				
-				if( #(fsList) == 0 ) then
-					frame:UnregisterEvent(event)
-				end
-			end
-		end
-	end
-	
-	fontString.fastPower = nil
-	fontString.fastHealth = nil
-end
-
--- This is for regular tag updates
-local timeElapsed = 0
-frame = CreateFrame("Frame")
-frame:Hide()
-
-frame:SetScript("OnUpdate", function(self, elapsed)
-	timeElapsed = timeElapsed + elapsed
-	
-	if( timeElapsed >= 0.50 ) then
-		for _, fontString in pairs(eventlessUnits) do
-			if( UnitExists(fontString.parent.unit) ) then
-				fontString:UpdateTags()
-			end
-		end
-		
-		timeElapsed = 0
-	end
-end)
-
-frame:SetScript("OnEvent", function(self, event, unit)
-	if( not events[event] ) then
-		return
-	end
-	
-	for _, fontString in pairs(events[event]) do
-		if( Tags.unitlessEvents[event] or ( not Tags.unitlessEvents[event] and fontString.parent.unit == unit ) ) then
-			fontString:UpdateTags()
-		end
-	end	
-end)
-
 -- This pretty much means a tag was updated in some way (or deleted) so we have to do a full update to get the new values shown
-function Tags:FullUpdate(tag)
+function Tags:Reload(tag)
 	-- Specific tag changed, kill the functions we cached for it
 	if( tag ) then
 		functionPool[tag] = nil
@@ -113,6 +58,7 @@ function Tags:FullUpdate(tag)
 	end
 end
 
+-- Register a font string with the tag system
 function Tags:Register(parent, fontString, tags)
 	-- Unregister the font string first if we did register it already
 	if( fontString.UpdateTags ) then
@@ -120,13 +66,11 @@ function Tags:Register(parent, fontString, tags)
 	end
 	
 	fontString.parent = parent
-		
 	regFontStrings[fontString] = tags
 	
 	local updateFunc = tagPool[tags]
 	if( not updateFunc ) then
 		-- Using .- prevents supporting tags such as [foo ([)]. Supporting that and having a single pattern
-		-- here is a pain however (Or, so haste says!)
 		local formattedText = string.gsub(string.gsub(tags, "%%", "%%%%"), "[[].-[]]", "%%s")
 		local args = {}
 		
@@ -136,27 +80,29 @@ function Tags:Register(parent, fontString, tags)
 			if( not cachedFunc ) then
 				local hasPre, hasAp = true, true
 				local tagKey = select(2, string.match(tag, "(%b())([%w]+)(%b())"))
-				
-				if( not tagKey ) then
-					hasPre, hasAp = true, false
-					tagKey = select(2, string.match(tag, "(%b())([%w]+)"))
-				end
-				
-				if( not tagKey ) then
-					hasPre, hasAp = false, true
-					tagKey = string.match(tag, "([%w]+)(%b())")
-				end
+				if( not tagKey ) then hasPre, hasAp = true, false tagKey = select(2, string.match(tag, "(%b())([%w]+)")) end
+				if( not tagKey ) then hasPre, hasAp = false, true tagKey = string.match(tag, "([%w]+)(%b())") end
 				
 				local tagFunc = tagKey and ShadowUF.tagFunc[tagKey]
 				if( tagFunc ) then
 					local startOff, endOff = string.find(tag, tagKey)
-					local pre = hasPre and string.sub(tag, 2, startOff - 2) or ""
-					local ap = hasAp and string.sub(tag, endOff + 2, -2) or ""
+					local pre = hasPre and string.sub(tag, 2, startOff - 2)
+					local ap = hasAp and string.sub(tag, endOff + 2, -2)
 					
-					cachedFunc = function(unit, unitOwner)
-						local str = tagFunc(unit, unitOwner)
-						if( str ) then
-							return pre .. str .. ap
+					if( pre and ap ) then
+						cachedFunc = function(unit, unitOwner)
+							local str = tagFunc(unit, unitOwner)
+							if( str ) then return pre .. str .. ap end
+						end
+					elseif( pre ) then
+						cachedFunc = function(unit, unitOwner)
+							local str = tagFunc(unit, unitOwner)
+							if( str ) then return pre .. str end
+						end
+					elseif( ap ) then
+						cachedFunc = function(unit, unitOwner)
+							local str = tagFunc(unit, unitOwner)
+							if( str ) then return str .. ap end
 						end
 					end
 					
@@ -164,15 +110,13 @@ function Tags:Register(parent, fontString, tags)
 				end
 			end
 			
-			-- It's an invalid tag, simply return the tag itself
+			-- It's an invalid tag, simply return the tag itself wrapped in brackets
 			if( not cachedFunc ) then
 				functionPool[tag] = functionPool[tag] or function() return string.format("[%s]", tag) end
 				cachedFunc = functionPool[tag]
 			end
 			
-			if( cachedFunc ) then
-				table.insert(args, cachedFunc)
-			end
+			table.insert(args, cachedFunc)
 		end
 		
 		-- Create our update function now
@@ -189,37 +133,25 @@ function Tags:Register(parent, fontString, tags)
 		tagPool[tags] = updateFunc
 	end
 	
+	-- Register any needed event
+	self:RegisterEvents(parent, fontString, tags)
+	
+	-- And give other frames an easy way to force an update
 	fontString.UpdateTags = updateFunc
-		
-	local unit = parent.unit
-	if( unit and string.match(unit, "%w+target") ) then
-		table.insert(eventlessUnits, fontString)
-		frame:Show()
-	else
-		RegisterTagEvents(fontString, tags)
-	end
 end
 
 function Tags:Unregister(fontString)
-	UnregisterTagEvents(fontString)
-		
-	for i=#(eventlessUnits), 1, -1 do
-		if( eventlessUnits[i] == fontString ) then
-			table.remove(eventlessUnits, i)
-		end
-	end
-	
-	if( #(eventlessUnits) == 0 ) then
-		frame:Hide()
-	end
-	
 	regFontStrings[fontString] = nil
 	
+	-- Kill any tag data
+	fontString.parent:UnregisterAll(fontString)
+	fontString.fastPower = nil
+	fontString.fastHealth = nil
 	fontString.UpdateTags = nil
+	fontString:Hide()
 end
 
--- Helper functions for tags, the reason I store it in ShadowUF is it's easier to type ShadowUF
--- than ShadowUF.modules.Tags, and simpler for users who want to implement it.
+-- Helper functions for tags, the reason I store it in ShadowUF is it's easier to type ShadowUF than ShadowUF.modules.Tags, and simpler for users who want to implement it.
 function ShadowUF:Hex(r, g, b)
 	if( type(r) == "table" ) then
 		if( r.r ) then
@@ -562,6 +494,45 @@ Tags.defaultTags = {
 	end]],
 }
 
+-- Default tag events
+Tags.defaultEvents = {
+	["afk"]					= "PLAYER_FLAGS_CHANGED", -- Yes, I know it's called PLAYER_FLAGS_CHANGED, but arg1 is the unit including non-players.
+	["curhp"]               = "UNIT_HEALTH",
+	["abscurhp"]			= "UNIT_HEALTH",
+	["curmaxhp"]			= "UNIT_HEALTH UNIT_MAXHEALTH UNIT_FACTION",
+	["absolutehp"]			= "UNIT_HEALTH UNIT_MAXHEALTH",
+	["curpp"]               = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER",
+	["abscurpp"]            = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER",
+	["curmaxpp"]			= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
+	["absolutepp"]			= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
+	["druid:curpp"]  	    = "UNIT_MANA UNIT_DISPLAYPOWER",
+	["druid:abscurpp"]      = "UNIT_MANA UNIT_DISPLAYPOWER",
+	["druid:curmaxpp"]		= "UNIT_MANA UNIT_MAXMANA UNIT_DISPLAYPOWER",
+	["druid:absolutepp"]	= "UNIT_MANA UNIT_MAXMANA UNIT_DISPLAYPOWER",
+	["level"]               = "UNIT_LEVEL PLAYER_LEVEL_UP",
+	["maxhp"]               = "UNIT_MAXHEALTH",
+	["def:name"]			= "UNIT_NAME_UPDATE UNIT_MAXHEALTH UNIT_HEALTH",
+	["absmaxhp"]			= "UNIT_MAXHEALTH UNIT_FACTION",
+	["maxpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
+	["absmaxpp"]			= "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
+	["missinghp"]           = "UNIT_HEALTH UNIT_MAXHEALTH",
+	["missingpp"]           = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_MAXRUNIC_POWER UNIT_RUNIC_POWER",
+	["name"]                = "UNIT_NAME_UPDATE",
+	["colorname"]			= "UNIT_NAME_UPDATE",
+	["perhp"]               = "UNIT_HEALTH UNIT_MAXHEALTH",
+	["perpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_MAXRUNIC_POWER UNIT_RUNIC_POWER",
+	["status"]              = "UNIT_HEALTH PLAYER_UPDATE_RESTING",
+	["smartlevel"]          = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED",
+	["cpoints"]             = "UNIT_COMBO_POINTS UNIT_TARGET",
+	["rare"]                = "UNIT_CLASSIFICATION_CHANGED",
+	["classification"]      = "UNIT_CLASSIFICATION_CHANGED",
+	["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
+	["level"]				= "PARTY_MEMBERS_CHANGED UNIT_LEVEL",
+	["dechp"]				= "UNIT_HEALTH UNIT_MAXHEALTH",
+	["group"]				= "RAID_ROSTER_UPDATE",
+}
+
+-- Default tag help
 Tags.defaultHelp = {
 	["afk"]					= L["Shows AFK or DND flags if they are toggled."],
 	["cpoints"]				= L["Total number of combo points you have on your target."],
@@ -609,44 +580,7 @@ Tags.defaultHelp = {
 	["druid:absolutepp"]	= string.format(L["Same tag as %s, but this only shows up if the unit is in Bear or Cat form."], "absolutepp"),
 }
 
--- Default tag events
-Tags.defaultEvents = {
-	["afk"]					= "PLAYER_FLAGS_CHANGED", -- Yes, I know it's called PLAYER_FLAGS_CHANGED, but arg1 is the unit including non-players.
-	["curhp"]               = "UNIT_HEALTH",
-	["abscurhp"]			= "UNIT_HEALTH",
-	["curmaxhp"]			= "UNIT_HEALTH UNIT_MAXHEALTH UNIT_FACTION",
-	["absolutehp"]			= "UNIT_HEALTH UNIT_MAXHEALTH",
-	["curpp"]               = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER",
-	["abscurpp"]            = "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER",
-	["curmaxpp"]			= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
-	["absolutepp"]			= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER UNIT_DISPLAYPOWER UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
-	["druid:curpp"]  	    = "UNIT_MANA UNIT_DISPLAYPOWER",
-	["druid:abscurpp"]      = "UNIT_MANA UNIT_DISPLAYPOWER",
-	["druid:curmaxpp"]		= "UNIT_MANA UNIT_MAXMANA UNIT_DISPLAYPOWER",
-	["druid:absolutepp"]	= "UNIT_MANA UNIT_MAXMANA UNIT_DISPLAYPOWER",
-	["level"]               = "UNIT_LEVEL PLAYER_LEVEL_UP",
-	["maxhp"]               = "UNIT_MAXHEALTH",
-	["def:name"]			= "UNIT_NAME_UPDATE UNIT_MAXHEALTH UNIT_HEALTH",
-	["absmaxhp"]			= "UNIT_MAXHEALTH UNIT_FACTION",
-	["maxpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
-	["absmaxpp"]			= "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
-	["missinghp"]           = "UNIT_HEALTH UNIT_MAXHEALTH",
-	["missingpp"]           = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_MAXRUNIC_POWER UNIT_RUNIC_POWER",
-	["name"]                = "UNIT_NAME_UPDATE",
-	["colorname"]			= "UNIT_NAME_UPDATE",
-	["perhp"]               = "UNIT_HEALTH UNIT_MAXHEALTH",
-	["perpp"]               = "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_MAXRUNIC_POWER UNIT_RUNIC_POWER",
-	["status"]              = "UNIT_HEALTH PLAYER_UPDATE_RESTING",
-	["smartlevel"]          = "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED",
-	["cpoints"]             = "UNIT_COMBO_POINTS UNIT_TARGET",
-	["rare"]                = "UNIT_CLASSIFICATION_CHANGED",
-	["classification"]      = "UNIT_CLASSIFICATION_CHANGED",
-	["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
-	["level"]				= "PARTY_MEMBERS_CHANGED UNIT_LEVEL",
-	["dechp"]				= "UNIT_HEALTH UNIT_MAXHEALTH",
-	["group"]				= "RAID_ROSTER_UPDATE",
-}
-
+-- Health and power events that if a tag uses them, they need to be automatically set to update faster
 Tags.powerEvents = {
 	["UNIT_ENERGY"] = true,
 	["UNIT_FOCUS"] = true,
@@ -662,10 +596,105 @@ Tags.healthEvents = {
 
 -- Events that do not provide a unit, so if the fontstring registered it, it's called regardless
 Tags.unitlessEvents = {
-	["PARTY_MEMBERS_CHANGED"] = true,
 	["RAID_ROSTER_UPDATE"] = true,
+	["RAID_TARGET_UPDATE"] = true,
+	["PARTY_MEMBERS_CHANGED"] = true,
+	["PARTY_LEADER_CHANGED"] = true,
 	["PLAYER_ENTERING_WORLD"] = true,
+	["PLAYER_FLAGS_CHANGED"] = true,
+	["PLAYER_XP_UPDATE"] = true,
+	["PLAYER_TOTEM_UPDATE"] = true,
+	["UPDATE_EXHAUSTION"] = true,
 }
+
+-- Event scanner to automatically figure out what events a tag will need
+local function loadAPIEvents()
+	if( Tags.APIEvents ) then return end
+	Tags.APIEvents = {
+		["UnitLevel"]				= "UNIT_LEVEL",
+		["UnitName"]				= "UNIT_NAME_UPDATE",
+		["UnitClassification"]		= "UNIT_CLASSIFICATION_CHANGED",
+		["UnitFactionGroup"]		= "UNIT_FACTION PLAYER_FLAGS_CHANGED",
+		["UnitHealth%("]			= "UNIT_HEALTH",
+		["UnitHealthMax"]			= "UNIT_MAXHEALTH",
+		["UnitPower%("]				= "UNIT_ENERGY UNIT_FOCUS UNIT_MANA UNIT_RAGE UNIT_RUNIC_POWER",
+		["UnitPowerMax"]			= "UNIT_MAXENERGY UNIT_MAXFOCUS UNIT_MAXMANA UNIT_MAXRAGE UNIT_MAXRUNIC_POWER",
+		["UnitPowerType"]			= "UNIT_DISPLAYPOWER",
+		["UnitIsDead"]				= "UNIT_HEALTH",
+		["UnitIsGhost"]				= "UNIT_HEALTH",
+		["UnitIsConnected"]			= "UNIT_HEALTH",
+		["UnitIsAFK"]				= "PLAYER_FLAGS_CHANGED",
+		["UnitIsDND"]				= "PLAYER_FLAGS_CHANGED",
+		["UnitIsPVP"]				= "PLAYER_FLAGS_CHANGED UNIT_FACTION",
+		["UnitIsPartyLeader"]		= "PARTY_LEADER_CHANGED PARTY_MEMBERS_CHANGED",
+		["UnitIsPVPFreeForAll"]		= "PLAYER_FLAGS_CHANGED UNIT_FACTION",
+		["UnitCastingInfo"]			= "UNIT_SPELLCAST_START UNIT_SPELLCAST_STOP UNIT_SPELLCAST_FAILED UNIT_SPELLCAST_INTERRUPTED UNIT_SPELLCAST_DELAYED",
+		["UnitChannelInfo"]			= "UNIT_SPELLCAST_CHANNEL_START UNIT_SPELLCAST_CHANNEL_STOP UNIT_SPELLCAST_CHANNEL_INTERRUPTED UNIT_SPELLCAST_CHANNEL_UPDATE",
+		["UnitAura"]				= "UNIT_AURA",
+		["UnitBuff"]				= "UNIT_AURA",
+		["UnitDebuff"]				= "UNIT_AURA",
+		["UnitXPMax"]				= "UNIT_PET_EXPERIENCE PLAYER_XP_UPDATE PLAYER_LEVEL_UPDATE",
+		["UnitXP%("]				= "UNIT_PET_EXPERIENCE PLAYER_XP_UPDATE PLAYER_LEVEL_UPDATE",
+		["GetTotemInfo"]			= "PLAYER_TOTEM_UPDATE",
+		["GetXPExhaustion"]			= "UPDATE_EXHAUSTION",
+		["GetWatchedFactionInfo"]	= "UPDATE_FACTION",
+		["GetRuneCooldown"]			= "RUNE_POWER_UPDATE",
+		["GetRuneType"]				= "RUNE_TYPE_UPDATE",
+		["GetRaidTargetIndex"]		= "RAID_TARGET_UPDATE",
+		["GetComboPoints"]			= "UNIT_COMBO_POINTS",
+		["GetNumPartyMembers"]		= "PARTY_MEMBERS_CHANGED",
+		["GetNumRaidMembers"]		= "RAID_ROSTER_UPDATE",
+		["GetRaidRosterInfo"]		= "RAID_ROSTER_UPDATE",
+		["GetPetHappiness"]			= "UNIT_HAPPINESS",
+		["GetReadyCheckStatus"]		= "READY_CHECK READY_CHECK_CONFIRM READY_CHECK_FINISHED",
+		["GetLootMethod"]			= "PARTY_LOOT_METHOD_CHANGED",
+	}
+end
+
+-- Scan the actual tag code to find the events it uses
+local alreadyScanned = {}
+function Tags:IdentifyEvents(code, parentTag)
+	-- Already scanned this tag, prevents infinite recursion
+	if( parentTag and alreadyScanned[parentTag] ) then
+		return ""
+	-- Flagged that we already took care of this
+	elseif( parentTag ) then
+		alreadyScanned[parentTag] = true
+	else
+		for k in pairs(alreadyScanned) do alreadyScanned[k] = nil end
+		loadAPIEvents()
+	end
+			
+	-- Scan our function list to see what APIs are used
+	local eventList = ""
+	for func, events in pairs(self.APIEvents) do
+		if( string.match(code, func) ) then
+			eventList = eventList .. events .. " " 
+		end
+	end
+	
+	-- Scan if they use any tags, if so we need to check them as well to see what content is used
+	for tag in string.gmatch(code, "tagFunc\.(%w+)%(") do
+		local code = ShadowUF.Tags.defaultTags[tag] or ShadowUF.db.profile.tags[tag] and ShadowUF.db.profile.tags[tag].func
+		eventList = eventList .. " " .. self:IdentifyEvents(code, tag)
+	end
+	
+	-- Remove any duplicate events
+	if( not parentTag ) then
+		local tagEvents = {}
+		for event in string.gmatch(string.trim(eventList), "%S+") do
+			tagEvents[event] = true
+		end
+		
+		eventList = ""
+		for event in pairs(tagEvents) do
+			eventList = eventList .. event .. " "
+		end
+	end
+		
+	-- And give them our nicely outputted data
+	return string.trim(eventList or "")
+end
 
 -- Checker function, makes sure tags are all happy
 --[[

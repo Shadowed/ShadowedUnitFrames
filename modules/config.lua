@@ -2282,7 +2282,7 @@ local function loadTagOptions()
 		-- Reset loaded function + reload tags
 		if( key == "funct" ) then
 			ShadowUF.tagFunc[tagData.name] = nil
-			ShadowUF.Tags:FullUpdate()
+			ShadowUF.Tags:Reload()
 		end
 
 		ShadowUF.db.profile.tags[tagData.name][key] = value
@@ -2513,7 +2513,7 @@ local function loadTagOptions()
 									value = string.gsub(value, "\124", "|")
 									set(info, value)
 									
-									ShadowUF.Tags:FullUpdate(tagData.name)
+									ShadowUF.Tags:Reload(tagData.name)
 								end,
 								get = function(info)
 									if( tagData.funcError ) then
@@ -2533,7 +2533,7 @@ local function loadTagOptions()
 								func = function(info)
 									ShadowUF.db.profile.tags[tagData.name] = nil
 									ShadowUF.tagFunc[tagData.name] = nil
-									ShadowUF.Tags:FullUpdate(tagData.name)
+									ShadowUF.Tags:Reload(tagData.name)
 
 									options.args.tags.args.general.args.list.args[tagData.name] = nil
 									tagData.name = nil

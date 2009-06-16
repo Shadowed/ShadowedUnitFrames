@@ -118,8 +118,10 @@ function ShadowUF:OnInitialize()
 		end
 		
 		-- June 15th
-		if( type(self.db.profile.loadedLayout) == "string" ) then
-			self.db.profile.loadedLayout = true
+		if( type(self.db.profile.loadedLayout) == "string" or self.db.profile.loadedLayout == true ) then
+			-- Why one you ask, because this will force people who used the github version to have their DB rechecked and fix missing fields
+			self.db.profile.loadedLayout = 1
+			
 			if( self.db.profile.positions.partypet.anchorPoint == "" and self.db.profile.positions.partypet.point == "" and self.db.profile.positions.partypet.relativePoint == "" ) then
 				self.db.profile.positions.partypet.anchorTo = "$parent"
 				self.db.profile.positions.partypet.anchorPoint = "RB"
@@ -130,9 +132,27 @@ function ShadowUF:OnInitialize()
 				self.db.profile.positions.partytarget.anchorPoint = "RT"
 			end
 				
+			if( not self.db.profile.units.player.indicators.status.anchorPoint ) then
+				self.db.profile.units.player.indicators.status.anchorPoint = self.db.profile.units.player.indicators.status.anchorPoint or "LB"
+				self.db.profile.units.player.indicators.status.anchorTo = self.db.profile.units.player.indicators.status.anchorTo or "$parent"
+			end
+
+			if( not self.db.profile.units.target.comboPoints.anchorPoint ) then
+				self.db.profile.units.target.comboPoints.anchorPoint = self.db.profile.units.target.comboPoints.anchorPoint or "BR"
+				self.db.profile.units.target.comboPoints.anchorTo = self.db.profile.units.target.comboPoints.anchorTo or "$parent"
+			end
+			
+			
 			self.db.profile.units.pet.indicators.happiness.size = self.db.profile.units.pet.indicators.happiness.size or 0
 			
 			for _, config in pairs(ShadowUF.db.profile.units) do
+				if( config.combatText and not config.anchorPoint ) then
+					config.combatText.anchorTo = "$parent"
+					config.combatText.anchorPoint = "C"
+					config.combatText.x = 0
+					config.combatText.y = 0
+				end
+				
 				config.text[1].name = L["Left text"]
 				config.text[1].text = config.text[1].text or "[afk( )][name]"
 				config.text[1].size = config.text[1].size or 0

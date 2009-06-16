@@ -402,9 +402,7 @@ function Layout:ApplyText(frame, config)
 		
 		-- Tag was enabled, but it no longer is
 		elseif( frame.fontStrings[id] ) then
-			frame.fontStrings[id].fastPower = nil
-			frame.fontStrings[id].fastHealth = nil
-			frame.fontStrings[id]:Hide()
+			ShadowUF.Tags:Unregister(frame.fontStrings[id])
 		end
 	end
 
