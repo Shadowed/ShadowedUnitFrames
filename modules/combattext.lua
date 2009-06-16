@@ -3,7 +3,8 @@ ShadowUF:RegisterModule(Combat, "combatText", ShadowUFLocals["Combat text"])
 
 function Combat:OnEnable(frame)
 	if( not frame.combatText ) then
-		frame.combatText = CreateFrame("Frame", nil, frame.barFrame)
+		frame.combatText = CreateFrame("Frame", nil, frame.highFrame)
+		frame.combatText:SetFrameStrata("HIGH")
 		frame.combatText.feedbackText = frame.combatText:CreateFontString(nil, "ARTWORK")
 		frame.combatText.feedbackText:SetPoint("CENTER", frame.combatText, "CENTER", 0, 0)
 		frame.combatText:SetFrameLevel(frame.topFrameLevel)
