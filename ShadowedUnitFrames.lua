@@ -63,23 +63,6 @@ function ShadowUF:OnInitialize()
 	-- I will remove these once a month has passed since I added them.
 	do
 		-- May 28th
-		if( self.db.profile.activeLayout ) then
-			self.db.profile.activeLayout = nil
-			DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99ShadowUF|r: Warning, a layout reset has been forced due to changes in the database format to improve performance and clean up the code. Sorry!")
-		end
-
-		if( not self.db.profile.units.player.indicators.ready.anchorTo ) then
-			for unit, data in pairs(self.db.profile.units) do
-				if( data.indicators and self.defaults.profile.units[unit].indicators.ready and not data.indicators.ready.anchorTo ) then
-					data.indicators.ready.anchorTo = "$parent"
-					data.indicators.ready.anchorPoint = "LC"
-					data.indicators.ready.size = 24
-					data.indicators.ready.x = 0
-					data.indicators.ready.y = 0
-				end
-			end
-		end
-		
 		-- May 30th
 		if( not self.db.profile.powerColors.AMMOSLOT ) then
 			self.db.profile.powerColors.AMMOSLOT = {r = 0.85, g = 0.60, b = 0.55}
@@ -142,7 +125,6 @@ function ShadowUF:OnInitialize()
 				self.db.profile.units.target.comboPoints.anchorTo = self.db.profile.units.target.comboPoints.anchorTo or "$parent"
 			end
 			
-			
 			self.db.profile.units.pet.indicators.happiness.size = self.db.profile.units.pet.indicators.happiness.size or 0
 			
 			for _, config in pairs(ShadowUF.db.profile.units) do
@@ -157,25 +139,25 @@ function ShadowUF:OnInitialize()
 				config.text[1].text = config.text[1].text or "[afk( )][name]"
 				config.text[1].size = config.text[1].size or 0
 				config.text[1].anchorTo = "$healthBar"
-				config.text[1].anchorPoint = "ICL"
+				config.text[1].anchorPoint = config.text[1].anchorPoint or "ICL"
 
 				config.text[2].name = L["Right text"]
 				config.text[2].text = config.text[2].text or "[curmaxhp]"
 				config.text[2].size = config.text[2].size or 0
 				config.text[2].anchorTo = "$healthBar"
-				config.text[2].anchorPoint = "ICR"
+				config.text[2].anchorPoint = config.text[2].anchorPoint or "ICR"
 
 				config.text[3].name = L["Left text"]
 				config.text[3].text = config.text[3].text or "[level] [race]"
 				config.text[3].size = config.text[3].size or 0
 				config.text[3].anchorTo = "$powerBar"
-				config.text[3].anchorPoint = "ICL"
+				config.text[3].anchorPoint = config.text[3].anchorPoint or "ICL"
 
 				config.text[4].name = L["Right text"]
 				config.text[4].text = config.text[4].text or "[curmaxpp]"
 				config.text[4].size = config.text[4].size or 0
 				config.text[4].anchorTo = "$powerBar"
-				config.text[4].anchorPoint = "ICR"
+				config.text[4].anchorPoint = config.text[4].anchorPoint or "ICR"
 			end
 		end
 	end
@@ -186,7 +168,7 @@ function ShadowUF:OnInitialize()
 	-- Load SML info
 	self.Layout:LoadSML()
 end
-
+	
 local partyDisabled
 function ShadowUF:RAID_ROSTER_UPDATE()
 	if( not self.db.profile.units.party.enabled ) then return end
