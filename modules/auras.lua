@@ -70,7 +70,8 @@ function Auras:UpdateFilter(auraGroup, config)
 end
 
 local function createAnchor(self, key, config)
-	self.auras[key] = self.auras[key] or CreateFrame("Frame", nil, self)
+	self.auras[key] = self.auras[key] or CreateFrame("Frame", nil, self.highFrame)
+	self.auras[key]:SetFrameLevel(5)
 
 	local aura = self.auras[key]
 	aura.buttons = aura.buttons or {}
