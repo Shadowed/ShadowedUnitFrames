@@ -97,16 +97,16 @@ end
 
    
 function Health:UpdateColor(frame)
+	frame.healthBar.hasReaction = false
+	frame.healthBar.hasPercent = false
+	frame.healthBar.wasOffline = false
+
 	-- Check aggro first, since it's going to override any other setting
 	if( ShadowUF.db.profile.units[frame.unitType].healthBar.colorAggro ) then
 		self:UpdateThreat(frame)
 		if( frame.healthBar.hasAggro ) then return end
 	end
-	
-	-- Tapped by a non-party member
-	frame.healthBar.hasReaction = false
-	frame.healthBar.wasOffline = false
-	
+
 	local color
 	local unit = frame.unit
 	if( not UnitIsConnected(unit) ) then
@@ -159,7 +159,6 @@ function Health:UpdateColor(frame)
 	end
 	
 	if( color ) then
-		frame.healthBar.hasPercent = false
 		setBarColor(frame.healthBar, color.r, color.g, color.b)
 	else
 		frame.healthBar.hasPercent = true
