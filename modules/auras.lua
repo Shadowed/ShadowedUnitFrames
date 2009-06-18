@@ -71,8 +71,12 @@ end
 
 local function createAnchor(self, key, config)
 	self.auras[key] = self.auras[key] or CreateFrame("Frame", nil, self.highFrame)
-	self.auras[key]:SetFrameLevel(5)
-
+	if( config.anchorPoint == "INSIDE" ) then
+		self.auras[key]:SetFrameLevel(5)
+	else
+		self.auras[key]:SetFrameLevel(1)
+	end
+		
 	local aura = self.auras[key]
 	aura.buttons = aura.buttons or {}
 	aura.maxAuras = config.perRow * config.maxRows
