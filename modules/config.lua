@@ -302,6 +302,7 @@ local function loadGeneralOptions()
 		arg = "hidden.$key",
 	}
 	
+	local moverEnabled = false
 	options.args.general = {
 		type = "group",
 		childGroups = "tab",
@@ -324,6 +325,10 @@ local function loadGeneralOptions()
 								order = 0,
 								type = "toggle",
 								name = L["Lock frames"],
+								set = function(info, value)
+									set(info, value)
+									ShadowUF.modules.movers:Update()
+								end,
 								arg = "locked",
 							},
 							advanced = {
@@ -692,7 +697,7 @@ local function loadUnitOptions()
 		-- Don't let a frame anchor to a frame thats anchored to it already (Stop infinite loops-o-doom)
 		local currentName = getFrameName(unit)
 		for _, unitID in pairs(ShadowUF.units) do
-			if( unitID ~= unit and ShadowUF.db.profile.positions[unitID].anchorTo ~= currentName ) then
+			if( unitID ~= unit and ShadowUF.db.profile.positions[unitID] and ShadowUF.db.profile.positions[unitID].anchorTo ~= currentName ) then
 				anchorList[getFrameName(unitID)] = string.format(L["%s frames"], L.units[unitID])
 			end
 		end
@@ -752,6 +757,8 @@ local function loadUnitOptions()
 		else
 			ShadowUF.Layout:ReloadAll(info[2])
 		end
+		
+		ShadowUF.modules.movers:Update()
 	end
 	
 	local function getPosition(info)
@@ -895,8 +902,8 @@ local function loadUnitOptions()
 					name = L["Text"],
 					width = "full",
 					hidden = false,
-					set = setUnit,
-					get = getUnit,
+					set = function(info, value) setUnit(info, string.gsub(value, "||", "|")) end,
+					get = function(info) return string.gsub(getUnit(info), "|", "||") end,
 					arg = "text.$parent.text",
 				},
 				tags = {
@@ -1297,6 +1304,35 @@ local function loadUnitOptions()
 				set = setUnit,
 				get = getUnit,
 				args = {
+					vehicle = {
+						order = 1,
+						type = "group",
+						inline = true,
+						name = L["Vehicles"],
+						hidden = function(info) return info[2] ~= "player" end,
+						args = {
+							disable = {
+								order = 0,
+								type = "toggle",
+								name = L["Disable vehicle swap"],
+								desc = L["Disables the unit turning into a vehicle frame when the unit enters a vehicle."],
+								set = function(info, value)
+									setUnit(info, value)
+									local unit = info[2]
+									if( unit == "player" and ShadowUF.Units.unitFrames.pet ) then
+										ShadowUF.Units.unitFrames.pet:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units[unit].disableVehicle)
+									elseif( unit == "party" ) then
+										for frame in pairs(ShadowUF.Units.unitFrames) do
+											if( frame.unitType == "partypet" ) then
+												ShadowUF.Units.unitFrames.pet:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units[unit].disableVehicle)
+											end
+										end
+									end
+								end,
+								arg = "disableVehicle",
+							},
+						},
+					},
 					portrait = {
 						order = 2,
 						type = "group",
@@ -1525,7 +1561,9 @@ local function loadUnitOptions()
 				hidden = function(info) return info[#(info) - 1] ~= "raid" and info[#(info) - 1] ~= "party" end,
 				set = function(info, value)
 					setUnit(info, value)
+
 					ShadowUF.Units:ReloadHeader(info[2])
+					ShadowUF.modules.movers:Update()
 				end,
 				get = getUnit,
 				args = {
@@ -1677,6 +1715,7 @@ local function loadUnitOptions()
 									
 									setVariable(info[2], "filters", nil, tbl)
 									ShadowUF.Units:ReloadHeader("raid")
+									ShadowUF.modules.movers:Update()
 								end,
 								get = function(info, key)
 									local tbl = getVariable(info[2], nil, nil, "filters")
@@ -1700,6 +1739,10 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Size"],
+						set = function(info, value)
+							setUnit(info, value)
+							ShadowUF.modules.movers:Update()
+						end,
 						args = {
 							scale = {
 								order = 0,
@@ -2282,6 +2325,7 @@ local function loadUnitOptions()
 		set = function(info, value)
 			ShadowUF.db.profile.units[info[#(info)]].enabled = value
 			ShadowUF:LoadUnits()
+			ShadowUF.modules.movers:Update()
 		end,
 		get = function(info)
 			return ShadowUF.db.profile.units[info[#(info)]].enabled

@@ -203,18 +203,18 @@ Tags.defaultTags = {
 		local color
 		if( not UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) ) then
 			if( UnitCanAttack("player", unit) ) then
-				color = ShadowUF.db.profile.healthColors.red
+				color = ShadowUF.db.profile.healthColors.hostile
 			else
 				color = ShadowUF.db.profile.healthColors.enemyUnattack
 			end
 		elseif( UnitReaction(unit, "player") ) then
 			local reaction = UnitReaction(unit, "player")
 			if( reaction > 4 ) then
-				color = ShadowUF.db.profile.healthColors.green
+				color = ShadowUF.db.profile.healthColors.friendly
 			elseif( reaction == 4 ) then
-				color = ShadowUF.db.profile.healthColors.yellow
+				color = ShadowUF.db.profile.healthColors.neutral
 			elseif( reaction < 4 ) then
-				color = ShadowUF.db.profile.healthColors.red
+				color = ShadowUF.db.profile.healthColors.hostile
 			end
 		end
 		

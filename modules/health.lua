@@ -34,7 +34,7 @@ end
 local function setGradient(healthBar, unit)
 	local current, max = UnitHealth(unit), UnitHealthMax(unit)
 	local percent = current / max
-	if( percent == 1 ) then return setBarColor(healthBar, ShadowUF.db.profile.healthColors.green.r, ShadowUF.db.profile.healthColors.green.g, ShadowUF.db.profile.healthColors.green.b) end
+	if( percent >= 1 ) then return setBarColor(healthBar, ShadowUF.db.profile.healthColors.green.r, ShadowUF.db.profile.healthColors.green.g, ShadowUF.db.profile.healthColors.green.b) end
 	if( percent == 0 ) then return setBarColor(healthBar, ShadowUF.db.profile.healthColors.red.r, ShadowUF.db.profile.healthColors.red.g, ShadowUF.db.profile.healthColors.red.b) end
 	
 	local sR, sG, sB, eR, eG, eB, modifier, inverseModifier = 0, 0, 0, 0, 0, 0, percent * 2, 0

@@ -184,9 +184,11 @@ local function checkVehicleData(self, elapsed)
 end
 
 -- Check if a unit entered a vehicle
-function Units:CheckVehicleStatus(frame)
+function Units:CheckVehicleStatus(frame, event, unit)
+	if( event and frame.unitOwner ~= unit ) then return end
+	
 	-- Not in a vehicle yet, and they entered one that has a UI 
-	if( not frame.inVehicle and UnitHasVehicleUI(frame.unitOwner) ) then
+	if( not frame.inVehicle and UnitHasVehicleUI(frame.unitOwner) and not ShadowUF.db.profile.units[frame.unitType].disableVehicle ) then
 		frame.inVehicle = true
 		frame.unit = frame.vehicleUnit
 
@@ -197,11 +199,17 @@ function Units:CheckVehicleStatus(frame)
 		else
 			frame:FullUpdate()
 		end
+		
+		-- Keep track of what the players current unit is supposed to be, so things like auras can figure it out
+		if( frame.unitOwner == "player" ) then ShadowUF.playerUnit = frame.vehicleUnit end
+		
 	-- Was in a vehicle, no longer has a UI
 	elseif( frame.inVehicle and not UnitHasVehicleUI(frame.unitOwner) ) then
 		frame.inVehicle = false
 		frame.unit = frame.unitOwner
 		frame:FullUpdate()
+
+		if( frame.unitOwner == "player" ) then ShadowUF.playerUnit = frame.unitOwner end
 	end
 end
 
@@ -243,7 +251,7 @@ local function SetupUnitFrame(self)
 		
 		-- This unit can be a vehicle, so will want to be able to target the vehicle if they enter one
 		self:SetAttribute("toggleForVehicle", true)
-		
+				
 		-- Check if they are in a vehicle
 		Units:CheckVehicleStatus(self)
 	end	
@@ -287,7 +295,7 @@ local function OnAttributeChanged(self, name, unit)
 			if( name == "state-vehicleupdated" ) then
 				self:SetAttribute("unitIsVehicle", value == "vehicle" and true or false)
 			elseif( name == "state-unitexists" ) then
-				if( not value or self:GetAttribute("unitIsVehicle") ) then
+				if( not value or ( not self:GetAttribute("disableVehicleSwap") and self:GetAttribute("unitIsVehicle") ) ) then
 					self:Hide()
 				elseif( value ) then
 					self:Show()
@@ -299,6 +307,8 @@ local function OnAttributeChanged(self, name, unit)
 		if( UnitHasVehicleUI(self.unitRealOwner) ) then
 			self:SetAttribute("unitIsVehicle", true)
 		end
+		
+		self:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units[self.unit == "pet" and player or "party"].disableVehicle)
 
 	-- Automatically do a full update on target change
 	elseif( self.unit == "target" ) then
@@ -370,43 +380,6 @@ function Units:LoadUnit(config, unit)
 	RegisterUnitWatch(frame, unit == "pet")
 end
 
-local function OnDragStart(self)
-	if( ShadowUF.db.profile.locked or self.isMoving ) then return end
-	self = unitFrames[self.unitType] or self
-	
-	self.isMoving = true
-	self:StartMoving()
-
-	frameMoving = self
-	
-	GameTooltip:Hide()
-end
-
-local function OnDragStop(self)
-	self = unitFrames[self.unitType] or self
-	
-	if( not self.isMoving ) then
-		return
-	end
-	
-	self.isMoving = nil
-	self:StopMovingOrSizing()
-	
-	local scale = self:GetEffectiveScale()
-	local position = ShadowUF.db.profile.positions[self.unitType]
-	local point, _, relativePoint, x, y = self:GetPoint()
-		
-	position.anchorPoint = ""
-	position.point = point
-	position.anchorTo = "UIParent"
-	position.relativePoint = relativePoint
-	position.x = x * scale
-	position.y = y * scale
-	
-	frameMoving = nil
-end
-
-
 -- Show tooltip
 local function OnEnter(...)
 	if( not ShadowUF.db.profile.tooltipCombat or not inCombat ) then
@@ -462,15 +435,11 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame.highFrame:SetFrameLevel(frame.topFrameLevel + 1)
 	frame.highFrame:SetAllPoints(frame)
 	
-	frame:SetScript("OnDragStart", OnDragStart)
-	frame:SetScript("OnDragStop", OnDragStop)
 	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
 	frame:SetScript("OnEnter", 	OnEnter)
 	frame:SetScript("OnLeave", 	UnitFrame_OnLeave)
 	frame:SetScript("OnEvent", OnEvent)
 
-	frame:SetMovable(true)
-	frame:RegisterForDrag("LeftButton")
 	frame:RegisterForClicks("AnyUp")	
 	frame:SetAttribute("*type1", "target")
 	frame:SetAttribute("*type2", "menu")
@@ -604,8 +573,6 @@ function Units:LoadGroupHeader(config, type)
 	headerFrame:SetAttribute("initial-unitWatch", true)
 	headerFrame.initialConfigFunction = initializeUnit
 	headerFrame.unitType = type
-	headerFrame:SetMovable(true)
-	headerFrame:RegisterForDrag("LeftButton")
 	headerFrame:Show()
 
 	unitFrames[type] = headerFrame
@@ -728,14 +695,8 @@ centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-centralFrame:RegisterEvent("PARTY_MEMBERS_CHANGED")
-centralFrame:RegisterEvent("RAID_ROSTER_UPDATE")
 centralFrame:SetScript("OnEvent", function(self, event, unit)
-	if( event == "RAID_ROSTER_UPDATE" or event == "PARTY_MEMBERS_CHANGED" ) then
-		if( not frameMoving ) then return end
-		OnDragStop(frameMoving)
-	
-	elseif( event == "ZONE_CHANGED_NEW_AREA" ) then
+	if( event == "ZONE_CHANGED_NEW_AREA" ) then
 		for _, frame in pairs(unitFrames) do
 			if( frame:GetAttribute("unit") ) then
 				frame:SetVisibility()

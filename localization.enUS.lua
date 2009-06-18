@@ -135,6 +135,11 @@ ShadowUFLocals = {
 	["General bars"] = "General bars",
 	["Height"] = "Height",
 	["Width"] = "Width",
+	["Show frame indicators"] = "Show frame indicators",
+	["Vehicles"] = "Vehicles",
+	["Disable vehicle swap"] = "Disable vehicle swap",
+	["Disables the unit turning into a vehicle frame when the unit enters a vehicle."] = "Disables the unit turning into a vehicle frame when the unit enters a vehicle.",
+	["Shows example frames using the same sizing and position as the real ones do, these example frames can be repositioned.\n\nThis setting is not persistent and the option will be disabled once you log out."] = "Shows example frames using the same sizing and position as the real ones do, these example frames can be repositioned.\n\nThis setting is not persistent and the option will be disabled once you log out.",
 	["Buff icons"] = "Buff icons",
 	["Scale"] = "Scale",
 	["Portrait type"] = "Portrait type",
@@ -380,6 +385,11 @@ ShadowUFLocals = {
 		["arena"] = "Arenas",
 		["party"] = "Party instances",
 		["raid"] = "Raid instances",
+	},
+	
+	["headers"] = {
+		["party"] = "Party #%d",
+		["raid"] = "Raid #%d",
 	},
 	
 	-- Unit names

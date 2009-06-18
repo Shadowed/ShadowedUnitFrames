@@ -42,7 +42,6 @@ function ShadowUF:OnInitialize()
 			end
 			
 			local func, msg = loadstring("return " .. (ShadowUF.Tags.defaultTags[index] or ShadowUF.db.profile.tags[index].func or ""))
-			
 			if( func ) then
 				func = func()
 			elseif( msg ) then
@@ -52,121 +51,65 @@ function ShadowUF:OnInitialize()
 			tbl[index] = func
 			return tbl[index]
 	end})
-	
 
 	-- No active layout, register the default one
 	if( not self.db.profile.loadedLayout ) then
 		self:LoadDefaultLayout()
 	end
-	
-	-- UPGRADING CODE
-	-- I will remove these once a month has passed since I added them.
-	do
-		-- May 28th
-		-- May 30th
-		if( not self.db.profile.powerColors.AMMOSLOT ) then
-			self.db.profile.powerColors.AMMOSLOT = {r = 0.85, g = 0.60, b = 0.55}
-			self.db.profile.powerColors.FUEL = {r = 0.85, g = 0.47, b = 0.36}
-			self.db.profile.classColors.VEHICLE = {r = 0.40, g = 0.85, b = 0.48}
-			
-			-- Disable fader on units that it shouldn't have been enabled for
-			self.db.profile.units.focus.fader = nil
-			self.db.profile.units.focustarget.fader = nil
-			self.db.profile.units.target.fader = nil
-			self.db.profile.units.targettarget.fader = nil
-			self.db.profile.units.targettargettarget.fader = nil
-		end
-		
-		-- May 31th
-		if( self.db.profile.units.targettarget.indicators.pvp ) then
-			self.db.profile.units.focustarget.indicators.pvp = nil
-			self.db.profile.units.targettarget.indicators.pvp = nil
-			self.db.profile.units.targettargettarget.indicators.pvp = nil
-		end
-		
-		if( self.db.profile.units.party.hideInRaid ) then
-			self.db.profile.units.party.hideSemiRaid = self.db.profile.units.party.hideInRaid
-			self.db.profile.units.party.hideInRaid = nil
-		end
-		
-		if( self.db.profile.units.player.range ) then
-			self.db.profile.units.player.range = nil
-		end
-		
-		-- Jun 11th
-		if( not self.db.profile.healthColors.friendly ) then
-			self.db.profile.healthColors.friendly = CopyTable(self.db.profile.healthColors.green)
-			self.db.profile.healthColors.neutral = CopyTable(self.db.profile.healthColors.yellow)
-			self.db.profile.healthColors.hostile = CopyTable(self.db.profile.healthColors.red)
-		end
-		
-		-- June 15th
-		if( type(self.db.profile.loadedLayout) == "string" or self.db.profile.loadedLayout == true ) then
-			-- Why one you ask, because this will force people who used the github version to have their DB rechecked and fix missing fields
-			self.db.profile.loadedLayout = 1
-			
-			if( self.db.profile.positions.partypet.anchorPoint == "" and self.db.profile.positions.partypet.point == "" and self.db.profile.positions.partypet.relativePoint == "" ) then
-				self.db.profile.positions.partypet.anchorTo = "$parent"
-				self.db.profile.positions.partypet.anchorPoint = "RB"
-			end
-			
-			if( self.db.profile.positions.partytarget.anchorPoint == "" and self.db.profile.positions.partytarget.point == "" and self.db.profile.positions.partytarget.relativePoint == "" ) then
-				self.db.profile.positions.partytarget.anchorTo = "$parent"
-				self.db.profile.positions.partytarget.anchorPoint = "RT"
-			end
-				
-			if( not self.db.profile.units.player.indicators.status.anchorPoint ) then
-				self.db.profile.units.player.indicators.status.anchorPoint = self.db.profile.units.player.indicators.status.anchorPoint or "LB"
-				self.db.profile.units.player.indicators.status.anchorTo = self.db.profile.units.player.indicators.status.anchorTo or "$parent"
-			end
 
-			if( not self.db.profile.units.target.comboPoints.anchorPoint ) then
-				self.db.profile.units.target.comboPoints.anchorPoint = self.db.profile.units.target.comboPoints.anchorPoint or "BR"
-				self.db.profile.units.target.comboPoints.anchorTo = self.db.profile.units.target.comboPoints.anchorTo or "$parent"
-			end
-			
-			self.db.profile.units.pet.indicators.happiness.size = self.db.profile.units.pet.indicators.happiness.size or 0
-			
-			for _, config in pairs(ShadowUF.db.profile.units) do
-				if( config.combatText and not config.anchorPoint ) then
-					config.combatText.anchorTo = "$parent"
-					config.combatText.anchorPoint = "C"
-					config.combatText.x = 0
-					config.combatText.y = 0
-				end
-				
-				config.text[1].name = L["Left text"]
-				config.text[1].text = config.text[1].text or "[afk( )][name]"
-				config.text[1].size = config.text[1].size or 0
-				config.text[1].anchorTo = "$healthBar"
-				config.text[1].anchorPoint = config.text[1].anchorPoint or "ICL"
-
-				config.text[2].name = L["Right text"]
-				config.text[2].text = config.text[2].text or "[curmaxhp]"
-				config.text[2].size = config.text[2].size or 0
-				config.text[2].anchorTo = "$healthBar"
-				config.text[2].anchorPoint = config.text[2].anchorPoint or "ICR"
-
-				config.text[3].name = L["Left text"]
-				config.text[3].text = config.text[3].text or "[level] [race]"
-				config.text[3].size = config.text[3].size or 0
-				config.text[3].anchorTo = "$powerBar"
-				config.text[3].anchorPoint = config.text[3].anchorPoint or "ICL"
-
-				config.text[4].name = L["Right text"]
-				config.text[4].text = config.text[4].text or "[curmaxpp]"
-				config.text[4].size = config.text[4].size or 0
-				config.text[4].anchorTo = "$powerBar"
-				config.text[4].anchorPoint = config.text[4].anchorPoint or "ICR"
-			end
-		end
-	end
-	
 	-- Hide any Blizzard frames
 	self:HideBlizzardFrames()
 	
 	-- Load SML info
 	self.Layout:LoadSML()
+	
+	-- UPGRADING CODE, I will remove these once a month has passed since I added them.
+	self:CheckUpgrade()
+	
+	-- June 17th
+	self.db.profile.layoutInfo = nil
+	
+	-- Show example frames?
+	self.modules.movers:Update()
+end
+
+function ShadowUF:CheckUpgrade()
+	-- May 30th
+	if( not self.db.profile.powerColors.AMMOSLOT ) then
+		self.db.profile.powerColors.AMMOSLOT = {r = 0.85, g = 0.60, b = 0.55}
+		self.db.profile.powerColors.FUEL = {r = 0.85, g = 0.47, b = 0.36}
+		self.db.profile.classColors.VEHICLE = {r = 0.40, g = 0.85, b = 0.48}
+		
+		-- Disable fader on units that it shouldn't have been enabled for
+		self.db.profile.units.focus.fader = nil
+		self.db.profile.units.focustarget.fader = nil
+		self.db.profile.units.target.fader = nil
+		self.db.profile.units.targettarget.fader = nil
+		self.db.profile.units.targettargettarget.fader = nil
+	end
+	
+	-- May 31th
+	if( self.db.profile.units.targettarget.indicators.pvp ) then
+		self.db.profile.units.focustarget.indicators.pvp = nil
+		self.db.profile.units.targettarget.indicators.pvp = nil
+		self.db.profile.units.targettargettarget.indicators.pvp = nil
+	end
+	
+	if( self.db.profile.units.party.hideInRaid ) then
+		self.db.profile.units.party.hideSemiRaid = self.db.profile.units.party.hideInRaid
+		self.db.profile.units.party.hideInRaid = nil
+	end
+	
+	if( self.db.profile.units.player.range ) then
+		self.db.profile.units.player.range = nil
+	end
+	
+	-- June 11th
+	if( not self.db.profile.healthColors.friendly ) then
+		self.db.profile.healthColors.friendly = CopyTable(self.db.profile.healthColors.green)
+		self.db.profile.healthColors.neutral = CopyTable(self.db.profile.healthColors.yellow)
+		self.db.profile.healthColors.hostile = CopyTable(self.db.profile.healthColors.red)
+	end
 end
 	
 local partyDisabled
@@ -187,24 +130,19 @@ end
 function ShadowUF:LoadUnits()
 	local zone = select(2, IsInInstance())
 	for _, type in pairs(units) do
-		local config = self.db.profile.units[type]
-		if( config ) then
-			local enabled = config.enabled
-			if( type == "party" and partyDisabled ) then
-				enabled = nil
-			elseif( zone ~= "none" ) then
-				if( self.db.profile.visibility[zone][type] == false ) then
-					enabled = false
-				elseif( self.db.profile.visibility[zone][type] == true ) then
-					enabled = true
-				end
+		local enabled = self.db.profile.units[type].enabled
+		if( type == "party" and partyDisabled ) then
+			enabled = nil
+		elseif( zone ~= "none" ) then
+			if( self.db.profile.visibility[zone][type] == false ) then
+				enabled = false
+			elseif( self.db.profile.visibility[zone][type] == true ) then
+				enabled = true
 			end
-			
-			if( enabled ) then
-				self.Units:InitializeFrame(config, type)
-			else
-				self.Units:UninitializeFrame(config, type)
-			end
+		end
+		
+		if( enabled ) then
+			self.Units:InitializeFrame(config, type)
 		else
 			self.Units:UninitializeFrame(config, type)
 		end
@@ -224,7 +162,7 @@ function ShadowUF:LoadUnitDefaults()
 			healthBar = {enabled = true, colorType = "percent", reaction = true},
 			powerBar = {enabled = true}, portrait = {enabled = false, type = "3D"},
 			range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
-			text = {{enabled = true, name = L["Left text"]}, {enabled = true, name = L["Right text"]}, {enabled = true, name = L["Left text"]}, {enabled = true, name = L["Right text"]}},
+			text = {{enabled = true, name = L["Left text"], text = "[name]", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Left text"], text = "[level] [race]", anchorTo = "$powerBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxpp]", anchorTo = "$powerBar", size = 0}},
 			indicators = {raidTarget = {enabled = true}}, 
 			auras = {
 				buffs = {enabled = false, perRow = 11, maxRows = 4, prioritize = true, enlargeSelf = false},
@@ -236,7 +174,7 @@ function ShadowUF:LoadUnitDefaults()
 		if( not string.match(unit, "%w+target") ) then
 			self.defaults.profile.units[unit].incHeal = {enabled = false}
 			self.defaults.profile.units[unit].castBar = {enabled = false, castName = {enabled = true, anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, castTime = {enabled = true, anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0}}
-			self.defaults.profile.units[unit].combatText = {enabled = true}
+			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
 		end
 			
 		-- Want pvp/leader/ML enabled for these units
@@ -254,15 +192,15 @@ function ShadowUF:LoadUnitDefaults()
 	-- PLAYER
 	self.defaults.profile.units.player.enabled = true
 	self.defaults.profile.units.player.powerBar.predicted = true
+	self.defaults.profile.units.player.indicators.status = {enabled = true, size = 19, anchorPoint = "LB", anchorTo = "$parent", x = 0, y = 0}
 	self.defaults.profile.units.player.runeBar = {enabled = false}
 	self.defaults.profile.units.player.totemBar = {enabled = false}
 	self.defaults.profile.units.player.xpBar = {enabled = false}
 	self.defaults.profile.units.player.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
-	self.defaults.profile.units.player.indicators.status = {enabled = true}
-	self.defaults.profile.units.player.range = false
+	self.defaults.profile.units.player.range = nil
 	-- PET
 	self.defaults.profile.units.pet.enabled = true
-	self.defaults.profile.units.pet.indicators.happiness = {enabled = true}
+	self.defaults.profile.units.pet.indicators.happiness = {enabled = true, size = 16, anchorPoint = "BR", anchorTo = "$parent", x = 2, y = -2}
 	self.defaults.profile.units.pet.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.pet.xpBar = {enabled = false}
 	-- FOCUS
@@ -271,12 +209,14 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.focustarget.enabled = true
 	-- TARGET
 	self.defaults.profile.units.target.enabled = true
-	self.defaults.profile.units.target.comboPoints = {enabled = false}
+	self.defaults.profile.units.target.comboPoints = {enabled = false, anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0}
 	-- TARGETTARGET/TARGETTARGETTARGET
 	self.defaults.profile.units.targettarget.enabled = true
 	self.defaults.profile.units.targettargettarget.enabled = true
 	-- PARTY
 	self.defaults.profile.units.party.enabled = true
+	self.defaults.profile.units.party.attribPoint = "TOP"
+	self.defaults.profile.units.party.attribAnchorPoint = "LEFT"
 	self.defaults.profile.units.party.auras.debuffs.maxRows = 1
 	self.defaults.profile.units.party.auras.buffs.maxRows = 1
 	self.defaults.profile.units.party.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
@@ -284,16 +224,60 @@ function ShadowUF:LoadUnitDefaults()
 	-- RAID
 	self.defaults.profile.units.raid.groupBy = "GROUP"
 	self.defaults.profile.units.raid.sortOrder = "ASC"
+	self.defaults.profile.units.raid.attribPoint = "TOP"
+	self.defaults.profile.units.raid.attribAnchorPoint = "RIGHT"
 	self.defaults.profile.units.raid.filters = {[1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [8] = true}
 	self.defaults.profile.units.raid.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.raid.combatText.enabled = false
 	-- PARTYPET
+	self.defaults.profile.positions.partypet.anchorTo = "$parent"
+	self.defaults.profile.positions.partypet.anchorPoint = "RB"
 	self.defaults.profile.units.partypet.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	-- PARTYTARGET
+	self.defaults.profile.positions.partytarget.anchorTo = "$parent"
+	self.defaults.profile.positions.partytarget.anchorPoint = "RT"
 	self.defaults.profile.units.partytarget.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	
 	-- Indicate that defaults were loaded
 	self:FireModuleEvent("OnDefaultsSet")
+end
+
+-- Module APIs
+function ShadowUF:RegisterModule(module, key, name, isBar)
+	self.modules[key] = module
+
+	module.moduleKey = key
+	module.moduleHasBar = isBar
+	module.moduleName = name
+	
+	table.insert(self.moduleOrder, module)
+end
+
+function ShadowUF:FireModuleEvent(event, frame, unit)
+	for _, module in pairs(self.moduleOrder) do
+		if( module[event] ) then
+			module[event](module, frame, unit)
+		end
+	end
+end
+
+-- Profiles changed
+function ShadowUF:ProfilesChanged()
+	-- Reset any loaded caches
+	for k in pairs(self.tagFunc) do self.tagFunc[k] = nil end
+	
+	-- No active layout, register the default one
+	if( not self.db.profile.loadedLayout ) then
+		self:LoadDefaultLayout()
+	else
+		self:CheckUpgrade()
+	end
+	
+	self.Layout:CheckMedia()
+	self.Units:ProfileChanged()
+	self:LoadUnits()
+	self.Layout:ReloadAll()
+	self.modules.movers:Update()
 end
 
 -- Hiding Blizzard stuff (Stolen from haste)
@@ -374,41 +358,7 @@ function ShadowUF:HideBlizzard(type)
 	end
 end
 
--- Module APIs
-function ShadowUF:RegisterModule(module, key, name, isBar)
-	self.modules[key] = module
-
-	module.moduleKey = key
-	module.moduleHasBar = isBar
-	module.moduleName = name
-	
-	table.insert(self.moduleOrder, module)
-end
-
-function ShadowUF:FireModuleEvent(event, frame, unit)
-	for _, module in pairs(self.moduleOrder) do
-		if( module[event] ) then
-			module[event](module, frame, unit)
-		end
-	end
-end
-
--- Profiles changed
-function ShadowUF:ProfilesChanged()
-	-- Reset any loaded caches
-	for k in pairs(self.tagFunc) do self.tagFunc[k] = nil end
-	
-	-- No active layout, register the default one
-	if( not self.db.profile.loadedLayout ) then
-		self:LoadDefaultLayout()
-	end
-	
-	ShadowUF.Layout:CheckMedia()
-	ShadowUF.Units:ProfileChanged()
-	ShadowUF:LoadUnits()
-	ShadowUF.Layout:ReloadAll()
-end
-
+-- Event handling, makes sure SUF loads fine
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")

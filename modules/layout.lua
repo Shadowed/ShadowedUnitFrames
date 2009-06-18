@@ -1,7 +1,6 @@
 local Layout = {}
-local SML, config
-local ordering, backdropCache, anchoringQueued, mediaPath, frameList = {}, {}, {}, {}, {}
-local mediaRequired
+local SML, config, backdropTbl, mediaRequired
+local ordering, anchoringQueued, mediaPath, frameList = {}, {}, {}, {}
 
 ShadowUF.Layout = Layout
 
@@ -87,6 +86,20 @@ function Layout:ApplyAll(frame)
 	
 	-- Layouts been fully set
 	ShadowUF:FireModuleEvent("OnLayoutApplied", frame)
+
+	-- Set this frame as managed by the layout system
+	frameList[frame] = true
+
+	-- Check if we had anything parented to us
+	for frame in pairs(anchoringQueued) do
+		if( frame.queuedName == frame:GetName() ) then
+			self:AnchorFrame(frame.queuedParent, frame, frame.queuedConfig)
+
+			frame.queuedParent = nil
+			frame.queuedConfig = nil
+			anchoringQueued[frame] = nil
+		end
+	end
 end
 
 function Layout:LoadSML()
@@ -148,12 +161,12 @@ function Layout:GetRelative(key)
 	return preDefRelative[key]
 end
 
-function Layout:AnchorFrame(parent, frame, config, isRecurse)
+function Layout:AnchorFrame(parent, frame, config)
 	if( not config or not config.anchorTo ) then
 		return
 	end
-		
-	local anchorTo
+	
+	local anchorTo = config.anchorTo
 	local prefix = string.sub(config.anchorTo, 0, 1)
 	if( config.anchorTo == "$parent" ) then
 		anchorTo = parent
@@ -163,29 +176,23 @@ function Layout:AnchorFrame(parent, frame, config, isRecurse)
 	-- # is used as an indicator of an actual frame created by SUF, SUFUnittarget, etc. It also means, that the frame might not have been created yet
 	elseif( prefix == "#" ) then
 		anchorTo = string.sub(config.anchorTo, 2)
+		-- The frame we wanted to anchor to doesn't exist yet, so will queue and wait for it to exist
 		if( not getglobal(anchorTo) ) then
 			frame.queuedParent = parent
 			frame.queuedConfig = config
 			frame.queuedName = anchorTo
 			anchoringQueued[frame] = true
 			
-			if( not isRecurse ) then
-				local unit = string.match(anchorTo, "SUFUnit(%a+)") or string.match(anchorTo, "SUFHeader(%a+)")
-				if( unit and ShadowUF.db.profile.positions[unit] ) then
-					self:AnchorFrame(parent, frame, ShadowUF.db.profile.positions[unit], isRecurse)
-				end
-			else
-				frame:ClearAllPoints()
-				frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
+			-- For the time being, will take over the frame we wanted to anchor to's position.
+			local unit = string.match(anchorTo, "SUFUnit(%w+)") or string.match(anchorTo, "SUFHeader(%w+)")
+			if( unit and ShadowUF.db.profile.positions[unit] ) then
+				self:AnchorFrame(parent, frame, ShadowUF.db.profile.positions[unit])
 			end
 			return
 		end
-	else
-		anchorTo = config.anchorTo
 	end
 
 	-- Effective scaling should only be used if it's enabled + they are anchored to the UIParent
-	-- raaaaaaaaaaaaaggggggggggggggggeeeeeeeeeeeeeeeeeeeeeee
 	local scale = 1
 	if( config.anchorTo == "UIParent" and frame.unitType ) then
 		scale = frame:GetEffectiveScale()
@@ -203,8 +210,7 @@ end
 -- Setup the main frame
 function Layout:ApplyUnitFrame(frame, config)
 	local backdrop = ShadowUF.db.profile.backdrop
-	local id = backdrop.backgroundTexture .. backdrop.borderTexture .. backdrop.tileSize .. backdrop.edgeSize .. backdrop.tileSize .. backdrop.inset
-	local backdropTbl = backdropCache[id] or {
+	backdropTbl = backdropTbl or {
 			bgFile = mediaPath.background,
 			edgeFile = mediaPath.border,
 			tile = backdrop.tileSize > 0 and true or false,
@@ -212,7 +218,6 @@ function Layout:ApplyUnitFrame(frame, config)
 			tileSize = backdrop.tileSize,
 			insets = {left = backdrop.inset, right = backdrop.inset, top = backdrop.inset, bottom = backdrop.inset}
 	}
-	backdropCache[id] = backdropTbl
 		
 	frame:SetHeight(config.height)
 	frame:SetWidth(config.width)
@@ -228,19 +233,6 @@ function Layout:ApplyUnitFrame(frame, config)
 	
 	if( not frame.ignoreAnchor ) then
 		self:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[frame.unitType])
-	end
-	
-	frameList[frame] = true
-		
-	-- Anything parented to us?
-	for queuedFrame in pairs(anchoringQueued) do
-		if( queuedFrame.queuedName == frame:GetName() ) then
-			self:AnchorFrame(queuedFrame.queuedParent, queuedFrame, queuedFrame.queuedConfig)
-
-			queuedFrame.queuedParent = nil
-			queuedFrame.queuedConfig = nil
-			anchoringQueued[queuedFrame] = nil
-		end
 	end
 end
 
@@ -387,7 +379,7 @@ function Layout:ApplyText(frame, config)
 			
 			local anchorPoint = (row.anchorPoint == "ITR" or row.anchorPoint == "ITL") and "IT" or (row.anchorPoint == "ICL" or row.anchorPoint == "ICR" ) and "IC" or row.anchorPoint
 			
-			fontString.availableWidth = parent:GetWidth()
+			fontString.availableWidth = parent:GetWidth() - row.x
 			fontString.widthID = row.anchorTo .. anchorPoint .. row.y
 			totalWeight[fontString.widthID] = (totalWeight[fontString.widthID] or 0) + row.width
 			

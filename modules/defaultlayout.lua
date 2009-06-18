@@ -334,6 +334,6 @@ function ShadowUF:LoadDefaultLayout()
 		mergeToChild(child, ShadowUF.db.profile.units[unit], true)
 	end
 
-	self.db.profile.loadedLayout = 1
+	self.db.profile.loadedLayout = true
 end
 	

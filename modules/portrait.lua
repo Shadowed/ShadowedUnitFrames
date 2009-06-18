@@ -56,7 +56,7 @@ end
 
 function Portrait:Update(frame)
 	if( ShadowUF.db.profile.units[frame.unitType].portrait.type == "class" ) then
-		local classToken = select(2, UnitClass(frame.unit))
+		local classToken = select(2, UnitClass(frame.unitOwner))
 		if( classToken ) then
 			frame.portrait:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
 			frame.portrait:SetTexCoord(CLASS_ICON_TCOORDS[classToken][1], CLASS_ICON_TCOORDS[classToken][2], CLASS_ICON_TCOORDS[classToken][3], CLASS_ICON_TCOORDS[classToken][4])
@@ -65,9 +65,9 @@ function Portrait:Update(frame)
 		end
 	elseif( ShadowUF.db.profile.units[frame.unitType].portrait.type == "2D" ) then
 		frame.portrait:SetTexCoord(0.10, 0.90, 0.10, 0.90)
-		SetPortraitTexture(frame.portrait, frame.unit)
-	elseif( UnitIsVisible(frame.unit) and UnitIsConnected(frame.unit) ) then
-		frame.portrait:SetUnit(frame.unit)
+		SetPortraitTexture(frame.portrait, frame.unitOwner)
+	elseif( UnitIsVisible(frame.unitOwner) and UnitIsConnected(frame.unitOwner) ) then
+		frame.portrait:SetUnit(frame.unitOwner)
 		frame.portrait:SetCamera(0)
 	else
 		frame.portrait:SetModelScale(4.25)
