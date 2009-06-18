@@ -1319,12 +1319,20 @@ local function loadUnitOptions()
 								set = function(info, value)
 									setUnit(info, value)
 									local unit = info[2]
-									if( unit == "player" and ShadowUF.Units.unitFrames.pet ) then
-										ShadowUF.Units.unitFrames.pet:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units[unit].disableVehicle)
+									if( unit == "player" ) then
+										if( ShadowUF.Units.unitFrames.pet ) then
+											ShadowUF.Units.unitFrames.pet:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units[unit].disableVehicle)
+										end
+										
+										if( ShadowUF.Units.unitFrames.player ) then
+											ShadowUF.Units:CheckVehicleStatus(ShadowUF.Units.unitFrames.player)
+										end
 									elseif( unit == "party" ) then
 										for frame in pairs(ShadowUF.Units.unitFrames) do
 											if( frame.unitType == "partypet" ) then
-												ShadowUF.Units.unitFrames.pet:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units[unit].disableVehicle)
+												frame:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units[unit].disableVehicle)
+											elseif( frame.unitType == "party" ) then
+												ShadowUF.Units:CheckVehicleStatus(frame)
 											end
 										end
 									end

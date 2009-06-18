@@ -204,7 +204,7 @@ function Units:CheckVehicleStatus(frame, event, unit)
 		if( frame.unitOwner == "player" ) then ShadowUF.playerUnit = frame.vehicleUnit end
 		
 	-- Was in a vehicle, no longer has a UI
-	elseif( frame.inVehicle and not UnitHasVehicleUI(frame.unitOwner) ) then
+	elseif( frame.inVehicle and ( not UnitHasVehicleUI(frame.unitOwner) or ShadowUF.db.profile.units[frame.unitType].disableVehicle ) ) then
 		frame.inVehicle = false
 		frame.unit = frame.unitOwner
 		frame:FullUpdate()
@@ -224,8 +224,7 @@ function Units:CheckUnitGUID(frame)
 	frame.unitGUID = guid
 end
 
-
--- When player summons a new pet, UNIT_PET fires for player, when party1 summons a new one, party1 fires not partypet1/party1pet
+-- The argument from UNIT_PET is the pets owner, so the player summoning a new pet gets "player", party1 summoning a new pet gets "party1" and so on
 function Units:CheckUnitUpdated(frame, event, unit)
 	if( unit ~= frame.unitRealOwner or not UnitExists(unit) ) then return end
 	frame:FullUpdate()
@@ -288,9 +287,15 @@ local function OnAttributeChanged(self, name, unit)
 		self.unitRealOwner = self.unit == "pet" and "player" or ShadowUF.partyUnits[self.unitID]
 		self:RegisterNormalEvent("UNIT_PET", Units, "CheckUnitUpdated")
 
-		-- Hide any pet that became a vehicle, we detect this by the player being untargetable but we have a pet out
-		local text = string.format("[target=%s, nohelp,noharm] vehicle; [target=%s, exists] pet", self.unitRealOwner, self.unit)
-		RegisterStateDriver(self, "vehicleupdated", text)
+		-- Logged out in a vehicle
+		if( UnitHasVehicleUI(self.unitRealOwner) ) then
+			self:SetAttribute("unitIsVehicle", true)
+		end
+		
+		self:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units[self.unit == "pet" and "player" or "party"].disableVehicle)
+
+		-- Hide any pet that became a vehicle, we detect this by the owner being untargetable but we have a pet out
+		RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, nohelp,noharm] vehicle; [target=%s, exists] pet", self.unitRealOwner, self.unit))
 		vehicleMonitor:WrapScript(self, "OnAttributeChanged", [[
 			if( name == "state-vehicleupdated" ) then
 				self:SetAttribute("unitIsVehicle", value == "vehicle" and true or false)
@@ -300,15 +305,14 @@ local function OnAttributeChanged(self, name, unit)
 				elseif( value ) then
 					self:Show()
 				end
+			elseif( name == "disablevehicleswap" ) then
+				if( value and self:GetAttribute("state-unitexists") ) then
+					self:Show()
+				elseif( not self:GetAttribute("state-unitexists") or ( not value and self:GetAttribute("unitIsVehicle") ) ) then 
+					self:Hide()
+				end
 			end
 		]])
-		
-		-- Logged out in a vehicle
-		if( UnitHasVehicleUI(self.unitRealOwner) ) then
-			self:SetAttribute("unitIsVehicle", true)
-		end
-		
-		self:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units[self.unit == "pet" and player or "party"].disableVehicle)
 
 	-- Automatically do a full update on target change
 	elseif( self.unit == "target" ) then
