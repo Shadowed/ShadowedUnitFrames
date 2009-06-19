@@ -98,7 +98,7 @@ end
 -- Need to make sure we keep the mover frames updated to what their owners would look like
 local updateThrottle
 function Movers:OnLayoutApplied(frame)
-	local moverFrame = frameList[frame.unit] or frameList[frame.unitType]
+	local moverFrame = frameList[frame.unit]
 	if( moverFrame and moverFrame:IsVisible() ) then
 		ShadowUF.Layout:ApplyUnitFrame(moverFrame, ShadowUF.db.profile.units[moverFrame.unitType])
 		

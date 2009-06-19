@@ -609,10 +609,75 @@ local function loadGeneralOptions()
 					},
 				},
 			},
+			--[[
+			text = {
+				type = "group",
+				order = 4,
+				name = L["Text management"],
+				hidden = hideAdvancedOption,
+				hidden = true,
+				args = {
+					help = {
+						order = 0,
+						type = "group",
+						inline = true,
+						args = {
+							help = {
+								order = 0,
+								type = "group",
+								name = L["You can add additional text with tags enabled using this configuration, note that any additional text added (or removed) effects all units, removing text will resettheir settings as well."],
+							},
+						},
+					},
+					add = {
+						order = 1,
+						name = L["Add new text"],
+						type = "group",
+						set = function(info, value) addText[info[#(info)] ] = value end,
+						get = function(info, value) return addText[info[#(info)] ] end,
+						args = {
+							name = {
+								order = 0,
+								type = "input",
+								name = L["Text name"],
+								desc = L["Text name that you can use to identify this text from others when configuring."],
+							},
+							parent = {
+								order = 1,
+								type = "select",
+								name = L["Text parent"],
+								desc = L["Where inside the frame the text should be anchored to."],
+								
+							},
+							add = {
+								order = 2,
+								type = "execute",
+								name = L["Add"],
+								disabled = function() return not addText.name or addText.name == "" or not addText.parent end,
+								func = function(info)
+									addText.name = string.trim(addText.name)
+									addText.name = addText.name ~= "" and addText.name or nil
+									
+									for _, unit in pairs(ShadowUF.units) do
+										table.insert(ShadowUF.db.profile.units[unit].text, {enabled = true, name = addText.name or "??", text = "", anchorTo = addText.parent, size = 0})
+									end
+								end,
+							},
+						},
+					},
+					delete = {
+						order = 2,
+						type = "group",
+						name = L["Delete text"],
+						args = {},
+					},
+				},
+			},
+			]]
 			profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(ShadowUF.db),
 			hide = {
 				type = "group",
-				order = 3,
+				order = 4,
 				name = L["Hide Blizzard"],
 				args = {
 					help = {
@@ -666,7 +731,7 @@ local function loadGeneralOptions()
 	options.args.general.args.general.args.classColors.args.PET = Config.classTable
 	options.args.general.args.general.args.classColors.args.VEHICLE = Config.classTable
 	
-	options.args.general.args.profile.order = 1
+	options.args.general.args.profile.order = 2
 end
 
 ---------------------
@@ -1256,7 +1321,6 @@ local function loadUnitOptions()
 				type = "description",
 				name = "",
 				width = "full",
-				hidden = hideAdvancedOption,
 			},
 			size = {
 				order = 4,
@@ -1622,7 +1686,8 @@ local function loadUnitOptions()
 							xOffset = {
 								order = 1,
 								type = "range",
-								name = L["X Offset"],
+								name = L["Row offset"],
+								desc = L["Spacing between each row"],
 								min = -50, max = 50, step = 1,
 								hidden = function(info)
 									local point = getVariable(info[2], nil, nil, "attribPoint")
@@ -1633,7 +1698,8 @@ local function loadUnitOptions()
 							yOffset = {
 								order = 2,
 								type = "range",
-								name = L["Y Offset"],
+								name = L["Row offset"],
+								desc = L["Spacing between each row"],
 								min = -50, max = 50, step = 1,
 								hidden = function(info)
 									local point = getVariable(info[2], nil, nil, "attribPoint")

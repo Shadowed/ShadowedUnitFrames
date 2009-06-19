@@ -55,7 +55,7 @@ end
 
 -- Not doing full health update, because other checks can lag behind without much issue
 local function updateTimer(self)
-	if( self.isDead ) then return end
+	if( self.blockPredicted ) then return end
 	
 	local frame = self.parent
 	frame.healthBar:SetMinMaxValues(0, UnitHealthMax(frame.unit))
@@ -171,12 +171,15 @@ function Health:Update(frame)
 	local max = UnitHealthMax(unit)
 	local current = UnitHealth(unit)
 	local isOffline = not UnitIsConnected(unit)
-	frame.isDead = UnitIsDeadOrGhost(unit)
 
 	if( isOffline ) then
 		current = max
-	elseif( frame.isDead ) then
+		frame.blockPredicted = true
+	elseif( UnitIsDeadOrGhost(unit) ) then
 		current = 0
+		frame.blockPredicted = true
+	else
+		frame.blockPredicted = false
 	end
 	
 	frame.healthBar:SetMinMaxValues(0, max)

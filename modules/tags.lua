@@ -39,19 +39,19 @@ function Tags:RegisterEvents(parent, fontString, tags)
 end
 
 -- This pretty much means a tag was updated in some way (or deleted) so we have to do a full update to get the new values shown
-function Tags:Reload(tag)
-	-- Specific tag changed, kill the functions we cached for it
-	if( tag ) then
+function Tags:Reload()
+	-- Kill cached functions, ugly I know but it ensures its fully updated with the new data
+	for tag in pairs(functionPool) do
 		functionPool[tag] = nil
+	end
+	for tag in pairs(ShadowUF.tagFunc) do
 		ShadowUF.tagFunc[tag] = nil
-		
-		for tags in pairs(tagPool) do
-			if( string.match(tags, tag) ) then
-				tagPool[tags] = nil
-			end
-		end
+	end
+	for tag in pairs(tagPool) do
+		tagPool[tag] = nil
 	end
 	
+	-- Now update frames
 	for fontString, tags in pairs(regFontStrings) do
 		self:Register(fontString.parent, fontString, tags)
 		fontString:UpdateTags()
