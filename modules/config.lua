@@ -2462,7 +2462,7 @@ local function loadTagOptions()
 							help = {
 								order = 0,
 								type = "description",
-								name = L["You can find more information on creating your own custom tags in the \"Lua help\" tab above."],
+								name = L["You can find more information on creating your own custom tags in the \"Help\" tab above."],
 							},
 						},
 					},
@@ -2533,7 +2533,7 @@ local function loadTagOptions()
 							help = {
 								order = 0,
 								type = "description",
-								name = L["You can find more information on creating your own custom tags in the \"Lua help\" tab above.\nSUF will attempt to automatically detect what events your tag will need, so you do not generally need to fill out the events field."],
+								name = L["You can find more information on creating your own custom tags in the \"Help\" tab above.\nSUF will attempt to automatically detect what events your tag will need, so you do not generally need to fill out the events field."],
 							},
 						},
 					},
@@ -2669,16 +2669,39 @@ local function loadTagOptions()
 			help = {
 				order = 3,
 				type = "group",
-				name = L["Lua help"],
-				--childGroups = "tab",
+				name = L["Help"],
 				args = {
-					--[[general = {
+					general = {
 						order = 0,
 						type = "group",
-						name = L["Help"],
-						args = {]]
+						name = L["General"],
+						inline = true,
+						args = {
+							general = {
+								order = 0,
+								type = "description",
+								name = L["See the documentation below for information and examples on creating tags, if you just want basic Lua or WoW API information than see the Programming in Lua and WoW Programming links."],
+							},
+						},
+					},
+					documentation = {
+						order = 1,
+						type = "group",
+						name = L["Documentation"],
+						inline = true,
+						args = {
+							doc = {
+								order = 0,
+								type = "input",
+								name = L["Documentation"],
+								set = false,
+								get = function() return "http://wiki.github.com/Shadowed/ShadowedUnitFrames/tag-documentation" end,
+								width = "full",
+							},
+						},
+					},
 					resources = {
-						order = 0,
+						order = 2,
 						type = "group",
 						inline = true,
 						name = L["Resources"],
@@ -2690,6 +2713,7 @@ local function loadTagOptions()
 								desc = L["This is a good guide on how to get started with programming in Lua, while you do not need to read the entire thing it is a helpful for understanding the basics of Lua syntax and API's."],
 								set = false,
 								get = function() return "http://www.lua.org/pil/" end,
+								width = "full",
 							},
 							wow = {
 								order = 1,
@@ -2698,52 +2722,10 @@ local function loadTagOptions()
 								desc = L["WoW Programming is a good resource for finding out what difference API's do and how to call them."],
 								set = false,
 								get = function() return "http://wowprogramming.com/docs" end,
+								width = "full",
 							},
 						},
 					},
-					information = {
-						order = 1,
-						type = "group",
-						name = L["Information"],
-						inline = true,
-						args = {
-							description = {
-								order = 0,
-								type = "description",
-								name = L["Learning how to use Lua is fairly straightforward, Programming in Lua (Link above) is a good resource for learning the basic syntax, and WoW Programming (Link above) has information on WoW specific API's you need to create.\n\nTags support basic prefix and suffix if the tag itself contains anything, for example: [(()name())] will prefix \"(\" and suffix \")\" to the [name] tag if it is showing anything."],
-							},
-						},
-					},
-					--[[
-					},
-					first = {
-						order = 2,
-						type = "group",
-						name = string.format(L["Example #%d"], 1),
-						args = {
-							description = {
-								order = 0,
-								type = "group",
-							},
-						},
-					},
-					second = {
-						order = 3,
-						type = "group",
-						name = string.format(L["Example #%d"], 3),
-						args = {
-
-						},
-					},
-					third = {
-						order = 4,
-						type = "group",
-						name = string.format(L["Example #%d"], 3),
-						args = {
-
-						},
-					},
-					]]
 				},
 			},
 		},
