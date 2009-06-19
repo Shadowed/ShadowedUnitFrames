@@ -833,7 +833,6 @@ local function loadUnitOptions()
 			args = {
 				anchorPoint = {
 					order = 1,
-					hidden = false,
 					type = "select",
 					name = L["Anchor point"],
 					values = {["ITR"] = L["Inside Top Right"], ["ITL"] = L["Inside Top Left"], ["ICL"] = L["Inside Center Left"], ["IC"] = L["Inside Center"], ["ICR"] = L["Inside Center Right"]},
@@ -841,7 +840,6 @@ local function loadUnitOptions()
 				},
 				sep = {
 					order = 2,
-					hidden = false,
 					type = "description",
 					name = "",
 					width = "full",
@@ -849,23 +847,22 @@ local function loadUnitOptions()
 				},
 				width = {
 					order = 3,
-					hidden = false,
 					name = L["Width weight"],
 					desc = L["How much weight this should use when figuring out the total text width."],
 					type = "range",
 					min = 0, max = 10, step = 0.1,
+					hidden = false,
 				},
 				size = {
 					order = 4,
-					hidden = false,
 					name = L["Size"],
 					desc = L["Let's you modify the base font size to either make it larger or smaller."],
 					type = "range",
 					min = -5, max = 5, step = 1,
+					hidden = false,
 				},
 				x = {
 					order = 5,
-					hidden = false,
 					type = "range",
 					name = L["X Offset"],
 					min = -100, max = 100, step = 1,
@@ -873,7 +870,6 @@ local function loadUnitOptions()
 				},
 				y = {
 					order = 6,
-					hidden = false,
 					type = "range",
 					name = L["Y Offset"],
 					min = -100, max = 100, step = 1,

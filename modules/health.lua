@@ -26,7 +26,7 @@ function Health:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 
-local function setBarColor(bar, r, g, b)
+function Health:SetBarColor(bar, r, g, b)
 	bar:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.alpha)
 	bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.backgroundAlpha)
 end
@@ -34,8 +34,8 @@ end
 local function setGradient(healthBar, unit)
 	local current, max = UnitHealth(unit), UnitHealthMax(unit)
 	local percent = current / max
-	if( percent >= 1 ) then return setBarColor(healthBar, ShadowUF.db.profile.healthColors.green.r, ShadowUF.db.profile.healthColors.green.g, ShadowUF.db.profile.healthColors.green.b) end
-	if( percent == 0 ) then return setBarColor(healthBar, ShadowUF.db.profile.healthColors.red.r, ShadowUF.db.profile.healthColors.red.g, ShadowUF.db.profile.healthColors.red.b) end
+	if( percent >= 1 ) then return Health:SetBarColor(healthBar, ShadowUF.db.profile.healthColors.green.r, ShadowUF.db.profile.healthColors.green.g, ShadowUF.db.profile.healthColors.green.b) end
+	if( percent == 0 ) then return Health:SetBarColor(healthBar, ShadowUF.db.profile.healthColors.red.r, ShadowUF.db.profile.healthColors.red.g, ShadowUF.db.profile.healthColors.red.b) end
 	
 	local sR, sG, sB, eR, eG, eB, modifier, inverseModifier = 0, 0, 0, 0, 0, 0, percent * 2, 0
 	if( percent > 0.50 ) then
@@ -50,7 +50,7 @@ local function setGradient(healthBar, unit)
 		inverseModifier = 1 - modifier
 	end
 	
-	setBarColor(healthBar, eR * inverseModifier + sR * modifier, eG * inverseModifier + sG * modifier, eB * inverseModifier + sB * modifier)
+	Health:SetBarColor(healthBar, eR * inverseModifier + sR * modifier, eG * inverseModifier + sG * modifier, eB * inverseModifier + sB * modifier)
 end
 
 -- Not doing full health update, because other checks can lag behind without much issue
@@ -87,7 +87,7 @@ end
 local invalidUnit = {["partytarget"] = true, ["focustarget"] = true, ["targettarget"] = true, ["targettargettarget"] = true}
 function Health:UpdateThreat(frame)
 	if( not invalidUnit[frame.unitType] and ShadowUF.db.profile.units[frame.unitType].healthBar.colorAggro and UnitThreatSituation(frame.unit) == 3 ) then
-		setBarColor(frame.healthBar, ShadowUF.db.profile.healthColors.red.r, ShadowUF.db.profile.healthColors.red.g, ShadowUF.db.profile.healthColors.red.b)
+		Health:SetBarColor(frame.healthBar, ShadowUF.db.profile.healthColors.red.r, ShadowUF.db.profile.healthColors.red.g, ShadowUF.db.profile.healthColors.red.b)
 		frame.healthBar.hasAggro = true
 	elseif( frame.healthBar.hasAggro ) then
 		frame.healthBar.hasAggro = nil
@@ -111,7 +111,7 @@ function Health:UpdateColor(frame)
 	local unit = frame.unit
 	if( not UnitIsConnected(unit) ) then
 		frame.healthBar.wasOffline = true
-		setBarColor(frame.healthBar, 0.50, 0.50, 0.50)
+		Health:SetBarColor(frame.healthBar, 0.50, 0.50, 0.50)
 		return
 	elseif( frame.inVehicle ) then
 		color = ShadowUF.db.profile.classColors.VEHICLE
@@ -159,7 +159,7 @@ function Health:UpdateColor(frame)
 	end
 	
 	if( color ) then
-		setBarColor(frame.healthBar, color.r, color.g, color.b)
+		Health:SetBarColor(frame.healthBar, color.r, color.g, color.b)
 	else
 		frame.healthBar.hasPercent = true
 		setGradient(frame.healthBar, unit)
@@ -189,7 +189,7 @@ function Health:Update(frame)
 	-- Unit is offline, fill bar up + grey it
 	if( isOffline ) then
 		frame.healthBar.wasOffline = true
-		setBarColor(frame.healthBar, 0.50, 0.50, 0.50)
+		Health:SetBarColor(frame.healthBar, 0.50, 0.50, 0.50)
 	-- The unit was offline, but they no longer are so we need to do a forced color update
 	elseif( frame.healthBar.wasOffline ) then
 		frame.healthBar.wasOffline = false
