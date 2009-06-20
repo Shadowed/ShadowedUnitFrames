@@ -361,6 +361,7 @@ function Layout:ApplyText(frame, config)
 	-- Update tag text
 	frame.fontStrings = frame.fontStrings or {}
 	for _, fontString in pairs(frame.fontStrings) do
+		ShadowUF.Tags:Unregister(fontString)
 		fontString:Hide()
 	end
 	
@@ -391,10 +392,6 @@ function Layout:ApplyText(frame, config)
 			
 			frame.fontStrings[id] = fontString
 			frame:RegisterUpdateFunc(fontString, "UpdateTags")
-		
-		-- Tag was enabled, but it no longer is
-		elseif( frame.fontStrings[id] ) then
-			ShadowUF.Tags:Unregister(frame.fontStrings[id])
 		end
 	end
 

@@ -1,5 +1,5 @@
 local Config = {}
-local AceDialog, AceRegistry, AceGUI, SML, registered, options
+local AceDialog, AceRegistry, AceGUI, SML, registered, options, quickIDMap
 local modifyUnits, globalConfig = {}, {}
 local L = ShadowUFLocals
 
@@ -51,6 +51,8 @@ local function loadData()
 	-- List of main categories that need the entire frame reloaded
 	fullReload = {["bars"] = true, ["backdrop"] = true, ["font"] = true, ["classColors"] = true, ["powerColors"] = true, ["healthColors"] = true, ["xpColors"] = true}
 
+	quickIDMap = {}
+	
 	-- Helper functions
 	selectDialogGroup = function(group, key)
 		AceDialog.Status.ShadowedUF.children[group].status.groups.selected = key
@@ -301,6 +303,48 @@ local function loadGeneralOptions()
 		get = get,
 		arg = "hidden.$key",
 	}
+	
+	local addTextParent = {
+		order = 1,
+		type = "group",
+		inline = true,
+		name = function(info) return info[#(info)] == "$healthBar" and L["Health bar"] or info[#(info)] == "$powerBar" and L["Power bar"] end,
+		hidden = function(info)
+			for _, text in pairs(ShadowUF.db.profile.units.player.text) do
+				if( text.anchorTo == info[#(info)] ) then
+					return false
+				end
+			end
+			
+			return true
+		end,
+		args = {},
+	}
+	
+	local addText = {
+		order = 1,
+		type = "execute",
+		name = function(info) return getVariable("player", "text", tonumber(info[#(info)]), "name") end,
+		hidden = function(info)
+			local id = tonumber(info[#(info)])
+			if( not getVariable("player", "text", nil, id) ) then return true end
+			return getVariable("player", "text", id, "anchorTo") ~= info[#(info) - 1]
+		end,
+		disabled = function(info) return tonumber(info[#(info)]) <= 4 end,
+		confirmText = L["Are you sure you want to delete this text? All settings for it will be deleted."],
+		confirm = true,
+		func = function(info)
+			local id = tonumber(info[#(info)])
+			for _, unit in pairs(ShadowUF.units) do
+				table.remove(ShadowUF.db.profile.units[unit].text, id)
+			end
+			
+			addTextParent.args[info[#(info)]] = nil
+			ShadowUF.Layout:ReloadAll()
+		end,
+	}
+
+	local textData = {}
 	
 	local moverEnabled = false
 	options.args.general = {
@@ -609,32 +653,32 @@ local function loadGeneralOptions()
 					},
 				},
 			},
-			--[[
 			text = {
 				type = "group",
 				order = 4,
 				name = L["Text management"],
 				hidden = hideAdvancedOption,
-				hidden = true,
 				args = {
 					help = {
 						order = 0,
 						type = "group",
 						inline = true,
+						name = L["Help"],
 						args = {
 							help = {
 								order = 0,
-								type = "group",
-								name = L["You can add additional text with tags enabled using this configuration, note that any additional text added (or removed) effects all units, removing text will resettheir settings as well."],
+								type = "description",
+								name = L["You can add additional text with tags enabled using this configuration, note that any additional text added (or removed) effects all units, removing text will resettheir settings as well.\n\nKeep in mind, you cannot delete the default text included with the units."],
 							},
 						},
 					},
 					add = {
 						order = 1,
 						name = L["Add new text"],
+						inline = true,
 						type = "group",
-						set = function(info, value) addText[info[#(info)] ] = value end,
-						get = function(info, value) return addText[info[#(info)] ] end,
+						set = function(info, value) textData[info[#(info)] ] = value end,
+						get = function(info, value) return textData[info[#(info)] ] end,
 						args = {
 							name = {
 								order = 0,
@@ -647,20 +691,37 @@ local function loadGeneralOptions()
 								type = "select",
 								name = L["Text parent"],
 								desc = L["Where inside the frame the text should be anchored to."],
-								
+								values = {["$healthBar"] = L["Health bar"], ["$powerBar"] = L["Power bar"]},
 							},
 							add = {
 								order = 2,
 								type = "execute",
 								name = L["Add"],
-								disabled = function() return not addText.name or addText.name == "" or not addText.parent end,
+								disabled = function() return not textData.name or textData.name == "" or not textData.parent end,
 								func = function(info)
-									addText.name = string.trim(addText.name)
-									addText.name = addText.name ~= "" and addText.name or nil
+									-- Verify we entered a good name
+									textData.name = string.trim(textData.name)
+									textData.name = textData.name ~= "" and textData.name or nil
 									
+									-- Add the new entry
 									for _, unit in pairs(ShadowUF.units) do
-										table.insert(ShadowUF.db.profile.units[unit].text, {enabled = true, name = addText.name or "??", text = "", anchorTo = addText.parent, size = 0})
+										table.insert(ShadowUF.db.profile.units[unit].text, {enabled = true, name = textData.name or "??", text = "", anchorTo = textData.parent, x = 0, y = 0, anchorPoint = "IC", size = 0, width = 0.50})
 									end
+									
+									-- Add it to the GUI
+									local id = tostring(#(ShadowUF.db.profile.units.player.text))
+									addTextParent.args[id] = addText
+									
+									local parent = string.sub(textData.parent, 2)
+									Config.tagWizard[parent].args[id] = Config.tagTextTable
+									Config.tagWizard[parent].args[id .. ":adv"] = Config.advanceTextTable
+									
+									quickIDMap[id .. ":adv"] = #(ShadowUF.db.profile.units.player.text)
+									
+									-- Reset
+									textData.name = nil
+									textData.parent = nil
+									
 								end,
 							},
 						},
@@ -668,12 +729,12 @@ local function loadGeneralOptions()
 					delete = {
 						order = 2,
 						type = "group",
+						inline = true,
 						name = L["Delete text"],
 						args = {},
 					},
 				},
 			},
-			]]
 			profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(ShadowUF.db),
 			hide = {
 				type = "group",
@@ -714,6 +775,13 @@ local function loadGeneralOptions()
 			},
 		},
 	}
+	
+	-- Load text
+	for id, text in pairs(ShadowUF.db.profile.units.player.text) do
+		addTextParent.args[tostring(id)] = addText
+		options.args.general.args.text.args.delete.args[text.anchorTo] = addTextParent
+	end
+	
 	
 	Config.classTable = {
 		order = 0,
@@ -860,6 +928,7 @@ local function loadUnitOptions()
 	
 	-- TAG WIZARD
 	local tagWizard = {}
+	Config.tagWizard = tagWizard
 	do
 		-- Load tag list
 		local tagTable = {
@@ -878,13 +947,13 @@ local function loadUnitOptions()
 			tagList[tag] = tagTable
 		end
 		
-		local quickIDMap = {}
 		Config.advanceTextTable = {
 			order = 1,
-			name = function(info) return getVariable(info[2], "text", quickIDMap[info[#(info)]], "name") end,
+			name = function(info) return getVariable(info[2], "text", quickIDMap[info[#(info)]], "name") or "" end,
 			type = "group",
 			inline = true,
 			hidden = function(info)
+				if( not getVariable(info[2], "text", nil, quickIDMap[info[#(info)]]) ) then return true end
 				return string.sub(getVariable(info[2], "text", quickIDMap[info[#(info)]], "anchorTo"), 2) ~= info[#(info) - 1]
 			end,
 			set = function(info, value)
@@ -952,8 +1021,10 @@ local function loadUnitOptions()
 		
 		Config.tagTextTable = {
 			type = "group",
-			name = function(info) return getVariable(info[2], "text", tonumber(info[#(info)]), "name") end,
-			hidden = function(info) return string.sub(getVariable(info[2], "text", tonumber(info[#(info)]), "anchorTo"), 2) ~= info[#(info) - 1] end,
+			name = function(info) return getVariable(info[2], "text", nil, tonumber(info[#(info)])) and getVariable(info[2], "text", tonumber(info[#(info)]), "name") or "" end,
+			hidden = function(info)
+				if( not getVariable(info[2], "text", nil, tonumber(info[#(info)])) ) then return true end
+				return string.sub(getVariable(info[2], "text", tonumber(info[#(info)]), "anchorTo"), 2) ~= info[#(info) - 1] end,
 			set = false,
 			get = false,
 			args = {

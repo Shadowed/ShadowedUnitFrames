@@ -586,6 +586,7 @@ end
 function Units:LoadPartyChildUnit(config, parentHeader, type, unit)
 	if( unitFrames[unit] ) then
 		self:SetFrameAttributes(unitFrames[unit], unitFrames[unit].unitType)
+		unitFrames[unit]:SetAttribute("unit", unit)
 		RegisterUnitWatch(unitFrames[unit], type == "partypet")
 		return
 	end
@@ -595,7 +596,7 @@ function Units:LoadPartyChildUnit(config, parentHeader, type, unit)
 	frame:Hide()
 
 	self:SetFrameAttributes(frame, type)
-	
+		
 	self:CreateUnit(frame, true)
 	frame:SetFrameRef("partyHeader",  parentHeader)
 	frame:SetAttribute("unit", unit)
