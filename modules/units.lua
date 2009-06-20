@@ -716,7 +716,7 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 		for frame in pairs(queuedCombat) do
 			queuedCombat[frame] = nil
 		
-		if( not frame.unit ) then
+			if( not frame.unit ) then
 				OnAttributeChanged(frame, "unit", frame:GetAttribute("unit"))
 			else
 				SetupUnitFrame(frame)

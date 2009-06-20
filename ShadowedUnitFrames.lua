@@ -2,7 +2,7 @@
 	Shadow Unit Frames, Mayen of Mal'Ganis (US) PvP
 ]]
 
-ShadowUF = {playerUnit = "player", raidUnits = {}, partyUnits = {}, modules = {}, moduleOrder = {}, units = {"player", "pet", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid"}}
+ShadowUF = {playerUnit = "player", raidUnits = {}, partyUnits = {}, modules = {}, moduleOrder = {}, units = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid"}}
 
 local L = ShadowUFLocals
 local units = ShadowUF.units
@@ -109,6 +109,17 @@ function ShadowUF:CheckUpgrade()
 		self.db.profile.healthColors.friendly = CopyTable(self.db.profile.healthColors.green)
 		self.db.profile.healthColors.neutral = CopyTable(self.db.profile.healthColors.yellow)
 		self.db.profile.healthColors.hostile = CopyTable(self.db.profile.healthColors.red)
+	end
+	
+	-- June 20th
+	if( self.db.profile.units.pettarget.enabled == false and self.db.profile.units.pettarget.height == 0 and self.db.profile.units.pettarget.width == 0 ) then
+		self.db.profile.positions.pettarget.anchorPoint = "C"
+		self.db.profile.units.pettarget = CopyTable(self.db.profile.units.pet)
+		self.db.profile.units.pettarget.enabled = false
+		self.db.profile.units.pettarget.castBar = nil
+		self.db.profile.units.pettarget.incHeal = nil
+		self.db.profile.units.pettarget.xpBar = nil
+		self.db.profile.units.pettarget.indicators.happiness = nil
 	end
 end
 	

@@ -363,6 +363,7 @@ ShadowUFLocals = {
 		["partytarget"] = "Party targets",
 		["focustarget"] = "Focus target",
 		["pet"] = "Pet",
+		["pettarget"] = "Pet target",
 		["partypet"] = "Party pet",
 		["player"] = "Player",
 		["focus"] = "Focus",

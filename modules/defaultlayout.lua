@@ -74,6 +74,7 @@ function ShadowUF:LoadDefaultLayout()
 		target = {anchorPoint = "RC", anchorTo = "#SUFUnitplayer", x = 50, y = 0}, 
 		player = {point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", y = -25, x = 20}, 
 		pet = {anchorPoint = "TL", anchorTo = "#SUFUnitplayer", x = 0, y = 25}, 
+		pettarget = {anchorPoint = "C", anchorTo = "UIParent", x = 0, y = 0}, 
 		partypet = {anchorPoint = "RB", anchorTo = "#SUFHeaderparty", x = 0, y = 0},
 		partytarget = {anchorPoint = "RT", anchorTo = "#SUFHeaderparty", x = 0, y = 0},
 		raid = {anchorPoint = "C", anchorTo = "UIParent", x = 0, y = 0},
@@ -222,6 +223,21 @@ function ShadowUF:LoadDefaultLayout()
 			indicators = {
 				status = {anchorTo = "$parent", anchorPoint = "LB", size = 16, y = -2, x = 12},
 				happiness = {anchorTo = "$parent", anchorPoint = "BR", size = 16, x = 0, y = 0},
+			},
+			text = {
+				{text = "[name]"},
+				{text = "[curmaxhp]"},
+				{text = "[perpp]"},
+				{text = "[curmaxpp]"},
+			},
+		},
+		pettarget = {
+			width = 190,
+			height = 30,
+			scale = 1.0,
+			powerBar = {height = 0.70},
+			indicators = {
+				status = {anchorTo = "$parent", anchorPoint = "LB", size = 16, y = -2, x = 12},
 			},
 			text = {
 				{text = "[name]"},

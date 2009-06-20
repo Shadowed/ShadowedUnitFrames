@@ -1392,6 +1392,7 @@ local function loadUnitOptions()
 				type = "description",
 				name = "",
 				width = "full",
+				hidden = hideAdvancedOption,
 			},
 			size = {
 				order = 4,

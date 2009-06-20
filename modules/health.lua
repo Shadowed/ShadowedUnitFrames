@@ -126,8 +126,8 @@ function Health:UpdateColor(frame)
 		elseif( happiness == 1 ) then
 			color = ShadowUF.db.profile.healthColors.hostile
 		end
-		
-	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and ( not UnitIsPlayer(unit) or not UnitIsFriend(unit, "player") ) ) then
+	-- Unit is not a player, or they are not a friend, but they aren't a player or pet the raid.
+	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and ( ( not UnitIsPlayer(unit) or not UnitIsFriend(unit, "player") ) and ( not UnitPlayerOrPetInRaid(unit) and not UnitPlayerOrPetInParty(unit) ) ) ) then
 		frame.healthBar.hasReaction = true
 		if( not UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) ) then
 			if( UnitCanAttack("player", unit) ) then
