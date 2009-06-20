@@ -2940,6 +2940,7 @@ local function loadVisibilityOptions()
 	local areaTable = {
 		type = "group",
 		order = 1,
+		childGroups = "tree",
 		name = function(info)
 			return L.areas[info[#(info)]]
 		end,
@@ -2951,7 +2952,6 @@ local function loadVisibilityOptions()
 	Config.visibilityTable = {
 		type = "group",
 		order = getUnitOrder,
-		inline = true,
 		name = getName,
 		args = {
 			enabled = {
