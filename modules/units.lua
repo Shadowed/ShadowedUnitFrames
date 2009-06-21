@@ -474,6 +474,7 @@ function Units:ReloadHeader(type)
 			if( frame.unitType == type ) then
 				self:SetFrameAttributes(frame, type)
 				if( UnitExists(frame.unit) ) then
+					frame:SetAttribute("framePositioned", false)
 					frame:Hide()
 					frame:Show()
 				end
@@ -676,6 +677,7 @@ function Units:UninitializeFrame(config, type)
 			UnregisterUnitWatch(frame)
 
 			frame:SetAttribute("unit", nil)
+			frame:SetAttribute("framePositioned", nil)
 			frame:Hide()
 		end
 	end
@@ -705,6 +707,10 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 		for _, frame in pairs(unitFrames) do
 			if( frame:GetAttribute("unit") ) then
 				frame:SetVisibility()
+				
+				if( UnitExists(frame.unit) ) then
+					frame:FullUpdate()
+				end
 			end
 		end
 		

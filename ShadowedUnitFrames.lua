@@ -51,24 +51,21 @@ function ShadowUF:OnInitialize()
 			tbl[index] = func
 			return tbl[index]
 	end})
-
+	
 	-- No active layout, register the default one
 	if( not self.db.profile.loadedLayout ) then
 		self:LoadDefaultLayout()
 	end
+	
+	-- UPGRADING CODE, I will remove these once a month has passed since I added them.
+	self:CheckUpgrade()
 
 	-- Hide any Blizzard frames
 	self:HideBlizzardFrames()
 	
 	-- Load SML info
 	self.Layout:LoadSML()
-	
-	-- UPGRADING CODE, I will remove these once a month has passed since I added them.
-	self:CheckUpgrade()
-	
-	-- June 17th
-	self.db.profile.layoutInfo = nil
-	
+		
 	-- Show example frames?
 	self.modules.movers:Update()
 end
@@ -111,6 +108,9 @@ function ShadowUF:CheckUpgrade()
 		self.db.profile.healthColors.hostile = CopyTable(self.db.profile.healthColors.red)
 	end
 	
+	-- June 17th
+	self.db.profile.layoutInfo = nil
+
 	-- June 20th
 	if( self.db.profile.units.pettarget.enabled == false and self.db.profile.units.pettarget.height == 0 and self.db.profile.units.pettarget.width == 0 ) then
 		self.db.profile.positions.pettarget.anchorPoint = "C"

@@ -12,7 +12,6 @@ ShadowUF.Config = Config
 	TOC note suggestions from the IRC-crazies
 
 	[28:58] <Aikiwoce> Shadow Unit Frames now with 100% less fail
-	[30:44] <+forostie> Shadowed Unit Frames: Compeletly unique and not rehashed, or your money back
 	[32:11] <Aikiwoce> Shadowed Unit Frames, Made from the best stuff on Azeroth.
 	[33:24] <Aikiwoce> Shadowed Unit Frames, Only you can prevent people from standing in fire.
 	[33:29] <+forostie> Shadowed Unit Frames - Go hard or get mrgggl'd
@@ -1000,14 +999,14 @@ local function loadUnitOptions()
 					type = "range",
 					name = L["X Offset"],
 					min = -100, max = 100, step = 1,
-					hidden = hideAdvancedOption,
+					hidden = false,
 				},
 				y = {
 					order = 6,
 					type = "range",
 					name = L["Y Offset"],
 					min = -100, max = 100, step = 1,
-					hidden = hideAdvancedOption,
+					hidden = false,
 				},
 			},
 		}
@@ -3048,8 +3047,8 @@ end
 
 SLASH_SSUF1 = "/suf"
 SLASH_SSUF2 = "/shadowuf"
-SLASH_SSUS3 = "/shadoweduf"
-SLASH_SSUS4 = "/shadowedunitframes"
+SLASH_SSUF3 = "/shadoweduf"
+SLASH_SSUF4 = "/shadowedunitframes"
 SlashCmdList["SSUF"] = function(msg)
 	AceDialog = AceDialog or LibStub("AceConfigDialog-3.0")
 	AceRegistry = AceRegistry or LibStub("AceConfigRegistry-3.0")

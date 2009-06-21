@@ -47,6 +47,7 @@ function Indicators:UpdateRaidTarget(frame)
 end
 			
 function Indicators:UpdateLeader(frame)
+	self:UpdateMasterLoot(frame)
 	if( not frame.indicators.leader.enabled ) then return end
 
 	if( UnitIsPartyLeader(frame.unit) ) then
@@ -124,6 +125,7 @@ function Indicators:UpdateReadyCheck(frame, event)
 	frame.indicators:SetScript("OnUpdate", nil)
 	frame.indicators.ready.status = status
 	frame.indicators.ready:SetAlpha(1.0)
+	frame.indicators.ready:SetTexCoord(0, 0, 0, 0)
 	frame.indicators.ready:SetTexture((status == "ready" and READY_CHECK_READY_TEXTURE or status == "notready" and READY_CHECK_NOT_READY_TEXTURE or status == "waiting" and READY_CHECK_WAITING_TEXTURE))
 	frame.indicators.ready:Show()
 end
@@ -180,6 +182,7 @@ function Indicators:OnEnable(frame)
 		
 	if( config.indicators.masterLoot and config.indicators.masterLoot.enabled ) then
 		frame:RegisterNormalEvent("PARTY_LOOT_METHOD_CHANGED", self, "UpdateMasterLoot")
+		frame:RegisterNormalEvent("RAID_ROSTER_UPDATE", self, "UpdateMasterLoot")
 		frame:RegisterUpdateFunc(self, "UpdateMasterLoot")
 
 		frame.indicators.masterLoot = frame.indicators.masterLoot or frame.indicators:CreateTexture(nil, "OVERLAY")

@@ -4,6 +4,7 @@ ShadowUFLocals = {
 	["(DND)"] = "(DND)",
 	["2D"] = "2D",
 	["3D"] = "3D",
+	["Highlight"] = "Highlight",
 	["Absolute current health value without any formating so 15000 is still shown as 15000."] = "Absolute current health value without any formating so 15000 is still shown as 15000.",
 	["Absolute current power value without any formating so 15000 is still shown as 15000."] = "Absolute current power value without any formating so 15000 is still shown as 15000.",
 	["Absolute current/max health, without any formating so 17750 is still formatted as 17750."] = "Absolute current/max health, without any formating so 17750 is still formatted as 17750.",
@@ -320,7 +321,8 @@ ShadowUFLocals = {
 	["You must enter a tag name."] = "You must enter a tag name.",
 	["You must wrap your code in a function."] = "You must wrap your code in a function.",
 	["Your code must be wrapped in a function, for example, if you were to make a tag to return the units name you would do:\n\nfunction(unit, unitOwner)\nreturn UnitName(unit)\nend"] = "Your code must be wrapped in a function, for example, if you were to make a tag to return the units name you would do:\n\nfunction(unit, unitOwner)\nreturn UnitName(unit)\nend",
-
+	["The black boxes you see can be used to position different units in Shadowed Unit Frames.\n\nLocking the frames through the button below or in /shadoweduf (/suf) will hide them."] = "The black boxes you see can be used to position different units in Shadowed Unit Frames.\n\nLocking the frames through the button below or in /shadoweduf (/suf) will hide them.",
+	
 	["classes"] = {
 		["HUNTER"] = "Hunter",
 		["WARRIOR"] = "Warrior",

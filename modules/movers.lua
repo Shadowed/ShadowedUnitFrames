@@ -22,6 +22,53 @@ function Movers:Enable()
 			frameList[unit]:Hide()
 		end
 	end
+	
+	if( self.infoFrame ) then
+		self.infoFrame:Show()
+		return
+	end
+	
+	-- Show an info frame that users can lock the frames through
+	local frame = CreateFrame("Frame", nil, UIParent)
+	frame:SetHeight(90)
+	frame:SetWidth(250)
+	frame:SetBackdrop({
+		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+		edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
+		edgeSize = 1,
+		insets = {left = 1, right = 1, top = 1, bottom = 1}})
+	frame:SetBackdropColor(0, 0, 0, 1)
+	frame:SetBackdropBorderColor(0.50, 0.50, 0.50, 1.0)
+	frame:SetPoint("CENTER", UIParent, "CENTER", 0, 225)
+	frame:RegisterForDrag("LeftButton")
+	frame:EnableMouse(true)
+	frame:SetMovable(true)
+	frame:SetScript("OnDragStart", function(self)
+		self:StartMoving()
+	end)
+	frame:SetScript("OnDragStop", function(self)
+		self:StopMovingOrSizing()
+	end)
+	
+	frame.text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	frame.text:SetAllPoints(frame)
+	frame.text:SetText(L["The black boxes you see can be used to position different units in Shadowed Unit Frames.\n\nLocking the frames through the button below or in /shadoweduf (/suf) will hide them."])
+	frame.text:SetPoint("TOPLEFT", frame, 1, -2)
+	frame.text:SetWidth(frame:GetWidth() - 10)
+	frame.text:SetJustifyH("LEFT")
+	frame.text:SetJustifyV("TOP")
+	
+	frame.lock = CreateFrame("Button", nil, frame, "UIPanelButtonGrayTemplate")
+	frame.lock:SetText(L["Lock frames"])
+	frame.lock:SetHeight(20)
+	frame.lock:SetWidth(100)
+	frame.lock:SetPoint("CENTER", frame, "BOTTOM", 0, 11)
+	frame.lock:SetScript("OnClick", function()
+		ShadowUF.db.profile.locked = true
+		Movers:Update()
+	end)
+
+	self.infoFrame = frame
 end
 
 function OnDragStart(self)
@@ -193,6 +240,27 @@ function Movers:CreateHeader(type)
 			child:SetPoint(point, headerFrame.children[id - 1], relativePoint, xMultiplier * x, yMultiplier * y)
 		end
 	end
+	--[[
+	-- Force the raid frame to be positioned to the example one
+	if( type == "raid" and SUFHeaderraidUnitButton1 ) then
+		local frame = SUFHeaderraidUnitButton1
+		frame.moverFrame = headerFrame
+
+		if( not frame.hookedMover ) then
+		hooksecurefunc(frame, "SetHeight", function(self, height)
+			if( self.moverFrame:IsVisible() ) then
+				self:SetHeight(self.moverFrame:GetHeight())
+			end
+		end)
+
+		hooksecurefunc(frame, "SetHeight", function(self, height)
+			if( self.moverFrame:IsVisible() ) then
+				self:SetWidth(self.moverFrame:GetHeight())
+			end
+		end)
+		end
+	end
+	]]
 
 	-- Figure out the size of the total header
 	local width = xMultiplier * ( unitsPerColumn - 1 ) * config.width + ( ( unitsPerColumn - 1 ) * ( x * xOffsetMulti ) ) + config.width
@@ -269,5 +337,9 @@ function Movers:Disable()
 		end
 		
 		frame:Hide()
+	end
+	
+	if( self.infoFrame ) then
+		self.infoFrame:Hide()
 	end
 end

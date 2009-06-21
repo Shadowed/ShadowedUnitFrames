@@ -18,6 +18,7 @@ localization.enUS.lua
 localization.koKR.lua
 
 ShadowedUnitFrames.lua
+modules\highlight.lua
 modules\defaultlayout.lua
 modules\movers.lua
 modules\tags.lua
@@ -38,4 +39,5 @@ modules\combopoints.lua
 modules\incheal.lua
 modules\range.lua
 modules\layout.lua
+
 
