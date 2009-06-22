@@ -1,36 +1,6 @@
 local Health = {}
 ShadowUF:RegisterModule(Health, "healthBar", ShadowUFLocals["Health bar"], true)
 
-function Health:OnEnable(frame)
-	if( not frame.healthBar ) then
-		frame.healthBar = ShadowUF.Units:CreateBar(frame)
-	end
-	
-	frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
-	frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdateColor")
-	frame:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", self, "UpdateThreat")
-	
-	frame:RegisterUpdateFunc(self, "UpdateColor")
-	frame:RegisterUpdateFunc(self, "Update")
-
-	if( ShadowUF.db.profile.units[frame.unitType].healthBar.predicted ) then
-		frame.healthBar:SetScript("OnUpdate", updateTimer)
-		frame.healthBar.parent = frame
-	else
-		frame.healthBar:SetScript("OnUpdate", nil)
-	end
-end
-
-function Health:OnDisable(frame)
-	frame:UnregisterAll(self)
-end
-
-function Health:SetBarColor(bar, r, g, b)
-	bar:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.alpha)
-	bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.backgroundAlpha)
-end
-
 local function setGradient(healthBar, unit)
 	local current, max = UnitHealth(unit), UnitHealthMax(unit)
 	local percent = current / max
@@ -54,24 +24,58 @@ local function setGradient(healthBar, unit)
 end
 
 -- Not doing full health update, because other checks can lag behind without much issue
+local currentHealth
 local function updateTimer(self)
-	if( self.blockPredicted ) then return end
-	
-	local frame = self.parent
-	frame.healthBar:SetMinMaxValues(0, UnitHealthMax(frame.unit))
-	frame.healthBar:SetValue(UnitHealth(frame.unit))
+	currentHealth = UnitHealth(self.parent.unit)
+	if( currentHealth == self.currentHealth ) then return end
+	self:SetValue(currentHealth)
 		
 	-- As much as I would rather not have to do this in an OnUpdate, I don't have much choice.
 	-- large health changes in a single update will make them very clearly be lagging behind
-	for _, fontString in pairs(frame.fontStrings) do
+	for _, fontString in pairs(self.parent.fontStrings) do
 		if( fontString.fastHealth ) then
 			fontString:UpdateTags()
 		end
 	end
 		
-	if( not frame.healthBar.wasOffline and frame.healthBar.hasPercent ) then
-		setGradient(frame.healthBar, frame.unit)
+	if( not self.parent.healthBar.wasOffline and self.parent.healthBar.hasPercent ) then
+		setGradient(self.parent.healthBar, self.parent.unit)
 	end
+end
+
+
+function Health:OnEnable(frame)
+	if( not frame.healthBar ) then
+		frame.healthBar = ShadowUF.Units:CreateBar(frame)
+	end
+	
+	frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
+	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
+	frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdateColor")
+	frame:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", self, "UpdateThreat")
+	
+	frame:RegisterUpdateFunc(self, "UpdateColor")
+	frame:RegisterUpdateFunc(self, "Update")
+end
+
+function Health:OnLayoutApplied(frame)
+	if( frame.visibility.healthBar ) then
+		if( ShadowUF.db.profile.units[frame.unitType].healthBar.predicted ) then
+			frame.healthBar:SetScript("OnUpdate", updateTimer)
+			frame.healthBar.parent = frame
+		else
+			frame.healthBar:SetScript("OnUpdate", nil)
+		end
+	end
+end
+
+function Health:OnDisable(frame)
+	frame:UnregisterAll(self)
+end
+
+function Health:SetBarColor(bar, r, g, b)
+	bar:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.alpha)
+	bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.backgroundAlpha)
 end
 
 --[[
@@ -167,28 +171,18 @@ function Health:UpdateColor(frame)
 end
 
 function Health:Update(frame)
-	local unit = frame.unit
-	local max = UnitHealthMax(unit)
-	local current = UnitHealth(unit)
-	local isOffline = not UnitIsConnected(unit)
+	local isOffline = not UnitIsConnected(frame.unit)
 
-	if( isOffline ) then
-		current = max
-		frame.blockPredicted = true
-	elseif( UnitIsDeadOrGhost(unit) ) then
-		current = 0
-		frame.blockPredicted = true
-	else
-		frame.blockPredicted = false
-	end
-	
-	frame.healthBar:SetMinMaxValues(0, max)
-	frame.healthBar:SetValue(current)
-	
+	frame.healthBar.currentHealth = UnitHealth(frame.unit)
+	frame.healthBar:SetMinMaxValues(0, UnitHealthMax(frame.unit))
+	frame.healthBar:SetValue(isOffline and UnitHealthMax(frame.unit) or UnitIsDeadOrGhost(frame.unit) and 0 or frame.healthBar.currentHealth)
+
+	-- Next health update, hide the incoming heal when it was set to 0 health
+	-- we do this to keep it all smooth looking as the heal done event comes 0.3s-0.5s before the health chang eevent
 	if( frame.incHeal and frame.incHeal.nextUpdate ) then
 		frame.incHeal:Hide()
 	end
-		
+	
 	-- Unit is offline, fill bar up + grey it
 	if( isOffline ) then
 		frame.healthBar.wasOffline = true
@@ -199,6 +193,6 @@ function Health:Update(frame)
 		self:UpdateColor(frame)
 	-- Color health by percentage
 	elseif( frame.healthBar.hasPercent ) then
-		setGradient(frame.healthBar, unit)
+		setGradient(frame.healthBar, frame.unit)
 	end
 end

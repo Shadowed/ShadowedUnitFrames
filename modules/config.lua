@@ -522,7 +522,7 @@ local function loadGeneralOptions()
 							RAGE = {
 								order = 1,
 								type = "color",
-								name = L["Mana"],
+								name = L["Rage"],
 								hasAlpha = true,
 								width = "half",
 								arg = "powerColors.RAGE",

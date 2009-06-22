@@ -1,10 +1,12 @@
 local Power = {}
 ShadowUF:RegisterModule(Power, "powerBar", ShadowUFLocals["Power bar"], true)
 
+local currentPower
 local function updateTimer(self, elapsed)
-	if( self.blockPredicted ) then return end
-	self:SetValue(UnitPower(self.parent.unit))
+	currentPower = UnitPower(self.parent.unit)
+	if( self.currentPower == currentPower ) then return end
 
+	self:SetValue(currentPower)
 	for _, fontString in pairs(self.parent.fontStrings) do
 		if( fontString.fastPower ) then
 			fontString:UpdateTags()
@@ -28,15 +30,20 @@ function Power:OnEnable(frame)
 	frame:RegisterUnitEvent("UNIT_MAXFOCUS", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXRUNIC_POWER", self, "Update")
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdateColor")
+
 	frame:RegisterUpdateFunc(self, "UpdateColor")
 	frame:RegisterUpdateFunc(self, "Update")
-	
-	-- If it's the player, we'll update it on OnUpdate to make the mana increase smoothly
-	if( ShadowUF.db.profile.units[frame.unitType].powerBar.predicted ) then
-		frame.powerBar:SetScript("OnUpdate", updateTimer)
-		frame.powerBar.parent = frame
-	else
-		frame.powerBar:SetScript("OnUpdate", nil)
+end
+
+function Power:OnLayoutApplied(frame)
+	if( frame.visibility.powerBar ) then
+		-- If it's the player, we'll update it on OnUpdate to make the mana increase smoothly
+		if( ShadowUF.db.profile.units[frame.unitType].powerBar.predicted ) then
+			frame.powerBar:SetScript("OnUpdate", updateTimer)
+			frame.powerBar.parent = frame
+		else
+			frame.powerBar:SetScript("OnUpdate", nil)
+		end
 	end
 end
 
@@ -45,7 +52,7 @@ function Power:OnDisable(frame)
 end
 
 function Power:UpdateColor(frame)
-	local powerType = select(2, UnitPowerType(frame.unit)) or ""
+	local powerType = select(2, UnitPowerType(frame.unit))
 	local color = ShadowUF.db.profile.powerColors[powerType] or ShadowUF.db.profile.powerColors.MANA
 	
 	frame.powerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
@@ -53,7 +60,7 @@ function Power:UpdateColor(frame)
 end
 
 function Power:Update(frame)
-	frame.powerBar.blockPredicted = UnitIsDeadOrGhost(frame.unit) or not UnitIsConnected(frame.unit)
+	frame.powerBar.currentPower = UnitPower(frame.unit)
 	frame.powerBar:SetMinMaxValues(0, UnitPowerMax(frame.unit))
-	frame.powerBar:SetValue(frame.powerBar.blockPredicted and 0 or UnitPower(frame.unit))
+	frame.powerBar:SetValue(( UnitIsDeadOrGhost(frame.unit) or not UnitIsConnected(frame.unit) ) and 0 or frame.powerBar.currentPower)
 end
