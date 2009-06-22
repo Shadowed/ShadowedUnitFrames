@@ -251,7 +251,10 @@ Tags.defaultTags = {
 	["curpp"] = [[function(unit) 
 		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
 			return nil
+		elseif( UnitIsDeadOrGhost(unit) ) then
+			return 0
 		end
+		
 		return ShadowUF:FormatLargeNumber(UnitPower(unit))
 	end]],
 	["curmaxhp"] = [[function(unit)
@@ -295,7 +298,9 @@ Tags.defaultTags = {
 	["abscurpp"] = [[function(unit)
 		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
 			return nil
-		end
+		elseif( UnitIsDeadOrGhost(unit) ) then
+			return 0
+		end	
 	
 		return UnitPower(unit)
 	end]],
@@ -350,6 +355,8 @@ Tags.defaultTags = {
 		local power = UnitPowerMax(unit)
 		if( power == 0 and not UnitIsPlayer(unit) ) then
 			return nil
+		elseif( UnitIsDeadOrGhost(unit) ) then
+			return 0
 		end
 		
 		return ShadowUF:FormatLargeNumber(power)
@@ -401,6 +408,8 @@ Tags.defaultTags = {
 		local maxPower = UnitPowerMax(unit)
 		if( maxPower == 0 and not UnitIsPlayer(unit) ) then
 			return nil
+		elseif( UnitIsDeadOrGhost(unit) ) then
+			return "0%"
 		end
 		
 		return string.format("%d%%", math.floor(UnitPower(unit) / maxPower * 100 + 0.5))

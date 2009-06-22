@@ -60,7 +60,8 @@ function Power:UpdateColor(frame)
 end
 
 function Power:Update(frame)
+	local max = UnitPowerMax(frame.unit)
 	frame.powerBar.currentPower = UnitPower(frame.unit)
-	frame.powerBar:SetMinMaxValues(0, UnitPowerMax(frame.unit))
-	frame.powerBar:SetValue(( UnitIsDeadOrGhost(frame.unit) or not UnitIsConnected(frame.unit) ) and 0 or frame.powerBar.currentPower)
+	frame.powerBar:SetMinMaxValues(0, max)
+	frame.powerBar:SetValue(UnitIsDeadOrGhost(frame.unit) and 0 or not UnitIsConnected(frame.unit) and max or frame.powerBar.currentPower)
 end

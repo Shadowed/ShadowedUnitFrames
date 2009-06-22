@@ -259,6 +259,18 @@ local function SetupUnitFrame(self)
 	self:SetVisibility()
 end
 
+local function ShowMenu(self)
+	FriendsDropDown.displayMode = "MENU"
+	FriendsDropDown.initialize = RaidFrameDropDown_Initialize
+	FriendsDropDown.userData = self.unitID
+
+	HideDropDownMenu(1)
+	FriendsDropDown.unit = self.unit
+	FriendsDropDown.name = UnitName(self.unit)
+	FriendsDropDown.id = self.unitID
+	ToggleDropDownMenu(1, nil, FriendsDropDown, "cursor")
+end
+
 -- Attribute set, something changed
 local function OnAttributeChanged(self, name, unit)
 	if( name ~= "unit" or ( not unit and not self.unit ) ) then return end
@@ -286,7 +298,12 @@ local function OnAttributeChanged(self, name, unit)
 	if( self.unit == "pet" or self.unitType == "partypet" ) then
 		self.unitRealOwner = self.unit == "pet" and "player" or ShadowUF.partyUnits[self.unitID]
 		self:RegisterNormalEvent("UNIT_PET", Units, "CheckUnitUpdated")
-
+		
+		if( self.unit == "pet" ) then
+			self.dropdownMenu = PetFrameDropDown
+			self:SetAttribute("_menu", PetFrame.menu)
+		end
+	
 		-- Logged out in a vehicle
 		if( UnitHasVehicleUI(self.unitRealOwner) ) then
 			self:SetAttribute("unitIsVehicle", true)
@@ -295,7 +312,7 @@ local function OnAttributeChanged(self, name, unit)
 		self:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units[self.unit == "pet" and "player" or "party"].disableVehicle)
 
 		-- Hide any pet that became a vehicle, we detect this by the owner being untargetable but we have a pet out
-		RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, nohelp,noharm] vehicle; [target=%s, exists] pet", self.unitRealOwner, self.unit))
+		RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, nohelp,noharm] vehicle [target=%s, exists] pet", self.unitRealOwner, self.unit))
 		vehicleMonitor:WrapScript(self, "OnAttributeChanged", [[
 			if( name == "state-vehicleupdated" ) then
 				self:SetAttribute("unitIsVehicle", value == "vehicle" and true or false)
@@ -316,22 +333,32 @@ local function OnAttributeChanged(self, name, unit)
 
 	-- Automatically do a full update on target change
 	elseif( self.unit == "target" ) then
+		self.dropdownMenu = TargetFrameDropDown
+		self:SetAttribute("_menu", TargetFrame.menu)
 		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
 
 	-- Automatically do a full update on focus change
 	elseif( self.unit == "focus" ) then
+		self.dropdownMenu = FocusFrameDropDown
+		self:SetAttribute("_menu", FocusFrame.menu)
 		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "FullUpdate")
-	
+				
 	-- When a player is force ressurected by releasing in naxx/tk/etc then they might freeze
 	elseif( self.unit == "player" ) then
+		self.dropdownMenu = PlayerFrameDropDown
+		self:SetAttribute("_menu", PlayerFrame.menu)
 		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
 	
 	-- Check for a unit guid to do a full update
 	elseif( self.unitType == "raid" ) then
+		self.dropdownMenu = FriendsDropDown
+		self.menu = ShowMenu
 		self:RegisterNormalEvent("RAID_ROSTER_UPDATE", Units, "CheckUnitGUID")
 		
 	-- Party members need to watch for changes
 	elseif( self.unitType == "party" ) then
+		self.dropdownMenu = getglobal("PartyMemberFrame" .. self.unitID .. "DropDown")
+		self:SetAttribute("_menu", getglobal("PartyMemberFrame" .. self.unitID).menu)
 		self:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", Units, "CheckUnitGUID")
 
 		-- Party frame has been loaded, so initialize it's sub-frames if they are enabled
@@ -391,34 +418,6 @@ local function OnEnter(...)
 	end
 end
 
-local function ShowMenu(frame)
-	local menuFrame
-	if( frame.unit == "player" ) then
-		menuFrame = PlayerFrameDropDown
-	elseif( frame.unit == "pet" ) then
-		menuFrame = PetFrameDropDown
-	elseif( frame.unit == "target" ) then
-		menuFrame = TargetFrameDropDown
-	elseif( frame.unitType == "party" ) then
-		menuFrame = getglobal("PartyMemberFrame" .. frame.unitID .. "DropDown")
-	elseif( frame.unitType == "raid" ) then
-		menuFrame = FriendsDropDown
-		menuFrame.displayMode = "MENU"
-		menuFrame.initialize = RaidFrameDropDown_Initialize
-		menuFrame.userData = frame.unitID
-	end
-		
-	if( not menuFrame ) then
-		return
-	end
-	
-	HideDropDownMenu(1)
-	menuFrame.unit = frame.unit
-	menuFrame.name = UnitName(frame.unit)
-	menuFrame.id = frame.unitID
-	ToggleDropDownMenu(1, nil, menuFrame, "cursor")
-end
-
 -- Create the generic things that we want in every secure frame regardless if it's a button or a header
 function Units:CreateUnit(frame,  hookVisibility)
 	frame.barFrame = CreateFrame("Frame", nil, frame)
@@ -447,9 +446,27 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame:RegisterForClicks("AnyUp")	
 	frame:SetAttribute("*type1", "target")
 	frame:SetAttribute("*type2", "menu")
+	frame:SetScript("PostClick", function(self)
+		if( UIDROPDOWNMENU_OPEN_MENU == self.dropdownMenu and DropDownList1:IsShown() )	 then
+			local point, relativePoint = "TOPLEFT", "BOTTOMLEFT"
+			if( (select(2, DropDownList1:GetCenter()) - DropDownList1:GetHeight() / 2) < 0 ) then
+				point = string.gsub(point, "TOP(.*)", "BOTTOM%1")
+				relativePoint = string.gsub(relativePoint, "BOTTOM(.*)", "TOP%1")
+			end
+
+			if( DropDownList1:GetRight() > GetScreenWidth() ) then
+				point = string.gsub(point, "(.*)LEFT", "%1RIGHT")
+				relativePoint = string.gsub(relativePoint, "(.*)RIGHT", "%1LEFT")
+			end
+			
+			DropDownList1:ClearAllPoints()
+			DropDownList1:SetPoint(point, self, relativePoint, 0, 0)
+		end
+	end)
+
 	-- allowVehicleTarget
 	--[16:42] <+alestane> Shadowed: It says whether a unit defined as, for instance, "party1target" should be remapped to "partypet1target" when party1 is in a vehicle.
-	frame.menu = ShowMenu
+	--frame.menu = ShowMenu
 
 	if( hookVisibility ) then
 		frame:HookScript("OnShow", OnShow)
