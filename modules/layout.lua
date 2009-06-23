@@ -197,11 +197,11 @@ function Layout:AnchorFrame(parent, frame, config)
 	if( config.anchorTo == "UIParent" and frame.unitType ) then
 		scale = frame:GetEffectiveScale()
 	end
-		
+	
 	if( config.anchorPoint and config.anchorPoint ~= "" ) then
 		frame:ClearAllPoints()
 		frame:SetPoint(preDefPoint[config.anchorPoint], anchorTo, preDefRelative[config.anchorPoint], config.x / scale, config.y / scale)
-	elseif( config.point ~= "" and config.relativePoint ~= "" and config.x and config.y ) then
+	elseif( config.point and config.point ~= "" and config.relativePoint and config.relativePoint ~= "" and config.x and config.y ) then
 		frame:ClearAllPoints()
 		frame:SetPoint(config.point, anchorTo, config.relativePoint, config.x / scale, config.y / scale)
 	end
