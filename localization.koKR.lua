@@ -474,4 +474,4 @@ ShadowUFLocals = setmetatable({
 	["Create type, for example, if you're targeting a Felguard then this will return Felguard."] = "Create type, for example, if you're targeting a Felguard then this will return Felguard.",
 	["Class, use [classcolor] if you want a colored class name."] = "Class, use [classcolor] if you want a colored class name.",
 	["Shows the units health as a percentage rounded to the first decimal, meaning 61 out of 110 health is shown as 55.4%."] = "Shows the units health as a percentage rounded to the first decimal, meaning 61 out of 110 health is shown as 55.4%.",
-})
+}, {__index = ShadowUFLocals})
