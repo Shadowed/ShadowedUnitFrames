@@ -193,6 +193,7 @@ function ShadowUF:LoadUnitDefaults()
 			self.defaults.profile.units[unit].indicators.leader = {enabled = true}
 			self.defaults.profile.units[unit].indicators.masterLoot = {enabled = true}
 			self.defaults.profile.units[unit].indicators.pvp = {enabled = true}
+			self.defaults.profile.units[unit].highlight = {enabled = false, attention = false, mouseover = false, debuff = false, aggro = false}
 			
 			if( unit ~= "focus" and unit ~= "target" ) then
 				self.defaults.profile.units[unit].indicators.ready = {enabled = true}
