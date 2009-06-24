@@ -13,8 +13,8 @@ function Auras:CheckCures()
 	
 	canRemove = canRemove or {}
 	canRemove.Curse = classToken == "DRUID" or classToken == "MAGE" or GetSpellInfo((GetSpellInfo(51886))) or false
-	canRemove.Poison = classToken == "PALADIN" or classToken == "SHAMAN"
 	canRemove.Disease = classToken == "SHAMAN" or classToken == "PRIEST" or classToken == "PALADIN"
+	canRemove.Poison = classToken == "PALADIN" or classToken == "SHAMAN" or classToken == "DRUID"
 	canRemove.Magic = classToken == "PALADIN" or classToken == "PRIEST"
 end
 
