@@ -312,7 +312,7 @@ local function OnAttributeChanged(self, name, unit)
 		self:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units[self.unit == "pet" and "player" or "party"].disableVehicle)
 
 		-- Hide any pet that became a vehicle, we detect this by the owner being untargetable but we have a pet out
-		RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, nohelp,noharm] vehicle [target=%s, exists] pet", self.unitRealOwner, self.unit))
+		RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, nohelp, noharm] vehicle; [target=%s, exists] pet", self.unitRealOwner, self.unit))
 		vehicleMonitor:WrapScript(self, "OnAttributeChanged", [[
 			if( name == "state-vehicleupdated" ) then
 				self:SetAttribute("unitIsVehicle", value == "vehicle" and true or false)
@@ -708,6 +708,21 @@ function Units:CreateBar(parent)
 	frame.background:SetHeight(1)
 	frame.background:SetWidth(1)
 	frame.background:SetAllPoints(frame)
+	
+	--[[
+	local OrigSetMinMax = frame.SetMinMaxValues
+	frame.SetMinMaxValues = function(self, min, max)
+		OrigSetMinMax(self, max, min)
+	end
+
+	local OrigSetValue = frame.SetValue
+	frame.SetValue = function(self, value)
+		local min, max = self:GetMinMaxValues()
+		--value = min - value
+		
+		OrigSetValue(self, value)
+	end
+	]]
 	
 	return frame
 end
