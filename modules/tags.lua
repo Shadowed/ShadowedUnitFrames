@@ -121,10 +121,8 @@ function Tags:Register(parent, fontString, tags)
 		
 		-- Create our update function now
 		updateFunc = function(fontString)
-			local unit = fontString.parent.unit
-			local unitOwner = fontString.parent.unitOwner
 			for id, func in pairs(args) do
-				temp[id] = func(unit, unitOwner) or ""
+				temp[id] = func(fontString.parent.unit, fontString.parent.unit) or ""
 			end
 			
 			fontString:SetFormattedText(formattedText, unpack(temp))
@@ -184,22 +182,22 @@ function ShadowUF:GetClassColor(unit)
 end
 
 Tags.defaultTags = {
-	["afk"] = [[function(unit)
+	["afk"] = [[function(unit, unitOwner)
 		if( UnitIsAFK(unit) ) then
 			return ShadowUFLocals["(AFK)"]
 		elseif( UnitIsDND(unit) ) then
 			return ShadowUFLocals["(DND)"]
 		end
 	end]],
-	["close"] = [[function(unit) return "|r" end]],
-	["smartclass"] = [[function(unit)
+	["close"] = [[function(unit, unitOwner) return "|r" end]],
+	["smartclass"] = [[function(unit, unitOwner)
 		if( not UnitIsPlayer(unit) ) then
 			return UnitCreatureFamily(unit)
 		end
 		
 		return UnitClass(unit)
 	end]],
-	["reactcolor"] = [[function(unit)
+	["reactcolor"] = [[function(unit, unitOwner)
 		local color
 		if( not UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) ) then
 			if( UnitCanAttack("player", unit) ) then
@@ -224,10 +222,10 @@ Tags.defaultTags = {
 		
 		return ShadowUF:Hex(color)
 	end]],
-	["class"] = [[function(unit) if( not UnitIsPlayer(unit) ) then return nil end return UnitClass(unit) end]],
-	["classcolor"] = [[function(unit) return ShadowUF:GetClassColor(unit) end]],
-	["creature"] = [[function(unit) return UnitCreatureFamily(unit) or UnitCreatureType(unit) end]],
-	["curhp"] = [[function(unit)
+	["class"] = [[function(unit, unitOwner) if( not UnitIsPlayer(unit) ) then return nil end return UnitClass(unit) end]],
+	["classcolor"] = [[function(unit, unitOwner) return ShadowUF:GetClassColor(unit) end]],
+	["creature"] = [[function(unit, unitOwner) return UnitCreatureFamily(unit) or UnitCreatureType(unit) end]],
+	["curhp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
 			return ShadowUFLocals["Dead"]
 		elseif( UnitIsGhost(unit) ) then
@@ -248,7 +246,7 @@ Tags.defaultTags = {
 	
 		return color .. UnitName(unit) .. "|r"
 	end]],
-	["curpp"] = [[function(unit) 
+	["curpp"] = [[function(unit, unitOwner) 
 		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
 			return nil
 		elseif( UnitIsDeadOrGhost(unit) ) then
@@ -257,7 +255,7 @@ Tags.defaultTags = {
 		
 		return ShadowUF:FormatLargeNumber(UnitPower(unit))
 	end]],
-	["curmaxhp"] = [[function(unit)
+	["curmaxhp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
 			return ShadowUFLocals["Dead"]
 		elseif( UnitIsGhost(unit) ) then
@@ -270,7 +268,7 @@ Tags.defaultTags = {
 		local maxHealth = UnitHealthMax(unit)
 		return string.format("%s/%s", ShadowUF:FormatLargeNumber(health), ShadowUF:FormatLargeNumber(maxHealth))
 	end]],
-	["absolutehp"] = [[function(unit)
+	["absolutehp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
 			return ShadowUFLocals["Dead"]
 		elseif( UnitIsGhost(unit) ) then
@@ -283,7 +281,7 @@ Tags.defaultTags = {
 		local maxHealth = UnitHealthMax(unit)
 		return string.format("%s/%s", health, maxHealth)
 	end]],
-	["abscurhp"] = [[function(unit)
+	["abscurhp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
 			return ShadowUFLocals["Dead"]
 		elseif( UnitIsGhost(unit) ) then
@@ -294,8 +292,8 @@ Tags.defaultTags = {
 		
 		return UnitHealth(unit)
 	end]],
-	["absmaxhp"] = [[function(unit) return UnitHealthMax(unit) end]],
-	["abscurpp"] = [[function(unit)
+	["absmaxhp"] = [[function(unit, unitOwner) return UnitHealthMax(unit) end]],
+	["abscurpp"] = [[function(unit, unitOwner)
 		if( UnitPowerMax(unit) == 0 and not UnitIsPlayer(unit) ) then
 			return nil
 		elseif( UnitIsDeadOrGhost(unit) ) then
@@ -304,14 +302,14 @@ Tags.defaultTags = {
 	
 		return UnitPower(unit)
 	end]],
-	["absmaxpp"] = [[function(unit)
+	["absmaxpp"] = [[function(unit, unitOwner)
 		local power = UnitPowerMax(unit)
 		if( power == 0 and not UnitIsPlayer(unit) ) then
 			return nil
 		end
 		return power
 	end]],
-	["absolutepp"] = [[function(unit)
+	["absolutepp"] = [[function(unit, unitOwner)
 		local maxPower = UnitPowerMax(unit)
 		local power = UnitPower(unit)
 		if( UnitIsDeadOrGhost(unit) ) then
@@ -322,7 +320,7 @@ Tags.defaultTags = {
 		
 		return string.format("%s/%s", power, maxPower)
 	end]],
-	["curmaxpp"] = [[function(unit)
+	["curmaxpp"] = [[function(unit, unitOwner)
 		local maxPower = UnitPowerMax(unit)
 		local power = UnitPower(unit)
 		if( UnitIsDeadOrGhost(unit) ) then
@@ -333,7 +331,7 @@ Tags.defaultTags = {
 		
 		return string.format("%s/%s", ShadowUF:FormatLargeNumber(power), ShadowUF:FormatLargeNumber(maxPower))
 	end]],
-	["levelcolor"] = [[function(unit)
+	["levelcolor"] = [[function(unit, unitOwner)
 		local level = UnitLevel(unit);
 		if( level <= 0 ) then
 			return nil
@@ -348,10 +346,10 @@ Tags.defaultTags = {
 			return level
 		end
 	end]],
-	["faction"] = [[function(unit) return UnitFactionGroup(unit) end]],
-	["level"] = [[function(unit) local l = UnitLevel(unit) return l > 0 and l or "??" end]],
-	["maxhp"] = [[function(unit) return ShadowUF:FormatLargeNumber(UnitHealthMax(unit)) end]],
-	["maxpp"] = [[function(unit)
+	["faction"] = [[function(unit, unitOwner) return UnitFactionGroup(unit) end]],
+	["level"] = [[function(unit, unitOwner) local l = UnitLevel(unit) return l > 0 and l or "??" end]],
+	["maxhp"] = [[function(unit, unitOwner) return ShadowUF:FormatLargeNumber(UnitHealthMax(unit)) end]],
+	["maxpp"] = [[function(unit, unitOwner)
 		local power = UnitPowerMax(unit)
 		if( power == 0 and not UnitIsPlayer(unit) ) then
 			return nil
@@ -361,7 +359,7 @@ Tags.defaultTags = {
 		
 		return ShadowUF:FormatLargeNumber(power)
 	end]],
-	["missinghp"] = [[function(unit)
+	["missinghp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
 			return ShadowUFLocals["Dead"]
 		elseif( UnitIsGhost(unit) ) then
@@ -374,7 +372,7 @@ Tags.defaultTags = {
 		if( missing <= 0 ) then return nil end
 		return "-" .. ShadowUF:FormatLargeNumber(missing) 
 	end]],
-	["missingpp"] = [[function(unit)
+	["missingpp"] = [[function(unit, unitOwner)
 		local power = UnitPowerMax(unit)
 		if( power == 0 and not UnitIsPlayer(unit) ) then
 			return nil
@@ -391,7 +389,7 @@ Tags.defaultTags = {
 		return ShadowUF.tagFunc.name(unit, unitOwner)
 	end]],
 	["name"] = [[function(unit, unitOwner) return UnitName(unitOwner or unit) end]],
-	["perhp"] = [[function(unit)
+	["perhp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
 			return ShadowUFLocals["Dead"]
 		elseif( UnitIsGhost(unit) ) then
@@ -404,7 +402,7 @@ Tags.defaultTags = {
 		
 		return max == 0 and 0 or math.floor(UnitHealth(unit) / max * 100 + 0.5) .. "%"
 	end]],
-	["perpp"] = [[function(unit)
+	["perpp"] = [[function(unit, unitOwner)
 		local maxPower = UnitPowerMax(unit)
 		if( maxPower == 0 and not UnitIsPlayer(unit) ) then
 			return nil
@@ -414,12 +412,12 @@ Tags.defaultTags = {
 		
 		return string.format("%d%%", math.floor(UnitPower(unit) / maxPower * 100 + 0.5))
 	end]],
-	["plus"] = [[function(unit) local c = UnitClassification(unit); return (c == "elite" or c == "rareelite") and "+" end]],
-	["race"] = [[function(unit) return UnitRace(unit) end]],
-	["rare"] = [[function(unit) local c = UnitClassification(unit); return (c == "rare" or c == "rareelite") and ShadowUFLocals["Rare"] end]],
-	["sex"] = [[function(unit) local s = UnitSex(unit) return s == 2 and ShadowUFLocals["Male"] or s == 3 and ShadowUFLocals["Female"] end]],
-	["smartclass"] = [[function(unit) return UnitIsPlayer(unit) and ShadowUF.tagFunc.class(unit) or ShadowUF.tagFunc.creature(unit) end]],
-	["status"] = [[function(unit)
+	["plus"] = [[function(unit, unitOwner) local c = UnitClassification(unit); return (c == "elite" or c == "rareelite") and "+" end]],
+	["race"] = [[function(unit, unitOwner) return UnitRace(unit) end]],
+	["rare"] = [[function(unit, unitOwner) local c = UnitClassification(unit); return (c == "rare" or c == "rareelite") and ShadowUFLocals["Rare"] end]],
+	["sex"] = [[function(unit, unitOwner) local s = UnitSex(unit) return s == 2 and ShadowUFLocals["Male"] or s == 3 and ShadowUFLocals["Female"] end]],
+	["smartclass"] = [[function(unit, unitOwner) return UnitIsPlayer(unit) and ShadowUF.tagFunc.class(unit) or ShadowUF.tagFunc.creature(unit) end]],
+	["status"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
 			return ShadowUFLocals["Dead"]
 		elseif( UnitIsGhost(unit) ) then
@@ -428,8 +426,8 @@ Tags.defaultTags = {
 			return ShadowUFLocals["Offline"]
 		end
 	end]],
-	["cpoints"] = [[function(unit) local cp = GetComboPoints(unit, "target") return (cp > 0) and cp end]],
-	["smartlevel"] = [[function(unit)
+	["cpoints"] = [[function(unit, unitOwner) local cp = GetComboPoints(unit, "target") return (cp > 0) and cp end]],
+	["smartlevel"] = [[function(unit, unitOwner)
 		local c = UnitClassification(unit)
 		if(c == "worldboss") then
 			return ShadowUFLocals["Boss"]
@@ -443,12 +441,12 @@ Tags.defaultTags = {
 			end
 		end
 	end]],
-	["dechp"] = [[function(unit) return string.format("%.1f%%", (UnitHealth(unit) / UnitHealthMax(unit)) * 100) end]],
-	["classification"] = [[function(unit)
+	["dechp"] = [[function(unit, unitOwner) return string.format("%.1f%%", (UnitHealth(unit) / UnitHealthMax(unit)) * 100) end]],
+	["classification"] = [[function(unit, unitOwner)
 		local c = UnitClassification(unit)
 		return c == "rare" and ShadowUFLocals["Rare"] or c == "eliterare" and ShadowUFLocals["Rare Elite"] or c == "elite" and ShadowUFLocals["Elite"] or c == "worldboss" and ShadowUFLocals["Boss"]
 	end]],
-	["shortclassification"] = [[function(unit)
+	["shortclassification"] = [[function(unit, unitOwner)
 		local c = UnitClassification(unit)
 		return c == "rare" and "R" or c == "eliterare" and "R+" or c == "elite" and "+" or c == "worldboss" and "B"
 	end]],
@@ -468,19 +466,19 @@ Tags.defaultTags = {
 		
 		return nil
 	end]],
-	["druid:curpp"] = [[function(unit)
+	["druid:curpp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
 		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
 		return ShadowUF:FormatLargeNumber(UnitPower(unit, 0))
 	end]],
-	["druid:abscurpp"] = [[function(unit)
+	["druid:abscurpp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
 		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
 		return UnitPower(unit, 0)
 	end]],
-	["druid:curmaxpp"] = [[function(unit)
+	["druid:curmaxpp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
 		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
@@ -495,7 +493,7 @@ Tags.defaultTags = {
 		
 		return string.format("%s/%s", ShadowUF:FormatLargeNumber(power), ShadowUF:FormatLargeNumber(maxPower))
 	end]],
-	["druid:absolutepp"] = [[function(unit)
+	["druid:absolutepp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
 		if( powerType ~= 1 and powerType ~= 3 ) then return nil end

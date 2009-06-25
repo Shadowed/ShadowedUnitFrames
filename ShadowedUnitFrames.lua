@@ -121,6 +121,15 @@ function ShadowUF:CheckUpgrade()
 		self.db.profile.units.pettarget.xpBar = nil
 		self.db.profile.units.pettarget.indicators.happiness = nil
 	end
+	
+	-- June 25th
+	for _, data in pairs(self.db.profile.units) do
+		if( data.auras.debuffs.raid == nil ) then
+			data.auras.debuffs.raid = data.auras.buffs.curable
+			data.auras.buffs.curable = nil
+		end
+	end
+	
 end
 	
 local partyDisabled

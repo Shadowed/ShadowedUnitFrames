@@ -1,22 +1,5 @@
-local Auras = {canRemove = {}}
-local canRemove = Auras.canRemove
+local Auras = {}
 ShadowUF:RegisterModule(Auras, "auras", ShadowUFLocals["Auras"])
-
-function Auras:CheckCures()
-	local classToken = select(2, UnitClass("player"))
-	-- If they are a Shaman, then we need to check what they can cure when spells change
-	if( not self.eventFrame and classToken == "SHAMAN" ) then
-		self.eventFrame = CreateFrame("Frame")
-		self.eventFrame:RegisterEvent("SPELLS_CHANGED")
-		self.eventFrame:SetScript("OnEvent", function(self) canRemove.Curse = GetSpellInfo((GetSpellInfo(51886))) and true or false	end)
-	end
-	
-	canRemove = canRemove or {}
-	canRemove.Curse = classToken == "DRUID" or classToken == "MAGE" or GetSpellInfo((GetSpellInfo(51886))) or false
-	canRemove.Disease = classToken == "SHAMAN" or classToken == "PRIEST" or classToken == "PALADIN"
-	canRemove.Poison = classToken == "PALADIN" or classToken == "SHAMAN" or classToken == "DRUID"
-	canRemove.Magic = classToken == "PALADIN" or classToken == "PRIEST"
-end
 
 local function updateTooltip(self)
 	if( GameTooltip:IsOwned(self) ) then
@@ -41,10 +24,6 @@ local function cancelBuff(self)
 end
 
 function Auras:OnEnable(frame)
-	if( not canRemove ) then
-		self:CheckCures()
-	end
-	
 	self:CreateIcons(frame)
 		
 	frame:RegisterUnitEvent("UNIT_AURA", self, "Update")
@@ -61,9 +40,10 @@ end
 
 local filterTable = {}
 function Auras:UpdateFilter(auraGroup, config)
-	auraGroup.filter = auraGroup.type == "buffs" and "HELPFUL" or ""
-	auraGroup.filter = auraGroup.type == "debuffs" and "HARMFUL" or auraGroup.filter
-	
+	auraGroup.filter = auraGroup.type == "buffs" and "HELPFUL" or auraType.type == "debuffs" and "HARMFUL" or ""
+
+	-- This is a bit of an odd filter, when used with a HELPFUL filter, it will only return buffs you can cast on group members
+	-- When used with HARMFUL it will only return debuffs you can cure
 	if( config.raid ) then
 		auraGroup.filter = auraGroup.filter .. "|RAID"
 	end
@@ -71,11 +51,7 @@ end
 
 local function createAnchor(self, key, config)
 	self.auras[key] = self.auras[key] or CreateFrame("Frame", nil, self.highFrame)
-	if( config.anchorPoint == "INSIDE" ) then
-		self.auras[key]:SetFrameLevel(5)
-	else
-		self.auras[key]:SetFrameLevel(1)
-	end
+	self.auras[key]:SetFrameLevel(config.anchorPoint == "INSIDE" and 5 or 1)
 		
 	local aura = self.auras[key]
 	aura.buttons = aura.buttons or {}
@@ -202,11 +178,11 @@ function Auras:Scan(frame, filter, type, unit, specialFilters)
 		local name, rank, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(unit, index, filter)
 		if( not name ) then break end
 		
-		if( ( not specialFilters.curable or debuffType and canRemove[debuffType] ) and ( not specialFilters.player or caster == ShadowUF.playerUnit )  ) then
+		if( not specialFilters.player or caster == ShadowUF.playerUnit ) then
 			frame.totalAuras = frame.totalAuras + 1
 			if( frame.totalAuras >= frame.maxAuras ) then
 				frame.totalAuras = frame.maxAuras
-				return 0
+				return nil
 			end
 			
 			local button = frame.buttons[frame.totalAuras]
@@ -266,4 +242,3 @@ function Auras:Update(frame)
 		end
 	end
 end
-

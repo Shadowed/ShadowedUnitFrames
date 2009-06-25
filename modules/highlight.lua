@@ -21,8 +21,6 @@ local function OnLeave(frame, ...)
 end
 
 function Highlight:OnEnable(frame)
-	ShadowUF.modules.auras:CheckCures()
-	
 	if( not frame.highlight ) then
 		frame.highlight = frame.highFrame:CreateTexture(nil, "ARTWORK")
 		frame.highlight:SetTexture("Interface\\QuestFrame\\UI-QuestTitleHighlight")
@@ -80,7 +78,7 @@ function Highlight:Update(frame)
 	end
 		
 	if( color ) then
-		frame.highlight:SetVertexColor(color.r, color.g, color.b, 0.80)
+		frame.highlight:SetVertexColor(color.r, color.g, color.b, 1)
 		frame.highlight:Show()
 	else
 		frame.highlight:Hide()
@@ -98,21 +96,8 @@ function Highlight:UpdateAttention(frame)
 end
 
 function Highlight:UpdateAura(frame)
-	frame.highlight.hasDebuff = nil
-	
-	local id = 1
-	while( true ) do
-		local name, _, _, _, auraType = UnitDebuff(frame.unit, id)
-		if( not name ) then break end
-		
-		if( auraType and ShadowUF.modules.auras.canRemove[auraType] ) then
-			frame.highlight.hasDebuff = auraType
-			break
-		end
-		
-		id = id + 1
-	end
-	
+	-- In theory, we don't need aura scanning because the first debuff returned is always one we can cure... in theory
+	frame.highlight.hasDebuff = select(5, UnitDebuff(frame.unit, 1, "RAID")) or nil
 	self:Update(frame)
 end
 

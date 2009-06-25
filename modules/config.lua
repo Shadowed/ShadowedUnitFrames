@@ -1160,15 +1160,6 @@ local function loadUnitOptions()
 				width = "double",
 				arg = "auras.$parent.prioritize",
 			},
-			curable = {
-				order = 3,
-				type = "toggle",
-				name = L["Show curable only"],
-				desc = L["Filter out any aura that you cannot cure."],
-				hidden = function(info) return info[#(info) - 1] == "buffs" end,
-				width = "double",
-				arg = "auras.$parent.curable",
-			},
 			sep1 = {
 				order = 4,
 				type = "description",
@@ -1185,8 +1176,8 @@ local function loadUnitOptions()
 			raid = {
 				order = 6,
 				type = "toggle",
-				name = L["Show castable on other auras only"],
-				desc = L["Filter out any auras that you cannot cast on another player, or yourself."],
+				name = function(info) return info[#(info) - 1] == "buffs" and L["Show castable on other auras only"] or L["Show curable only"] end,
+				desc = function(info) return info[#(info) - 1] == "buffs" and L["Filter out any auras that you cannot cast on another player, or yourself."] or L["Filter out any aura that you cannot cure."] end,
 				width = "double",
 				arg = "auras.$parent.raid",
 			},
