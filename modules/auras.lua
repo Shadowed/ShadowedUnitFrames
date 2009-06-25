@@ -40,7 +40,7 @@ end
 
 local filterTable = {}
 function Auras:UpdateFilter(auraGroup, config)
-	auraGroup.filter = auraGroup.type == "buffs" and "HELPFUL" or auraType.type == "debuffs" and "HARMFUL" or ""
+	auraGroup.filter = auraGroup.type == "buffs" and "HELPFUL" or auraGroup.type == "debuffs" and "HARMFUL" or ""
 
 	-- This is a bit of an odd filter, when used with a HELPFUL filter, it will only return buffs you can cast on group members
 	-- When used with HARMFUL it will only return debuffs you can cure
