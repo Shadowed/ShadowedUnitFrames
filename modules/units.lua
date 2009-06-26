@@ -418,6 +418,11 @@ local function OnEnter(...)
 	end
 end
 
+-- Reset the fact that we clamped the dropdown to the screen to be safe
+DropDownList1:HookScript("OnHide", function(self)
+	self:SetClampedToScreen(false)
+end)
+
 -- Create the generic things that we want in every secure frame regardless if it's a button or a header
 function Units:CreateUnit(frame,  hookVisibility)
 	frame.barFrame = CreateFrame("Frame", nil, frame)
@@ -449,22 +454,12 @@ function Units:CreateUnit(frame,  hookVisibility)
 	frame:SetAttribute("*type2", "menu")
 	frame:SetScript("PostClick", function(self)
 		if( UIDROPDOWNMENU_OPEN_MENU == self.dropdownMenu and DropDownList1:IsShown() )	 then
-			local point, relativePoint = "TOPLEFT", "BOTTOMLEFT"
-			if( (select(2, DropDownList1:GetCenter()) - DropDownList1:GetHeight() / 2) < 0 ) then
-				point = string.gsub(point, "TOP(.*)", "BOTTOM%1")
-				relativePoint = string.gsub(relativePoint, "BOTTOM(.*)", "TOP%1")
-			end
-
-			if( DropDownList1:GetRight() > GetScreenWidth() ) then
-				point = string.gsub(point, "(.*)LEFT", "%1RIGHT")
-				relativePoint = string.gsub(relativePoint, "(.*)RIGHT", "%1LEFT")
-			end
-			
 			DropDownList1:ClearAllPoints()
-			DropDownList1:SetPoint(point, self, relativePoint, 0, 0)
+			DropDownList1:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, 0)
+			DropDownList1:SetClampedToScreen(true)
 		end
 	end)
-
+	
 	-- allowVehicleTarget
 	--[16:42] <+alestane> Shadowed: It says whether a unit defined as, for instance, "party1target" should be remapped to "partypet1target" when party1 is in a vehicle.
 	--frame.menu = ShowMenu
