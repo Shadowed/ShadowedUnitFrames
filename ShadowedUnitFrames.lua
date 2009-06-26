@@ -294,10 +294,9 @@ function ShadowUF:ProfilesChanged()
 		self:CheckUpgrade()
 	end
 	
+	self:LoadUnits()
 	self.Layout:CheckMedia()
 	self.Units:ProfileChanged()
-	self:LoadUnits()
-	self.Layout:ReloadAll()
 	self.modules.movers:Update()
 end
 

@@ -497,6 +497,13 @@ function Units:ReloadHeader(type)
 end
 
 function Units:ProfileChanged()
+	-- Reset the anchors for all frames to prevent X is dependant on Y
+	for _, frame in pairs(unitFrames) do
+		if( frame:GetAttribute("unit") ) then
+			frame:ClearAllPoints()
+		end
+	end
+	
 	-- Force all of the module changes
 	for _, frame in pairs(unitFrames) do
 		if( frame:GetAttribute("unit") ) then
@@ -510,6 +517,7 @@ function Units:ProfileChanged()
 			
 			-- Now enable whatever we need to
 			frame:SetVisibility()
+			ShadowUF.Layout:ApplyAll(frame)
 			frame:FullUpdate()
 		end
 	end
