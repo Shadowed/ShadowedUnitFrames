@@ -501,6 +501,25 @@ Tags.defaultTags = {
 	end]],
 }
 
+-- Use a new [levelcolor] tag with the renamed 3.2 API if they are on 3.2
+if( select(4, GetBuildInfo()) >= 30200 ) then
+	Tags.defaultTags["levelcolor"] = [[function(unit, unitOwner)
+		local level = UnitLevel(unit);
+		if( level <= 0 ) then
+			return nil
+		elseif( UnitCanAttack("player", unit) ) then
+			local color = ShadowUF:Hex(GetQuestDifficultyColor(level > 0 and level or 99))
+			if( not color ) then
+				return level
+			end
+			
+			return color .. level .. "|r"
+		else
+			return level
+		end
+	end]]
+end
+
 -- Default tag events
 Tags.defaultEvents = {
 	["afk"]					= "PLAYER_FLAGS_CHANGED", -- Yes, I know it's called PLAYER_FLAGS_CHANGED, but arg1 is the unit including non-players.
