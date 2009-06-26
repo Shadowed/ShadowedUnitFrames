@@ -57,6 +57,7 @@ function Layout:ToggleVisibility(frame, visible)
 end	
 
 function Layout:ReloadAll(unit)
+	-- Now update them
 	for frame in pairs(frameList) do
 		if( not unit or frame.unitType == unit ) then
 			frame:SetVisibility()
@@ -91,13 +92,14 @@ function Layout:ApplyAll(frame)
 	frameList[frame] = true
 
 	-- Check if we had anything parented to us
-	for frame in pairs(anchoringQueued) do
-		if( frame.queuedName == frame:GetName() ) then
-			self:AnchorFrame(frame.queuedParent, frame, frame.queuedConfig)
+	for queued in pairs(anchoringQueued) do
+		if( queued.queuedName == frame:GetName() ) then
+			self:AnchorFrame(queued.queuedParent, queued, queued.queuedConfig)
 
-			frame.queuedParent = nil
-			frame.queuedConfig = nil
-			anchoringQueued[frame] = nil
+			queued.queuedParent = nil
+			queued.queuedConfig = nil
+			queued.queuedName = nil
+			anchoringQueued[queued] = nil
 		end
 	end
 end
