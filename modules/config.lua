@@ -12,7 +12,6 @@ ShadowUF.Config = Config
 	TOC note suggestions from the IRC-crazies
 
 	[28:58] <Aikiwoce> Shadow Unit Frames now with 100% less fail
-	[32:11] <Aikiwoce> Shadowed Unit Frames, Made from the best stuff on Azeroth.
 	[33:24] <Aikiwoce> Shadowed Unit Frames, Only you can prevent people from standing in fire.
 	[33:29] <+forostie> Shadowed Unit Frames - Go hard or get mrgggl'd
 	[33:54] <+forostie> Shadowed Unit Frames - Live long and be prosperous

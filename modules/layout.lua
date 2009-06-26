@@ -1,6 +1,7 @@
 local Layout = {}
 local SML, config, backdropTbl, mediaRequired
 local ordering, anchoringQueued, mediaPath, frameList = {}, {}, {}, {}
+local _G = getfenv(0)
 
 ShadowUF.Layout = Layout
 
@@ -179,7 +180,7 @@ function Layout:AnchorFrame(parent, frame, config)
 	elseif( prefix == "#" ) then
 		anchorTo = string.sub(config.anchorTo, 2)
 		-- The frame we wanted to anchor to doesn't exist yet, so will queue and wait for it to exist
-		if( not getglobal(anchorTo) ) then
+		if( not _G[anchorTo] ) then
 			frame.queuedParent = parent
 			frame.queuedConfig = config
 			frame.queuedName = anchorTo

@@ -6,6 +6,7 @@ ShadowUF = {playerUnit = "player", raidUnits = {}, partyUnits = {}, modules = {}
 
 local L = ShadowUFLocals
 local units = ShadowUF.units
+local _G = getfenv(0)
 
 -- Cache the units so we don't have to concat every time it updates
 for i=1, MAX_PARTY_MEMBERS do ShadowUF.partyUnits[i] = "party" .. i end
@@ -366,14 +367,14 @@ function ShadowUF:HideBlizzard(type)
 	elseif( type == "party" ) then
 		for i=1, MAX_PARTY_MEMBERS do
 			local party = "PartyMemberFrame" .. i
-			local frame = getglobal(party)
+			local frame = _G[party]
 
 			frame:UnregisterAllEvents()
 			frame.Show = dummy
 			frame:Hide()
 
-			getglobal(party .. "HealthBar"):UnregisterAllEvents()
-			getglobal(party .. "ManaBar"):UnregisterAllEvents()
+			_G[party .. "HealthBar"]:UnregisterAllEvents()
+			_G[party .. "ManaBar"]:UnregisterAllEvents()
 		end
 	end
 end

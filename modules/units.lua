@@ -3,6 +3,7 @@ local vehicleMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate
 local unitEvents, loadedUnits, queuedCombat, inCombat = {}, {}, {}
 local unitFrames = Units.unitFrames
 local FRAME_LEVEL_MAX = 5
+local _G = getfenv(0)
 
 ShadowUF.Units = Units
 ShadowUF:RegisterModule(Units, "units")
@@ -344,8 +345,8 @@ local function OnAttributeChanged(self, name, unit)
 		
 	-- Party members need to watch for changes
 	elseif( self.unitType == "party" ) then
-		self.dropdownMenu = getglobal("PartyMemberFrame" .. self.unitID .. "DropDown")
-		self:SetAttribute("_menu", getglobal("PartyMemberFrame" .. self.unitID).menu)
+		self.dropdownMenu = _G["PartyMemberFrame" .. self.unitID .. "DropDown"]
+		self:SetAttribute("_menu", _G["PartyMemberFrame" .. self.unitID].menu)
 		self:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", Units, "CheckUnitGUID")
 
 		-- Party frame has been loaded, so initialize it's sub-frames if they are enabled
