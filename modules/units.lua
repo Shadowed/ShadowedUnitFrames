@@ -375,6 +375,20 @@ local function OnAttributeChanged(self, name, unit)
 			self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", Units, "CheckUnitGUID")
 		end
 	end
+
+	-- You got to love programming without documentation, ~3 hours spent making this work with raids and such properly, turns out? It's a simple attribute
+	-- and all you have to do is set it up so the unit variables are properly changed based on being in a vehicle... which is what will do now
+	if( self.unit == "player" or self.unitType == "party" or self.unitType == "raid" ) then
+		self:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", Units, "CheckVehicleStatus")
+		self:RegisterNormalEvent("UNIT_EXITED_VEHICLE", Units, "CheckVehicleStatus")
+		self:RegisterUpdateFunc(Units, "CheckVehicleStatus")
+		
+		-- This unit can be a vehicle, so will want to be able to target the vehicle if they enter one
+		self:SetAttribute("toggleForVehicle", true)
+				
+		-- Check if they are in a vehicle
+		Units:CheckVehicleStatus(self)
+	end	
 	
 	-- Update module status
 	self:SetVisibility()
