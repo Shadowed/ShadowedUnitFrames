@@ -67,7 +67,7 @@ function Tags:Register(parent, fontString, tags)
 	
 	fontString.parent = parent
 	regFontStrings[fontString] = tags
-	
+		
 	local updateFunc = tagPool[tags]
 	if( not updateFunc ) then
 		-- Using .- prevents supporting tags such as [foo ([)]. Supporting that and having a single pattern
@@ -122,7 +122,7 @@ function Tags:Register(parent, fontString, tags)
 		-- Create our update function now
 		updateFunc = function(fontString)
 			for id, func in pairs(args) do
-				temp[id] = func(fontString.parent.unit, fontString.parent.unit) or ""
+				temp[id] = func(fontString.parent.unit, fontString.parent.unitOwner) or ""
 			end
 			
 			fontString:SetFormattedText(formattedText, unpack(temp))
@@ -131,16 +131,16 @@ function Tags:Register(parent, fontString, tags)
 		tagPool[tags] = updateFunc
 	end
 	
-	-- Register any needed event
-	self:RegisterEvents(parent, fontString, tags)
-	
 	-- And give other frames an easy way to force an update
 	fontString.UpdateTags = updateFunc
+
+	-- Register any needed event
+	self:RegisterEvents(parent, fontString, tags)
 end
 
 function Tags:Unregister(fontString)
 	regFontStrings[fontString] = nil
-	
+		
 	-- Kill any tag data
 	fontString.parent:UnregisterAll(fontString)
 	fontString.fastPower = nil
