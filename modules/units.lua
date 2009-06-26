@@ -1,8 +1,7 @@
 local Units = {unitFrames = {}}
 local vehicleMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
-local unitEvents, loadedUnits, queuedCombat = {}, {}, {}, {}
+local unitEvents, loadedUnits, queuedCombat, inCombat = {}, {}, {}
 local unitFrames = Units.unitFrames
-local inCombat, needPartyFrame, frameMoving, centralFrame
 local FRAME_LEVEL_MAX = 5
 
 ShadowUF.Units = Units
@@ -18,6 +17,12 @@ end
 
 -- Register an event that should always call the frame
 local function RegisterNormalEvent(self, event, handler, func)
+	-- Make sure the handler/func exists
+	if( not handler[func] ) then
+		error(string.format("Invalid handler/function passed for %s on event %s, the function %s does not exist.", self:GetName() or tostring(self), event, func), 3)
+		return
+	end
+
 	self:RegisterEvent(event)
 	self.registeredEvents[event] = self.registeredEvents[event] or {}
 	
@@ -44,6 +49,11 @@ end
 
 -- Register a function to be called in an OnUpdate if it's an invalid unit (targettarget/etc)
 local function RegisterUpdateFunc(self, handler, func)
+	if( not handler[func] ) then
+		error(string.format("Invalid handler/function passed to RegisterUpdateFunc for %s, the function %s does not exist.", self:GetName() or tostring(self), event, func), 3)
+		return
+	end
+
 	for i=1, #(self.fullUpdates), 2 do
 		local data = self.fullUpdates[i]
 		if( data == handler and self.fullUpdates[i + 1] == func ) then
@@ -91,7 +101,6 @@ end
 local function OnShow(self)
 	-- Reset the event handler
 	self:SetScript("OnEvent", OnEvent)
-	
 	Units:CheckUnitGUID(self)
 end
 
@@ -164,7 +173,6 @@ local function SetVisibility(self)
 	-- We had a module update, so redo everything
 	if( layoutUpdate ) then
 		ShadowUF.Layout:ApplyAll(self)
-		self:FullUpdate()
 	end
 end
 
@@ -190,7 +198,7 @@ function Units:CheckVehicleStatus(frame, event, unit)
 	-- Not in a vehicle yet, and they entered one that has a UI 
 	if( not frame.inVehicle and UnitHasVehicleUI(frame.unitOwner) and not ShadowUF.db.profile.units[frame.unitType].disableVehicle ) then
 		frame.inVehicle = true
-		frame.unit = frame.vehicleUnit
+		frame.unit = frame.unitOwner == "player" and "vehicle" or frame.unitType == "party" and "partypet" .. frame.unitID or frame.unitType == "raid" and "raidpet" .. frame.unitID
 
 		if( not UnitIsConnected(frame.unit) or UnitHealthMax(frame.unit) == 0 ) then
 			frame.timeElapsed = 0
@@ -201,12 +209,13 @@ function Units:CheckVehicleStatus(frame, event, unit)
 		end
 		
 		-- Keep track of what the players current unit is supposed to be, so things like auras can figure it out
-		if( frame.unitOwner == "player" ) then ShadowUF.playerUnit = frame.vehicleUnit end
+		if( frame.unitOwner == "player" ) then ShadowUF.playerUnit = frame.unit end
 		
 	-- Was in a vehicle, no longer has a UI
 	elseif( frame.inVehicle and ( not UnitHasVehicleUI(frame.unitOwner) or ShadowUF.db.profile.units[frame.unitType].disableVehicle ) ) then
 		frame.inVehicle = false
 		frame.unit = frame.unitOwner
+		frame.unitGUID = UnitGUID(frame.unit)
 		frame:FullUpdate()
 
 		if( frame.unitOwner == "player" ) then ShadowUF.playerUnit = frame.unitOwner end
@@ -215,9 +224,10 @@ end
 
 -- When a frames GUID changes,
 -- Handles checking for GUID changes for doing a full update, this fixes frames sometimes showing the wrong unit when they change
+local guid
 function Units:CheckUnitGUID(frame)
-	local guid = frame.unit and UnitGUID(frame.unit)
-	if( guid ~= frame.unitGUID ) then
+	guid = frame.unit and UnitGUID(frame.unit)
+	if( guid and guid ~= frame.unitGUID ) then
 		frame:FullUpdate()
 	end
 	
@@ -228,35 +238,6 @@ end
 function Units:CheckUnitUpdated(frame, event, unit)
 	if( unit ~= frame.unitRealOwner or not UnitExists(unit) ) then return end
 	frame:FullUpdate()
-end
-
--- Sets up the unit and all that good stuff
-local function SetupUnitFrame(self)
-	unitFrames[self.unit] = self
-			
-	-- Add to Clique
-	ClickCastFrames = ClickCastFrames or {}
-	ClickCastFrames[self] = true
-	
-	-- You got to love programming without documentation, ~3 hours spent making this work with raids and such properly, turns out? It's a simple attribute
-	-- and all you have to do is set it up so the unit variables are properly changed based on being in a vehicle... which is what will do now
-	if( self.unit == "player" or self.unitType == "party" or self.unitType == "raid" ) then
-		-- player -> pet, party -> partypet#, raid -> raidpet# (party#pet/raid#pet work too, the secure headers automatically translate it to *pet# thought.
-		self.vehicleUnit = self.unitOwner == "player" and "vehicle" or self.unitType == "party" and "partypet" .. self.unitID or self.unitType == "raid" and "raidpet" .. self.unitID
-
-		self:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", Units, "CheckVehicleStatus")
-		self:RegisterNormalEvent("UNIT_EXITED_VEHICLE", Units, "CheckVehicleStatus")
-		self:RegisterUpdateFunc(Units, "CheckVehicleStatus")
-		
-		-- This unit can be a vehicle, so will want to be able to target the vehicle if they enter one
-		self:SetAttribute("toggleForVehicle", true)
-				
-		-- Check if they are in a vehicle
-		Units:CheckVehicleStatus(self)
-	end	
-
-	-- Update module status
-	self:SetVisibility()
 end
 
 local function ShowMenu(self)
@@ -273,26 +254,32 @@ end
 
 -- Attribute set, something changed
 local function OnAttributeChanged(self, name, unit)
-	if( name ~= "unit" or ( not unit and not self.unit ) ) then return end
+	if( name ~= "unit" or not unit or unit == self.unitOwner ) then return end
 	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
 	if( inCombat ) then
-		-- Either the unit was reset, or the unit's actually changed
-		if( not unit or self.updateGUID ~= UnitGUID(unit) ) then
-			self.updateGUID = unit and UnitGUID(unit)
-			queuedCombat[self] = true
-		end
+		queuedCombat[self] = true
 		return
-	-- No change, or the unit was killed
-	elseif( unit == self.unitOwner or not unit ) then
+	-- Unit already exists, we're going to update our information on them but we're not going to do a full update and recheck things
+	-- we don't have to because frames are ALWAYS going to be the same type, a raid frame will not magically turn into a target frame.
+	elseif( self.unit ) then
+		self.unit = unit
+		self.unitID = tonumber(string.match(unit, "([0-9]+)"))
+		self.unitOwner = unit
 		return
 	end
-	
+		
 	-- Setup identification data
 	self.unit = unit
 	self.unitID = tonumber(string.match(unit, "([0-9]+)"))
 	self.unitType = string.gsub(unit, "([0-9]+)", "")
 	self.unitOwner = unit
-	self.updateGUID = UnitGUID(unit)
+	
+	-- Add to Clique
+	ClickCastFrames = ClickCastFrames or {}
+	ClickCastFrames[self] = true
+
+	-- Store it for later
+	unitFrames[self.unit] = self
 	
 	-- Pet changed, going from pet -> vehicle for one
 	if( self.unit == "pet" or self.unitType == "partypet" ) then
@@ -335,13 +322,13 @@ local function OnAttributeChanged(self, name, unit)
 	elseif( self.unit == "target" ) then
 		self.dropdownMenu = TargetFrameDropDown
 		self:SetAttribute("_menu", TargetFrame.menu)
-		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
+		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", Units, "CheckUnitGUID")
 
 	-- Automatically do a full update on focus change
 	elseif( self.unit == "focus" ) then
 		self.dropdownMenu = FocusFrameDropDown
 		self:SetAttribute("_menu", FocusFrame.menu)
-		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "FullUpdate")
+		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", Units, "CheckUnitGUID")
 				
 	-- When a player is force ressurected by releasing in naxx/tk/etc then they might freeze
 	elseif( self.unit == "player" ) then
@@ -382,21 +369,20 @@ local function OnAttributeChanged(self, name, unit)
 		
 		-- Another speed up, if the focus changes then of course the focustarget has to be force updated
 		if( self.unit == "focustarget" ) then
-			self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "FullUpdate")
+			self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", Units, "CheckUnitGUID")
 		-- If the player changes targets, then we know the targettarget and targettargettarget definitely changed
 		elseif( self.unit == "targettarget" or self.unit == "targettargettarget" ) then
-			self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "FullUpdate")
+			self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", Units, "CheckUnitGUID")
 		end
 	end
 	
-	-- Initialize all of the frame visuals
-	SetupUnitFrame(self)
+	-- Update module status
+	self:SetVisibility()
 end
 
 function Units:LoadUnit(config, unit)
 	-- Already be loaded, just enable
 	if( unitFrames[unit] ) then
-		unitFrames[unit]:SetAttribute("unit", unit)
 		RegisterUnitWatch(unitFrames[unit], unit == "pet")
 		return
 	end
@@ -421,6 +407,7 @@ end
 -- Create the generic things that we want in every secure frame regardless if it's a button or a header
 function Units:CreateUnit(frame,  hookVisibility)
 	frame.barFrame = CreateFrame("Frame", nil, frame)
+	frame:Hide()
 	
 	frame.fullUpdates = {}
 	frame.registeredEvents = {}
@@ -604,7 +591,6 @@ end
 function Units:LoadPartyChildUnit(config, parentHeader, type, unit)
 	if( unitFrames[unit] ) then
 		self:SetFrameAttributes(unitFrames[unit], unitFrames[unit].unitType)
-		unitFrames[unit]:SetAttribute("unit", unit)
 		RegisterUnitWatch(unitFrames[unit], type == "partypet")
 		return
 	end
@@ -666,15 +652,6 @@ function Units:InitializeFrame(config, type)
 	end
 end
 
-local function disableChildren(...)
-	for i=1, select("#", ...) do
-		local frame = select(i, ...)
-		if( frame.unit ) then
-			frame:SetAttribute("unit", nil)
-		end
-	end
-end
-
 function Units:UninitializeFrame(config, type)
 	if( not loadedUnits[type] ) then return end
 	loadedUnits[type] = nil
@@ -683,8 +660,6 @@ function Units:UninitializeFrame(config, type)
 	if( unitFrames[type] ) then
 		UnregisterUnitWatch(unitFrames[type])
 		unitFrames[type]:Hide()
-		
-		disableChildren(unitFrames[type]:GetChildren())
 		return
 	end
 	
@@ -693,7 +668,6 @@ function Units:UninitializeFrame(config, type)
 		if( frame.unitType == type ) then
 			UnregisterUnitWatch(frame)
 
-			frame:SetAttribute("unit", nil)
 			frame:SetAttribute("framePositioned", nil)
 			frame:Hide()
 		end
@@ -729,8 +703,7 @@ end
 
 -- Handles events related to all units and not a specific one
 local headerUpdated = {}
-
-centralFrame = CreateFrame("Frame")
+local centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
@@ -753,11 +726,10 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 		
 		for frame in pairs(queuedCombat) do
 			queuedCombat[frame] = nil
-		
 			if( not frame.unit ) then
 				OnAttributeChanged(frame, "unit", frame:GetAttribute("unit"))
 			else
-				SetupUnitFrame(frame)
+				frame:SetVisibility()
 			end
 			
 			-- When parties change in combat, the overall height/width of the secure header will change, we need to force a secure group update
