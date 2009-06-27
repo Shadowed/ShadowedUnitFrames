@@ -110,8 +110,11 @@ function OnDragStop(self)
 end
 
 function OnEnter(self)
-	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
-	GameTooltip:SetText(self.overrideText or L.units[self.unitType] or self.unitType)
+	local text = self.overrideText or L.units[self.unitType] or self.unitType or self.unit
+	if( text ) then
+		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
+		GameTooltip:SetText(text)
+	end
 end
 
 function OnLeave(self)
