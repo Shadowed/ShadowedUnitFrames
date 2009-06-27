@@ -88,21 +88,21 @@ function ShadowUF:LoadDefaultLayout()
 			debuffs = {enabled = false, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0},
 		},
 		text = {
-			{width = 0.40, name = L["Left text"], anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0, size = 0},
+			{width = 0.50, name = L["Left text"], anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0, size = 0},
 			{width = 0.60, name = L["Right text"], anchorTo = "$healthBar", anchorPoint = "ICR", x = -3, y = 0, size = 0},
 
-			{width = 0.40, name = L["Left text"], anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0, size = 0},
+			{width = 0.50, name = L["Left text"], anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0, size = 0},
 			{width = 0.60, name = L["Right text"], anchorTo = "$powerBar", anchorPoint = "ICR", x = -3, y = 0, size = 0},
 		},
 		indicators = {
-			raidTarget = {anchorTo = "$parent", anchorPoint = "TC", size = 20, x = 0, y = -14},
-			masterLoot = {anchorTo = "$parent", anchorPoint = "TL", size = 12, x = 35, y = 3},
+			raidTarget = {anchorTo = "$parent", anchorPoint = "C", size = 20, x = 0, y = 0},
+			masterLoot = {anchorTo = "$parent", anchorPoint = "TL", size = 12, x = 16, y = 3},
 			leader = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 2, y = 4},
 			pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 40, y = 11},
 			ready = {anchorTo = "$parent", anchorPoint = "C", size = 24, x = 0, y = 0},
 		},
 		combatText = {anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0},
-		healthBar = {background = true, fullSize = true, height = 1.20, width = 1.0, order = 10},
+		healthBar = {background = true, height = 1.20, width = 1.0, order = 10},
 		powerBar = {background = true, height = 1.0, width = 1.0, order = 20},
 		xpBar = {background = true, height = 0.25, width = 1.0, order = 30},
 		castBar = {background = true, height = 0.60, width = 1.0, order = 40},
@@ -126,7 +126,7 @@ function ShadowUF:LoadDefaultLayout()
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
 			},
 			text = {
-				{text = "[group( )][afk( )][name]", width = 0.50},
+				{text = "[afk( )][group( )][name]"},
 				{text = "[curhp]"},
 				{text = ""},
 				{text = "[curpp]"},
@@ -134,7 +134,7 @@ function ShadowUF:LoadDefaultLayout()
 		},
 		player = {
 			width = 190,
-			height = 55,
+			height = 50,
 			scale = 1.0,
 			portrait = {enabled = true},
 			auras = {
@@ -161,6 +161,12 @@ function ShadowUF:LoadDefaultLayout()
 			auras = {
 				buffs = {enabled = true},
 				debuffs = {enabled = true},
+			},
+			text = {
+				{text = "[afk( )][name]"},
+				{text = "[curmaxhp]"},
+				{text = "[level( )][perpp]"},
+				{text = "[curmaxpp]"},
 			},
 			portrait = {enabled = true},
 		},
@@ -193,14 +199,13 @@ function ShadowUF:LoadDefaultLayout()
 		},
 		target = {
 			width = 190,
-			height = 55,
+			height = 50,
 			scale = 1.0,
 			portrait = {enabled = true},
 			comboPoints = {anchorTo = "$parent", anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "UP"},
 			indicators = {
-				raidTarget = {anchorTo = "$parent", anchorPoint = "TC", size = 20, y = -15},
-				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -37, y = -9},
-				leader = {anchorTo = "$parent", anchorPoint = "TR", size = 14, x = -2, y = 0},
+				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -16, y = 3},
+				leader = {anchorTo = "$parent", anchorPoint = "TR", size = 14, x = -2, y = 4},
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = -3, y = 11},
 			},
 			auras = {
@@ -208,11 +213,11 @@ function ShadowUF:LoadDefaultLayout()
 				debuffs = {enabled = true},
 			},
 			text = {
-				{text = "[afk( )][name]", anchorTo = "$healthBar"},
-				{text = "[curmaxhp]", anchorTo = "$healthBar"},
+				{text = "[afk( )][name]"},
+				{text = "[curmaxhp]"},
 				
-				{text = "[level( )][perpp]", anchorTo = "$powerBar"},
-				{text = "[curmaxpp]", anchorTo = "$powerBar"},
+				{text = "[level( )][classification( )][perpp]", width = 0.50},
+				{text = "[curmaxpp]", anchorTo = "$powerBar", width = 0.60},
 			},
 		},
 		pet = {
@@ -252,7 +257,7 @@ function ShadowUF:LoadDefaultLayout()
 			scale = 1.0,
 			powerBar = {height = 0.70},
 			indicators = {
-				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = -3, y = 11},
 			},
 			text = {
 				{text = "[afk( )][name]"},
@@ -267,7 +272,7 @@ function ShadowUF:LoadDefaultLayout()
 			scale = 1.0,
 			powerBar = {height = 0.60},
 			indicators = {
-				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = -3, y = 11},
 			},
 			text = {
 				{text = "[afk( )][name]"},
@@ -280,9 +285,9 @@ function ShadowUF:LoadDefaultLayout()
 			width = 110,
 			height = 30,
 			scale = 1.0,
-			powerBar = {height = 0.70},
+			powerBar = {height = 0.90},
 			indicators = {
-				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = -3, y = 11},
 			},
 			text = {
 				{text = "[name]"},
@@ -295,9 +300,9 @@ function ShadowUF:LoadDefaultLayout()
 			width = 80,
 			height = 30,
 			scale = 1.0,
-			powerBar = {height = 0.60},
+			powerBar = {height = 0.90},
 			indicators = {
-				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = -3, y = 11},
 			},
 			text = {
 				{text = "[name]", width = 1.0},
