@@ -13,6 +13,7 @@ ShadowUFLocals = {
 	["Add"] = "Add",
 	["Add new tag"] = "Add new tag",
 	["Add new text"] = "Add new text",
+	["Add tags"] = "Add tags",
 	["Adds %s to the list of units to be modified when you change values in this tab."] = "Adds %s to the list of units to be modified when you change values in this tab.",
 	["Advanced"] = "Advanced",
 	["Alignment"] = "Alignment",
@@ -24,6 +25,7 @@ ShadowUFLocals = {
 	["Anchor point"] = "Anchor point",
 	["Anchor to"] = "Anchor to",
 	["Anchor to another frame"] = "Anchor to another frame",
+	["Any bars that appear before or after the full size options will use the entire frames width.\n\nThe remaining bars that are between those two numbers are shown next to the portrait."] = "Any bars that appear before or after the full size options will use the entire frames width.\n\nThe remaining bars that are between those two numbers are shown next to the portrait.",
 	["Are you really sure you want to delete this tag?"] = "Are you really sure you want to delete this tag?",
 	["Are you sure you want to delete this text? All settings for it will be deleted."] = "Are you sure you want to delete this text? All settings for it will be deleted.",
 	["Ascending"] = "Ascending",
@@ -114,7 +116,8 @@ ShadowUFLocals = {
 	["Frames"] = "Frames",
 	["Friendly"] = "Friendly",
 	["Fuel"] = "Fuel",
-	["Full size"] = "Full size",
+	["Full size after"] = "Full size after",
+	["Full size before"] = "Full size before",
 	["General"] = "General",
 	["Ghost"] = "Ghost",
 	["Global"] = "Global",
@@ -169,7 +172,6 @@ ShadowUFLocals = {
 	["If the unit is hostile, the reaction color will override any color health by options."] = "If the unit is hostile, the reaction color will override any color health by options.",
 	["If you casted the aura, then the buff icon will be increased in size to make it more visible."] = "If you casted the aura, then the buff icon will be increased in size to make it more visible.",
 	["If you hide a frame, you will have to do a /console reloadui for them to show back up again."] = "If you hide a frame, you will have to do a /console reloadui for them to show back up again.",
-	["Ignores the portrait and uses the entire frames width, the bar will be drawn either above or below the portrait depending on the order."] = "Ignores the portrait and uses the entire frames width, the bar will be drawn either above or below the portrait depending on the order.",
 	["In range alpha"] = "In range alpha",
 	["In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText - Quickly add and remove tags to text, when advanced settings are enabled you can also change the width and positioning of text."] = "In this category you can configure all of the enabled units, both what features to enable as well as tweaking the layout. Advanced settings in the general category if you want to be able to get finer control on setting options, but it's not recommended for most people.\n\nHere's what each tab does\n\nGeneral - General settings, portrait settings, combat text, anything that doesn't fit the other categories.\n\nFrame - Frame settings, scale, height, width. You can set the frame to be anchored to another here.\n\nBars - Enabling bars (health/cast/etc) as well as setting how the health bar can be colored.\n\nWidget size - Widget sizing, ordering, height.\n\nAuras - What filters to use, where to place auras.\n\nText - Quickly add and remove tags to text, when advanced settings are enabled you can also change the width and positioning of text.",
 	["Inactive alpha"] = "Inactive alpha",
@@ -206,7 +208,6 @@ ShadowUFLocals = {
 	["Offsets are saved using effective scaling, this is to prevent the frame from jumping around when you reload or login."] = "Offsets are saved using effective scaling, this is to prevent the frame from jumping around when you reload or login.",
 	["Or you can set a position manually"] = "Or you can set a position manually",
 	["Order"] = "Order",
-	["Order to use for the portrait, this only applies if you have a full sized bar."] = "Order to use for the portrait, this only applies if you have a full sized bar.",
 	["Out of range alpha"] = "Out of range alpha",
 	["Party frames are hidden while in a raid group with more than 5 people inside."] = "Party frames are hidden while in a raid group with more than 5 people inside.",
 	["Party frames are hidden while in any sort of raid no matter how many people."] = "Party frames are hidden while in any sort of raid no matter how many people.",
@@ -322,6 +323,7 @@ ShadowUFLocals = {
 	["XP/Rep bar"] = "XP/Rep bar",
 	["Y Offset"] = "Y Offset",
 	["You can add additional text with tags enabled using this configuration, note that any additional text added (or removed) effects all units, removing text will resettheir settings as well.\n\nKeep in mind, you cannot delete the default text included with the units."] = "You can add additional text with tags enabled using this configuration, note that any additional text added (or removed) effects all units, removing text will resettheir settings as well.\n\nKeep in mind, you cannot delete the default text included with the units.",
+	["You can add new custom tags through this page, if you're looking to change what tags are used in text look under the Text tab for an Units configuration."] = "You can add new custom tags through this page, if you're looking to change what tags are used in text look under the Text tab for an Units configuration.",
 	["You can find more information on creating your own custom tags in the \"Help\" tab above."] = "You can find more information on creating your own custom tags in the \"Help\" tab above.",
 	["You can find more information on creating your own custom tags in the \"Help\" tab above.\nSUF will attempt to automatically detect what events your tag will need, so you do not generally need to fill out the events field."] = "You can find more information on creating your own custom tags in the \"Help\" tab above.\nSUF will attempt to automatically detect what events your tag will need, so you do not generally need to fill out the events field.",
 	["You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone."] = "You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone.",
@@ -364,11 +366,6 @@ ShadowUFLocals = {
 		["pvp"] = "Battlegrounds",
 	},
 
-	["headers"] = {
-		["party"] = "Party #%d",
-		["raid"] = "Raid #%d",
-	},
-
 	["units"] = {
 		["targettargettarget"] = "Target of Target of Target",
 		["partytarget"] = "Party targets",
@@ -382,5 +379,10 @@ ShadowUFLocals = {
 		["raid"] = "Raid",
 		["targettarget"] = "Target of Target",
 		["party"] = "Party",
+	},
+
+	["headers"] = {
+		["party"] = "Party #%d",
+		["raid"] = "Raid #%d",
 	},
 }

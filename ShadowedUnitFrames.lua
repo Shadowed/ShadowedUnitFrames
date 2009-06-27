@@ -131,6 +131,10 @@ function ShadowUF:CheckUpgrade()
 		end
 	end
 	
+	-- June 26th, DB cleanup mostly
+	for _, data in pairs(self.db.profile.units) do
+		data.healthBar.fullSize = nil
+	end
 end
 	
 local partyDisabled
@@ -181,7 +185,7 @@ function ShadowUF:LoadUnitDefaults()
 		self.defaults.profile.units[unit] = {
 			enabled = false, height = 0, width = 0, scale = 1.0,
 			healthBar = {enabled = true, colorType = "percent", reaction = true},
-			powerBar = {enabled = true}, portrait = {enabled = false, type = "3D"},
+			powerBar = {enabled = true}, portrait = {enabled = false, type = "3D", fullBefore = 0, fullAfter = 100},
 			range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
 			text = {{enabled = true, name = L["Left text"], text = "[name]", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Left text"], text = "[level] [race]", anchorTo = "$powerBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxpp]", anchorTo = "$powerBar", size = 0}},
 			indicators = {raidTarget = {enabled = true}}, 

@@ -147,7 +147,7 @@ local updateThrottle
 function Movers:OnLayoutApplied(frame)
 	local moverFrame = frameList[frame.unit]
 	if( moverFrame and moverFrame:IsVisible() ) then
-		ShadowUF.Layout:ApplyUnitFrame(moverFrame, ShadowUF.db.profile.units[moverFrame.unitType])
+		ShadowUF.Layout:SetupFrame(moverFrame, ShadowUF.db.profile.units[moverFrame.unitType])
 		
 		moverFrame.text:SetWidth(moverFrame:GetWidth() - 10)
 		moverFrame.text:SetHeight(moverFrame:GetHeight() - 10)

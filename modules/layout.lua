@@ -1,6 +1,6 @@
 local Layout = {}
-local SML, config, backdropTbl, mediaRequired
-local ordering, anchoringQueued, mediaPath, frameList = {}, {}, {}, {}
+local SML, config, mediaRequired
+local barOrder, anchoringQueued, mediaPath, frameList = {}, {}, {}, {}
 local _G = getfenv(0)
 
 ShadowUF.Layout = Layout
@@ -23,7 +23,7 @@ function Layout:MediaForced(mediaType)
 	self:CheckMedia()
 	
 	if( mediaPath[mediaType] ~= oldPath ) then
-		self:ReloadAll()
+		self:Reload()
 	end
 end
 
@@ -34,6 +34,7 @@ function Layout:CheckMedia()
 	mediaPath[SML.MediaType.BORDER] = loadMedia(SML.MediaType.BORDER, ShadowUF.db.profile.backdrop.borderTexture, "")
 
 	self.mediaPath = mediaPath
+
 end
 
 -- We might not have had a media we required at initial load, wait for it to load and then update everything when it does
@@ -42,11 +43,11 @@ function Layout:MediaRegistered(event, mediaType, key)
 		mediaPath[mediaType] = SML:Fetch(mediaType, key)
 		mediaRequired[mediaType] = nil
 		
-		self:ReloadAll()
+		self:Reload()
 	end
 end
 
--- Help function
+-- Helper function
 function Layout:ToggleVisibility(frame, visible)
 	if( frame ) then
 		if( visible ) then
@@ -57,37 +58,32 @@ function Layout:ToggleVisibility(frame, visible)
 	end
 end	
 
-function Layout:ReloadAll(unit)
+-- Frame changed somehow between when we first set it all up and now
+function Layout:Reload(unit)
 	-- Now update them
 	for frame in pairs(frameList) do
 		if( not unit or frame.unitType == unit ) then
 			frame:SetVisibility()
-			self:ApplyAll(frame)
+			self:Load(frame)
 			frame:FullUpdate()
 		end
 	end
 end
 
 -- Do a full update
-function Layout:ApplyAll(frame)
-	local unitConfig = ShadowUF.db.profile.units[frame.unitType]
-	if( not unitConfig ) then
-		return
-	end
-	
+function Layout:Load(frame)
 	-- About to set layout
 	ShadowUF:FireModuleEvent("OnPreLayoutApply", frame)
-			
-	self:ApplyUnitFrame(frame, unitConfig)
-	self:ApplyPortrait(frame, unitConfig)
-	self:ApplyBarVisuals(frame, unitConfig)
-	self:ApplyBars(frame, unitConfig)
-	self:ApplyIndicators(frame, unitConfig)
-	self:ApplyAuras(frame, unitConfig)
-	self:ApplyText(frame, unitConfig)
+
+	local unitConfig = ShadowUF.db.profile.units[frame.unitType]
 	
-	-- Layouts been fully set
-	ShadowUF:FireModuleEvent("OnLayoutApplied", frame)
+	-- Load all of the layout things
+	self:SetupFrame(frame, unitConfig)
+	self:SetupBars(frame, unitConfig)
+	self:PositionWidgets(frame, unitConfig)
+	self:PositionIndicators(frame, unitConfig)
+	self:PositionAuras(frame, unitConfig)
+	self:SetupText(frame, unitConfig)
 
 	-- Set this frame as managed by the layout system
 	frameList[frame] = true
@@ -103,6 +99,9 @@ function Layout:ApplyAll(frame)
 			anchoringQueued[queued] = nil
 		end
 	end
+
+	-- Layouts been fully set
+	ShadowUF:FireModuleEvent("OnLayoutApplied", frame)
 end
 
 function Layout:LoadSML()
@@ -211,16 +210,18 @@ function Layout:AnchorFrame(parent, frame, config)
 end
 
 -- Setup the main frame
-function Layout:ApplyUnitFrame(frame, config)
+local backdropTbl = {insets = {}}
+function Layout:SetupFrame(frame, config)
 	local backdrop = ShadowUF.db.profile.backdrop
-	backdropTbl = backdropTbl or {
-			bgFile = mediaPath.background,
-			edgeFile = mediaPath.border,
-			tile = backdrop.tileSize > 0 and true or false,
-			edgeSize = backdrop.edgeSize,
-			tileSize = backdrop.tileSize,
-			insets = {left = backdrop.inset, right = backdrop.inset, top = backdrop.inset, bottom = backdrop.inset}
-	}
+	backdropTbl.bgFile = mediaPath.background
+	backdropTbl.edgeFile = mediaPath.border
+	backdropTbl.tile = backdrop.tileSize > 0 and true or false
+	backdropTbl.edgeSize = backdrop.edgeSize
+	backdropTbl.tileSize = backdrop.tileSize
+	backdropTbl.insets.left = backdrop.inset
+	backdropTbl.insets.right = backdrop.inset
+	backdropTbl.insets.top = backdrop.inset
+	backdropTbl.insets.bottom = backdrop.inset
 		
 	frame:SetHeight(config.height)
 	frame:SetWidth(config.width)
@@ -239,47 +240,8 @@ function Layout:ApplyUnitFrame(frame, config)
 	end
 end
 
--- Setup portraits
-function Layout:ApplyPortrait(frame, config)
-	-- We want it to be a pixel inside the frame, so inset + clip gets us that
-	local clip = ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip
-	
-	self:ToggleVisibility(frame.portrait, frame.visibility.portrait)
-	if( frame.portrait and frame.portrait:IsShown() ) then
-		frame.portrait:ClearAllPoints()
-		frame.portrait:SetHeight(config.height - (clip * 2))
-		frame.portrait:SetWidth(config.width * config.portrait.width)
-
-		frame.barFrame:ClearAllPoints()
-		frame.barFrame:SetHeight(frame:GetHeight() - (clip * 2))
-
-		-- Flip the alignment for targets to keep the same look as default
-		local position = config.portrait.alignment
-		if( frame:GetAttribute("unit") and not config.portrait.noAutoAlign and ( frame.unit == "target" or string.match(frame.unit, "%w+target") ) ) then
-			position = config.portrait.alignment == "LEFT" and "RIGHT" or "LEFT"
-		end
-
-		if( position == "LEFT" ) then
-			frame.portrait:SetPoint("TOPLEFT", frame, "TOPLEFT", clip, -clip)
-			frame.barFrame:SetPoint("RIGHT", frame.portrait)
-			frame.barFrame:SetPoint("RIGHT", frame, -clip, 0)
-			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - ShadowUF.db.profile.backdrop.clip)
-		else
-			frame.portrait:SetPoint("TOPRIGHT", frame, "TOPRIGHT", -clip, -clip)
-			frame.barFrame:SetPoint("LEFT", frame.portrait)
-			frame.barFrame:SetPoint("LEFT", frame, clip, 0)
-			frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2) - frame.portrait:GetWidth() - ShadowUF.db.profile.backdrop.clip)
-		end
-	else
-		frame.barFrame:ClearAllPoints()
-		frame.barFrame:SetPoint("TOPLEFT", frame, "TOPLEFT", clip, -clip)
-		frame.barFrame:SetHeight(frame:GetHeight() - (clip * 2))
-		frame.barFrame:SetWidth(frame:GetWidth() - (clip * 2))
-	end
-end
-
 -- Setup bars
-function Layout:ApplyBarVisuals(frame, config)
+function Layout:SetupBars(frame, config)
 	for _, module in pairs(ShadowUF.modules) do
 		local key = module.moduleKey
 		local widget = frame[key]
@@ -313,7 +275,7 @@ local function updateShadows(fontString)
 end
 
 local totalWeight = {}
-function Layout:ApplyText(frame, config)
+function Layout:SetupText(frame, config)
 	-- Update cast bar text
 	if( frame.castBar and frame.castBar:IsShown() ) then
 		-- Set the font at the very least, so it doesn't error when we set text on it even if it isn't being shown
@@ -408,7 +370,7 @@ function Layout:ApplyText(frame, config)
 end
 
 -- Setup indicators
-function Layout:ApplyIndicators(frame, config)
+function Layout:PositionIndicators(frame, config)
 	if( frame.comboPoints ) then
 		self:ToggleVisibility(frame.comboPoints, config.comboPoints.enabled)
 		if( frame.comboPoints:IsShown() ) then
@@ -489,7 +451,7 @@ local function positionAuras(self, config)
 end			
 			
 -- Setup auras
-function Layout:ApplyAuras(frame, config)
+function Layout:PositionAuras(frame, config)
 	if( not frame.auras or not frame.visibility.auras ) then
 		if( frame.auras ) then
 			frame.auras.buffs.buttons[1]:Hide()
@@ -503,45 +465,107 @@ function Layout:ApplyAuras(frame, config)
 	if( config.auras.debuffs.enabled ) then positionAuras(frame.auras.debuffs, config.auras.debuffs) end
 end
 
--- Setup the bar ordering/info
+-- Setup the bar barOrder/info
 local currentConfig
 local function sortOrder(a, b)
-	return ((currentConfig[a].order or 100) < (currentConfig[b].order or 100))
+	return currentConfig[a].order < currentConfig[b].order
 end
 
-function Layout:ApplyBars(frame, config)
-	-- Figure out the height of a few widgets, and set the size/positioning correctly
-	local totalWeight = 0
-	local totalBars = -1
-
-	for i=#(ordering), 1, -1 do table.remove(ordering, i) end
-	for _, module in pairs(ShadowUF.modules) do
-		if( module.moduleHasBar and frame[module.moduleKey] and config[module.moduleKey].height and frame[module.moduleKey]:IsShown() ) then
-			totalWeight = totalWeight + config[module.moduleKey].height
+-- This system is a bit odd for dealing with full sized bars, but it's functional although slightly more complicated than the old one
+-- as using the old system would require 3 bar frames per each frame which is kind of a waste when we can just use offsets and a bit of magic
+function Layout:PositionWidgets(frame, config)
+	-- Deal with setting all of the bar heights
+	local totalWeight, totalBars, hasFullSize = 0, -1
+	
+	-- Figure out total weighting as well as what bars are full sized
+	for i=#(barOrder), 1, -1 do table.remove(barOrder, i) end
+	for key, module in pairs(ShadowUF.modules) do
+		if( module.moduleHasBar and frame[key] and frame[key]:IsShown() ) then
+			totalWeight = totalWeight + config[key].height
 			totalBars = totalBars + 1
 			
-			table.insert(ordering, module.moduleKey)
+			table.insert(barOrder, key)
+			
+			-- Decide whats full sized
+			if( not frame.visibility.portrait or config[key].order < config.portrait.fullBefore or config[key].order > config.portrait.fullAfter ) then
+				hasFullSize = true
+				frame[key].fullSize = true
+			else
+				frame[key].fullSize = nil
+			end
 		end
 	end
-	
+
+	-- Sort the barOrder so it's all nice and orderly (:>)
 	currentConfig = config
-	table.sort(ordering, sortOrder)
-		
-	local lastFrame
-	local availableHeight = frame.barFrame:GetHeight() - (math.abs(ShadowUF.db.profile.bars.spacing) * totalBars)
-	for id, key in pairs(ordering) do
+	table.sort(barOrder, sortOrder)
+
+	-- Now deal with setting the heights and figure out how large the portrait should be.
+	local clip = ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip
+	local clipDoubled = clip * 2
+	
+	-- Figure out portrait alignment
+	local portraitAlignment = config.portrait.alignment
+	if( not config.portrait.noAutoAlign and ( frame.unit == "target" or string.match(frame.unit, "%w+target") ) ) then
+		portraitAlignment = config.portrait.alignment == "LEFT" and "RIGHT" or "LEFT"
+	end
+
+	-- Set the portrait width so we can figure out the offset to use on bars, will do height and position later
+	self:ToggleVisibility(frame.portrait, frame.visibility.portrait)
+	if( frame.portrait and frame.portrait:IsShown() ) then
+		frame.portrait:SetWidth(math.floor(config.width * config.portrait.width))
+	end
+
+	-- As well as how much to offset bars by (if it's using a left alignment) to keep them all fancy looking
+	local portraitOffset = clip
+	if( frame.visibility.portrait and portraitAlignment == "LEFT" ) then
+		portraitOffset = frame.portrait:GetWidth() + clip
+	end
+	
+	-- Position and size everything
+	local portraitHeight, xOffset = 0, -clip
+	local availableHeight = frame:GetHeight() - clipDoubled - (math.abs(ShadowUF.db.profile.bars.spacing) * totalBars)
+	local portraitAnchor
+	for id, key in pairs(barOrder) do
 		local bar = frame[key]
-		bar:ClearAllPoints()
-		bar:SetWidth(frame.barFrame:GetWidth())
-		bar:SetHeight(availableHeight * (config[key].height / totalWeight))
+		bar.type = key
 		
-		if( id > 1 ) then
-			bar:SetPoint("TOPLEFT", lastFrame, "BOTTOMLEFT", 0, ShadowUF.db.profile.bars.spacing)
+		-- Position the actual bar based on it's type
+		if( bar.fullSize ) then
+			bar:SetWidth(math.ceil(frame:GetWidth() - clipDoubled))
+			bar:SetHeight(availableHeight * (config[key].height / totalWeight))
+			bar:SetPoint("TOPLEFT", frame, "TOPLEFT", clip, xOffset)
 		else
-			bar:SetPoint("TOPLEFT", frame.barFrame, "TOPLEFT", 0, 0)
+			bar:SetWidth(math.ceil(frame:GetWidth() - frame.portrait:GetWidth() - clipDoubled))
+			bar:SetHeight(availableHeight * (config[key].height / totalWeight))
+			bar:SetPoint("TOPLEFT", frame, "TOPLEFT", portraitOffset, xOffset)
+			
+			portraitHeight = portraitHeight + bar:GetHeight()
 		end
 		
-		lastFrame = bar
+		-- Figure out where the portrait is going to be anchored to
+		if( not portraitAnchor and config[key].order >= config.portrait.fullBefore ) then
+			portraitAnchor = bar
+		end
+
+		xOffset = xOffset - bar:GetHeight() + ShadowUF.db.profile.bars.spacing
+	end
+	
+	-- Now position the portrait and set the height
+	if( frame.portrait and frame.portrait:IsShown() ) then
+		if( portraitAlignment == "LEFT" ) then
+			frame.portrait:ClearAllPoints()
+			frame.portrait:SetPoint("TOPRIGHT", portraitAnchor or frame, "TOPLEFT", 0, hasFullSize and -ShadowUF.db.profile.backdrop.clip or 0)
+		else
+			frame.portrait:ClearAllPoints()
+			frame.portrait:SetPoint("TOPLEFT", portraitAnchor or frame, "TOPRIGHT", ShadowUF.db.profile.backdrop.clip, hasFullSize and -ShadowUF.db.profile.backdrop.clip or 0)
+		end
+		
+		if( hasFullSize ) then
+			frame.portrait:SetHeight(math.ceil(portraitHeight) - math.abs(ShadowUF.db.profile.bars.spacing))
+		else
+			frame.portrait:SetHeight(math.ceil(portraitHeight) + ShadowUF.db.profile.backdrop.clip)
+		end
 	end
 end
 

@@ -46,12 +46,12 @@ function XP:SetColor(frame)
 	end
 end
 
--- Handles updating the bar ordering if needed
+-- Handles updating the bar visibility if needed
 function XP:SetBarVisibility(frame, shown)
 	local wasShown = frame.xpBar:IsShown()
 	ShadowUF.Layout:ToggleVisibility(frame.xpBar, shown)
 	if( wasShown and not shown or not wasShown and shown ) then
-		ShadowUF.Layout:ApplyBars(frame, ShadowUF.db.profile.units[frame.unitType])
+		ShadowUF.Layout:PositionWidgets(frame, ShadowUF.db.profile.units[frame.unitType])
 	end
 end
 

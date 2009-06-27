@@ -173,7 +173,7 @@ local function SetVisibility(self)
 	
 	-- We had a module update, so redo everything
 	if( layoutUpdate ) then
-		ShadowUF.Layout:ApplyAll(self)
+		ShadowUF.Layout:Load(self)
 	end
 end
 
@@ -427,6 +427,7 @@ end)
 -- Create the generic things that we want in every secure frame regardless if it's a button or a header
 function Units:CreateUnit(frame,  hookVisibility)
 	frame.barFrame = CreateFrame("Frame", nil, frame)
+	frame.secondBarFrame = CreateFrame("Frame", nil, frame)
 	frame:Hide()
 	
 	frame.fullUpdates = {}
@@ -518,7 +519,7 @@ function Units:ProfileChanged()
 			
 			-- Now enable whatever we need to
 			frame:SetVisibility()
-			ShadowUF.Layout:ApplyAll(frame)
+			ShadowUF.Layout:Reload(frame)
 			frame:FullUpdate()
 		end
 	end
