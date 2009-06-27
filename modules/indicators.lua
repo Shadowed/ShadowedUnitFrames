@@ -77,7 +77,7 @@ function Indicators:UpdateStatus(frame)
 	if( UnitAffectingCombat(frame.unit) ) then
 		frame.indicators.status:SetTexCoord(0.50, 1.0, 0.0, 0.49)
 		frame.indicators.status:Show()
-	elseif( frame.unit == "player" and IsResting() ) then
+	elseif( IsResting() ) then
 		frame.indicators.status:SetTexCoord(0.0, 0.50, 0.0, 0.421875)
 		frame.indicators.status:Show()
 	else
@@ -125,7 +125,6 @@ function Indicators:UpdateReadyCheck(frame, event)
 	frame.indicators:SetScript("OnUpdate", nil)
 	frame.indicators.ready.status = status
 	frame.indicators.ready:SetAlpha(1.0)
-	frame.indicators.ready:SetTexCoord(0, 0, 0, 0)
 	frame.indicators.ready:SetTexture((status == "ready" and READY_CHECK_READY_TEXTURE or status == "notready" and READY_CHECK_NOT_READY_TEXTURE or status == "waiting" and READY_CHECK_WAITING_TEXTURE))
 	frame.indicators.ready:Show()
 end
@@ -205,7 +204,7 @@ function Indicators:OnEnable(frame)
 		frame:RegisterNormalEvent("READY_CHECK_FINISHED", self, "UpdateReadyCheck")
 		frame:RegisterUpdateFunc(self, "UpdateReadyCheck")
 		
-		frame.indicators.ready = frame.indicators.raidTarget or frame.indicators:CreateTexture(nil, "OVERLAY")
+		frame.indicators.ready = frame.indicators.ready or frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.ready:Hide()
 	end
 	
