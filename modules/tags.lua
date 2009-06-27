@@ -167,9 +167,11 @@ function ShadowUF:FormatLargeNumber(number)
 		return number
 	elseif( number < 999999 ) then
 		return string.format("%.1fk", number / 1000)
+	elseif( number < 99999999 ) then
+		return string.format("%.2fm", number / 1000000)
 	end
 	
-	return string.format("%.2fm", number / 1000000)
+	return string.format("%dm", number / 1000000)
 end
 
 function ShadowUF:GetClassColor(unit)
@@ -332,22 +334,27 @@ Tags.defaultTags = {
 		return string.format("%s/%s", ShadowUF:FormatLargeNumber(power), ShadowUF:FormatLargeNumber(maxPower))
 	end]],
 	["levelcolor"] = [[function(unit, unitOwner)
-		local level = UnitLevel(unit);
-		if( level <= 0 ) then
+		local level = UnitLevel(unit)
+		if( level < 0 and UnitClassification(unit) == "worldboss" ) then
 			return nil
-		elseif( UnitCanAttack("player", unit) ) then
+		end
+		
+		if( UnitCanAttack("player", unit) ) then
 			local color = ShadowUF:Hex(GetDifficultyColor(level > 0 and level or 99))
 			if( not color ) then
-				return level
+				return level > 0 and level or "??"
 			end
 			
-			return color .. level .. "|r"
+			return color .. (level > 0 and level or "??") .. "|r"
 		else
 			return level
 		end
 	end]],
 	["faction"] = [[function(unit, unitOwner) return UnitFactionGroup(unit) end]],
-	["level"] = [[function(unit, unitOwner) local l = UnitLevel(unit) return l > 0 and l or "??" end]],
+	["level"] = [[function(unit, unitOwner)
+		local level = UnitLevel(unit)
+		return level > 0 and level or not UnitClassification(unit) ~= "worldboss" and "??" or nil
+	end]],
 	["maxhp"] = [[function(unit, unitOwner) return ShadowUF:FormatLargeNumber(UnitHealthMax(unit)) end]],
 	["maxpp"] = [[function(unit, unitOwner)
 		local power = UnitPowerMax(unit)
@@ -504,16 +511,18 @@ Tags.defaultTags = {
 -- Use a new [levelcolor] tag with the renamed 3.2 API if they are on 3.2
 if( select(4, GetBuildInfo()) >= 30200 ) then
 	Tags.defaultTags["levelcolor"] = [[function(unit, unitOwner)
-		local level = UnitLevel(unit);
-		if( level <= 0 ) then
+		local level = UnitLevel(unit)
+		if( level < 0 and UnitClassification(unit) == "worldboss" ) then
 			return nil
-		elseif( UnitCanAttack("player", unit) ) then
+		end
+		
+		if( UnitCanAttack("player", unit) ) then
 			local color = ShadowUF:Hex(GetQuestDifficultyColor(level > 0 and level or 99))
 			if( not color ) then
-				return level
+				return level > 0 and level or "??"
 			end
 			
-			return color .. level .. "|r"
+			return color .. (level > 0 and level or "??") .. "|r"
 		else
 			return level
 		end
