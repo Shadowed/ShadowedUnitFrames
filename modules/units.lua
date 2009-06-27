@@ -256,16 +256,16 @@ end
 -- Attribute set, something changed
 local function OnAttributeChanged(self, name, unit)
 	if( name ~= "unit" or not unit or unit == self.unitOwner ) then return end
-	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
-	if( inCombat ) then
-		queuedCombat[self] = true
-		return
 	-- Unit already exists, we're going to update our information on them but we're not going to do a full update and recheck things
 	-- we don't have to because frames are ALWAYS going to be the same type, a raid frame will not magically turn into a target frame.
-	elseif( self.unit ) then
+	if( self.unit ) then
 		self.unit = unit
 		self.unitID = tonumber(string.match(unit, "([0-9]+)"))
 		self.unitOwner = unit
+		self:CheckUnitGUID()
+	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
+	elseif( inCombat ) then
+		queuedCombat[self] = true
 		return
 	end
 		
@@ -519,7 +519,7 @@ function Units:ProfileChanged()
 			
 			-- Now enable whatever we need to
 			frame:SetVisibility()
-			ShadowUF.Layout:Reload(frame)
+			ShadowUF.Layout:Load(frame)
 			frame:FullUpdate()
 		end
 	end
