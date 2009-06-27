@@ -476,6 +476,8 @@ function Units:CreateUnit(frame,  hookVisibility)
 end
 
 function Units:ReloadHeader(type)
+	if( not unitFrames[type] or unitFrames[type].unit ) then return end
+	
 	-- Update the main header
 	local frame = unitFrames[type]
 	if( frame ) then

@@ -394,7 +394,7 @@ function Layout:PositionIndicators(frame, config)
 		local indicator = frame.indicators[key]
 		if( indicator ) then
 			indicator.enabled = config.indicators[key] and config.indicators[key].enabled
-			if( indicator.enabled ) then
+			if( indicator.enabled and config.indicators[key].size ) then
 				indicator:SetHeight(config.indicators[key].size)
 				indicator:SetWidth(config.indicators[key].size)
 				
@@ -513,7 +513,7 @@ function Layout:PositionWidgets(frame, config)
 	-- Set the portrait width so we can figure out the offset to use on bars, will do height and position later
 	self:ToggleVisibility(frame.portrait, frame.visibility.portrait)
 	if( frame.portrait and frame.portrait:IsShown() ) then
-		frame.portrait:SetWidth(math.floor(config.width * config.portrait.width))
+		frame.portrait:SetWidth(math.floor(config.width * config.portrait.width) - ShadowUF.db.profile.backdrop.inset)
 	end
 
 	-- As well as how much to offset bars by (if it's using a left alignment) to keep them all fancy looking
@@ -552,19 +552,19 @@ function Layout:PositionWidgets(frame, config)
 	end
 	
 	-- Now position the portrait and set the height
-	if( frame.portrait and frame.portrait:IsShown() ) then
+	if( frame.portrait and frame.portrait:IsShown() and portraitAnchor ) then
 		if( portraitAlignment == "LEFT" ) then
 			frame.portrait:ClearAllPoints()
-			frame.portrait:SetPoint("TOPRIGHT", portraitAnchor or frame, "TOPLEFT", 0, hasFullSize and -ShadowUF.db.profile.backdrop.clip or 0)
+			frame.portrait:SetPoint("TOPRIGHT", portraitAnchor, "TOPLEFT", -1, 0)
 		else
 			frame.portrait:ClearAllPoints()
-			frame.portrait:SetPoint("TOPLEFT", portraitAnchor or frame, "TOPRIGHT", ShadowUF.db.profile.backdrop.clip, hasFullSize and -ShadowUF.db.profile.backdrop.clip or 0)
+			frame.portrait:SetPoint("TOPLEFT", portraitAnchor, "TOPRIGHT", 1, 0)
 		end
-		
+			
 		if( hasFullSize ) then
-			frame.portrait:SetHeight(math.ceil(portraitHeight) - math.abs(ShadowUF.db.profile.bars.spacing))
+			frame.portrait:SetHeight(math.floor(portraitHeight))
 		else
-			frame.portrait:SetHeight(math.ceil(portraitHeight) + ShadowUF.db.profile.backdrop.clip)
+			frame.portrait:SetHeight(config.height - clipDoubled)
 		end
 	end
 end
