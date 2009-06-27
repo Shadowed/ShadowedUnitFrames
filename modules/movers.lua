@@ -71,7 +71,7 @@ function Movers:Enable()
 	self.infoFrame = frame
 end
 
-function OnDragStart(self)
+local function OnDragStart(self)
 	self = frameList[self.unitType] or self
 	self.isMoving = true
 	self.parentMoving = nil
@@ -85,7 +85,7 @@ function OnDragStart(self)
 	end
 end
 
-function OnDragStop(self)
+local function OnDragStop(self)
 	self = frameList[self.unitType] or self
 	self.isMoving = false
 	self:StopMovingOrSizing()
@@ -109,7 +109,7 @@ function OnDragStop(self)
 	end
 end
 
-function OnEnter(self)
+local function OnEnter(self)
 	local text = self.overrideText or L.units[self.unitType] or self.unitType or self.unit
 	if( text ) then
 		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
@@ -117,12 +117,12 @@ function OnEnter(self)
 	end
 end
 
-function OnLeave(self)
+local function OnLeave(self)
 	GameTooltip:Hide()
 end
 
 -- Handles the header creation to mimick all the frames they have
-function getRelativeAnchor(point)
+local function getRelativeAnchor(point)
 	if( not point ) then return end
 	if( point == "TOP") then
 		return "BOTTOM", 0, -1

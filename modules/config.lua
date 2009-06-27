@@ -37,7 +37,7 @@ ShadowUF.Config = Config
 
 local selectDialogGroup, selectTabGroup, hideAdvancedOption, getName, getUnitOrder, set, get, setVariable, getVariable
 local setColor, getColor, setUnit, getUnit, getTagName, getTagHelp, hideRestrictedOption, getModuleOrder
-local unitOrder, positionList, fullReload, pointPositions, isModifiersSet, isUnitDisabled, mergeTables
+local unitOrder, positionList, fullReload, pointPositions, isModifiersSet, isUnitDisabled, mergeTables, hideBasicOption
 local function loadData()
 	-- Simple position list rather than the full one
 	pointPositions = {[""] = L["None"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["C"] = L["Center"]}
