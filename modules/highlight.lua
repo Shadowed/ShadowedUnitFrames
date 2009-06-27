@@ -107,5 +107,6 @@ function Highlight:OnDisable(frame)
 	frame.highlight.hasDebuff = nil
 	frame.highlight.hasThreat = nil
 	frame.highlight.hasAttention = nil
+	frame.highlight.hasMouseover = nil
 	frame.highlight:Hide()
 end
