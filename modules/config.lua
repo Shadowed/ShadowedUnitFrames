@@ -133,7 +133,7 @@ local function loadData()
 		
 		if( cat and fullReload[cat] ) then
 			ShadowUF.Layout:CheckMedia()
-			ShadowUF.Layout:ReloadAll()
+			ShadowUF.Layout:Reload()
 		end
 	end
 
@@ -154,15 +154,15 @@ local function loadData()
 		-- For setting options like units.player.auras.buffs.enabled = true
 		if( moduleKey and moduleSubKey and configTable[moduleKey][moduleSubKey] ) then
 			configTable[moduleKey][moduleSubKey][key] = value
-			ShadowUF.Layout:ReloadAll(unit)
+			ShadowUF.Layout:Reload(unit)
 		-- For setting options like units.player.portrait.enabled = true
 		elseif( moduleKey and not moduleSubKey and configTable[moduleKey] ) then
 			configTable[moduleKey][key] = value
-			ShadowUF.Layout:ReloadAll(unit)
+			ShadowUF.Layout:Reload(unit)
 		-- For setting options like units.player.height = 50
 		elseif( not moduleKey and not moduleSubKey ) then
 			configTable[key] = value
-			ShadowUF.Layout:ReloadAll(unit)
+			ShadowUF.Layout:Reload(unit)
 		end
 	end
 
@@ -338,7 +338,7 @@ local function loadGeneralOptions()
 			end
 			
 			addTextParent.args[info[#(info)]] = nil
-			ShadowUF.Layout:ReloadAll()
+			ShadowUF.Layout:Reload()
 		end,
 	}
 
@@ -886,7 +886,7 @@ local function loadUnitOptions()
 		if( info[2] == "raid" or info[2] == "party" ) then
 			ShadowUF.Units:ReloadHeader(info[2])
 		else
-			ShadowUF.Layout:ReloadAll(info[2])
+			ShadowUF.Layout:Reload(info[2])
 		end
 		
 		ShadowUF.modules.movers:Update()
@@ -967,7 +967,7 @@ local function loadUnitOptions()
 					order = 1,
 					type = "select",
 					name = L["Anchor point"],
-					values = {["ITR"] = L["Inside Top Right"], ["ITL"] = L["Inside Top Left"], ["ICL"] = L["Inside Center Left"], ["IC"] = L["Inside Center"], ["ICR"] = L["Inside Center Right"]},
+					values = {["LC"] = L["Left Center"], ["RC"] = L["Right Center"],["ITR"] = L["Inside Top Right"], ["ITL"] = L["Inside Top Left"], ["ICL"] = L["Inside Center Left"], ["IC"] = L["Inside Center"], ["ICR"] = L["Inside Center Right"]},
 					hidden = hideAdvancedOption,
 				},
 				sep = {
@@ -1289,19 +1289,6 @@ local function loadUnitOptions()
 		inline = true,
 		hidden = hideRestrictedOption,
 		args = {
-			--[[
-			fullSize = {
-				order = 1,
-				type = "toggle",
-				name = L["Full size"],
-				desc = L["Ignores the portrait and uses the entire frames width, the bar will be drawn either above or below the portrait depending on the order."],
-				hidden = function(info)
-					local unit = info[#(info) - 3]
-					unit = unit == "global" and masterUnit or unit
-					return not ShadowUF.db.profile.units[unit].portrait.enabled
-				end,
-			},
-			]]
 			background = {
 				order = 2,
 				type = "toggle",
@@ -1309,24 +1296,8 @@ local function loadUnitOptions()
 				desc = L["Show a background behind the bars with the same texture/color but faded out."],
 				hidden = hideAdvancedOption,
 				arg = "$parent.background",
+				width = "half",
 			},
-			--[[
-			sep = {
-				order = 3,
-				type = "description",
-				name = "",
-				width = "full",
-				hidden = function(info)
-					local unit = info[#(info) - 3]
-					unit = unit == "global" and masterUnit or unit
-					if( ShadowUF.db.profile.units[unit].portrait.enabled and ShadowUF.db.profile.advanced ) then
-						return false
-					end
-					
-					return true
-				end,
-			},
-			]]
 			order = {
 				order = 4,
 				type = "range",
@@ -2312,22 +2283,25 @@ local function loadUnitOptions()
 				set = setUnit,
 				get = getUnit,
 				args = {
-					portrait = {
+					help = {
 						order = 0,
+						type = "group",
+						name = L["Help"],
+						inline = true,
+						args = {
+							help = {
+								order = 0,
+								type = "description",
+								name = L["Any bars that appear before or after the full size options will use the entire frames width.\n\nThe remaining bars that are between those two numbers are shown next to the portrait."],
+							},
+						},
+					},
+					portrait = {
+						order = 0.5,
 						type = "group",
 						name = L["Portrait"],
 						inline = true,
 						args = {
-							--[[
-							order = {
-								order = 0,
-								type = "range",
-								name = L["Order"],
-								desc = L["Order to use for the portrait, this only applies if you have a full sized bar."],
-								min = 0, max = 100, step = 5,
-								arg = "portrait.order",
-							},
-							]]
 							width = {
 								order = 1,
 								type = "range",
@@ -2336,6 +2310,22 @@ local function loadUnitOptions()
 								min = 0, max = 1.0, step = 0.01,
 								isPercent = true,
 								arg = "portrait.width",
+							},
+							before = {
+								order = 2,
+								type = "range",
+								name = L["Full size before"],
+								min = 0, max = 100, step = 5,
+								hidden = false,
+								arg = "$parent.fullBefore",
+							},
+							after = {
+								order = 3,
+								type = "range",
+								name = L["Full size after"],
+								min = 0, max = 100, step = 5,
+								hidden = false,
+								arg = "$parent.fullAfter",
 							},
 						},
 					},
@@ -2588,15 +2578,29 @@ local function loadTagOptions()
 	options.args.tags = {
 		type = "group",
 		childGroups = "tab",
-		name = L["Tags"],
+		name = L["Add tags"],
 		args = {
 			general = {
 				order = 0,
 				type = "group",
 				name = L["Tag list"],
 				args = {
-					search = {
+					help = {
 						order = 0,
+						type = "group",
+						inline = true,
+						name = L["Help"],
+						hidden = function() return ShadowUF.db.profile.advanced end,
+						args = {
+							description = {
+								order = 0,
+								type = "description",
+								name = L["You can add new custom tags through this page, if you're looking to change what tags are used in text look under the Text tab for an Units configuration."],
+							},
+						},
+					},
+					search = {
+						order = 1,
 						type = "group",
 						inline = true,
 						name = L["Search"],
@@ -2611,7 +2615,7 @@ local function loadTagOptions()
 						},
 					},
 					list = {
-						order = 1,
+						order = 2,
 						type = "group",
 						inline = true,
 						name = L["Tags"],
