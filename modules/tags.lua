@@ -353,7 +353,7 @@ Tags.defaultTags = {
 	["faction"] = [[function(unit, unitOwner) return UnitFactionGroup(unit) end]],
 	["level"] = [[function(unit, unitOwner)
 		local level = UnitLevel(unit)
-		return level > 0 and level or not UnitClassification(unit) ~= "worldboss" and "??" or nil
+		return level > 0 and level or UnitClassification(unit) ~= "worldboss" and "??" or nil
 	end]],
 	["maxhp"] = [[function(unit, unitOwner) return ShadowUF:FormatLargeNumber(UnitHealthMax(unit)) end]],
 	["maxpp"] = [[function(unit, unitOwner)
