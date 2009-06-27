@@ -188,7 +188,7 @@ function ShadowUF:LoadUnitDefaults()
 			powerBar = {enabled = true}, portrait = {enabled = false, type = "3D", fullBefore = 0, fullAfter = 100},
 			range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
 			text = {{enabled = true, name = L["Left text"], text = "[name]", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Left text"], text = "[level] [race]", anchorTo = "$powerBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxpp]", anchorTo = "$powerBar", size = 0}},
-			indicators = {raidTarget = {enabled = true}}, 
+			indicators = {raidTarget = {enabled = true, size = 0}}, 
 			auras = {
 				buffs = {enabled = false, perRow = 11, maxRows = 4, prioritize = true, enlargeSelf = false},
 				debuffs = {enabled = false, perRow = 11, maxRows = 4, enlargeSelf = true},
@@ -204,13 +204,13 @@ function ShadowUF:LoadUnitDefaults()
 			
 		-- Want pvp/leader/ML enabled for these units
 		if( unit == "player" or unit == "party" or unit == "target" or unit == "raid" or unit == "focus" ) then
-			self.defaults.profile.units[unit].indicators.leader = {enabled = true}
-			self.defaults.profile.units[unit].indicators.masterLoot = {enabled = true}
-			self.defaults.profile.units[unit].indicators.pvp = {enabled = true}
+			self.defaults.profile.units[unit].indicators.leader = {enabled = true, size = 0}
+			self.defaults.profile.units[unit].indicators.masterLoot = {enabled = true, size = 0}
+			self.defaults.profile.units[unit].indicators.pvp = {enabled = true, size = 0}
 			self.defaults.profile.units[unit].highlight = {enabled = false, attention = false, mouseover = false, debuff = false, aggro = false}
 			
 			if( unit ~= "focus" and unit ~= "target" ) then
-				self.defaults.profile.units[unit].indicators.ready = {enabled = true}
+				self.defaults.profile.units[unit].indicators.ready = {enabled = true, size = 0}
 			end
 		end
 	end
