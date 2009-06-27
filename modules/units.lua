@@ -262,7 +262,7 @@ local function OnAttributeChanged(self, name, unit)
 		self.unit = unit
 		self.unitID = tonumber(string.match(unit, "([0-9]+)"))
 		self.unitOwner = unit
-		self:CheckUnitGUID()
+		Units:CheckUnitGUID()
 	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
 	elseif( inCombat ) then
 		queuedCombat[self] = true
