@@ -235,7 +235,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.focustarget.enabled = true
 	-- TARGET
 	self.defaults.profile.units.target.enabled = true
-	self.defaults.profile.units.target.comboPoints = {enabled = false, anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0}
+	self.defaults.profile.units.target.comboPoints = {enabled = true, anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0}
 	-- TARGETTARGET/TARGETTARGETTARGET
 	self.defaults.profile.units.targettarget.enabled = true
 	self.defaults.profile.units.targettargettarget.enabled = true
