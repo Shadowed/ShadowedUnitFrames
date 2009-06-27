@@ -136,7 +136,11 @@ function ShadowUF:LoadDefaultLayout()
 			width = 190,
 			height = 50,
 			scale = 1.0,
-			portrait = {enabled = true},
+			portrait = {enabled = true, fullAfter = 50},
+			xpBar = {order = 55},
+			castBar = {order = 60},
+			runeBar = {order = 70},
+			totemBar = {order = 70},
 			auras = {
 				buffs = {enabled = true},
 				debuffs = {enabled = true},
