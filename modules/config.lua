@@ -500,6 +500,14 @@ local function loadGeneralOptions()
 								min = 1, max = 20, step = 1,
 								arg = "font.size",
 							},
+							outline = {
+								order = 3,
+								type = "select",
+								name = L["Outline"],
+								values = {["OUTLINE"] = L["Thin outline"], ["THICKOUTLINE"] = L["Thick outline"], [""] = L["None"]},
+								arg = "font.extra",
+								hidden = hideAdvancedOption,
+							},
 						},
 					},
 					color = {
