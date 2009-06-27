@@ -55,7 +55,7 @@ end
 function Fader:Update(frame)
 	if( InCombatLockdown() ) then
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha)
-	elseif( UnitPowerType(frame.unit) == 0 and UnitPower(frame.unit) ~= UnitPowerMax(frame.unit) ) then
+	elseif( ( UnitPowerType(frame.unit) == 0 or UnitPowerType(frame.unit) == 3 ) and UnitPower(frame.unit) ~= UnitPowerMax(frame.unit) ) then
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha)
 	elseif( UnitHealth(frame.unit) ~= UnitHealthMax(frame.unit) ) then
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha)
