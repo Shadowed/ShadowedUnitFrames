@@ -1287,16 +1287,15 @@ local function loadUnitOptions()
 		name = getName,
 		type = "group",
 		inline = true,
-		hidden = hideRestrictedOption,
+		hidden = function(info) return hideRestrictedOption(info) or not getVariable(info[2], info[#(info)], nil, "enabled") end,
 		args = {
 			background = {
 				order = 2,
 				type = "toggle",
 				name = L["Show background"],
 				desc = L["Show a background behind the bars with the same texture/color but faded out."],
-				hidden = hideAdvancedOption,
+				hidden = false,
 				arg = "$parent.background",
-				width = "half",
 			},
 			order = {
 				order = 4,
@@ -2920,6 +2919,7 @@ end
 -- VISIBILITY OPTIONS
 ---------------------
 local function loadVisibilityOptions()
+	local globalVisibility = {}
 	local function set(info, value)
 		local key = info[#(info)]
 		local unit = info[#(info) - 1]
@@ -2935,11 +2935,21 @@ local function loadVisibilityOptions()
 			value = nil
 		end
 		
-		ShadowUF.db.profile.visibility[area][unit .. key] = value
-		if( key == "" ) then
-			ShadowUF:LoadUnits()
-		else
-			ShadowUF.Units:ReloadHeader(unit)
+		for _, configUnit in pairs(ShadowUF.units) do
+			if( configUnit == unit or unit == "global" ) then
+				ShadowUF.db.profile.visibility[area][configUnit .. key] = value
+				
+				if( unit ~= "global" ) then
+					ShadowUF:LoadUnits()
+				end
+				
+				ShadowUF.Layout:Reload(unit)
+				ShadowUF.Units:ReloadHeader(configUnit)
+			end
+		end
+		
+		if( unit == "global" ) then
+			globalVisibility[area .. key] = value
 		end
 	end
 	
@@ -2951,13 +2961,21 @@ local function loadVisibilityOptions()
 		if( key == "enabled" ) then
 			key = ""
 		end
-		
-		if( ShadowUF.db.profile.visibility[area][unit .. key] == false ) then
+
+		if( unit == "global" ) then
+			if( globalVisibility[area .. key] == false ) then
+				return nil
+			elseif( globalVisibility[area .. key] == nil ) then
+				return false
+			end
+			
+			return globalVisibility[area .. key]
+		elseif( ShadowUF.db.profile.visibility[area][unit .. key] == false ) then
 			return nil
 		elseif( ShadowUF.db.profile.visibility[area][unit .. key] == nil ) then
 			return false
 		end
-		
+			
 		return ShadowUF.db.profile.visibility[area][unit .. key]
 	end
 	
@@ -2993,16 +3011,20 @@ local function loadVisibilityOptions()
 	
 	Config.visibilityTable = {
 		type = "group",
-		order = getUnitOrder,
-		name = getName,
+		order = function(info) return info[#(info)] == "global" and 1 or (getUnitOrder(info) + 1) end,
+		name = function(info) return info[#(info)] == "global" and L["Global"] or getName(info) end,
 		args = {
 			enabled = {
 				order = 0,
 				type = "toggle",
-				name = function(info) return string.format(L["Enable %s frames"], L.units[info[#(info) - 1]]) end,
+				name = function(info)
+					local unit = info[#(info) - 1]
+					if( unit == "global" ) then return "" end
+					return string.format(L["Enable %s frames"], L.units[unit])
+				end,
+				hidden = function(info) return info[#(info) - 1] == "global" end,
 				desc = getHelp,
 				tristate = true,
-				hidden = false,
 				width = "double",
 			},
 			sep = {
@@ -3010,7 +3032,7 @@ local function loadVisibilityOptions()
 				type = "description",
 				name = "",
 				width = "full",
-				hidden = false,
+				hidden = function(info) return info[#(info) - 1] == "global" end,
 			},
 		}
 	}
@@ -3021,7 +3043,10 @@ local function loadVisibilityOptions()
 		name = getName,
 		desc = getHelp,
 		tristate = true,
-		hidden = hideRestrictedOption,
+		hidden = function(info)
+			if( info[#(info) - 1] == "global" ) then return false end
+			return hideRestrictedOption(info)
+		end,
 		arg = 1,
 	}
 		
@@ -3031,6 +3056,7 @@ local function loadVisibilityOptions()
 		end
 	end
 	
+	areaTable.args.global = Config.visibilityTable
 	for _, unit in pairs(ShadowUF.units) do
 		areaTable.args[unit] = Config.visibilityTable
 	end
@@ -3049,7 +3075,7 @@ local function loadVisibilityOptions()
 					help = {
 						order = 0,
 						type = "description",
-						name = L["You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone."],
+						name = L["You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone.\n\nChanges made under global will affect all unit modules for that area."],
 					},
 				},
 			},

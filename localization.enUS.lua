@@ -55,7 +55,7 @@ ShadowUFLocals = {
 	["Class icon"] = "Class icon",
 	["Class name, use [classcolor][class][close] if you want a colored class name."] = "Class name, use [classcolor][class][close] if you want a colored class name.",
 	["Clip"] = "Clip",
-	["Closes a color code, pretends colors from showing up on text that you do not want it to."] = "Closes a color code, pretends colors from showing up on text that you do not want it to.",
+	["Closes a color code, prevents colors from showing up on text that you do not want it to."] = "Closes a color code, prevents colors from showing up on text that you do not want it to.",
 	["Code"] = "Code",
 	["Color by reaction"] = "Color by reaction",
 	["Color code for the class, use [classcolor][class][close] if you want the class text to be colored by class"] = "Color code for the class, use [classcolor][class][close] if you want the class text to be colored by class",
@@ -269,6 +269,8 @@ ShadowUFLocals = {
 	["Shows the units health as a percentage rounded to the first decimal, meaning 61 out of 110 health is shown as 55.4%."] = "Shows the units health as a percentage rounded to the first decimal, meaning 61 out of 110 health is shown as 55.4%.",
 	["Size"] = "Size",
 	["Smart level, returns Boss for bosses, +50 for a level 50 elite mob, or just 80 for a level 80."] = "Smart level, returns Boss for bosses, +50 for a level 50 elite mob, or just 80 for a level 80.",
+	["Smart number formating for [curmaxhp], numbers above 1,000,000 are left as is, numbers above 1,000,000 will use the short version such as 1m."] = "Smart number formating for [curmaxhp], numbers above 1,000,000 are left as is, numbers above 1,000,000 will use the short version such as 1m.",
+	["Smart number formating for [curmaxpp], numbers above 1,000,000 are left as is, numbers above 1,000,000 will use the short version such as 1m."] = "Smart number formating for [curmaxpp], numbers above 1,000,000 are left as is, numbers above 1,000,000 will use the short version such as 1m.",
 	["Sort order"] = "Sort order",
 	["Spacing"] = "Spacing",
 	["Static"] = "Static",
@@ -326,7 +328,7 @@ ShadowUFLocals = {
 	["You can add new custom tags through this page, if you're looking to change what tags are used in text look under the Text tab for an Units configuration."] = "You can add new custom tags through this page, if you're looking to change what tags are used in text look under the Text tab for an Units configuration.",
 	["You can find more information on creating your own custom tags in the \"Help\" tab above."] = "You can find more information on creating your own custom tags in the \"Help\" tab above.",
 	["You can find more information on creating your own custom tags in the \"Help\" tab above.\nSUF will attempt to automatically detect what events your tag will need, so you do not generally need to fill out the events field."] = "You can find more information on creating your own custom tags in the \"Help\" tab above.\nSUF will attempt to automatically detect what events your tag will need, so you do not generally need to fill out the events field.",
-	["You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone."] = "You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone.",
+	["You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone.\n\nChanges made under global will affect all unit modules for that area."] = "You can set different units to be enabled or disabled in different areas here.\nGold checked are enabled, Gray checked are disabled, Unchecked are ignored and use the current set value no matter the zone.\n\nChanges made under global will affect all unit modules for that area.",
 	["You cannot edit this tag because it is one of the default ones included in this mod. This function is here to provide an example for your own custom tags."] = "You cannot edit this tag because it is one of the default ones included in this mod. This function is here to provide an example for your own custom tags.",
 	["You cannot name a tag \"%s\", tag names should contain no brackets or parenthesis."] = "You cannot name a tag \"%s\", tag names should contain no brackets or parenthesis.",
 	["You have to set the events to fire, you can only enter letters and underscores, \"FOO_BAR\" for example is valid, \"APPLE_5_ORANGE\" is not because it contains a number."] = "You have to set the events to fire, you can only enter letters and underscores, \"FOO_BAR\" for example is valid, \"APPLE_5_ORANGE\" is not because it contains a number.",
@@ -366,6 +368,11 @@ ShadowUFLocals = {
 		["pvp"] = "Battlegrounds",
 	},
 
+	["headers"] = {
+		["party"] = "Party #%d",
+		["raid"] = "Raid #%d",
+	},
+
 	["units"] = {
 		["targettargettarget"] = "Target of Target of Target",
 		["partytarget"] = "Party targets",
@@ -379,10 +386,5 @@ ShadowUFLocals = {
 		["raid"] = "Raid",
 		["targettarget"] = "Target of Target",
 		["party"] = "Party",
-	},
-
-	["headers"] = {
-		["party"] = "Party #%d",
-		["raid"] = "Raid #%d",
 	},
 }
