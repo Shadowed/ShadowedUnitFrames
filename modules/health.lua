@@ -2,8 +2,7 @@ local Health = {}
 ShadowUF:RegisterModule(Health, "healthBar", ShadowUFLocals["Health bar"], true)
 
 local function setGradient(healthBar, unit)
-	local current, max = UnitHealth(unit), UnitHealthMax(unit)
-	local percent = current / max
+	local percent = UnitHealth(unit) / UnitHealthMax(unit)
 	if( percent >= 1 ) then return Health:SetBarColor(healthBar, ShadowUF.db.profile.healthColors.green.r, ShadowUF.db.profile.healthColors.green.g, ShadowUF.db.profile.healthColors.green.b) end
 	if( percent == 0 ) then return Health:SetBarColor(healthBar, ShadowUF.db.profile.healthColors.red.r, ShadowUF.db.profile.healthColors.red.g, ShadowUF.db.profile.healthColors.red.b) end
 	
@@ -37,7 +36,8 @@ local function updateTimer(self)
 			fontString:UpdateTags()
 		end
 	end
-		
+	
+	-- The target is not offline, and we have a health percentage so update the gradient
 	if( not self.parent.healthBar.wasOffline and self.parent.healthBar.hasPercent ) then
 		setGradient(self.parent.healthBar, self.parent.unit)
 	end

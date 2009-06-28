@@ -40,7 +40,7 @@ local setColor, getColor, setUnit, getUnit, getTagName, getTagHelp, hideRestrict
 local unitOrder, positionList, fullReload, pointPositions, isModifiersSet, isUnitDisabled, mergeTables, hideBasicOption
 local function loadData()
 	-- Simple position list rather than the full one
-	pointPositions = {[""] = L["None"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["C"] = L["Center"]}
+	pointPositions = {[""] = L["None"], ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["CENTER"] = L["Center"]}
 	-- This is a basic one for frame anchoring
 	positionList = {[""] = L["None"], ["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
 	-- Ordering of units in the side bar, enabled units, visibility, etc
@@ -852,7 +852,6 @@ local function loadUnitOptions()
 		
 		if( key == "point" or key == "relativePoint" ) then
 			ShadowUF.db.profile.positions[unit].anchorPoint = ""
-			ShadowUF.db.profile.positions[unit].anchorTo = ""
 		elseif( key == "anchorPoint" ) then
 			ShadowUF.db.profile.positions[unit].point = ""
 			ShadowUF.db.profile.positions[unit].relativePoint = ""
