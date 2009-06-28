@@ -294,7 +294,7 @@ Tags.defaultTags = {
 			return ShadowUFLocals["Offline"]
 		end
 		
-		return string.format("%s/%s", UnitHealth(unit), UnitHealthMax(maxHealth))
+		return string.format("%s/%s", UnitHealth(unit), UnitHealthMax(unit))
 	end]],
 	["abscurhp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
