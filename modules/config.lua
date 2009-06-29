@@ -2945,12 +2945,14 @@ local function loadVisibilityOptions()
 		for _, configUnit in pairs(ShadowUF.units) do
 			if( configUnit == unit or unit == "global" ) then
 				ShadowUF.db.profile.visibility[area][configUnit .. key] = value
-				
-				if( unit ~= "global" ) then
-					ShadowUF:LoadUnits()
-				end
-				
-				ShadowUF.Layout:Reload(unit)
+			end
+		end
+		
+		-- Annoying yes, but only way that works
+		ShadowUF:LoadUnits()
+		for _, configUnit in pairs(ShadowUF.units) do
+			if( configUnit == unit or unit == "global" ) then
+				ShadowUF.Layout:Reload(configUnit)
 				ShadowUF.Units:ReloadHeader(configUnit)
 			end
 		end
@@ -2994,7 +2996,13 @@ local function loadVisibilityOptions()
 			key = ""
 		end
 		
-		local current = ShadowUF.db.profile.visibility[area][unit .. key]
+		local current
+		if( unit == "global" ) then
+			current = globalVisibility[key]
+		else
+			current = ShadowUF.db.profile.visibility[area][unit .. key]
+		end
+		
 		if( current == false ) then
 			return string.format(L["Disabled in %s"], L.areas[area])
 		elseif( current == true ) then
@@ -3006,7 +3014,7 @@ local function loadVisibilityOptions()
 	
 	local areaTable = {
 		type = "group",
-		order = 1,
+		order = function(info) return info[#(info)] == "none" and 2 or 1 end,
 		childGroups = "tree",
 		name = function(info)
 			return L.areas[info[#(info)]]
@@ -3086,6 +3094,7 @@ local function loadVisibilityOptions()
 					},
 				},
 			},
+			--none = areaTable,
 			pvp = areaTable,
 			arena = areaTable,
 			party = areaTable,

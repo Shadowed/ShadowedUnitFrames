@@ -365,6 +365,7 @@ ShadowUFLocals = {
 	},
 
 	["areas"] = {
+		["none"] = "Everywhere else",
 		["arena"] = "Arenas",
 		["raid"] = "Raid instances",
 		["party"] = "Party instances",
