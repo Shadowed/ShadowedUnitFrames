@@ -93,25 +93,25 @@ function ShadowUF:CheckUpgrade()
 		self.db.profile.units.pettarget.indicators.happiness = nil
 	end
 	
-	-- June 25th
-	for _, data in pairs(self.db.profile.units) do
+	for unit, data in pairs(self.db.profile.units) do
+		-- June 25th
 		if( data.auras.debuffs.raid == nil ) then
 			data.auras.debuffs.raid = data.auras.buffs.curable
 			data.auras.buffs.curable = nil
 		end
-	end
-	
-	-- June 26th, DB cleanup mostly
-	for _, data in pairs(self.db.profile.units) do
+
+		-- June 26th
 		data.healthBar.fullSize = nil
-	end
-	
-	-- June 28th
-	for unit, data in pairs(self.db.profile.units) do
+		
+		-- June 28th
 		if( string.match(unit, "%w+target") and data.castBar ) then
 			data.castBar = nil
 		end
 	end
+	
+	-- June 28th
+	self.db.profile.positions.partypet.anchorTo = "$parent"
+	self.db.profile.positions.partytarget.anchorTo = "$parent"
 end
 	
 local partyDisabled
@@ -174,7 +174,7 @@ function ShadowUF:LoadUnitDefaults()
 				
 		-- These modules are not enabled for "fake" units so don't bother with adding defaults
 		if( not string.match(unit, "%w+target") ) then
-			self.defaults.profile.units[unit].incHeal = {enabled = false}
+			self.defaults.profile.units[unit].incHeal = {enabled = false, cap = 1.30}
 			self.defaults.profile.units[unit].castBar = {enabled = false, castName = {enabled = true, anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, castTime = {enabled = true, anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0}}
 			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
 		end
