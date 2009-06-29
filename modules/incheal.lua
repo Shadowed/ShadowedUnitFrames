@@ -2,7 +2,6 @@ local IncHeal = {}
 local frames, playerHeals, totalHealing = {}, {}, {}
 local playerName = UnitName("player")
 local HealComm, resetFrame
-local OH_WARNING = 1.30
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUFLocals["Incoming heals"])
 
 -- RAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGGGGGGGGGGGGGGGGGGGGGGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE
@@ -26,8 +25,8 @@ function IncHeal:OnDisable(frame)
 end
 
 function IncHeal:OnLayoutApplied(frame)
-	if( frame.incHeal and frame.healthBar ) then
-		frame.incHeal:SetWidth(frame.healthBar:GetWidth() * OH_WARNING)
+	if( frame.visibility.incHeal and frame.visibility.healthBar ) then
+		frame.incHeal:SetWidth(frame.healthBar:GetWidth() * ShadowUF.db.profile.units[frame.unitType].incHeal.cap)
 		frame.incHeal:SetHeight(frame.healthBar:GetHeight())
 		frame.incHeal:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 		frame.incHeal:SetStatusBarColor(ShadowUF.db.profile.healthColors.inc.r, ShadowUF.db.profile.healthColors.inc.g, ShadowUF.db.profile.healthColors.inc.b, ShadowUF.db.profile.bars.alpha)
@@ -94,7 +93,7 @@ local function updateHealthBar(frame, target, healed, succeeded)
 	
 	if( healed > 0 ) then
 		frame.incHeal.total = UnitHealth(frame.unit) + healed
-		frame.incHeal:SetMinMaxValues(0, UnitHealthMax(frame.unit) * OH_WARNING)
+		frame.incHeal:SetMinMaxValues(0, UnitHealthMax(frame.unit) * ShadowUF.db.profile.units[frame.unitType].incHeal.cap)
 		frame.incHeal:SetValue(frame.incHeal.total)
 		frame.incHeal.nextUpdate = nil
 		frame.incHeal:Show()
