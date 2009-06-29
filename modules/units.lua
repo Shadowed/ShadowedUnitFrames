@@ -256,6 +256,16 @@ end
 -- Attribute set, something changed
 local function OnAttributeChanged(self, name, unit)
 	if( name ~= "unit" or not unit or unit == self.unitOwner ) then return end
+	
+	-- In combat, queue it for update when we leave it
+	if( inCombat ) then
+		queuedCombat[self] = true
+		
+		if( not self.unit ) then
+			return
+		end
+	end
+	
 	-- Unit already exists, we're going to update our information on them but we're not going to do a full update and recheck things
 	-- we don't have to because frames are ALWAYS going to be the same type, a raid frame will not magically turn into a target frame.
 	if( self.unit ) then
@@ -264,9 +274,6 @@ local function OnAttributeChanged(self, name, unit)
 		self.unitOwner = unit
 
 		Units:CheckUnitGUID(self)
-	-- I'd love if it this all worked in combat, but I don't really want to rewrite it 100% into secure templates
-	elseif( inCombat ) then
-		queuedCombat[self] = true
 		return
 	end
 		
