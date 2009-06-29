@@ -72,36 +72,6 @@ function ShadowUF:OnInitialize()
 end
 
 function ShadowUF:CheckUpgrade()
-	-- May 30th
-	if( not self.db.profile.powerColors.AMMOSLOT ) then
-		self.db.profile.powerColors.AMMOSLOT = {r = 0.85, g = 0.60, b = 0.55}
-		self.db.profile.powerColors.FUEL = {r = 0.85, g = 0.47, b = 0.36}
-		self.db.profile.classColors.VEHICLE = {r = 0.40, g = 0.85, b = 0.48}
-		
-		-- Disable fader on units that it shouldn't have been enabled for
-		self.db.profile.units.focus.fader = nil
-		self.db.profile.units.focustarget.fader = nil
-		self.db.profile.units.target.fader = nil
-		self.db.profile.units.targettarget.fader = nil
-		self.db.profile.units.targettargettarget.fader = nil
-	end
-	
-	-- May 31th
-	if( self.db.profile.units.targettarget.indicators.pvp ) then
-		self.db.profile.units.focustarget.indicators.pvp = nil
-		self.db.profile.units.targettarget.indicators.pvp = nil
-		self.db.profile.units.targettargettarget.indicators.pvp = nil
-	end
-	
-	if( self.db.profile.units.party.hideInRaid ) then
-		self.db.profile.units.party.hideSemiRaid = self.db.profile.units.party.hideInRaid
-		self.db.profile.units.party.hideInRaid = nil
-	end
-	
-	if( self.db.profile.units.player.range ) then
-		self.db.profile.units.player.range = nil
-	end
-	
 	-- June 11th
 	if( not self.db.profile.healthColors.friendly ) then
 		self.db.profile.healthColors.friendly = CopyTable(self.db.profile.healthColors.green)
@@ -134,6 +104,13 @@ function ShadowUF:CheckUpgrade()
 	-- June 26th, DB cleanup mostly
 	for _, data in pairs(self.db.profile.units) do
 		data.healthBar.fullSize = nil
+	end
+	
+	-- June 28th
+	for unit, data in pairs(self.db.profile.units) do
+		if( string.match(unit, "%w+target") and data.castBar ) then
+			data.castBar = nil
+		end
 	end
 end
 	
