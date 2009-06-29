@@ -156,11 +156,11 @@ function Layout:GetJustify(config)
 end
 
 function Layout:GetPoint(key)
-	return preDefPoint[key]
+	return preDefPoint[key] or "CENTER"
 end
 
 function Layout:GetRelative(key)
-	return preDefRelative[key]
+	return preDefRelative[key] or "CENTER"
 end
 
 function Layout:AnchorFrame(parent, frame, config)
