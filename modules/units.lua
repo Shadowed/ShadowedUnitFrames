@@ -633,7 +633,7 @@ function Units:LoadPartyChildUnit(config, parentHeader, type, unit)
 	self:CreateUnit(frame, true)
 	frame:SetFrameRef("partyHeader",  parentHeader)
 	frame:SetAttribute("unit", unit)
-	frame:SetAttribute("unitOwner", "party" .. (string.match(unit, "(%d+)")))
+	frame:SetAttribute("unitOwner", parentHeader.unitType .. (string.match(unit, "(%d+)")))
 	frame:SetAttribute("_onshow", [[
 		if( self:GetAttribute("framePositioned") ) then return end
 		
