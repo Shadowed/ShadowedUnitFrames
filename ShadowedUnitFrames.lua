@@ -32,7 +32,7 @@ function ShadowUF:OnInitialize()
 	self.db = LibStub:GetLibrary("AceDB-3.0"):New("ShadowedUFDB", self.defaults, true)
 	self.db.RegisterCallback(self, "OnProfileChanged", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnProfileCopied", "ProfilesChanged")
-	self.db.RegisterCallback(self, "OnProfileReset", "ProfilesChanged")
+	self.db.RegisterCallback(self, "OnProfileReset", "ProfileReset")
 		
 	-- Setup tag cache
 	self.tagFunc = setmetatable({}, {
@@ -265,7 +265,28 @@ function ShadowUF:FireModuleEvent(event, frame, unit)
 end
 
 -- Profiles changed
+-- I really dislike this solution, but if we don't do it then there is setting issues
+-- because when copying a profile, AceDB-3.0 fires OnProfileReset -> OnProfileCopied
+-- SUF then sees that on the new reset profile has no profile, tries to load one in
+-- ... followed by the profile copying happen and it doesn't copy everything correctly
+-- due to variables being reset already.
+local resetTimer
+function ShadowUF:ProfileReset()
+	if( not resetTimer ) then
+		resetTimer = CreateFrame("Frame")
+		resetTimer:SetScript("OnUpdate", function(self)
+			ShadowUF:ProfilesChanged("OnProfileReset")
+			self:Hide()
+		end)
+	end
+	
+	resetTimer:Show()
+end
+
 function ShadowUF:ProfilesChanged()
+	-- Reset the timer manually if another event fired
+	if( resetTimer ) then resetTimer:Hide() end
+	
 	-- Reset any loaded caches
 	for k in pairs(self.tagFunc) do self.tagFunc[k] = nil end
 	
