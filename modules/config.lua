@@ -40,9 +40,9 @@ local setColor, getColor, setUnit, getUnit, getTagName, getTagHelp, hideRestrict
 local unitOrder, positionList, fullReload, pointPositions, isModifiersSet, isUnitDisabled, mergeTables, hideBasicOption
 local function loadData()
 	-- Simple position list rather than the full one
-	pointPositions = {[""] = L["None"], ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["CENTER"] = L["Center"]}
+	pointPositions = {["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["CENTER"] = L["Center"]}
 	-- This is a basic one for frame anchoring
-	positionList = {[""] = L["None"], ["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
+	positionList = {["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
 	-- Ordering of units in the side bar, enabled units, visibility, etc
 	unitOrder = {}
 	for order, unit in pairs(ShadowUF.units) do unitOrder[unit] = order end
@@ -827,7 +827,7 @@ local function loadUnitOptions()
 		
 		-- Party pet and targets are forced onto their parents
 		if( unit == "partypet" or unit == "parttarget" ) then
-			anchorList["#SUFHeaderparty"] = L["Party member"]
+			anchorList["$parent"] = L["Party member"]
 			return anchorList
 		end
 		
@@ -856,7 +856,7 @@ local function loadUnitOptions()
 			ShadowUF.db.profile.positions[unit].point = ""
 			ShadowUF.db.profile.positions[unit].relativePoint = ""
 		end
-
+		
 		-- Reset offset if it was a manually positioned frame, and it got anchored
 		if( ( key == "anchorPoint" or key == "anchorTo" ) and ( ShadowUF.db.profile.positions[unit].point ~= "" or ShadowUF.db.profile.positions[unit].relativePoint ~= "" ) ) then
 			ShadowUF.db.profile.positions[unit].x = 100
