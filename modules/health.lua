@@ -37,6 +37,12 @@ local function updateTimer(self)
 		end
 	end
 	
+	-- Next health update, hide the incoming heal when it was set to 0 health
+	-- we do this to keep it all smooth looking as the heal done event comes 0.3s-0.5s before the health chang eevent
+	if( self.incHeal and self.incHeal.nextUpdate ) then
+		self.incHeal:Hide()
+	end
+
 	-- The target is not offline, and we have a health percentage so update the gradient
 	if( not self.parent.healthBar.wasOffline and self.parent.healthBar.hasPercent ) then
 		setGradient(self.parent.healthBar, self.parent.unit)
