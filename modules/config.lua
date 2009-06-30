@@ -898,7 +898,7 @@ local function loadUnitOptions()
 		for k in pairs(anchorList) do anchorList[k] = nil end
 		
 		-- Party pet and targets are forced onto their parents
-		if( unit == "partypet" or unit == "parttarget" ) then
+		if( unit == "partypet" or unit == "partytarget" ) then
 			anchorList["$parent"] = L["Party member"]
 			return anchorList
 		end
