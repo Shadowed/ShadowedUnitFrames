@@ -845,13 +845,14 @@ local function loadGeneralOptions()
 	options.args.general.args.profile.order = 2
 	
 	-- Now add our customized profile switching based off of profile
+	--[[
 	local function setSpecProfile(info, value)
-		ShadowUF.db.char[info[#(info)]] = value
+		ShadowUF.db.char[info[#(info)] ] = value
 		ShadowUF:ACTIVE_TALENT_GROUP_CHANGED()
 	end
 	
 	local function getSpecProfile(info)
-		return ShadowUF.db.char[info[#(info)]]
+		return ShadowUF.db.char[info[#(info)] ]
 	end
 	
 	local function getSpec(info)
@@ -911,6 +912,7 @@ local function loadGeneralOptions()
 		hidden = hasSingleSpec,
 		arg = 2,
 	}
+	]]
 end
 
 ---------------------
