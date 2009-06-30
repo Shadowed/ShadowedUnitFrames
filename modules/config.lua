@@ -741,7 +741,7 @@ local function loadGeneralOptions()
 					},
 				},
 			},
-			profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(ShadowUF.db),
+
 			hide = {
 				type = "group",
 				order = 4,
@@ -805,7 +805,79 @@ local function loadGeneralOptions()
 	options.args.general.args.general.args.classColors.args.PET = Config.classTable
 	options.args.general.args.general.args.classColors.args.VEHICLE = Config.classTable
 	
+	-- Load the profile stuff in, most definitely not supposed to be doing this
+	-- <_<
+	local DBOptions = LibStub("AceDBOptions-3.0")
+	options.args.general.args.profile = DBOptions:GetOptionsTable(ShadowUF.db, true)
 	options.args.general.args.profile.order = 2
+	
+	-- Now add our customized profile switching based off of profile
+	local function setSpecProfile(info, value)
+		ShadowUF.db.char[info[#(info)]] = value
+		ShadowUF:ACTIVE_TALENT_GROUP_CHANGED()
+	end
+	
+	local function getSpecProfile(info)
+		return ShadowUF.db.char[info[#(info)]]
+	end
+	
+	local function getSpec(info)
+		local text = info.arg == GetActiveTalentGroup() and L["Active specialization"] or nil
+		for i=1, MAX_TALENT_TABS do
+			local name, icon, pointsSpent = GetTalentTabInfo(1, false, false, info.arg)
+			if( text ) then
+				text = text .. "\n" .. string.format("|T%s:0:0:0:0|t %s (%d)", icon, name, pointsSpent)
+			else
+				text = string.format("|T%s:0:0:0:0|t %s (%d)", icon, name, pointsSpent)
+			end
+		end
+	end
+	
+	local profileList = {}
+	local function getProfiles(info)
+		for k in pairs(profileList) do profileList[k] = nil end
+		profileList[""] = L["None"]
+		
+		for id, name in pairs(ShadowUF.db:GetProfiles()) do
+			profileList[name] = name
+		end
+		
+		return profileList
+	end
+	
+	local function hasSingleSpec(info)
+		return info.appName ~= "ShadowedUF" or GetNumTalentGroups() == 1
+	end
+	
+	local dbTable = DBOptions.optionTables[ShadowUF.db].args
+	dbTable.talentdesc = {
+		order = 45,
+		type = "description",
+		name = "\n" .. L["You can select a specific profile you want to use based off your primary or secondary talent specializations. Setting the talent profile to none will disable switching based off your current talents."],
+		hidden = hasSingleSpec
+	}
+	dbTable.primary = {
+		order = 46,
+		type = "select",
+		name = L["Primary talents"],
+		set = setSpecProfile,
+		get = getSpecProfile,
+		values = getProfiles,
+		desc = getSpec,
+		hidden = hasSingleSpec,
+		arg = 1,
+	}
+	dbTable.secondary = {
+		order = 47,
+		type = "select",
+		name = L["Secondary talents"],
+		set = setSpecProfile,
+		get = getSpecProfile,
+		values = getProfiles,
+		desc = getSpec,
+		hidden = hasSingleSpec,
+		arg = 2,
+	}
 end
 
 ---------------------

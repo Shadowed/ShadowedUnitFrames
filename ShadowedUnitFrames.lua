@@ -24,6 +24,10 @@ function ShadowUF:OnInitialize()
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
 			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true, cast = nil, runes = true, buffs = true},
 		},
+		char = {
+			primary = "",
+			secondary = "",
+		},
 	}
 	
 	self:LoadUnitDefaults()
@@ -33,7 +37,7 @@ function ShadowUF:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileChanged", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnProfileCopied", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "ProfileReset")
-		
+	
 	-- Setup tag cache
 	self.tagFunc = setmetatable({}, {
 		__index = function(tbl, index)
@@ -264,6 +268,20 @@ function ShadowUF:FireModuleEvent(event, frame, unit)
 	end
 end
 
+-- Check if we need to swap profiles
+function ShadowUF:ACTIVE_TALENT_GROUP_CHANGED()
+	local activeGroup = GetActiveTalentGroup()
+	local dbKey = activeGroup == 1 and "primary" or activeGroup == 2 and "secondary"
+	if( activeGroup and self.db.char[dbKey] ~= "" and self.db.char[dbKey] ~= self.db:GetCurrentProfile() ) then
+		self.db:SetProfile(self.db.char[dbKey])
+		self:Print(string.format(L["Changed profile to %s as you are currently using your %s talent specialization."], self.db.char[dbKey], L[dbKey]))
+	end
+end
+
+function ShadowUF:Print(msg)
+	DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99Shadowed Unit Frames|r: " .. msg)
+end
+
 -- Profiles changed
 -- I really dislike this solution, but if we don't do it then there is setting issues
 -- because when copying a profile, AceDB-3.0 fires OnProfileReset -> OnProfileCopied
@@ -386,6 +404,7 @@ local frame = CreateFrame("Frame")
 frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("RAID_ROSTER_UPDATE")
+frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 frame:SetScript("OnEvent", function(self, event, ...)
 	if( event == "ZONE_CHANGED_NEW_AREA" ) then
 		ShadowUF:LoadUnits()
@@ -393,6 +412,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
 		ShadowUF:OnInitialize()
 		ShadowUF:LoadUnits()
 		ShadowUF:RAID_ROSTER_UPDATE()
+		ShadowUF:ACTIVE_TALENT_GROUP_CHANGED()
 
 		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
 	else
