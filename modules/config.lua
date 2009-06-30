@@ -36,7 +36,7 @@ ShadowUF.Config = Config
 ]]
 
 local selectDialogGroup, selectTabGroup, hideAdvancedOption, getName, getUnitOrder, set, get, setVariable, getVariable
-local setColor, getColor, setUnit, getUnit, getTagName, getTagHelp, hideRestrictedOption, getModuleOrder
+local setColor, getColor, setUnit, getUnit, getTagName, getTagHelp, hideRestrictedOption, getModuleOrder, getAnchorParents
 local unitOrder, positionList, fullReload, pointPositions, isModifiersSet, isUnitDisabled, mergeTables, hideBasicOption
 local function loadData()
 	-- Simple position list rather than the full one
@@ -52,6 +52,38 @@ local function loadData()
 	quickIDMap = {}
 	
 	-- Helper functions
+	local function getFrameName(unit)
+		if( unit == "raid" or unit == "party" ) then
+			return string.format("#SUFHeader%s", unit)
+		end
+		
+		return string.format("#SUFUnit%s", unit)
+	end
+
+	local anchorList = {}
+	getAnchorParents = function(info)
+		local unit = info[2]
+		for k in pairs(anchorList) do anchorList[k] = nil end
+		
+		-- Party pet and targets are forced onto their parents
+		if( unit == "partypet" or unit == "partytarget" ) then
+			anchorList["$parent"] = L["Party member"]
+			return anchorList
+		end
+		
+		anchorList["UIParent"] = L["Screen"]
+		
+		-- Don't let a frame anchor to a frame thats anchored to it already (Stop infinite loops-o-doom)
+		local currentName = getFrameName(unit)
+		for _, unitID in pairs(ShadowUF.units) do
+			if( unitID ~= unit and ShadowUF.db.profile.positions[unitID] and ShadowUF.db.profile.positions[unitID].anchorTo ~= currentName ) then
+				anchorList[getFrameName(unitID)] = string.format(L["%s frames"], L.units[unitID])
+			end
+		end
+		
+		return anchorList
+	end
+
 	selectDialogGroup = function(group, key)
 		AceDialog.Status.ShadowedUF.children[group].status.groups.selected = key
 		AceRegistry:NotifyChange("ShadowedUF")
@@ -249,6 +281,7 @@ local function loadData()
 	end
 	
 	-- Expose these for modules
+	Config.getAnchorParents = getAnchorParents
 	Config.hideAdvancedOption = hideAdvancedOption
 	Config.isUnitDisabled = isUnitDisabled
 	Config.selectDialogGroup = selectDialogGroup
@@ -884,38 +917,6 @@ end
 -- UNIT CONFIGURATION
 ---------------------
 local function loadUnitOptions()
-	local function getFrameName(unit)
-		if( unit == "raid" or unit == "party" ) then
-			return string.format("#SUFHeader%s", unit)
-		end
-		
-		return string.format("#SUFUnit%s", unit)
-	end
-
-	local anchorList = {}
-	local function getAnchorParents(info)
-		local unit = info[2]
-		for k in pairs(anchorList) do anchorList[k] = nil end
-		
-		-- Party pet and targets are forced onto their parents
-		if( unit == "partypet" or unit == "partytarget" ) then
-			anchorList["$parent"] = L["Party member"]
-			return anchorList
-		end
-		
-		anchorList["UIParent"] = L["Screen"]
-		
-		-- Don't let a frame anchor to a frame thats anchored to it already (Stop infinite loops-o-doom)
-		local currentName = getFrameName(unit)
-		for _, unitID in pairs(ShadowUF.units) do
-			if( unitID ~= unit and ShadowUF.db.profile.positions[unitID] and ShadowUF.db.profile.positions[unitID].anchorTo ~= currentName ) then
-				anchorList[getFrameName(unitID)] = string.format(L["%s frames"], L.units[unitID])
-			end
-		end
-		
-		return anchorList
-	end
-
 	-- This makes sure  we don't end up with any messed up positioning due to two different anchors being used
 	local numberList = {}
 	local function fixPositions(info)
