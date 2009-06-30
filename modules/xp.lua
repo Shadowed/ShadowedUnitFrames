@@ -1,6 +1,11 @@
 local XP = {}
 ShadowUF:RegisterModule(XP, "xpBar", ShadowUFLocals["XP/Rep bar"], true)
 
+local IsXPUserDisabled = IsXPUserDisabled
+if( not ShadowUF.is30200 ) then
+	IsXPUserDisabled = function() return false end
+end
+
 function XP:OnEnable(frame)
 	if( not frame.xpBar ) then
 		frame.xpBar = ShadowUF.Units:CreateBar(frame)
@@ -13,6 +18,8 @@ function XP:OnEnable(frame)
 		frame:RegisterNormalEvent("PLAYER_XP_UPDATE", self, "Update")
 		frame:RegisterNormalEvent("UPDATE_EXHAUSTION", self, "Update")
 		frame:RegisterNormalEvent("PLAYER_LEVEL_UP", self, "Update")
+		frame:RegisterNormalEvent("ENABLE_XP_GAIN", self, "Update")
+		frame:RegisterNormalEvent("DISABLE_XP_GAIN", self, "Update")
 		frame:RegisterUnitEvent("UPDATE_FACTION", self, "UpdateRep")
 	else
 		frame:RegisterNormalEvent("UNIT_PET_EXPERIENCE", self, "Update")
@@ -77,7 +84,7 @@ function XP:Update(frame)
 	if( frame.unit == "pet" and UnitXPMax(frame.unit) == 0 ) then
 		self:SetBarVisibility(frame, false)
 		return
-	elseif( UnitLevel(frame.unit) == MAX_PLAYER_LEVEL ) then
+	elseif( UnitLevel(frame.unit) == MAX_PLAYER_LEVEL or IsXPUserDisabled() ) then
 		self:UpdateRep(frame)
 		return
 	end

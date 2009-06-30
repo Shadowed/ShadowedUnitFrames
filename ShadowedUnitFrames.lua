@@ -3,6 +3,7 @@
 ]]
 
 ShadowUF = {playerUnit = "player", raidUnits = {}, partyUnits = {}, modules = {}, moduleOrder = {}, units = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid"}}
+ShadowUF.is30200 = select(4, GetBuildInfo()) >= 30200
 
 local L = ShadowUFLocals
 local units = ShadowUF.units

@@ -543,7 +543,7 @@ Tags.defaultTags = {
 }
 
 -- Use a new [levelcolor] tag with the renamed 3.2 API if they are on 3.2
-if( select(4, GetBuildInfo()) >= 30200 ) then
+if( ShadowUF.is30200 ) then
 	Tags.defaultTags["levelcolor"] = [[function(unit, unitOwner)
 		local level = UnitLevel(unit)
 		if( level < 0 and UnitClassification(unit) == "worldboss" ) then
