@@ -75,8 +75,8 @@ function ShadowUF:LoadDefaultLayout()
 		player = {point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", y = -25, x = 20}, 
 		pet = {anchorPoint = "TL", anchorTo = "#SUFUnitplayer", x = 0, y = 25}, 
 		pettarget = {anchorPoint = "C", anchorTo = "UIParent", x = 0, y = 0}, 
-		partypet = {anchorPoint = "RB", anchorTo = "#SUFHeaderparty", x = 0, y = 0},
-		partytarget = {anchorPoint = "RT", anchorTo = "#SUFHeaderparty", x = 0, y = 0},
+		partypet = {anchorPoint = "RB", anchorTo = "$parent", x = 0, y = 0},
+		partytarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
 		raid = {anchorPoint = "C", anchorTo = "UIParent", x = 0, y = 0},
 	}
 	
