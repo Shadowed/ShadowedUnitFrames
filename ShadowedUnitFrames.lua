@@ -404,7 +404,6 @@ local frame = CreateFrame("Frame")
 frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("RAID_ROSTER_UPDATE")
-frame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 frame:SetScript("OnEvent", function(self, event, ...)
 	if( event == "ZONE_CHANGED_NEW_AREA" ) then
 		ShadowUF:LoadUnits()
@@ -415,6 +414,7 @@ frame:SetScript("OnEvent", function(self, event, ...)
 		ShadowUF:ACTIVE_TALENT_GROUP_CHANGED()
 
 		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+		self:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 	else
 		ShadowUF[event](ShadowUF, event, ...)
 	end
