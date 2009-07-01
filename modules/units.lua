@@ -1,7 +1,6 @@
-local Units = {unitFrames = {}}
+local Units = {unitFrames = {}, loadedUnits = {}}
 local vehicleMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
-local unitEvents, loadedUnits, queuedCombat, inCombat = {}, {}, {}
-local unitFrames = Units.unitFrames
+local unitFrames, loadedUnits, unitEvents, queuedCombat, inCombat = Units.unitFrames, Units.loadedUnits, {}, {}
 local FRAME_LEVEL_MAX = 5
 local _G = getfenv(0)
 
@@ -128,11 +127,12 @@ end
 local function SetVisibility(self)
 	local layoutUpdate
 	local zone = select(2, IsInInstance())
+
 	-- Selectively disable modules
 	for _, module in pairs(ShadowUF.moduleOrder) do
-		if( module.OnEnable and module.OnDisable ) then
+		if( module.OnEnable and module.OnDisable and ShadowUF.db.profile.units[self.unitType][module.moduleKey] ) then
 			local key = module.moduleKey
-			local enabled = ShadowUF.db.profile.units[self.unitType][key] and ShadowUF.db.profile.units[self.unitType][key].enabled
+			local enabled = ShadowUF.db.profile.units[self.unitType][key].enabled
 			
 			-- Make sure at least one option is enabled if it's an aura or indicator
 			if( key == "auras" or key == "indicators" ) then
@@ -359,11 +359,11 @@ local function OnAttributeChanged(self, name, unit)
 
 		-- Party frame has been loaded, so initialize it's sub-frames if they are enabled
 		if( loadedUnits.partypet ) then
-			Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partypet, SUFHeaderparty, "partypet", "partypet" .. self.unitID)
+			Units:LoadChildUnit(self, "partypet", "partypet" .. self.unitID)
 		end
 		
 		if( loadedUnits.partytarget ) then
-			Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partytarget, SUFHeaderparty, "partytarget", "party" .. self.unitID .. "target")
+			Units:LoadChildUnit(self, "partytarget", "party" .. self.unitID .. "target")
 		end
 
 	-- *target units are not real units, thus they do not receive events and must be polled for data
@@ -433,7 +433,7 @@ DropDownList1:HookScript("OnHide", function(self)
 end)
 
 -- Create the generic things that we want in every secure frame regardless if it's a button or a header
-function Units:CreateUnit(frame,  hookVisibility)
+function Units:CreateUnit(frame)
 	frame.barFrame = CreateFrame("Frame", nil, frame)
 	frame.secondBarFrame = CreateFrame("Frame", nil, frame)
 	frame:Hide()
@@ -474,18 +474,11 @@ function Units:CreateUnit(frame,  hookVisibility)
 	--[16:42] <+alestane> Shadowed: It says whether a unit defined as, for instance, "party1target" should be remapped to "partypet1target" when party1 is in a vehicle.
 	--frame.menu = ShowMenu
 
-	if( hookVisibility ) then
-		frame:HookScript("OnShow", OnShow)
-		frame:HookScript("OnHide", OnHide)
-	else
-		frame:SetScript("OnShow", OnShow)
-		frame:SetScript("OnHide", OnHide)
-	end
+	frame:SetScript("OnShow", OnShow)
+	frame:SetScript("OnHide", OnHide)
 end
 
 function Units:ReloadHeader(type)
-	if( not unitFrames[type] or unitFrames[type].unit ) then return end
-	
 	-- Update the main header
 	local frame = unitFrames[type]
 	if( frame ) then
@@ -495,14 +488,9 @@ function Units:ReloadHeader(type)
 
 	-- Now update it's children
 	if( type == "partypet" or type == "partytarget" ) then
-		for _, frame in pairs(unitframes) do
+		for _, frame in pairs(unitFrames) do
 			if( frame.unitType == type ) then
-				self:SetFrameAttributes(frame, type)
-				if( UnitExists(frame.unit) ) then
-					frame:SetAttribute("framePositioned", false)
-					frame:Hide()
-					frame:Show()
-				end
+				ShadowUF.Layout:AnchorFrame(unitFrames[ShadowUF.partyUnits[frame.unitID]], frame, ShadowUF.db.profile.positions[type])
 			end
 		end
 	end
@@ -583,12 +571,6 @@ function Units:SetFrameAttributes(frame, type)
 				frame:SetAttribute("groupBy", "GROUP")
 			end
 		end
-	elseif( type == "partypet" or type == "partytarget" ) then
-		frame:SetAttribute("framePositioned", false)
-		frame:SetAttribute("framePoint", ShadowUF.Layout:GetPoint(ShadowUF.db.profile.positions[type].anchorPoint))
-		frame:SetAttribute("frameRelative", ShadowUF.Layout:GetRelative(ShadowUF.db.profile.positions[type].anchorPoint))
-		frame:SetAttribute("frameX", ShadowUF.db.profile.positions[type].x)
-		frame:SetAttribute("frameY", ShadowUF.db.profile.positions[type].y)
 	end
 end
 
@@ -617,40 +599,21 @@ function Units:LoadGroupHeader(config, type)
 	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, ShadowUF.db.profile.positions[type])
 end
 
-function Units:LoadPartyChildUnit(config, parentHeader, type, unit)
+function Units:LoadChildUnit(parent, type, unit)
 	if( unitFrames[unit] ) then
-		self:SetFrameAttributes(unitFrames[unit], unitFrames[unit].unitType)
+		ShadowUF.Layout:AnchorFrame(parent, unitFrames[unit], ShadowUF.db.profile.positions[type])
 		RegisterUnitWatch(unitFrames[unit], type == "partypet")
 		return
 	end
 	
 	local frame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate,SecureHandlerShowHideTemplate")
-	frame.ignoreAnchor = true
-	frame:Hide()
-
-	self:SetFrameAttributes(frame, type)
-		
-	self:CreateUnit(frame, true)
-	frame:SetFrameRef("partyHeader",  parentHeader)
+	self:CreateUnit(frame)
 	frame:SetAttribute("unit", unit)
-	frame:SetAttribute("unitOwner", parentHeader.unitType .. (string.match(unit, "(%d+)")))
-	frame:SetAttribute("_onshow", [[
-		if( self:GetAttribute("framePositioned") ) then return end
-		
-		local children = table.new(self:GetFrameRef("partyHeader"):GetChildren())
-		for _, child in pairs(children) do
-			if( child:GetAttribute("unit") == self:GetAttribute("unitOwner") ) then
-				self:SetParent(child)
-				self:ClearAllPoints()
-				self:SetPoint(self:GetAttribute("framePoint"), child, self:GetAttribute("frameRelative"), self:GetAttribute("frameX"), self:GetAttribute("frameY"))
-				self:SetAttribute("framePositioned", true)
-			end
-		end
-	]])
-	
+	frame.ignoreAnchor = true
+
 	unitFrames[unit] = frame
 
-	-- Annd lets get this going
+	ShadowUF.Layout:AnchorFrame(parent, unitFrames[unit], ShadowUF.db.profile.positions[type])
 	RegisterUnitWatch(frame, type == "partypet")
 end
 
@@ -667,13 +630,13 @@ function Units:InitializeFrame(config, type)
 	elseif( type == "partypet" ) then
 		for id, unit in pairs(ShadowUF.partyUnits) do
 			if( unitFrames[unit] ) then
-				Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partypet, SUFHeaderparty, "partypet", "partypet" .. id)
+				Units:LoadChildUnit(unitFrames[ShadowUF.partyUnits[id]], type, "partypet" .. id)
 			end
 		end
 	elseif( type == "partytarget" ) then
 		for id, unit in pairs(ShadowUF.partyUnits) do
 			if( unitFrames[unit] ) then
-				Units:LoadPartyChildUnit(ShadowUF.db.profile.units.partytarget, SUFHeaderparty, "partytarget", "party" .. id .. "target")
+				Units:LoadChildUnit(unitFrames[ShadowUF.partyUnits[id]], type, "party" .. id .. "target")
 			end
 		end
 	else
@@ -696,8 +659,6 @@ function Units:UninitializeFrame(config, type)
 	for _, frame in pairs(unitFrames) do
 		if( frame.unitType == type ) then
 			UnregisterUnitWatch(frame)
-
-			frame:SetAttribute("framePositioned", nil)
 			frame:Hide()
 		end
 	end
@@ -711,22 +672,7 @@ function Units:CreateBar(parent)
 	frame.background:SetHeight(1)
 	frame.background:SetWidth(1)
 	frame.background:SetAllPoints(frame)
-	
-	--[[
-	local OrigSetMinMax = frame.SetMinMaxValues
-	frame.SetMinMaxValues = function(self, min, max)
-		OrigSetMinMax(self, max, min)
-	end
 
-	local OrigSetValue = frame.SetValue
-	frame.SetValue = function(self, value)
-		local min, max = self:GetMinMaxValues()
-		--value = min - value
-		
-		OrigSetValue(self, value)
-	end
-	]]
-	
 	return frame
 end
 

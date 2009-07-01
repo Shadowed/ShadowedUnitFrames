@@ -965,7 +965,7 @@ local function loadUnitOptions()
 		ShadowUF.db.profile.positions[info[2]][info[#(info)]] = value
 		fixPositions(info)
 		
-		if( info[2] == "raid" or info[2] == "party" ) then
+		if( info[2] == "partypet" or info[2] == "partytarget" or info[2] == "raid" or info[2] == "party" ) then
 			ShadowUF.Units:ReloadHeader(info[2])
 		else
 			ShadowUF.Layout:Reload(info[2])
