@@ -1,6 +1,6 @@
 local Units = {unitFrames = {}, loadedUnits = {}}
 local vehicleMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
-local unitFrames, loadedUnits, unitEvents, queuedCombat, inCombat = Units.unitFrames, Units.loadedUnits, {}, {}
+local unitFrames, loadedUnits, unitEvents, queuedCombat = Units.unitFrames, Units.loadedUnits, {}, {}
 local FRAME_LEVEL_MAX = 5
 local _G = getfenv(0)
 
@@ -257,15 +257,6 @@ end
 local function OnAttributeChanged(self, name, unit)
 	if( name ~= "unit" or not unit or unit == self.unitOwner ) then return end
 	
-	-- In combat, queue it for update when we leave it
-	if( inCombat ) then
-		queuedCombat[self] = true
-		
-		if( not self.unit ) then
-			return
-		end
-	end
-	
 	-- Unit already exists, we're going to update our information on them but we're not going to do a full update and recheck things
 	-- we don't have to because frames are ALWAYS going to be the same type, a raid frame will not magically turn into a target frame.
 	if( self.unit ) then
@@ -342,6 +333,7 @@ local function OnAttributeChanged(self, name, unit)
 	-- When a player is force ressurected by releasing in naxx/tk/etc then they might freeze
 	elseif( self.unit == "player" ) then
 		self.dropdownMenu = PlayerFrameDropDown
+		self:SetAttribute("toggleForVehicle", true)
 		self:SetAttribute("_menu", PlayerFrame.menu)
 		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
 	
@@ -354,16 +346,23 @@ local function OnAttributeChanged(self, name, unit)
 	-- Party members need to watch for changes
 	elseif( self.unitType == "party" ) then
 		self.dropdownMenu = _G["PartyMemberFrame" .. self.unitID .. "DropDown"]
-		self:SetAttribute("_menu", _G["PartyMemberFrame" .. self.unitID].menu)
 		self:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", Units, "CheckUnitGUID")
 
 		-- Party frame has been loaded, so initialize it's sub-frames if they are enabled
 		if( loadedUnits.partypet ) then
-			Units:LoadChildUnit(self, "partypet", "partypet" .. self.unitID)
+			if( not InCombatLockdown() ) then
+				Units:LoadChildUnit(self, "partypet", "partypet" .. self.unitID)
+			else
+				queuedCombat["partypet" .. self.unitID] = self
+			end
 		end
 		
 		if( loadedUnits.partytarget ) then
-			Units:LoadChildUnit(self, "partytarget", "party" .. self.unitID .. "target")
+			if( not InCombatLockdown() ) then
+				Units:LoadChildUnit(self, "partytarget", "party" .. self.unitID .. "target")
+			else
+				queuedCombat["party" .. self.unitID .. "target"] = self
+			end
 		end
 
 	-- *target units are not real units, thus they do not receive events and must be polled for data
@@ -391,33 +390,33 @@ local function OnAttributeChanged(self, name, unit)
 		self:RegisterNormalEvent("UNIT_ENTERED_VEHICLE", Units, "CheckVehicleStatus")
 		self:RegisterNormalEvent("UNIT_EXITED_VEHICLE", Units, "CheckVehicleStatus")
 		self:RegisterUpdateFunc(Units, "CheckVehicleStatus")
-		
-		-- This unit can be a vehicle, so will want to be able to target the vehicle if they enter one
-		self:SetAttribute("toggleForVehicle", true)
-				
+						
 		-- Check if they are in a vehicle
 		Units:CheckVehicleStatus(self)
 	end	
 	
 	-- Update module status
 	self:SetVisibility()
+	
+	-- Check for any unit changes
+	Units:CheckUnitGUID(self)
 end
 
-function Units:LoadUnit(config, unit)
-	-- Already be loaded, just enable
-	if( unitFrames[unit] ) then
-		RegisterUnitWatch(unitFrames[unit], unit == "pet")
-		return
-	end
-	
-	local frame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate")
-	self:CreateUnit(frame)
-	frame:SetAttribute("unit", unit)
+local function initializeUnit(self)
+	local unitType = self:GetParent().unitType
+	local config = ShadowUF.db.profile.units[unitType]
 
-	unitFrames[unit] = frame
+	self.ignoreAnchor = true
+	self:SetAttribute("initial-height", config.height)
+	self:SetAttribute("initial-width", config.width)
+	self:SetAttribute("initial-scale", config.scale)
+	
+	-- We can't set the attribute for game menus in combat by the time OnAttributeChanged fires
+	if( unitType == "party" ) then
+		self:SetAttribute("_menu", _G["PartyMemberFrame" .. string.match(self:GetName(), "(%d+)")].menu)
+	end
 		
-	-- Annd lets get this going
-	RegisterUnitWatch(frame, unit == "pet")
+	Units:CreateUnit(self)
 end
 
 -- Show tooltip
@@ -436,7 +435,6 @@ end)
 function Units:CreateUnit(frame)
 	frame.barFrame = CreateFrame("Frame", nil, frame)
 	frame.secondBarFrame = CreateFrame("Frame", nil, frame)
-	frame:Hide()
 	
 	frame.fullUpdates = {}
 	frame.registeredEvents = {}
@@ -455,8 +453,8 @@ function Units:CreateUnit(frame)
 	frame.highFrame:SetAllPoints(frame)
 	
 	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
-	frame:SetScript("OnEnter", 	OnEnter)
-	frame:SetScript("OnLeave", 	UnitFrame_OnLeave)
+	frame:SetScript("OnEnter", OnEnter)
+	frame:SetScript("OnLeave", UnitFrame_OnLeave)
 	frame:SetScript("OnEvent", OnEvent)
 
 	frame:RegisterForClicks("AnyUp")	
@@ -485,17 +483,149 @@ function Units:ReloadHeader(type)
 		self:SetFrameAttributes(frame, type)
 		ShadowUF.Layout:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[type])
 	end
+end
 
-	-- Now update it's children
-	if( type == "partypet" or type == "partytarget" ) then
-		for _, frame in pairs(unitFrames) do
-			if( frame.unitType == type ) then
-				ShadowUF.Layout:AnchorFrame(unitFrames[ShadowUF.partyUnits[frame.unitID]], frame, ShadowUF.db.profile.positions[type])
+function Units:SetFrameAttributes(frame, type)
+	local config = ShadowUF.db.profile.units[type]
+	if( not config ) then
+		return
+	end
+	
+	frame:SetAttribute("point", config.attribPoint)
+	frame:SetAttribute("showRaid", type == "raid" and true or false)
+	frame:SetAttribute("showParty", type == "party" and true or false)
+	frame:SetAttribute("xOffset", config.xOffset)
+	frame:SetAttribute("yOffset", config.yOffset)
+
+	if( type == "raid" ) then
+		local filter
+		for id, enabled in pairs(config.filters) do
+			if( enabled ) then
+				if( filter ) then
+					filter = filter .. "," .. id
+				else
+					filter = id
+				end
 			end
+		end
+	
+		frame:SetAttribute("sortMethod", "INDEX")
+		frame:SetAttribute("sortDir", config.sortOrder)
+		frame:SetAttribute("maxColumns", config.maxColumns)
+		frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
+		frame:SetAttribute("columnSpacing", config.columnSpacing)
+		frame:SetAttribute("columnAnchorPoint", config.attribAnchorPoint)
+		frame:SetAttribute("groupFilter", filter or "1,2,3,4,5,6,7,8")
+		
+		if( config.groupBy == "CLASS" ) then
+			frame:SetAttribute("groupingOrder", "DEATHKNIGHT,DRUID,HUNTER,MAGE,PALADIN,PRIEST,ROGUE,SHAMAN,WARLOCK,WARRIOR")
+			frame:SetAttribute("groupBy", "CLASS")
+		else
+			frame:SetAttribute("groupingOrder", "1,2,3,4,5,6,7,8")
+			frame:SetAttribute("groupBy", "GROUP")
 		end
 	end
 end
 
+-- Load a single unit such as player, target, pet, etc
+function Units:LoadUnit(config, unit)
+	-- Already be loaded, just enable
+	if( unitFrames[unit] ) then
+		RegisterUnitWatch(unitFrames[unit], unit == "pet")
+		return
+	end
+	
+	local frame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate")
+	self:CreateUnit(frame)
+	frame:SetAttribute("unit", unit)
+
+	unitFrames[unit] = frame
+		
+	-- Annd lets get this going
+	RegisterUnitWatch(frame, unit == "pet")
+end
+
+-- Load a header unit, party or raid
+function Units:LoadGroupHeader(config, type)
+	if( unitFrames[type] ) then
+		self:SetFrameAttributes(unitFrames[type], type)
+		unitFrames[type]:Show()
+		return
+	end
+	
+	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent, "SecureGroupHeaderTemplate")
+	self:SetFrameAttributes(headerFrame, type)
+	
+	headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
+	headerFrame:SetAttribute("initial-unitWatch", true)
+	headerFrame.initialConfigFunction = initializeUnit
+	headerFrame.unitType = type
+	headerFrame:Show()
+
+	unitFrames[type] = headerFrame
+	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, ShadowUF.db.profile.positions[type])
+end
+
+-- Load a unit that is a child of another unit (party pet/party target)
+function Units:LoadChildUnit(parent, type, unit)
+	if( unitFrames[unit] ) then
+		ShadowUF.Layout:AnchorFrame(parent, unitFrames[unit], ShadowUF.db.profile.positions[type])
+		RegisterUnitWatch(unitFrames[unit], type == "partypet")
+		return
+	end
+	
+	local frame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate,SecureHandlerShowHideTemplate")
+	self:CreateUnit(frame)
+	frame:SetAttribute("unit", unit)
+	frame.parent = parent
+	
+	unitFrames[unit] = frame
+
+	ShadowUF.Layout:AnchorFrame(parent, unitFrames[unit], ShadowUF.db.profile.positions[type])
+	RegisterUnitWatch(frame, type == "partypet")
+end
+
+-- Initialize units
+function Units:InitializeFrame(config, type)
+	if( loadedUnits[type] ) then return end
+	loadedUnits[type] = true
+	
+	if( type == "party" or type == "raid" ) then
+		self:LoadGroupHeader(config, type)
+	-- Since I delay the partypet/partytarget creation until the owners were loaded, we don't want to actually initialize them here
+	-- unless the pets were already loaded, this mainly accounts for the fact that you might enable a unit in arenas, but not in raids, etc.
+	elseif( type == "partypet" ) then
+		for id, unit in pairs(ShadowUF.partyUnits) do
+			if( unitFrames[unit] ) then
+				Units:LoadChildUnit(unitFrames[ShadowUF.partyUnits[id]], type, "partypet" .. id)
+			end
+		end
+	elseif( type == "partytarget" ) then
+		for id, unit in pairs(ShadowUF.partyUnits) do
+			if( unitFrames[unit] ) then
+				Units:LoadChildUnit(unitFrames[ShadowUF.partyUnits[id]], type, "party" .. id .. "target")
+			end
+		end
+	else
+		self:LoadUnit(config, type)
+	end
+end
+
+-- Uninitialize units
+function Units:UninitializeFrame(config, type)
+	if( not loadedUnits[type] ) then return end
+	loadedUnits[type] = nil
+		
+	-- Disable all frames of this time
+	for _, frame in pairs(unitFrames) do
+		if( frame.unitType == type ) then
+			UnregisterUnitWatch(frame)
+			frame:Hide()
+		end
+	end
+end
+
+-- Profile changed, reload units
 function Units:ProfileChanged()
 	-- Reset the anchors for all frames to prevent X is dependant on Y
 	for _, frame in pairs(unitFrames) do
@@ -527,143 +657,7 @@ function Units:ProfileChanged()
 	self:ReloadHeader("party")
 end
 
-function Units:SetFrameAttributes(frame, type)
-	local config = ShadowUF.db.profile.units[type]
-	if( not config ) then
-		return
-	end
-	
-	if( type == "raid" or type == "party" ) then
-		frame:SetAttribute("point", config.attribPoint)
-		frame:SetAttribute("initial-width", config.width)
-		frame:SetAttribute("initial-height", config.height)
-		frame:SetAttribute("initial-scale", config.scale)
-		frame:SetAttribute("showRaid", type == "raid" and true or false)
-		frame:SetAttribute("showParty", type == "party" and true or false)
-		frame:SetAttribute("xOffset", config.xOffset)
-		frame:SetAttribute("yOffset", config.yOffset)
-		
-		if( type == "raid" ) then
-			local filter
-			for id, enabled in pairs(config.filters) do
-				if( enabled ) then
-					if( filter ) then
-						filter = filter .. "," .. id
-					else
-						filter = id
-					end
-				end
-			end
-		
-			frame:SetAttribute("sortMethod", "INDEX")
-			frame:SetAttribute("sortDir", config.sortOrder)
-			frame:SetAttribute("maxColumns", config.maxColumns)
-			frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
-			frame:SetAttribute("columnSpacing", config.columnSpacing)
-			frame:SetAttribute("columnAnchorPoint", config.attribAnchorPoint)
-			frame:SetAttribute("groupFilter", filter or "1,2,3,4,5,6,7,8")
-			
-			if( config.groupBy == "CLASS" ) then
-				frame:SetAttribute("groupingOrder", "DEATHKNIGHT,DRUID,HUNTER,MAGE,PALADIN,PRIEST,ROGUE,SHAMAN,WARLOCK,WARRIOR")
-				frame:SetAttribute("groupBy", "CLASS")
-			else
-				frame:SetAttribute("groupingOrder", "1,2,3,4,5,6,7,8")
-				frame:SetAttribute("groupBy", "GROUP")
-			end
-		end
-	end
-end
-
-local function initializeUnit(self)
-	self.ignoreAnchor = true
-	Units:CreateUnit(self)
-end
-
-function Units:LoadGroupHeader(config, type)
-	if( unitFrames[type] ) then
-		self:SetFrameAttributes(unitFrames[type], type)
-		unitFrames[type]:Show()
-		return
-	end
-	
-	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent, "SecureGroupHeaderTemplate")
-	self:SetFrameAttributes(headerFrame, type)
-	
-	headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
-	headerFrame:SetAttribute("initial-unitWatch", true)
-	headerFrame.initialConfigFunction = initializeUnit
-	headerFrame.unitType = type
-	headerFrame:Show()
-
-	unitFrames[type] = headerFrame
-	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, ShadowUF.db.profile.positions[type])
-end
-
-function Units:LoadChildUnit(parent, type, unit)
-	if( unitFrames[unit] ) then
-		ShadowUF.Layout:AnchorFrame(parent, unitFrames[unit], ShadowUF.db.profile.positions[type])
-		RegisterUnitWatch(unitFrames[unit], type == "partypet")
-		return
-	end
-	
-	local frame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate,SecureHandlerShowHideTemplate")
-	self:CreateUnit(frame)
-	frame:SetAttribute("unit", unit)
-	frame.ignoreAnchor = true
-
-	unitFrames[unit] = frame
-
-	ShadowUF.Layout:AnchorFrame(parent, unitFrames[unit], ShadowUF.db.profile.positions[type])
-	RegisterUnitWatch(frame, type == "partypet")
-end
-
-function Units:InitializeFrame(config, type)
-	if( loadedUnits[type] ) then return end
-	loadedUnits[type] = true
-	
-	if( type == "party" ) then
-		self:LoadGroupHeader(config, type)
-	elseif( type == "raid" ) then
-		self:LoadGroupHeader(config, type)
-	-- Since I delay the partypet/partytarget creation until the owners were loaded, we don't want to actually initialize them here
-	-- unless the pets were already loaded, this mainly accounts for the fact that you might enable a unit in arenas, but not in raids, etc.
-	elseif( type == "partypet" ) then
-		for id, unit in pairs(ShadowUF.partyUnits) do
-			if( unitFrames[unit] ) then
-				Units:LoadChildUnit(unitFrames[ShadowUF.partyUnits[id]], type, "partypet" .. id)
-			end
-		end
-	elseif( type == "partytarget" ) then
-		for id, unit in pairs(ShadowUF.partyUnits) do
-			if( unitFrames[unit] ) then
-				Units:LoadChildUnit(unitFrames[ShadowUF.partyUnits[id]], type, "party" .. id .. "target")
-			end
-		end
-	else
-		self:LoadUnit(config, type)
-	end
-end
-
-function Units:UninitializeFrame(config, type)
-	if( not loadedUnits[type] ) then return end
-	loadedUnits[type] = nil
-	
-	-- We're trying to disable a header
-	if( unitFrames[type] ) then
-		UnregisterUnitWatch(unitFrames[type])
-		unitFrames[type]:Hide()
-		return
-	end
-	
-	-- Otherwise, we're disabling a specific unit
-	for _, frame in pairs(unitFrames) do
-		if( frame.unitType == type ) then
-			UnregisterUnitWatch(frame)
-			frame:Hide()
-		end
-	end
-end
-
+-- Small helper function for creating bars with
 function Units:CreateBar(parent)
 	local frame = CreateFrame("StatusBar", nil, parent)
 	frame:SetFrameLevel(FRAME_LEVEL_MAX)
@@ -677,10 +671,8 @@ function Units:CreateBar(parent)
 end
 
 -- Handles events related to all units and not a specific one
-local headerUpdated = {}
 local centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
-centralFrame:RegisterEvent("PLAYER_REGEN_DISABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 centralFrame:SetScript("OnEvent", function(self, event, unit)
 	if( event == "ZONE_CHANGED_NEW_AREA" ) then
@@ -693,32 +685,11 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 				end
 			end
 		end
-		
+	-- This is slightly hackish, but it suits the purpose just fine for somthing thats rarely called.
 	elseif( event == "PLAYER_REGEN_ENABLED" ) then
-		inCombat = nil
-	
-		for k in pairs(headerUpdated) do headerUpdated[k] = nil end
-		
-		for frame in pairs(queuedCombat) do
-			queuedCombat[frame] = nil
-			if( not frame.unit ) then
-				OnAttributeChanged(frame, "unit", frame:GetAttribute("unit"))
-			else
-				frame:SetVisibility()
-			end
-			
-			-- When parties change in combat, the overall height/width of the secure header will change, we need to force a secure group update
-			-- in order for all of the sizing information to be set correctly.
-			if( frame.unitType ~= frame.unit and not headerUpdated[frame.unitType] ) then
-				local header = unitFrames[frame.unitType]
-				if( header and header:GetHeight() <= 0 and header:GetWidth() <= 0 ) then
-					SecureGroupHeader_Update(header)
-				end
-				
-				headerUpdated[frame.unitType] = true
-			end
+		for unitID, parent in pairs(queuedCombat) do
+			queuedCombat[unitID] = nil
+			Units:LoadChildUnit(parent, string.gsub(unitID, "(%d+)", ""), unitID)
 		end
-	elseif( event == "PLAYER_REGEN_DISABLED" ) then
-		inCombat = true
 	end
 end)

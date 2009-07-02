@@ -223,20 +223,24 @@ function Layout:SetupFrame(frame, config)
 	backdropTbl.insets.top = backdrop.inset
 	backdropTbl.insets.bottom = backdrop.inset
 		
-	frame:SetHeight(config.height)
-	frame:SetWidth(config.width)
-	frame:SetScale(config.scale)
 	frame:SetBackdrop(backdropTbl)
 	frame:SetBackdropColor(backdrop.backgroundColor.r, backdrop.backgroundColor.g, backdrop.backgroundColor.b, backdrop.backgroundColor.a)
 	frame:SetBackdropBorderColor(backdrop.borderColor.r, backdrop.borderColor.g, backdrop.borderColor.b, backdrop.borderColor.a)
 	frame:SetClampedToScreen(true)
-	
+
+	-- Don't change these in combat as it'll just taint
+	if( not InCombatLockdown() ) then
+		frame:SetHeight(config.height)
+		frame:SetWidth(config.width)
+		frame:SetScale(config.scale)
+	end
+		
 	-- Let the frame clip closer to the edge
 	local clip = backdrop.inset + backdrop.clip
 	frame:SetClampRectInsets(-clip, -clip, -clip, -clip)
 	
 	if( not frame.ignoreAnchor ) then
-		self:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[frame.unitType])
+		self:AnchorFrame(frame.parent or UIParent, frame, ShadowUF.db.profile.positions[frame.unitType])
 	end
 end
 
