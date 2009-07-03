@@ -127,6 +127,7 @@ end
 
 function IncHeal:UpdateHealing(target, amount, succeeded)
 	totalHealing[target] = (totalHealing[target] or 0) + amount
+	totalHealing[target] = totalHealing[target] < 0 and 0 or totalHealing[target]
 	
 	for frame in pairs(frames) do
 		if( frame:IsVisible() and frame.unit and getName(frame.unit) == target ) then
@@ -151,6 +152,5 @@ end
 function IncHeal:HealModifierUpdate(event, unit, targetName, healMod)
 	self:UpdateHealing(targetName, 0)
 end
-
 
 
