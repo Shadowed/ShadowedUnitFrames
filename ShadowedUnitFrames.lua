@@ -236,6 +236,8 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.targettargettarget.enabled = true
 	-- PARTY
 	self.defaults.profile.units.party.enabled = true
+	self.defaults.profile.units.party.sortMethod = "INDEX"
+	self.defaults.profile.units.party.sortOrder = "ASC"
 	self.defaults.profile.units.party.attribPoint = "TOP"
 	self.defaults.profile.units.party.attribAnchorPoint = "LEFT"
 	self.defaults.profile.units.party.auras.debuffs.maxRows = 1
@@ -245,6 +247,7 @@ function ShadowUF:LoadUnitDefaults()
 	-- RAID
 	self.defaults.profile.units.raid.groupBy = "GROUP"
 	self.defaults.profile.units.raid.sortOrder = "ASC"
+	self.defaults.profile.units.raid.sortMethod = "INDEX"
 	self.defaults.profile.units.raid.attribPoint = "TOP"
 	self.defaults.profile.units.raid.attribAnchorPoint = "RIGHT"
 	self.defaults.profile.units.raid.filters = {[1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [8] = true}

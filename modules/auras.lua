@@ -174,35 +174,37 @@ function Auras:UpdateDisplay(frame, unitType)
 	-- Position aura
 	for i=1, frame.totalAuras do
 		local button = frame.buttons[i]
-		local config = ShadowUF.db.profile.units[unitType].auras[button.type]
-		
-		-- Show debuff border, or a special colored border if it's stealable
-		if( button.type == "debuffs" ) then
-			local color =  button.auraStealable and stealableColor or button.auraType and DebuffTypeColor[button.auraType] or DebuffTypeColor.none
-			button.border:SetVertexColor(color.r, color.g, color.b)
-		else
-			button.border:SetVertexColor(0.60, 0.60, 0.60, 1.0)
+		if( button ) then
+			local config = ShadowUF.db.profile.units[unitType].auras[button.type]
+			
+			-- Show debuff border, or a special colored border if it's stealable
+			if( button.type == "debuffs" ) then
+				local color =  button.auraStealable and stealableColor or button.auraType and DebuffTypeColor[button.auraType] or DebuffTypeColor.none
+				button.border:SetVertexColor(color.r, color.g, color.b)
+			else
+				button.border:SetVertexColor(0.60, 0.60, 0.60, 1.0)
+			end
+			
+			-- Show the cooldown ring
+			if( ( not config.selfTimers or ( config.selfTimers and button.auraPlayers ) ) and button.auraDuration > 0 and button.auraEnd > 0 ) then
+				button.cooldown:SetCooldown(button.auraEnd - button.auraDuration, button.auraDuration)
+				button.cooldown:Show()
+			else
+				button.cooldown:Hide()
+			end
+			
+			-- Enlarge our own auras
+			if( config.enlargeSelf and button.auraPlayers ) then
+				button:SetScale(1.30)
+			else
+				button:SetScale(1)
+			end
+			
+			-- Stack + icon + show!
+			button.icon:SetTexture(button.auraTexture)
+			button.stack:SetText(button.auraCount > 1 and button.auraCount or "")
+			button:Show()
 		end
-		
-		-- Show the cooldown ring
-		if( ( not config.selfTimers or ( config.selfTimers and button.auraPlayers ) ) and button.auraDuration > 0 and button.auraEnd > 0 ) then
-			button.cooldown:SetCooldown(button.auraEnd - button.auraDuration, button.auraDuration)
-			button.cooldown:Show()
-		else
-			button.cooldown:Hide()
-		end
-		
-		-- Enlarge our own auras
-		if( config.enlargeSelf and button.auraPlayers ) then
-			button:SetScale(1.30)
-		else
-			button:SetScale(1)
-		end
-		
-		-- Stack + icon + show!
-		button.icon:SetTexture(button.auraTexture)
-		button.stack:SetText(button.auraCount > 1 and button.auraCount or "")
-		button:Show()
 	end
 end
 

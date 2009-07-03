@@ -498,6 +498,8 @@ function Units:SetFrameAttributes(frame, type)
 	frame:SetAttribute("showParty", type == "party" and true or false)
 	frame:SetAttribute("xOffset", config.xOffset)
 	frame:SetAttribute("yOffset", config.yOffset)
+	frame:SetAttribute("sortMethod", config.sortMethod)
+	frame:SetAttribute("sortDir", config.sortOrder)
 
 	if( type == "raid" ) then
 		local filter
@@ -511,8 +513,6 @@ function Units:SetFrameAttributes(frame, type)
 			end
 		end
 	
-		frame:SetAttribute("sortMethod", "INDEX")
-		frame:SetAttribute("sortDir", config.sortOrder)
 		frame:SetAttribute("maxColumns", config.maxColumns)
 		frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
 		frame:SetAttribute("columnSpacing", config.columnSpacing)
