@@ -410,6 +410,7 @@ local function initializeUnit(self)
 	self:SetAttribute("initial-height", config.height)
 	self:SetAttribute("initial-width", config.width)
 	self:SetAttribute("initial-scale", config.scale)
+	self:SetAttribute("toggleForVehicle", true)
 	
 	-- We can't set the attribute for game menus in combat by the time OnAttributeChanged fires
 	if( unitType == "party" ) then
@@ -575,6 +576,7 @@ function Units:LoadChildUnit(parent, type, unit)
 	end
 	
 	local frame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate,SecureHandlerShowHideTemplate")
+	frame:SetFrameStrata("LOW")
 	self:CreateUnit(frame)
 	frame:SetAttribute("unit", unit)
 	frame.parent = parent
