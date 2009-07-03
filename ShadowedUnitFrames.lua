@@ -163,7 +163,8 @@ function ShadowUF:LoadUnitDefaults()
 		self.defaults.profile.units[unit] = {
 			enabled = false, height = 0, width = 0, scale = 1.0,
 			healthBar = {enabled = true, colorType = "percent", reaction = true},
-			powerBar = {enabled = true}, portrait = {enabled = false, type = "3D", fullBefore = 0, fullAfter = 100},
+			powerBar = {enabled = true},
+			portrait = {enabled = false, type = "3D", fullBefore = 0, fullAfter = 100, order = 40, height = 0.50},
 			range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
 			text = {{enabled = true, name = L["Left text"], text = "[name]", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Left text"], text = "[level] [race]", anchorTo = "$powerBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxpp]", anchorTo = "$powerBar", size = 0}},
 			indicators = {raidTarget = {enabled = true, size = 0}}, 
@@ -213,7 +214,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.focustarget.enabled = true
 	-- TARGET
 	self.defaults.profile.units.target.enabled = true
-	self.defaults.profile.units.target.comboPoints = {enabled = true, anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0}
+	self.defaults.profile.units.target.comboPoints = {enabled = true, isBar = false, height = 0.40, order = 30, anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0}
 	-- TARGETTARGET/TARGETTARGETTARGET
 	self.defaults.profile.units.targettarget.enabled = true
 	self.defaults.profile.units.targettargettarget.enabled = true
