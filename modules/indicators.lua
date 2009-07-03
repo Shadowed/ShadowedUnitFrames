@@ -1,5 +1,4 @@
 local Indicators = {}
-local raidUnits, partyUnits = ShadowUF.raidUnits, ShadowUF.partyUnits
 local indicatorList = {"status", "pvp", "leader", "masterLoot", "raidTarget", "happiness", "ready"}
 
 ShadowUF:RegisterModule(Indicators, "indicators", ShadowUFLocals["Indicators"])
@@ -7,16 +6,16 @@ ShadowUF:RegisterModule(Indicators, "indicators", ShadowUFLocals["Indicators"])
 function Indicators:UpdateHappiness(frame)
 	if( not frame.indicators.happiness.enabled ) then return end
 
-	local happyHappy = GetPetHappiness()
-	if( not happyHappy ) then
+	local happiness = GetPetHappiness()
+	if( not happiness ) then
 		frame.indicators.happiness:Hide()
-	elseif( happyHappy == 3 ) then
+	elseif( happiness == 3 ) then
 		frame.indicators.happiness:SetTexCoord(0, 0.1875, 0, 0.359375)
 		frame.indicators.happiness:Show()
-	elseif( happyHappy == 2 ) then
+	elseif( happiness == 2 ) then
 		frame.indicators.happiness:SetTexCoord(0.1875, 0.375, 0, 0.359375)
 		frame.indicators.happiness:Show()
-	elseif( happyHappy == 1 ) then
+	elseif( happiness == 1 ) then
 		frame.indicators.happiness:SetTexCoord(0.375, 0.5625, 0, 0.359375)
 		frame.indicators.happiness:Show()
 	end
@@ -28,7 +27,7 @@ function Indicators:UpdateMasterLoot(frame)
 	local lootType, partyID, raidID = GetLootMethod()
 	if( lootType ~= "master" ) then
 		frame.indicators.masterLoot:Hide()
-	elseif( ( partyID and partyID == 0 and UnitIsUnit(frame.unit, "player") ) or ( partyID and partyID > 0 and UnitIsUnit(frame.unit, partyUnits[partyID]) ) or ( raidID and raidID > 0 and UnitIsUnit(frame.unit, raidUnits[raidID]) ) ) then
+	elseif( ( partyID and partyID == 0 and UnitIsUnit(frame.unit, "player") ) or ( partyID and partyID > 0 and UnitIsUnit(frame.unit, ShadowUF.partyUnitss[partyID]) ) or ( raidID and raidID > 0 and UnitIsUnit(frame.unit, ShadowUF.raidUnits[raidID]) ) ) then
 		frame.indicators.masterLoot:Show()
 	else
 		frame.indicators.masterLoot:Hide()
@@ -107,6 +106,7 @@ function Indicators:UpdateReadyCheck(frame, event)
 			frame.indicators.timeLeft = frame.indicators.startTime
 			frame.indicators:SetScript("OnUpdate", fadeReadyStatus)
 			
+			-- Player never responded so they are AFK
 			if( frame.indicators.ready.status == "waiting" ) then
 				frame.indicators.ready:SetTexture("Interface\\RaidFrame\\ReadyCheck-NotReady")
 			end
@@ -221,21 +221,25 @@ end
 function Indicators:OnDisable(frame)
 	frame:UnregisterAll(self)
 
-	if( frame.indicators ) then
-		for _, key in pairs(frame.indicators.list) do
-			local indicator = frame.indicators[key]
-			if( indicator ) then
-				indicator:Hide()
-			end
+	for _, key in pairs(frame.indicators.list) do
+		if( frame.indicators[key] ) then
+			frame.indicators[key].enabled = nil
+			frame.indicators[key]:Hide()
 		end
 	end
 end
 
-function Indicators:OnLayoutApplied(frame)
-	if( frame.indicators ) then
+function Indicators:OnLayoutApplied(frame, config)
+	if( frame.visibility.indicators ) then
 		for _, key in pairs(frame.indicators.list) do
 			local indicator = frame.indicators[key]
-			if( indicator and not indicator.enabled ) then
+			if( indicator and config.indicators[key].enabled ) then
+				indicator.enabled = true
+				indicator:SetHeight(config.indicators[key].size)
+				indicator:SetWidth(config.indicators[key].size)
+				ShadowUF.Layout:AnchorFrame(frame, indicator, config.indicators[key])
+			elseif( indicator ) then
+				indicator.enabled = nil
 				indicator:Hide()
 			end
 		end

@@ -54,6 +54,7 @@ function Tags:Reload()
 	-- Now update frames
 	for fontString, tags in pairs(regFontStrings) do
 		self:Register(fontString.parent, fontString, tags)
+		fontString.parent:RegisterUpdateFunc(fontString, "UpdateTags")
 		fontString:UpdateTags()
 	end
 end

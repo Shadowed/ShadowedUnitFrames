@@ -1,28 +1,27 @@
 local Runes = {}
+local runeColors = {{r = 1, g = 0, b = 0.4}, {r = 0, g = 1, b = 0.4}, {r = 0, g = 0.4, b = 1}, {r = 0.7, g = 0.5, b = 1}}
 ShadowUF:RegisterModule(Runes, "runeBar", ShadowUFLocals["Rune bar"], true)
 
 function Runes:OnEnable(frame)
-	if( select(2, UnitClass("player")) ~= "DEATHKNIGHT" ) then
-		return
-	end
+	if( select(2, UnitClass("player")) ~= "DEATHKNIGHT" ) then return end
 			
 	if( not frame.runeBar ) then
 		frame.runeBar = CreateFrame("Frame", nil, frame)
 		frame.runeBar:SetFrameLevel(frame.topFrameLevel)
 		frame.runeBar.runes = {}
 		
-		for i=1, 6 do
-			local rune = ShadowUF.Units:CreateBar(frame.runeBar)
+		for id=1, 6 do
+			local rune = CreateFrame("StatusBar", frame.runeBar)
 			rune:SetFrameLevel(frame.runeBar:GetFrameLevel() - 1)
-			rune.id = i
+			rune.id = id
 			
-			if( i > 1 ) then
-				rune:SetPoint("TOPLEFT", frame.runeBar.runes[i - 1], "TOPRIGHT", 1, 0)
+			if( id > 1 ) then
+				rune:SetPoint("TOPLEFT", frame.runeBar.runes[id - 1], "TOPRIGHT", 1, 0)
 			else
 				rune:SetPoint("TOPLEFT", frame.runeBar, "TOPLEFT", 0, 0)
 			end
 			
-			frame.runeBar.runes[i] = rune
+			frame.runeBar.runes[id] = rune
 		end
 	end
 	
@@ -50,8 +49,6 @@ function Runes:OnLayoutApplied(frame)
 	end
 end
 
--- Yoinked colors from agUF
-local runeColors = {{r = 1, g = 0, b = 0.4}, {r = 0, g = 1, b = 0.4}, {r = 0, g = 0.4, b = 1}, {r = 0.7, g = 0.5, b = 1}}
 local function runeMonitor(self, elapsed)
 	local time = GetTime()
 	self:SetValue(time)
@@ -88,8 +85,8 @@ end
 function Runes:Update(frame, event, rune)
 	for id, indicator in pairs(frame.runeBar.runes) do
 		if( not rune or rune == id ) then
-			local type = GetRuneType(id)
-			indicator:SetStatusBarColor(runeColors[type].r, runeColors[type].g, runeColors[type].b)
+			local color = runeColors[GetRuneType(id)]
+			indicator:SetStatusBarColor(color.r, color.g, color.b)
 		end
 	end
 end

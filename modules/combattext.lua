@@ -18,6 +18,18 @@ function Combat:OnEnable(frame)
 	frame:RegisterUnitEvent("UNIT_COMBAT", self, "Update")
 end
 
+function Combat:OnLayoutApplied(frame, config)
+	-- Update feedback text
+	ShadowUF.Layout:ToggleVisibility(frame.combatText, frame.visibility.combatText)
+	if( frame.visibility.combatText ) then
+		frame.combatText.feedbackFontHeight = ShadowUF.db.profile.font.size + 1
+		frame.combatText.fontPath = ShadowUF.Layout.mediaPath.font
+		
+		ShadowUF.Layout:SetupFontString(frame.combatText.feedbackText, 1)
+		ShadowUF.Layout:AnchorFrame(frame, frame.combatText, config.combatText)
+	end
+end
+
 function Combat:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
@@ -25,9 +37,7 @@ end
 function Combat:Update(frame, event, unit, ...)
 	CombatFeedback_OnCombatEvent(frame.combatText, ...)
 	
-	-- Increasing the font size leads to it becoming pixeled, however getting the percentage it was increased by
-	-- and then scaling the entire container frame, does not!
-	local increased = frame.combatText.feedbackText:GetStringHeight() / ShadowUF.db.profile.font.size
+	-- Increasing the font size will make the text look pixelated, however scaling it up will make it look smooth and awesome
+	frame.combatText:SetScale(frame.combatText.feedbackText:GetStringHeight() / ShadowUF.db.profile.font.size)
 	frame.combatText.feedbackText:SetFont(frame.combatText.fontPath, ShadowUF.db.profile.font.size, "OUTLINE")
-	frame.combatText:SetScale(increased)
 end

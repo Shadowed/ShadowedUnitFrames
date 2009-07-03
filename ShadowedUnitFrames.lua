@@ -113,10 +113,17 @@ function ShadowUF:CheckUpgrade()
 	-- June 28th
 	self.db.profile.positions.partypet.anchorTo = "$parent"
 	self.db.profile.positions.partytarget.anchorTo = "$parent"
+	
+	-- July 02th
+	self.db.profile.units.targettarget.healthBar.colorAggro = nil
+	self.db.profile.units.targettargettarget.healthBar.colorAggro = nil
+	self.db.profile.units.focustarget.healthBar.colorAggro = nil
+	self.db.profile.units.partytarget.healthBar.colorAggro = nil
+	self.db.profile.units.pettarget.healthBar.colorAggro = nil
 end
 	
 local partyDisabled
-function ShadowUF:RAID_ROSTER_UPDATE()
+function ShadowUF:RaidRosterUpdated()
 	if( not self.db.profile.units.party.enabled ) then return end
 	
 	if( ( self.db.profile.units.party.hideSemiRaid and GetNumRaidMembers() > 5 ) or ( self.db.profile.units.party.hideAnyRaid and GetNumRaidMembers() > 0 ) ) then
@@ -385,19 +392,16 @@ end
 
 -- Event handling, makes sure SUF loads fine
 local frame = CreateFrame("Frame")
-frame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("RAID_ROSTER_UPDATE")
 frame:SetScript("OnEvent", function(self, event, ...)
-	if( event == "ZONE_CHANGED_NEW_AREA" ) then
-		ShadowUF:LoadUnits()
+	if( event == "RAID_ROSTER_UPDATE" ) then
+		ShadowUF:RaidRosterUpdated()
 	elseif( event == "PLAYER_ENTERING_WORLD" ) then
 		ShadowUF:OnInitialize()
 		ShadowUF:LoadUnits()
-		ShadowUF:RAID_ROSTER_UPDATE()
+		ShadowUF:RaidRosterUpdated()
 
 		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-	else
-		ShadowUF[event](ShadowUF, event, ...)
 	end
 end)

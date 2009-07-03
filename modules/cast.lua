@@ -25,6 +25,39 @@ function Cast:OnEnable(frame, unit)
 	frame:RegisterUpdateFunc(self, "UpdateCurrentCast")
 end
 
+function Cast:OnLayoutApplied(frame, config)
+	if( not frame.visibility.castBar ) then
+		if( frame.castBar ) then
+			frame.castBar.name:Hide()
+			frame.castBar.time:Hide()
+		end
+		return
+	end
+	
+	-- Set the font at the very least, so it doesn't error when we set text on it even if it isn't being shown
+	ShadowUF.Layout:SetupFontString(frame.castBar.name)
+	ShadowUF.Layout:ToggleVisibility(frame.castBar.name, config.castBar.castName.enabled)
+
+	if( config.castBar.castName.enabled ) then
+		frame.castBar.name:SetParent(frame.highFrame)
+		frame.castBar.name:SetWidth(frame.castBar:GetWidth() * 0.75)
+		frame.castBar.name:SetHeight(ShadowUF.db.profile.font.size + 1)
+		frame.castBar.name:SetJustifyH(ShadowUF.Layout:GetJustify(config.castBar.castName))
+		ShadowUF.Layout:AnchorFrame(frame.castBar, frame.castBar.name, config.castBar.castName)
+	end
+	
+	ShadowUF.Layout:SetupFontString(frame.castBar.time)
+	ShadowUF.Layout:ToggleVisibility(frame.castBar.time, config.castBar.castTime.enabled)
+
+	if( config.castBar.castTime.enabled ) then
+		frame.castBar.time:SetParent(frame.highFrame)
+		frame.castBar.time:SetWidth(frame.castBar:GetWidth() * 0.25)
+		frame.castBar.time:SetHeight(ShadowUF.db.profile.font.size + 1)
+		frame.castBar.time:SetJustifyH(ShadowUF.Layout:GetJustify(config.castBar.castTime))
+		ShadowUF.Layout:AnchorFrame(frame.castBar, frame.castBar.time, config.castBar.castTime)
+	end
+end
+
 function Cast:OnDisable(frame, unit)
 	frame:UnregisterAll(self)
 end
@@ -194,9 +227,7 @@ end
 -- Update the actual bar
 function Cast:UpdateCast(frame, event, unit, spell, rank, startTime, endTime)
 	local cast = frame.castBar
-	startTime = startTime / 1000
-	endTime = endTime / 1000
-	
+
 	-- Set casted spell
 	if( rank ~= "" ) then
 		cast.name:SetFormattedText("%s (%s)", spell, rank)
@@ -204,22 +235,19 @@ function Cast:UpdateCast(frame, event, unit, spell, rank, startTime, endTime)
 		cast.name:SetText(spell)
 	end
 		
-	local secondsLeft = endTime - startTime
-	
 	-- Setup cast info
 	cast.isChannelled = event == "UNIT_SPELLCAST_CHANNEL_START"
-	cast.startTime = startTime
-	cast.endTime = endTime
-	cast.elapsed = cast.isChannelled and secondsLeft or 0
-	cast.endSeconds = secondsLeft
+	cast.startTime = startTime / 1000
+	cast.endTime = endTime / 1000
+	cast.endSeconds = cast.endTime - cast.startTime
+	cast.elapsed = cast.isChannelled and cast.endSeconds or 0
 	cast.spellName = spell
 	cast.spellRank = rank
 	cast.pushback = 0
-	cast.lastUpdate = startTime
+	cast.lastUpdate = cast.startTime
 	cast:SetMinMaxValues(0, cast.endSeconds)
 	cast:SetValue(cast.elapsed)
 	cast:SetAlpha(ShadowUF.db.profile.bars.alpha)
-	cast.hasCast = true
 	
 	if( cast.isChannelled ) then
 		setBarColor(cast, 0.25, 0.25, 1.0)

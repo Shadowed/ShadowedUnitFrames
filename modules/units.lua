@@ -132,13 +132,13 @@ local function SetVisibility(self)
 	for _, module in pairs(ShadowUF.moduleOrder) do
 		if( module.OnEnable and module.OnDisable and ShadowUF.db.profile.units[self.unitType][module.moduleKey] ) then
 			local key = module.moduleKey
-			local enabled = ShadowUF.db.profile.units[self.unitType][key].enabled
+			local enabled = ShadowUF.db.profile.units[self.unitType][key].enabled or nil
 			
 			-- Make sure at least one option is enabled if it's an aura or indicator
-			if( key == "auras" or key == "indicators" ) then
-				enabled = false
+			if( key == "auras" or key == "indicators" or key == "highlight" ) then
+				enabled = nil
 				for _, option in pairs(ShadowUF.db.profile.units[self.unitType][key]) do
-					if( option.enabled ) then
+					if( type(option) == "table" and option.enabled or option == true ) then
 						enabled = true
 						break
 					end
@@ -147,7 +147,7 @@ local function SetVisibility(self)
 					
 			if( zone ~= "none" ) then
 				if( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == false ) then
-					enabled = false
+					enabled = nil
 				elseif( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == true ) then
 					enabled = true
 				end
@@ -223,6 +223,12 @@ function Units:CheckVehicleStatus(frame, event, unit)
 	end
 end
 
+-- The argument from UNIT_PET is the pets owner, so the player summoning a new pet gets "player", party1 summoning a new pet gets "party1" and so on
+function Units:CheckUnitUpdated(frame, event, unit)
+	if( unit ~= frame.unitRealOwner or not UnitExists(unit) ) then return end
+	frame:FullUpdate()
+end
+
 -- When a frames GUID changes,
 -- Handles checking for GUID changes for doing a full update, this fixes frames sometimes showing the wrong unit when they change
 local guid
@@ -235,12 +241,7 @@ function Units:CheckUnitGUID(frame)
 	frame.unitGUID = guid
 end
 
--- The argument from UNIT_PET is the pets owner, so the player summoning a new pet gets "player", party1 summoning a new pet gets "party1" and so on
-function Units:CheckUnitUpdated(frame, event, unit)
-	if( unit ~= frame.unitRealOwner or not UnitExists(unit) ) then return end
-	frame:FullUpdate()
-end
-
+-- This is the fall back, raid frames can't be done without tainting unfortunately, but will see if I can find a way around it
 local function ShowMenu(self)
 	FriendsDropDown.displayMode = "MENU"
 	FriendsDropDown.initialize = RaidFrameDropDown_Initialize
@@ -257,8 +258,9 @@ end
 local function OnAttributeChanged(self, name, unit)
 	if( name ~= "unit" or not unit or unit == self.unitOwner ) then return end
 	
-	-- Unit already exists, we're going to update our information on them but we're not going to do a full update and recheck things
-	-- we don't have to because frames are ALWAYS going to be the same type, a raid frame will not magically turn into a target frame.
+	-- Unit already exists but unitid changed, update the info we got on them
+	-- Don't need to recheck the unitType and force a full update, because a raid frame can never become
+	-- a party frame, or a player frame and so on
 	if( self.unit ) then
 		self.unit = unit
 		self.unitID = tonumber(string.match(unit, "([0-9]+)"))
@@ -661,32 +663,58 @@ end
 
 -- Small helper function for creating bars with
 function Units:CreateBar(parent)
-	local frame = CreateFrame("StatusBar", nil, parent)
-	frame:SetFrameLevel(FRAME_LEVEL_MAX)
-	frame.parent = parent
-	frame.background = frame:CreateTexture(nil, "BORDER")
-	frame.background:SetHeight(1)
-	frame.background:SetWidth(1)
-	frame.background:SetAllPoints(frame)
+	local bar = CreateFrame("StatusBar", nil, parent)
+	bar:SetFrameLevel(FRAME_LEVEL_MAX)
+	bar.parent = parent
+	
+	bar.background = bar:CreateTexture(nil, "BORDER")
+	bar.background:SetHeight(1)
+	bar.background:SetWidth(1)
+	bar.background:SetAllPoints(bar)
 
-	return frame
+	return bar
+end
+
+-- Deal with zone changes for enabling modules
+local instanceType
+function Units:CheckPlayerZone(force)
+	local instance = select(2, IsInInstance())
+	if( instance == instanceType and not force ) then return end
+	instanceType = instance
+	
+	ShadowUF:LoadUnits()
+	for _, frame in pairs(unitFrames) do
+		if( frame:GetAttribute("unit") ) then
+			frame:SetVisibility()
+			
+			if( UnitExists(frame.unit) ) then
+				frame:FullUpdate()
+			end
+		end
+	end
 end
 
 -- Handles events related to all units and not a specific one
 local centralFrame = CreateFrame("Frame")
+local instanceType
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 centralFrame:SetScript("OnEvent", function(self, event, unit)
+	-- Check if the player changed zone types and we need to change module status, while they are dead
+	-- we won't change their zone type as releasing from an instance will change the zone type without them
+	-- really having left the zone
 	if( event == "ZONE_CHANGED_NEW_AREA" ) then
-		for _, frame in pairs(unitFrames) do
-			if( frame:GetAttribute("unit") ) then
-				frame:SetVisibility()
-				
-				if( UnitExists(frame.unit) ) then
-					frame:FullUpdate()
-				end
-			end
+		if( UnitIsDeadOrGhost("player") ) then
+			self:RegisterEvent("PLAYER_UNGHOST")
+			return
+		else
+			self:UnregisterEvent("PLAYER_UNGHOST")
 		end
+		
+		Units:CheckPlayerZone()
+	-- They're alive again so they "officially" changed zone types now
+	elseif( event == "PLAYER_UNGHOST" ) then
+		Units:CheckPlayerZone()
 	-- This is slightly hackish, but it suits the purpose just fine for somthing thats rarely called.
 	elseif( event == "PLAYER_REGEN_ENABLED" ) then
 		for unitID, parent in pairs(queuedCombat) do

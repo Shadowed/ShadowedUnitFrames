@@ -1,3 +1,4 @@
+-- I will likely need to start splitting these off into their own modules for most of this
 local Layout = {}
 local SML, config, mediaRequired
 local barOrder, anchoringQueued, mediaPath, frameList = {}, {}, {}, {}
@@ -72,17 +73,15 @@ end
 
 -- Do a full update
 function Layout:Load(frame)
-	-- About to set layout
-	ShadowUF:FireModuleEvent("OnPreLayoutApply", frame)
-
 	local unitConfig = ShadowUF.db.profile.units[frame.unitType]
+
+	-- About to set layout
+	ShadowUF:FireModuleEvent("OnPreLayoutApply", frame, unitConfig)
 	
 	-- Load all of the layout things
 	self:SetupFrame(frame, unitConfig)
 	self:SetupBars(frame, unitConfig)
 	self:PositionWidgets(frame, unitConfig)
-	self:PositionIndicators(frame, unitConfig)
-	self:PositionAuras(frame, unitConfig)
 	self:SetupText(frame, unitConfig)
 
 	-- Set this frame as managed by the layout system
@@ -101,7 +100,7 @@ function Layout:Load(frame)
 	end
 
 	-- Layouts been fully set
-	ShadowUF:FireModuleEvent("OnLayoutApplied", frame)
+	ShadowUF:FireModuleEvent("OnLayoutApplied", frame, unitConfig)
 end
 
 function Layout:LoadSML()
@@ -268,7 +267,9 @@ function Layout:SetupBars(frame, config)
 end
 
 -- Setup text
-local function updateShadows(fontString)
+function Layout:SetupFontString(fontString, extraSize)
+	fontString:SetFont(mediaPath.font, ShadowUF.db.profile.font.size + (extraSize or 0), ShadowUF.db.profile.font.extra)
+	
 	if( ShadowUF.db.profile.font.shadowColor and ShadowUF.db.profile.font.shadowX and ShadowUF.db.profile.font.shadowY ) then
 		fontString:SetShadowColor(ShadowUF.db.profile.font.shadowColor.r, ShadowUF.db.profile.font.shadowColor.g, ShadowUF.db.profile.font.shadowColor.b, ShadowUF.db.profile.font.a)
 		fontString:SetShadowOffset(ShadowUF.db.profile.font.shadowX, ShadowUF.db.profile.font.shadowY)
@@ -280,53 +281,6 @@ end
 
 local totalWeight = {}
 function Layout:SetupText(frame, config)
-	-- Update cast bar text
-	if( frame.castBar and frame.castBar:IsShown() ) then
-		-- Set the font at the very least, so it doesn't error when we set text on it even if it isn't being shown
-		frame.castBar.name:SetFont(mediaPath.font, ShadowUF.db.profile.font.size, ShadowUF.db.profile.font.extra)
-		if( config.castBar.castName.enabled ) then
-			frame.castBar.name:SetParent(frame.highFrame)
-			frame.castBar.name:SetWidth(frame.castBar:GetWidth() * 0.75)
-			frame.castBar.name:SetHeight(ShadowUF.db.profile.font.size + 1)
-			frame.castBar.name:SetJustifyH(self:GetJustify(config.castBar.castName))
-			frame.castBar.name:Show()
-			self:AnchorFrame(frame.castBar, frame.castBar.name, config.castBar.castName)
-
-			updateShadows(frame.castBar.name)
-		else
-			frame.castBar.name:Hide()
-		end
-		
-		frame.castBar.time:SetFont(mediaPath.font, ShadowUF.db.profile.font.size, ShadowUF.db.profile.font.extra)
-		if( config.castBar.castTime.enabled ) then
-			frame.castBar.time:SetParent(frame.highFrame)
-			frame.castBar.time:SetWidth(frame.castBar:GetWidth() * 0.25)
-			frame.castBar.time:SetHeight(ShadowUF.db.profile.font.size + 1)
-			frame.castBar.time:SetJustifyH(self:GetJustify(config.castBar.castTime))
-			frame.castBar.time:Show()
-			self:AnchorFrame(frame.castBar, frame.castBar.time, config.castBar.castTime)
-
-			updateShadows(frame.castBar.time)
-		else
-			frame.castBar.time:Hide()
-		end
-	elseif( frame.castBar ) then
-		frame.castBar.time:Hide()
-		frame.castBar.name:Hide()
-	end
-	
-	-- Update feedback text
-	self:ToggleVisibility(frame.combatText, config.combatText and config.combatText.enabled)
-	if( frame.combatText and frame.combatText:IsShown() ) then
-		frame.combatText.feedbackText:SetFont(mediaPath.font, ShadowUF.db.profile.font.size + 1)
-		frame.combatText.feedbackFontHeight = ShadowUF.db.profile.font.size + 1
-		frame.combatText.fontPath = mediaPath.font
-		
-		updateShadows(frame.combatText.feedbackText)
-		
-		self:AnchorFrame(frame, frame.combatText, config.combatText)
-	end
-
 	-- Update tag text
 	frame.fontStrings = frame.fontStrings or {}
 	for _, fontString in pairs(frame.fontStrings) do
@@ -341,7 +295,7 @@ function Layout:SetupText(frame, config)
 		local parent = row.anchorTo == "$parent" and frame or frame[string.sub(row.anchorTo, 2)]
 		if( parent and parent:IsShown() and row.enabled and row.text ~= "" ) then
 			local fontString = frame.fontStrings[id] or frame:CreateFontString(nil, "ARTWORK")
-			fontString:SetFont(mediaPath.font, ShadowUF.db.profile.font.size + row.size, ShadowUF.db.profile.font.extra)
+			self:SetupFontString(fontString, row.size)
 			fontString:SetText(row.text)
 			fontString:SetParent(frame.highFrame)
 			fontString:SetJustifyH(self:GetJustify(row))
@@ -352,8 +306,6 @@ function Layout:SetupText(frame, config)
 			fontString.availableWidth = parent:GetWidth() - row.x
 			fontString.widthID = row.anchorTo .. anchorPoint .. row.y
 			totalWeight[fontString.widthID] = (totalWeight[fontString.widthID] or 0) + row.width
-			
-			updateShadows(fontString)
 			
 			ShadowUF.Tags:Register(frame, fontString, row.text)
 			fontString:UpdateTags()
@@ -371,103 +323,7 @@ function Layout:SetupText(frame, config)
 			fontString:SetHeight(ShadowUF.db.profile.font.size + 1)
 		end
 	end
-end
-
--- Setup indicators
-function Layout:PositionIndicators(frame, config)
-	if( frame.comboPoints and not config.comboPoints.isBar ) then
-		self:ToggleVisibility(frame.comboPoints, config.comboPoints.enabled)
-		if( frame.comboPoints:IsShown() ) then
-			frame.comboPoints:SetHeight(0.1)
-			frame.comboPoints:SetWidth(0.1)
-			
-			self:AnchorFrame(frame, frame.comboPoints, config.comboPoints)
-		end
-	end
-
-	if( not frame.indicators or not frame.visibility.indicators ) then
-		if( frame.indicators ) then
-			for _, indicator in pairs(frame.indicators.list) do
-				self:ToggleVisibility(frame.indicators[indicator], false)
-			end
-		end
-		return
-	end
-	
-	for _, key in pairs(frame.indicators.list) do
-		local indicator = frame.indicators[key]
-		if( indicator ) then
-			indicator.enabled = config.indicators[key] and config.indicators[key].enabled
-			if( indicator.enabled and config.indicators[key].size ) then
-				indicator:SetHeight(config.indicators[key].size)
-				indicator:SetWidth(config.indicators[key].size)
-				
-				self:AnchorFrame(frame, indicator, config.indicators[key])
-			end
-		end
-	end
-end
-
-local function positionAuras(self, config)
-	for id=1, self.maxAuras do
-		local button = self.buttons[id]
-		button:SetHeight(config.size)
-		button:SetWidth(config.size)
-		button.border:SetHeight(config.size + 1)
-		button.border:SetWidth(config.size + 1)
-		button:ClearAllPoints()
-
-		-- If's ahoy
-		if( id > 1 ) then
-			if( config.anchorPoint == "BOTTOM" or config.anchorPoint == "TOP" or config.anchorPoint == "INSIDE" ) then
-				if( id % config.perRow == 1 ) then
-					if( config.anchorPoint == "TOP" ) then
-						button:SetPoint("BOTTOM", self.buttons[id - config.perRow], "TOP", 0, 2)
-					else
-						button:SetPoint("TOP", self.buttons[id - config.perRow], "BOTTOM", 0, -2)
-					end
-				elseif( config.anchorPoint == "INSIDE" ) then
-						button:SetPoint("RIGHT", self.buttons[id - 1], "LEFT", -1, 0)
-				else
-					button:SetPoint("LEFT", self.buttons[id - 1], "RIGHT", 1, 0)
-				end
-			elseif( id % config.maxRows == 1 or config.maxRows == 1 ) then
-				if( config.anchorPoint == "RIGHT" ) then
-					button:SetPoint("LEFT", self.buttons[id - config.maxRows], "RIGHT", 1, 0)
-				else
-					button:SetPoint("RIGHT", self.buttons[id - config.maxRows], "LEFT", -1, 0)
-				end
-			else
-				button:SetPoint("TOP", self.buttons[id - 1], "BOTTOM", 0, -2)
-			end
-		elseif( config.anchorPoint == "INSIDE" ) then
-			button:SetPoint("TOPRIGHT", self.parent.healthBar, "TOPRIGHT", config.x + -ShadowUF.db.profile.backdrop.clip, config.y + -ShadowUF.db.profile.backdrop.clip)
-		elseif( config.anchorPoint == "BOTTOM" ) then
-			button:SetPoint("BOTTOMLEFT", self.parent, "BOTTOMLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + -(config.size + 2))
-		elseif( config.anchorPoint == "TOP" ) then
-			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + (config.size + 2))
-		elseif( config.anchorPoint == "LEFT" ) then
-			button:SetPoint("TOPLEFT", self.parent, "TOPLEFT", config.x + -config.size, config.y + ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip)
-		elseif( config.anchorPoint == "RIGHT" ) then
-			button:SetPoint("TOPRIGHT", self.parent, "TOPRIGHT", config.x + config.size, config.y + ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip)
-		end
-	end
-end			
-			
--- Setup auras
-function Layout:PositionAuras(frame, config)
-	if( not frame.auras or not frame.visibility.auras ) then
-		if( frame.auras ) then
-			frame.auras.buffs.buttons[1]:Hide()
-			frame.auras.debuffs.buttons[1]:Hide()
-		end
-		return
-	end
-		
-	-- Update aura position
-	if( config.auras.buffs.enabled ) then positionAuras(frame.auras.buffs, config.auras.buffs) end
-	if( config.auras.debuffs.enabled ) then positionAuras(frame.auras.debuffs, config.auras.debuffs) end
-end
+end	
 
 -- Setup the bar barOrder/info
 local currentConfig
@@ -508,24 +364,26 @@ function Layout:PositionWidgets(frame, config)
 	local clip = ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip
 	local clipDoubled = clip * 2
 	
-	local portraitOffset, portraitAlignment, portraitAnchor
+	local portraitOffset, portraitAlignment, portraitAnchor, portraitWidth
 	if( not config.portrait.isBar ) then
-		-- Set the portrait width so we can figure out the offset to use on bars, will do height and position later
 		self:ToggleVisibility(frame.portrait, frame.visibility.portrait)
-		if( frame.portrait and frame.portrait:IsShown() and not config.portrait.isBar ) then
-			frame.portrait:SetWidth(math.floor(config.width * config.portrait.width) - ShadowUF.db.profile.backdrop.inset)
-		end
+		
+		if( frame.visibility.portrait ) then
+			-- Figure out portrait alignment
+			portraitAlignment = config.portrait.alignment
+			if( not config.portrait.noAutoAlign and ( frame.unit == "target" or string.match(frame.unit, "%w+target") ) ) then
+				portraitAlignment = config.portrait.alignment == "LEFT" and "RIGHT" or "LEFT"
+			end
 
-		-- Figure out portrait alignment
-		portraitAlignment = config.portrait.alignment
-		if( not config.portrait.noAutoAlign and ( frame.unit == "target" or string.match(frame.unit, "%w+target") ) ) then
-			portraitAlignment = config.portrait.alignment == "LEFT" and "RIGHT" or "LEFT"
-		end
+			-- Set the portrait width so we can figure out the offset to use on bars, will do height and position later
+			portraitWidth = math.floor(config.width * config.portrait.width) - ShadowUF.db.profile.backdrop.inset
+			frame.portrait:SetWidth(portraitWidth - (portraitAlignment == "RIGHT" and 1 or 0.5))
 
-		-- As well as how much to offset bars by (if it's using a left alignment) to keep them all fancy looking
-		portraitOffset = clip
-		if( frame.visibility.portrait and portraitAlignment == "LEFT" ) then
-			portraitOffset = portraitOffset + frame.portrait:GetWidth()
+			-- As well as how much to offset bars by (if it's using a left alignment) to keep them all fancy looking
+			portraitOffset = clip
+			if( portraitAlignment == "LEFT" ) then
+				portraitOffset = portraitOffset + portraitWidth
+			end
 		end
 	end
 	
@@ -534,7 +392,6 @@ function Layout:PositionWidgets(frame, config)
 	local availableHeight = frame:GetHeight() - clipDoubled - (math.abs(ShadowUF.db.profile.bars.spacing) * totalBars)
 	for id, key in pairs(barOrder) do
 		local bar = frame[key]
-		bar.type = key
 		
 		-- Position the actual bar based on it's type
 		if( bar.fullSize ) then
@@ -544,7 +401,7 @@ function Layout:PositionWidgets(frame, config)
 			bar:ClearAllPoints()
 			bar:SetPoint("TOPLEFT", frame, "TOPLEFT", clip, xOffset)
 		else
-			bar:SetWidth(math.ceil(frame:GetWidth() - frame.portrait:GetWidth() - clipDoubled))
+			bar:SetWidth(math.ceil(frame:GetWidth() - portraitWidth - clipDoubled))
 			bar:SetHeight(availableHeight * (config[key].height / totalWeight))
 
 			bar:ClearAllPoints()
@@ -565,10 +422,10 @@ function Layout:PositionWidgets(frame, config)
 	if( frame.portrait and frame.portrait:IsShown() and portraitAnchor and portraitHeight > 0 ) then
 		if( portraitAlignment == "LEFT" ) then
 			frame.portrait:ClearAllPoints()
-			frame.portrait:SetPoint("TOPRIGHT", portraitAnchor, "TOPLEFT", -1, 0)
+			frame.portrait:SetPoint("TOPLEFT", portraitAnchor, "TOPLEFT", -frame.portrait:GetWidth() - 0.5, 0)
 		elseif( portraitAlignment == "RIGHT" ) then
 			frame.portrait:ClearAllPoints()
-			frame.portrait:SetPoint("TOPLEFT", portraitAnchor, "TOPRIGHT", 1, 0)
+			frame.portrait:SetPoint("TOPRIGHT", portraitAnchor, "TOPRIGHT", frame.portrait:GetWidth() + 1, 0)
 		end
 			
 		if( hasFullSize ) then

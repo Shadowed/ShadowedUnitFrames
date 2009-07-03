@@ -30,21 +30,22 @@ function Portrait:OnDisable(frame)
 end
 
 function Portrait:OnPreLayoutApply(frame)
-	if( not frame.portraitTexture or not frame.portraitModel ) then
-		return
-	end
-	
-	if( ShadowUF.db.profile.units[frame.unitType].portrait.type == "2D" or ShadowUF.db.profile.units[frame.unitType].portrait.type == "class" ) then
-		frame.portrait = frame.portraitTexture
-		frame.portraitModel:Hide()
-		frame.portrait:Show()
-	elseif( ShadowUF.db.profile.units[frame.unitType].portrait.type == "3D" ) then
-		frame.portrait = frame.portraitModel
-		frame.portraitTexture:Hide()
-		frame.portrait:Show()
+	if( frame.visibility.portrait ) then
+		frame.portraitModel.guid = nil
+		
+		if( ShadowUF.db.profile.units[frame.unitType].portrait.type == "2D" or ShadowUF.db.profile.units[frame.unitType].portrait.type == "class" ) then
+			frame.portrait = frame.portraitTexture
+			frame.portraitModel:Hide()
+			frame.portrait:Show()
+		elseif( ShadowUF.db.profile.units[frame.unitType].portrait.type == "3D" ) then
+			frame.portrait = frame.portraitModel
+			frame.portraitTexture:Hide()
+			frame.portrait:Show()
+		end
 	end
 end
 
+-- Makes sure we only do a portrait update if the GUID changed
 function Portrait:UpdateFunc(frame)
 	local guid = UnitGUID(frame.unit)
 	if( frame.portraitModel.guid ~= guid ) then

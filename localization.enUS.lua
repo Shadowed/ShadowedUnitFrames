@@ -1,5 +1,8 @@
 ShadowUFLocals = {
+	["%s (%s): %s/%s (%.2f%% done)"] = "%s (%s): %s/%s (%.2f%% done)",
 	["%s frames"] = "%s frames",
+	["%s/%s (%.2f%% done)"] = "%s/%s (%.2f%% done)",
+	["%s/%s (%.2f%% done), %s rested."] = "%s/%s (%.2f%% done), %s rested.",
 	["(AFK)"] = "(AFK)",
 	["(DND)"] = "(DND)",
 	["2D"] = "2D",

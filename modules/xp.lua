@@ -1,4 +1,5 @@
 local XP = {}
+local L = ShadowUFLocals
 ShadowUF:RegisterModule(XP, "xpBar", ShadowUFLocals["XP/Rep bar"], true)
 
 local IsXPUserDisabled = IsXPUserDisabled
@@ -6,9 +7,24 @@ if( not ShadowUF.is30200 ) then
 	IsXPUserDisabled = function() return false end
 end
 
+local function OnEnter(self)
+	if( self.tooltip ) then
+		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
+		GameTooltip:SetText(self.tooltip)
+	end
+end
+
+local function OnLeave(self)
+	GameTooltip:Hide()
+end
+
 function XP:OnEnable(frame)
 	if( not frame.xpBar ) then
 		frame.xpBar = ShadowUF.Units:CreateBar(frame)
+		frame.xpBar:EnableMouse(true)
+		frame.xpBar:SetScript("OnEnter", OnEnter)
+		frame.xpBar:SetScript("OnLeave", OnLeave)
+
 		frame.xpBar.rested = CreateFrame("StatusBar", nil, frame.xpBar)
 		frame.xpBar.rested:SetFrameLevel(frame.xpBar:GetFrameLevel() - 1)
 		frame.xpBar.rested:SetAllPoints(frame.xpBar)
@@ -32,17 +48,13 @@ function XP:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 
-function XP:OnPreLayoutApply(frame)
-	if( frame.xpBar ) then
+function XP:OnLayoutApplied(frame)
+	if( frame.visibility.xpBar ) then
 		frame.xpBar.rested:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 	end
 end
 
 function XP:SetColor(frame)
-	if( not frame.xpBar ) then
-		return
-	end
-	
 	if( frame.xpBar.type == "rep" ) then
 		frame.xpBar:SetStatusBarColor(FACTION_BAR_COLORS[frame.xpBar.reaction].r, FACTION_BAR_COLORS[frame.xpBar.reaction].g, FACTION_BAR_COLORS[frame.xpBar.reaction].b, ShadowUF.db.profile.bars.alpha)
 		frame.xpBar.background:SetVertexColor(FACTION_BAR_COLORS[frame.xpBar.reaction].r, FACTION_BAR_COLORS[frame.xpBar.reaction].g, FACTION_BAR_COLORS[frame.xpBar.reaction].b, ShadowUF.db.profile.bars.backgroundAlpha)
@@ -62,16 +74,23 @@ function XP:SetBarVisibility(frame, shown)
 	end
 end
 
-function XP:UpdateRep(frame)
-	local name, reaction, min, max, current = GetWatchedFactionInfo()
-	if( not name ) then
-		XP:SetBarVisibility(frame, false)
-		return
+-- Format 5000 into 5,000
+local function formatNumber(number)
+	local found
+	while( true ) do
+		number, found = string.gsub(number, "^(-?%d+)(%d%d%d)", "%1,%2")
+		if( found == 0 ) then break end
 	end
 	
+	return number
+end
+
+function XP:UpdateRep(frame)
+	local name, reaction, min, max, current = GetWatchedFactionInfo()
 	frame.xpBar:SetMinMaxValues(min, max)
 	frame.xpBar:SetValue(current)
 	frame.xpBar.type = "rep"
+	frame.xpBar.tooltip = string.format(L["%s (%s): %s/%s (%.2f%% done)"], name, GetText("FACTION_STANDING_LABEL" .. reaction, UnitSex("player")), formatNumber(current), formatNumber(max), (current / max) * 100)
 	frame.xpBar.reaction = reaction
 	frame.xpBar.rested:SetMinMaxValues(0, 1)
 	frame.xpBar.rested:SetValue(0)
@@ -81,11 +100,13 @@ function XP:UpdateRep(frame)
 end
 
 function XP:Update(frame)
-	if( frame.unit == "pet" and UnitXPMax(frame.unit) == 0 ) then
-		self:SetBarVisibility(frame, false)
-		return
-	elseif( UnitLevel(frame.unit) == MAX_PLAYER_LEVEL or IsXPUserDisabled() ) then
-		self:UpdateRep(frame)
+	-- At the level cap
+	if( UnitLevel(frame.unit) == MAX_PLAYER_LEVEL or IsXPUserDisabled() ) then
+		if( frame.unit == "player" and GetWatchedFactionInfo() ) then
+			self:UpdateRep(frame)
+		else
+			self:SetBarVisibility(frame, false)
+		end
 		return
 	end
 	
@@ -95,13 +116,15 @@ function XP:Update(frame)
 	frame.xpBar:SetMinMaxValues(min, max)
 	frame.xpBar:SetValue(current)
 	frame.xpBar.type = "xp"
-	
+
 	if( frame.unit == "player" and GetXPExhaustion() ) then
 		frame.xpBar.rested:SetMinMaxValues(min, max)
 		frame.xpBar.rested:SetValue(math.min(current + GetXPExhaustion(), max))
+		frame.xpBar.tooltip = string.format(L["%s/%s (%.2f%% done), %s rested."], formatNumber(current), formatNumber(max), (current / max) * 100, formatNumber(GetXPExhaustion()))
 	else
 		frame.xpBar.rested:SetMinMaxValues(0, 1)
 		frame.xpBar.rested:SetValue(0)
+		frame.xpBar.tooltip = string.format(L["%s/%s (%.2f%% done)"], formatNumber(current), formatNumber(max), (current / max) * 100)
 	end
 	
 	-- Update coloring

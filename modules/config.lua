@@ -257,11 +257,9 @@ local function loadData()
 		local key = info[#(info)]
 		if( ( key == "totemBar" and select(2, UnitClass("player")) ~= "SHAMAN" ) or ( key == "runeBar" and select(2, UnitClass("player")) ~= "DEATHKNIGHT" ) ) then
 			return true
-		end
-											
-		-- Non-standard units do not support any of these modules
-		if( ( key == "incHeal" or key == "colorAggro" ) and string.match(unit, "%s+target" ) ) then
-			return true
+		-- Non-standard units do not support color by aggro or incoming heal
+		elseif( key == "colorAggro" or key == "incHeal" ) then
+			return string.match(unit, "%w+target" )
 		-- Fall back for indicators, no variable table so it shouldn't be shown
 		elseif( info[#(info) - 1] == "indicators" ) then
 			if( ( unit == "global" and not globalConfig.indicators[key] ) or ( unit ~= "global" and not ShadowUF.db.profile.units[unit].indicators[key] ) ) then
@@ -1566,13 +1564,6 @@ local function loadUnitOptions()
 						name = L["Highlight"],
 						hidden = hideRestrictedOption,
 						args = {
-							enabled = {
-								order = 0,
-								type = "toggle",
-								name = string.format(L["Enable %s"], L["Highlight"]),
-								hidden = false,
-								arg = "highlight.enabled",
-							},
 							mouseover = {
 								order = 1,
 								type = "toggle",
@@ -1786,7 +1777,7 @@ local function loadUnitOptions()
 
 									setVariable(info[2], nil, nil, "hideSemiRaid", value)
 									ShadowUF.Units:ReloadHeader(info[#(info) - 3])
-									ShadowUF:RAID_ROSTER_UPDATE()
+									ShadowUF:RaidRosterUpdated()
 								end,
 								arg = "hideSemiRaid",
 							},
@@ -1803,7 +1794,7 @@ local function loadUnitOptions()
 
 									setVariable(info[2], nil, nil, "hideAnyRaid", value)
 									ShadowUF.Units:ReloadHeader(info[#(info) - 3])
-									ShadowUF:RAID_ROSTER_UPDATE()
+									ShadowUF:RaidRosterUpdated()
 								end,
 								arg = "hideAnyRaid",
 							},
@@ -2130,7 +2121,6 @@ local function loadUnitOptions()
 								type = "description",
 								name = "",
 								width = "full",
-								--hidden = function(info) return not string.match(info[2], "%w+target") end,
 							},
 							healthColor = {
 								order = 5,
@@ -2144,6 +2134,7 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = L["Color on aggro"],
 								arg = "healthBar.colorAggro",
+								hidden = hideRestrictedOption,
 							},
 							reaction = {
 								order = 7,
@@ -2902,7 +2893,7 @@ local function loadTagOptions()
 										return stripCode(tagData.funcError)
 									end
 									
-									return stripCode(get(info))
+									return stripCode(ShadowUF.Tags.defaultTags[tagData.name] or ( ShadowUF.db.profile.tags[tagData.name] and ShadowUF.db.profile.tags[tagData.name].func))
 								end,
 							},
 							delete = {
@@ -3031,13 +3022,7 @@ local function loadVisibilityOptions()
 		end
 		
 		-- Annoying yes, but only way that works
-		ShadowUF:LoadUnits()
-		for _, configUnit in pairs(ShadowUF.units) do
-			if( configUnit == unit or unit == "global" ) then
-				ShadowUF.Layout:Reload(configUnit)
-				ShadowUF.Units:ReloadHeader(configUnit)
-			end
-		end
+		ShadowUF.Units:CheckPlayerZone(true)
 		
 		if( unit == "global" ) then
 			globalVisibility[area .. key] = value
@@ -3080,7 +3065,7 @@ local function loadVisibilityOptions()
 		
 		local current
 		if( unit == "global" ) then
-			current = globalVisibility[key]
+			current = globalVisibility[area .. key]
 		else
 			current = ShadowUF.db.profile.visibility[area][unit .. key]
 		end

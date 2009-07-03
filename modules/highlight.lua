@@ -1,7 +1,7 @@
 local Highlight = {}
 ShadowUF:RegisterModule(Highlight, "highlight", ShadowUFLocals["Highlight"])
 
--- Might seem odd to hook my code in the core manually, but HookScript is ~40% slower due to secure stuff
+-- Might seem odd to hook my code in the core manually, but HookScript is ~40% slower due to it being a secure hook
 local function OnEnter(frame, ...)
 	if( ShadowUF.db.profile.units[frame.unitType].highlight.mouseover ) then
 		frame.highlight.hasMouseover = true
@@ -48,8 +48,9 @@ function Highlight:OnEnable(frame)
 	
 	if( ShadowUF.db.profile.units[frame.unitType].highlight.mouseover and not frame.highlight.OnEnter ) then
 		frame.highlight.OnEnter = frame:GetScript("OnEnter")
-		frame:SetScript("OnEnter", OnEnter)
 		frame.highlight.OnLeave = frame:GetScript("OnLeave")
+		
+		frame:SetScript("OnEnter", OnEnter)
 		frame:SetScript("OnLeave", OnLeave)
 	end
 end
@@ -59,6 +60,16 @@ function Highlight:OnLayoutApplied(frame)
 		self:OnDisable(frame)
 		self:OnEnable(frame)
 	end
+end
+
+function Highlight:OnDisable(frame)
+	frame:UnregisterAll(self)
+	
+	frame.highlight.hasDebuff = nil
+	frame.highlight.hasThreat = nil
+	frame.highlight.hasAttention = nil
+	frame.highlight.hasMouseover = nil
+	frame.highlight:Hide()
 end
 
 local color
@@ -99,14 +110,4 @@ function Highlight:UpdateAura(frame)
 	-- In theory, we don't need aura scanning because the first debuff returned is always one we can cure... in theory
 	frame.highlight.hasDebuff = select(5, UnitDebuff(frame.unit, 1, "RAID")) or nil
 	self:Update(frame)
-end
-
-function Highlight:OnDisable(frame)
-	frame:UnregisterAll(self)
-	
-	frame.highlight.hasDebuff = nil
-	frame.highlight.hasThreat = nil
-	frame.highlight.hasAttention = nil
-	frame.highlight.hasMouseover = nil
-	frame.highlight:Hide()
 end

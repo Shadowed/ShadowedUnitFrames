@@ -17,7 +17,7 @@ local function faderUpdate(self, elapsed)
 end
 
 local function startFading(self, type, alpha)
-	self.fader.fadeTime = type == "in" and 0.25 or type == "out" and 0.50
+	self.fader.fadeTime = type == "in" and 0.25 or type == "out" and 0.75
 	self.fader.timeElapsed = 0
 	self.fader.alphaEnd = alpha
 	self.fader.alphaStart = self:GetAlpha()
@@ -53,14 +53,19 @@ function Fader:OnDisable(frame)
 end
 
 function Fader:Update(frame)
+	-- In combat, fade back in
 	if( InCombatLockdown() ) then
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha)
+	-- Ether mana or energy is not at 100%, fade in
 	elseif( ( UnitPowerType(frame.unit) == 0 or UnitPowerType(frame.unit) == 3 ) and UnitPower(frame.unit) ~= UnitPowerMax(frame.unit) ) then
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha)
+	-- Health is not at max, fade in
 	elseif( UnitHealth(frame.unit) ~= UnitHealthMax(frame.unit) ) then
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha)
+	-- Targetting somebody, fade in
 	elseif( frame.unitType == "player" and UnitExists("target") ) then
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha)
+	-- Nothing else? Fade out!
 	else
 		startFading(frame, "out", ShadowUF.db.profile.units[frame.unitType].fader.inactiveAlpha)
 	end

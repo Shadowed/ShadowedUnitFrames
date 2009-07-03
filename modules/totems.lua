@@ -3,27 +3,25 @@ local totemColors = {{r = 1, g = 0, b = 0.4}, {r = 0, g = 1, b = 0.4}, {r = 0, g
 ShadowUF:RegisterModule(Totems, "totemBar", ShadowUFLocals["Totem bar"], true)
 
 function Totems:OnEnable(frame)
-	if( select(2, UnitClass("player")) ~= "SHAMAN" ) then
-		return
-	end
+	if( select(2, UnitClass("player")) ~= "SHAMAN" ) then return end
 			
 	if( not frame.totemBar ) then
 		frame.totemBar = CreateFrame("Frame", nil, frame)
 		frame.totemBar:SetFrameLevel(frame.topFrameLevel)
 		frame.totemBar.totems = {}
 		
-		for i=1, 4 do
-			local totem = ShadowUF.Units:CreateBar(frame.totemBar)
+		for id=1, 4 do
+			local totem = CreateFrame("StatusBar", frame.totemBar)
 			totem:SetFrameLevel(frame.totemBar:GetFrameLevel() - 1)
-			totem.id = i
+			totem.id = id
 			
-			if( i > 1 ) then
-				totem:SetPoint("TOPLEFT", frame.totemBar.totems[i - 1], "TOPRIGHT", 1, 0)
+			if( id > 1 ) then
+				totem:SetPoint("TOPLEFT", frame.totemBar.totems[id - 1], "TOPRIGHT", 1, 0)
 			else
 				totem:SetPoint("TOPLEFT", frame.totemBar, "TOPLEFT", 0, 0)
 			end
 			
-			frame.totemBar.totems[i] = totem
+			frame.totemBar.totems[id] = totem
 		end
 	end
 	
@@ -37,7 +35,7 @@ end
 
 function Totems:OnLayoutApplied(frame)
 	if( frame.totemBar ) then
-		local barWidth = (frame.totemBar:GetWidth() - 5 ) / 4
+		local barWidth = (frame.totemBar:GetWidth() - 3 ) / 4
 		
 		for id, totem in pairs(frame.totemBar.totems) do
 			totem:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)

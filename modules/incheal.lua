@@ -75,10 +75,6 @@ function IncHeal:Setup()
 	resetFrame:RegisterEvent("PARTY_MEMBERS_CHANGED")
 end
 
-local function setBarColor(bar, r, g, b)
-	bar:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.alpha)
-end
-
 local function getName(unit)
 	local name, server = UnitName(unit)
 	if( server and server ~= "" ) then

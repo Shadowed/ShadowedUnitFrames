@@ -1,7 +1,7 @@
 local Range = {}
 ShadowUF:RegisterModule(Range, "range", ShadowUFLocals["Range indicator"])
 
-local classToken = select(2, UnitClass("player"))
+local playerClass = select(2, UnitClass("player"))
 local friendly = { ["PRIEST"] = GetSpellInfo(2050), ["DRUID"] = GetSpellInfo(48378), ["PALADIN"] = GetSpellInfo(48782), ["SHAMAN"] = GetSpellInfo(49273)}
 local hostile = {
 	["PRIEST"] = GetSpellInfo(48127), -- MB
@@ -17,13 +17,13 @@ local hostile = {
 Range.friendly = friendly
 Range.hostile = hostile
 
+local alpha
 local function checkRange(self, elapsed)
 	self.timeElapsed = self.timeElapsed + elapsed
 	if( self.timeElapsed <= 0.50 ) then
 		return
 	end
 	
-	local alpha
 	-- We set a spell for them in our flags check, use that
 	if( self.spell ) then
 		alpha = IsSpellInRange(self.spell, self.parent.unit) == 1 and ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha or ShadowUF.db.profile.units[self.parent.unitType].range.oorAlpha
@@ -42,9 +42,7 @@ local function checkRange(self, elapsed)
 end
 
 function Range:ForceUpdate(frame)
-	if( frame.range:IsVisible() ) then
-		checkRange(frame.range, 1)
-	end
+	checkRange(frame.range, 1)
 end
 
 function Range:OnEnable(frame)
@@ -80,7 +78,7 @@ function Range:UpdateFlags(frame)
 	frame.range.canAttack = UnitCanAttack("player", frame.unit)
 	frame.range.isFriendly = UnitIsFriend("player", frame.unit)
 	frame.range.grouped = UnitInRaid(frame.unit) or UnitInParty(frame.unit)
-	frame.range.spell = frame.range.canAttack and hostile[classToken] or frame.range.isFriendly and friendly[classToken] or nil
+	frame.range.spell = frame.range.canAttack and hostile[playerClass] or frame.range.isFriendly and friendly[playerClass] or nil
 
 	-- No sense in updating range if we have no data
 	if( not frame.range.spell and not frame.range.grouped and not frame.range.isFriendly ) then
