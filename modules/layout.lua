@@ -249,9 +249,9 @@ function Layout:SetupBars(frame, config)
 	for _, module in pairs(ShadowUF.modules) do
 		local key = module.moduleKey
 		local widget = frame[key]
-		if( widget and module.moduleHasBar ) then
+		if( widget and ( module.moduleHasBar or config[key] and config[key].isBar ) ) then
 			self:ToggleVisibility(widget, frame.visibility[key])
-			if( widget:IsShown() ) then
+			if( widget:IsShown() and widget.SetStatusBarTexture ) then
 				widget:SetStatusBarTexture(mediaPath.statusbar)
 								
 				if( widget.background ) then
@@ -375,7 +375,7 @@ end
 
 -- Setup indicators
 function Layout:PositionIndicators(frame, config)
-	if( frame.comboPoints ) then
+	if( frame.comboPoints and not config.comboPoints.isBar ) then
 		self:ToggleVisibility(frame.comboPoints, config.comboPoints.enabled)
 		if( frame.comboPoints:IsShown() ) then
 			frame.comboPoints:SetHeight(0.1)
@@ -484,14 +484,14 @@ function Layout:PositionWidgets(frame, config)
 	-- Figure out total weighting as well as what bars are full sized
 	for i=#(barOrder), 1, -1 do table.remove(barOrder, i) end
 	for key, module in pairs(ShadowUF.modules) do
-		if( module.moduleHasBar and frame[key] and frame[key]:IsShown() ) then
+		if( ( module.moduleHasBar or config[key] and config[key].isBar ) and frame[key] and frame[key]:IsShown() and config[key].height > 0 ) then
 			totalWeight = totalWeight + config[key].height
 			totalBars = totalBars + 1
-			
+						
 			table.insert(barOrder, key)
 			
 			-- Decide whats full sized
-			if( not frame.visibility.portrait or config[key].order < config.portrait.fullBefore or config[key].order > config.portrait.fullAfter ) then
+			if( not frame.visibility.portrait or config.portrait.isBar or config[key].order < config.portrait.fullBefore or config[key].order > config.portrait.fullAfter ) then
 				hasFullSize = true
 				frame[key].fullSize = true
 			else
@@ -508,28 +508,30 @@ function Layout:PositionWidgets(frame, config)
 	local clip = ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip
 	local clipDoubled = clip * 2
 	
-	-- Figure out portrait alignment
-	local portraitAlignment = config.portrait.alignment
-	if( not config.portrait.noAutoAlign and ( frame.unit == "target" or string.match(frame.unit, "%w+target") ) ) then
-		portraitAlignment = config.portrait.alignment == "LEFT" and "RIGHT" or "LEFT"
-	end
+	local portraitOffset, portraitAlignment, portraitAnchor
+	if( not config.portrait.isBar ) then
+		-- Set the portrait width so we can figure out the offset to use on bars, will do height and position later
+		self:ToggleVisibility(frame.portrait, frame.visibility.portrait)
+		if( frame.portrait and frame.portrait:IsShown() and not config.portrait.isBar ) then
+			frame.portrait:SetWidth(math.floor(config.width * config.portrait.width) - ShadowUF.db.profile.backdrop.inset)
+		end
 
-	-- Set the portrait width so we can figure out the offset to use on bars, will do height and position later
-	self:ToggleVisibility(frame.portrait, frame.visibility.portrait)
-	if( frame.portrait and frame.portrait:IsShown() ) then
-		frame.portrait:SetWidth(math.floor(config.width * config.portrait.width) - ShadowUF.db.profile.backdrop.inset)
-	end
+		-- Figure out portrait alignment
+		portraitAlignment = config.portrait.alignment
+		if( not config.portrait.noAutoAlign and ( frame.unit == "target" or string.match(frame.unit, "%w+target") ) ) then
+			portraitAlignment = config.portrait.alignment == "LEFT" and "RIGHT" or "LEFT"
+		end
 
-	-- As well as how much to offset bars by (if it's using a left alignment) to keep them all fancy looking
-	local portraitOffset = clip
-	if( frame.visibility.portrait and portraitAlignment == "LEFT" ) then
-		portraitOffset = frame.portrait:GetWidth() + clip
+		-- As well as how much to offset bars by (if it's using a left alignment) to keep them all fancy looking
+		portraitOffset = clip
+		if( frame.visibility.portrait and portraitAlignment == "LEFT" ) then
+			portraitOffset = portraitOffset + frame.portrait:GetWidth()
+		end
 	end
 	
 	-- Position and size everything
 	local portraitHeight, xOffset = 0, -clip
 	local availableHeight = frame:GetHeight() - clipDoubled - (math.abs(ShadowUF.db.profile.bars.spacing) * totalBars)
-	local portraitAnchor
 	for id, key in pairs(barOrder) do
 		local bar = frame[key]
 		bar.type = key
@@ -538,10 +540,14 @@ function Layout:PositionWidgets(frame, config)
 		if( bar.fullSize ) then
 			bar:SetWidth(math.ceil(frame:GetWidth() - clipDoubled))
 			bar:SetHeight(availableHeight * (config[key].height / totalWeight))
+
+			bar:ClearAllPoints()
 			bar:SetPoint("TOPLEFT", frame, "TOPLEFT", clip, xOffset)
 		else
 			bar:SetWidth(math.ceil(frame:GetWidth() - frame.portrait:GetWidth() - clipDoubled))
 			bar:SetHeight(availableHeight * (config[key].height / totalWeight))
+
+			bar:ClearAllPoints()
 			bar:SetPoint("TOPLEFT", frame, "TOPLEFT", portraitOffset, xOffset)
 			
 			portraitHeight = portraitHeight + bar:GetHeight()
@@ -556,11 +562,11 @@ function Layout:PositionWidgets(frame, config)
 	end
 	
 	-- Now position the portrait and set the height
-	if( frame.portrait and frame.portrait:IsShown() and portraitAnchor ) then
+	if( frame.portrait and frame.portrait:IsShown() and portraitAnchor and portraitHeight > 0 ) then
 		if( portraitAlignment == "LEFT" ) then
 			frame.portrait:ClearAllPoints()
 			frame.portrait:SetPoint("TOPRIGHT", portraitAnchor, "TOPLEFT", -1, 0)
-		else
+		elseif( portraitAlignment == "RIGHT" ) then
 			frame.portrait:ClearAllPoints()
 			frame.portrait:SetPoint("TOPLEFT", portraitAnchor, "TOPRIGHT", 1, 0)
 		end
@@ -575,4 +581,3 @@ end
 
 
 
- 
