@@ -231,9 +231,8 @@ end
 
 -- When a frames GUID changes,
 -- Handles checking for GUID changes for doing a full update, this fixes frames sometimes showing the wrong unit when they change
-local guid
 function Units:CheckUnitGUID(frame)
-	guid = frame.unit and UnitGUID(frame.unit)
+	local guid = frame.unit and UnitGUID(frame.unit)
 	if( guid and guid ~= frame.unitGUID ) then
 		frame:FullUpdate()
 	end
@@ -696,7 +695,6 @@ end
 
 -- Handles events related to all units and not a specific one
 local centralFrame = CreateFrame("Frame")
-local instanceType
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 centralFrame:SetScript("OnEvent", function(self, event, unit)

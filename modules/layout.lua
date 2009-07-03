@@ -268,7 +268,10 @@ end
 
 -- Setup text
 function Layout:SetupFontString(fontString, extraSize)
-	fontString:SetFont(mediaPath.font, ShadowUF.db.profile.font.size + (extraSize or 0), ShadowUF.db.profile.font.extra)
+	local size = ShadowUF.db.profile.font.size + (extraSize or 0)
+	if( size <= 0 ) then size = 1 end
+	
+	fontString:SetFont(mediaPath.font, size, ShadowUF.db.profile.font.extra)
 	
 	if( ShadowUF.db.profile.font.shadowColor and ShadowUF.db.profile.font.shadowX and ShadowUF.db.profile.font.shadowY ) then
 		fontString:SetShadowColor(ShadowUF.db.profile.font.shadowColor.r, ShadowUF.db.profile.font.shadowColor.g, ShadowUF.db.profile.font.shadowColor.b, ShadowUF.db.profile.font.a)
@@ -301,6 +304,7 @@ function Layout:SetupText(frame, config)
 			fontString:SetJustifyH(self:GetJustify(row))
 			self:AnchorFrame(frame, fontString, row)
 			
+			-- We figure out the anchor point so we can put text in the same area with the same width requirements
 			local anchorPoint = (row.anchorPoint == "ITR" or row.anchorPoint == "ITL") and "IT" or (row.anchorPoint == "ICL" or row.anchorPoint == "ICR" ) and "IC" or row.anchorPoint
 			
 			fontString.availableWidth = parent:GetWidth() - row.x

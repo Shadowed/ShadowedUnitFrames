@@ -108,6 +108,15 @@ function ShadowUF:CheckUpgrade()
 		if( string.match(unit, "%w+target") and data.castBar ) then
 			data.castBar = nil
 		end
+		
+		-- July 03th
+		if( data.castBar and data.castName and data.castTime ) then
+			data.name = CopyTable(data.castName)
+			data.castName = nil
+
+			data.time = CopyTable(data.castTime)
+			data.castTime = nil
+		end
 	end
 	
 	-- June 28th
@@ -184,7 +193,7 @@ function ShadowUF:LoadUnitDefaults()
 		-- These modules are not enabled for "fake" units so don't bother with adding defaults
 		if( not string.match(unit, "%w+target") ) then
 			self.defaults.profile.units[unit].incHeal = {enabled = false, cap = 1.30}
-			self.defaults.profile.units[unit].castBar = {enabled = false, castName = {enabled = true, anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, castTime = {enabled = true, anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0}}
+			self.defaults.profile.units[unit].castBar = {enabled = false, icon = "HIDE", name = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, time = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0}}
 			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
 		end
 			

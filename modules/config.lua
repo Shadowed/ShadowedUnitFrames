@@ -939,6 +939,7 @@ local function loadUnitOptions()
 		local tagTable = {
 			order = 0,
 			type = "toggle",
+			hidden = false,
 			name = getTagName, 
 			desc = getTagHelp,
 		}
@@ -1020,6 +1021,7 @@ local function loadUnitOptions()
 		local parentTable = {
 			order = 0,
 			type = "group",
+			hidden = false,
 			name = getName,
 			args = {}
 		}
@@ -1146,6 +1148,7 @@ local function loadUnitOptions()
 	Config.auraTable = {
 		type = "group",
 		inline = true,
+		hidden = false,
 		name = function(info) return info[#(info)] == "buffs" and L["Buffs"] or L["Debuffs"] end,
 		order = function(info) return info[#(info)] == "buffs" and 0 or 1 end,
 		disabled = function(info) return not getVariable(info[2], "auras", info[#(info) - 1], "enabled") end,
@@ -1461,6 +1464,7 @@ local function loadUnitOptions()
 						order = 2,
 						type = "group",
 						inline = true,
+						hidden = false,
 						name = L["Portrait"],
 						args = {
 							portrait = {
@@ -1861,6 +1865,7 @@ local function loadUnitOptions()
 								name = L["Group by"],
 								values = {["GROUP"] = L["Group number"], ["CLASS"] = L["Class"]},
 								arg = "groupBy",
+								hidden = false,
 							},
 							sortOrder = {
 								order = 2,
@@ -1868,12 +1873,14 @@ local function loadUnitOptions()
 								name = L["Sort order"],
 								values = {["ASC"] = L["Ascending"], ["DESC"] = L["Descending"]},
 								arg = "sortOrder",
+								hidden = false,
 							},
 							sep = {
 								order = 3,
 								type = "description",
 								name = "",
 								width = "full",
+								hidden = false,
 							},
 							maxColumns = {
 								order = 4,
@@ -1881,6 +1888,7 @@ local function loadUnitOptions()
 								name = L["Max columns"],
 								min = 1, max = 20, step = 1,
 								arg = "maxColumns",
+								hidden = false,
 							},
 							unitsPerColumn = {
 								order = 5,
@@ -1888,6 +1896,7 @@ local function loadUnitOptions()
 								name = L["Units per column"],
 								min = 1, max = 40, step = 1,
 								arg = "unitsPerColumn",
+								hidden = false,
 							},
 							columnSpacing = {
 								order = 6,
@@ -1895,6 +1904,7 @@ local function loadUnitOptions()
 								name = L["Column spacing"],
 								min = -100, max = 100, step = 1,
 								arg = "columnSpacing",
+								hidden = false,
 							},
 							selectedGroups = {
 								order = 7,
@@ -1913,6 +1923,7 @@ local function loadUnitOptions()
 									local tbl = getVariable(info[2], nil, nil, "filters")
 									return tbl[key]
 								end,
+								hidden = false,
 							},
 						},
 					},
@@ -1931,6 +1942,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Size"],
+						hidden = false,
 						set = function(info, value)
 							setUnit(info, value)
 							ShadowUF.modules.movers:Update()
@@ -1992,18 +2004,21 @@ local function loadUnitOptions()
 								type = "select",
 								name = L["Anchor point"],
 								values = positionList,
+								hidden = false,
 							},
 							anchorTo = {
 								order = 1,
 								type = "select",
 								name = L["Anchor to"],
 								values = getAnchorParents,
+								hidden = false,
 							},
 							sep = {
 								order = 2,
 								type = "description",
 								name = "",
 								width = "full",
+								hidden = false,
 							},
 							x = {
 								order = 3,
@@ -2012,6 +2027,7 @@ local function loadUnitOptions()
 								validate = checkNumber,
 								set = setNumber,
 								get = getString,
+								hidden = false,
 							},
 							y = {
 								order = 4,
@@ -2020,6 +2036,7 @@ local function loadUnitOptions()
 								validate = checkNumber,
 								set = setNumber,
 								get = getString,
+								hidden = false,
 							},
 						},
 					},
@@ -2043,24 +2060,28 @@ local function loadUnitOptions()
 								type = "select",
 								name = L["Point"],
 								values = pointPositions,
+								hidden = false,
 							},
 							anchorTo = {
 								order = 0.50,
 								type = "select",
 								name = L["Anchor to"],
 								values = getAnchorParents,
+								hidden = false,
 							},
 							relativePoint = {
 								order = 1,
 								type = "select",
 								name = L["Relative point"],
 								values = pointPositions,
+								hidden = false,
 							},
 							sep = {
 								order = 2,
 								type = "description",
 								name = "",
 								width = "full",
+								hidden = false,
 							},
 							x = {
 								order = 3,
@@ -2069,6 +2090,7 @@ local function loadUnitOptions()
 								validate = checkNumber,
 								set = setNumber,
 								get = getString,
+								hidden = false,
 							},
 							y = {
 								order = 4,
@@ -2077,6 +2099,7 @@ local function loadUnitOptions()
 								validate = checkNumber,
 								set = setNumber,
 								get = getString,
+								hidden = false,
 							},
 						},
 					},
@@ -2095,6 +2118,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Health bar"],
+						hidden = false,
 						args = {
 							enabled = {
 								order = 1,
@@ -2151,6 +2175,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["General"],
+						hidden = false,
 						args = {
 							powerBar = {
 								order = 1,
@@ -2211,107 +2236,129 @@ local function loadUnitOptions()
 						hidden = hideRestrictedOption,
 						args = {
 							enabled = {
-								order = 0,
+								order = 1,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Cast bar"]),
+								hidden = false,
 								arg = "castBar.enabled",
 							},
 							castIcon = {
-								order = 0.25,
-								type = "toggle",
-								name = L["Show cast icon"],
-								arg = "castBar.showIcon",
-								hidden = true,
+								order = 2,
+								type = "select",
+								name = L["Cast icon"],
+								arg = "castBar.icon",
+								values = {["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["HIDE"] = L["Disabled"]},
+								hidden = false,
 							},
 							castName = {
-								order = 0.50,
+								order = 3,
 								type = "header",
 								name = L["Cast name"],
 								hidden = hideAdvancedOption,
 							},
 							nameEnabled = {
-								order = 0.75,
+								order = 4,
 								type = "toggle",
 								name = L["Show cast name"],
-								arg = "castBar.castName.enabled",
+								arg = "castBar.name.enabled",
 								hidden = hideAdvancedOption,
-								width = "full",
 							},
 							nameAnchor = {
-								order = 1,
+								order = 5,
 								type = "select",
 								name = L["Anchor point"],
 								desc = L["Where to anchor the cast name text."],
 								values = {["ICL"] = L["Inside Center Left"], ["ICR"] = L["Inside Center Right"]},
-								set = setCast,
-								get = getCast,
 								hidden = hideAdvancedOption,
-								arg = "castBar.castName.anchorPoint",
+								arg = "castBar.name.anchorPoint",
+							},
+							nameSep = {
+								order = 6,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = hideAdvancedOption,
+							},
+							nameSize = {
+								order = 7,
+								type = "range",
+								name = L["Size"],
+								desc = L["Let's you modify the base font size to either make it larger or smaller."],
+								type = "range",
+								min = -5, max = 5, step = 1,
+								hidden = hideAdvancedOption,
+								arg = "castBar.name.size",
 							},
 							nameX = {
-								order = 2,
+								order = 8,
 								type = "range",
 								name = L["X Offset"],
 								min = -20, max = 20, step = 1,
-								set = setCast,
-								get = getCast,
 								hidden = hideAdvancedOption,
-								arg = "castBar.castName.x",
+								arg = "castBar.name.x",
 							},
 							nameY = {
-								order = 3,
+								order = 9,
 								type = "range",
 								name = L["Y Offset"],
 								min = -20, max = 20, step = 1,
-								set = setCast,
-								get = getCast,
 								hidden = hideAdvancedOption,
-								arg = "castBar.castName.y",
+								arg = "castBar.name.y",
 							},
 							castTime = {
-								order = 4,
+								order = 10,
 								type = "header",
 								name = L["Cast time"],
 								hidden = hideAdvancedOption,
 							},
-							castEnabled = {
-								order = 4.50,
+							timeEnabled = {
+								order = 11,
 								type = "toggle",
 								name = L["Show cast time"],
-								arg = "castBar.castTime.enabled",
+								arg = "castBar.time.enabled",
 								hidden = hideAdvancedOption,
-								width = "full",
 							},
 							timeAnchor = {
-								order = 5,
+								order = 12,
 								type = "select",
 								name = L["Anchor point"],
 								desc = L["Where to anchor the cast time text."],
 								values = {["ICL"] = L["Inside Center Left"], ["ICR"] = L["Inside Center Right"]},
-								set = setCast,
-								get = getCast,
 								hidden = hideAdvancedOption,
-								arg = "castBar.castTime.anchorPoint",
+								arg = "castBar.time.anchorPoint",
+							},
+							timeSep = {
+								order = 13,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = hideAdvancedOption,
+							},
+							timeSize = {
+								order = 14,
+								type = "range",
+								name = L["Size"],
+								desc = L["Let's you modify the base font size to either make it larger or smaller."],
+								type = "range",
+								min = -5, max = 5, step = 1,
+								hidden = hideAdvancedOption,
+								arg = "castBar.time.size",
 							},
 							timeX = {
-								order = 6,
+								order = 15,
 								type = "range",
 								name = L["X Offset"],
 								min = -20, max = 20, step = 1,
-								set = setCast,
-								get = getCast,
 								hidden = hideAdvancedOption,
-								arg = "castBar.castTime.x",
+								arg = "castBar.time.x",
 							},
 							timeY = {
-								order = 7,
+								order = 16,
 								type = "range",
 								name = L["Y Offset"],
 								min = -20, max = 20, step = 1,
-								set = setCast,
-								get = getCast,
 								hidden = hideAdvancedOption,
-								arg = "castBar.castTime.y",
+								arg = "castBar.time.y",
 							},
 						},
 					},
@@ -2330,6 +2377,7 @@ local function loadUnitOptions()
 						type = "group",
 						name = L["Help"],
 						inline = true,
+						hidden = false,
 						args = {
 							help = {
 								order = 0,
@@ -2343,6 +2391,7 @@ local function loadUnitOptions()
 						type = "group",
 						name = L["Portrait"],
 						inline = true,
+						hidden = false,
 						args = {
 							enableBar = {
 								order = 1,
