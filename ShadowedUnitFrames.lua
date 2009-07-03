@@ -406,7 +406,7 @@ end
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:RegisterEvent("RAID_ROSTER_UPDATE")
-frame:SetScript("OnEvent", function(self, event, ...)
+frame:SetScript("OnEvent", function(self, event)
 	if( event == "RAID_ROSTER_UPDATE" ) then
 		ShadowUF:RaidRosterUpdated()
 	elseif( event == "PLAYER_ENTERING_WORLD" ) then

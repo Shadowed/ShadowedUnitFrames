@@ -2,22 +2,22 @@ local Highlight = {}
 ShadowUF:RegisterModule(Highlight, "highlight", ShadowUFLocals["Highlight"])
 
 -- Might seem odd to hook my code in the core manually, but HookScript is ~40% slower due to it being a secure hook
-local function OnEnter(frame, ...)
+local function OnEnter(frame)
 	if( ShadowUF.db.profile.units[frame.unitType].highlight.mouseover ) then
 		frame.highlight.hasMouseover = true
 		Highlight:Update(frame)
 	end
 		
-	frame.highlight.OnEnter(frame, ...)
+	frame.highlight.OnEnter(frame)
 end
 
-local function OnLeave(frame, ...)
+local function OnLeave(frame)
 	if( ShadowUF.db.profile.units[frame.unitType].highlight.mouseover ) then
 		frame.highlight.hasMouseover = nil
 		Highlight:Update(frame)
 	end
 		
-	frame.highlight.OnLeave(frame, ...)
+	frame.highlight.OnLeave(frame)
 end
 
 function Highlight:OnEnable(frame)

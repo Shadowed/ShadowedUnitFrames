@@ -1761,8 +1761,36 @@ local function loadUnitOptions()
 				end,
 				get = getUnit,
 				args = {
+					show = {
+						order = 0.5,
+						type = "group",
+						inline = true,
+						name = L["Show inside"],
+						hidden = function(info) return info[2] == "raid" end,
+						args = {
+							help = {
+								order = 0,
+								type = "group",
+								name = L["Warning!"],
+								inline = true,
+								args = {
+									help = {
+										order = 0,
+										type = "description",
+										name = L["If you show the party inside the raid, NO settings you change in the party unit will affect them, you have to change raid unit settings.\n\nFor all intents and purposes people in your party are raid units."],
+									},
+								},
+							},
+							showInRaid = {
+								order = 1,
+								type = "toggle",
+								name = L["Show party as raid"],
+								arg = "showAsRaid",
+							},
+						},
+					},
 					general = {
-						order = 0,
+						order = 1,
 						type = "group",
 						inline = true,
 						name = L["General"],
@@ -1844,7 +1872,7 @@ local function loadUnitOptions()
 						},
 					},
 					sort = {
-						order = 0.5,
+						order = 2,
 						type = "group",
 						inline = true,
 						name = L["Sorting"],
@@ -1869,7 +1897,7 @@ local function loadUnitOptions()
 						},
 					},
 					raid = {
-						order = 1,
+						order = 3,
 						type = "group",
 						inline = true,
 						name = L["Groups"],
@@ -2644,9 +2672,15 @@ local function loadUnitOptions()
 		type = "toggle",
 		name = getName,
 		set = function(info, value)
-			ShadowUF.db.profile.units[info[#(info)]].enabled = value
+			local unit = info[#(info)]
+			ShadowUF.db.profile.units[unit].enabled = value
 			ShadowUF:LoadUnits()
 			ShadowUF.modules.movers:Update()
+
+			-- Update party frame visibility
+			if( unit == "raid" and ShadowUF.Units.unitFrames.party ) then
+				ShadowUF.Units:SetFrameAttributes(ShadowUF.Units.unitFrames.party, "party")
+			end
 		end,
 		get = function(info)
 			return ShadowUF.db.profile.units[info[#(info)]].enabled

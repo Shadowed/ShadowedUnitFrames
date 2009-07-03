@@ -242,15 +242,21 @@ end
 
 -- This is the fall back, raid frames can't be done without tainting unfortunately, but will see if I can find a way around it
 local function ShowMenu(self)
-	FriendsDropDown.displayMode = "MENU"
-	FriendsDropDown.initialize = RaidFrameDropDown_Initialize
-	FriendsDropDown.userData = self.unitID
+	local menuFrame
+	if( string.match(self.unit, "party") ) then
+		menuFrame = getglobal("PartyMemberFrame" .. self.unitID .. "DropDown")
+	else
+		menuFrame = FriendsDropDown
+		menuFrame.displayMode = "MENU"
+		menuFrame.initialize = RaidFrameDropDown_Initialize
+		menuFrame.userData = self.unitID
+	end
 
 	HideDropDownMenu(1)
-	FriendsDropDown.unit = self.unit
-	FriendsDropDown.name = UnitName(self.unit)
-	FriendsDropDown.id = self.unitID
-	ToggleDropDownMenu(1, nil, FriendsDropDown, "cursor")
+	menuFrame.unit = self.unit
+	menuFrame.name = UnitName(self.unit)
+	menuFrame.id = self.unitID
+	ToggleDropDownMenu(1, nil, menuFrame, "cursor")
 end
 
 -- Attribute set, something changed
@@ -272,7 +278,7 @@ local function OnAttributeChanged(self, name, unit)
 	-- Setup identification data
 	self.unit = unit
 	self.unitID = tonumber(string.match(unit, "([0-9]+)"))
-	self.unitType = string.gsub(unit, "([0-9]+)", "")
+	self.unitType = self.unitType or string.gsub(unit, "([0-9]+)", "")
 	self.unitOwner = unit
 	
 	-- Add to Clique
@@ -340,13 +346,10 @@ local function OnAttributeChanged(self, name, unit)
 	
 	-- Check for a unit guid to do a full update
 	elseif( self.unitType == "raid" ) then
-		self.dropdownMenu = FriendsDropDown
-		self.menu = ShowMenu
 		self:RegisterNormalEvent("RAID_ROSTER_UPDATE", Units, "CheckUnitGUID")
 		
 	-- Party members need to watch for changes
 	elseif( self.unitType == "party" ) then
-		self.dropdownMenu = _G["PartyMemberFrame" .. self.unitID .. "DropDown"]
 		self:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", Units, "CheckUnitGUID")
 
 		-- Party frame has been loaded, so initialize it's sub-frames if they are enabled
@@ -408,6 +411,7 @@ local function initializeUnit(self)
 	local config = ShadowUF.db.profile.units[unitType]
 
 	self.ignoreAnchor = true
+	self.unitType = unitType
 	self:SetAttribute("initial-height", config.height)
 	self:SetAttribute("initial-width", config.width)
 	self:SetAttribute("initial-scale", config.scale)
@@ -415,16 +419,21 @@ local function initializeUnit(self)
 	
 	-- We can't set the attribute for game menus in combat by the time OnAttributeChanged fires
 	if( unitType == "party" ) then
-		self:SetAttribute("_menu", _G["PartyMemberFrame" .. string.match(self:GetName(), "(%d+)")].menu)
+		local unitID = string.match(self:GetName(), "(%d+)")
+		self.dropdownMenu = _G["PartyMemberFrame" .. unitID .. "DropDown"]
+		self:SetAttribute("_menu", _G["PartyMemberFrame" .. unitID].menu)
+	else
+		self.dropdownMenu = FriendsDropDown
+		self.menu = ShowMenu
 	end
 		
 	Units:CreateUnit(self)
 end
 
 -- Show tooltip
-local function OnEnter(...)
+local function OnEnter(self)
 	if( not ShadowUF.db.profile.tooltipCombat or not inCombat ) then
-		UnitFrame_OnEnter(...)
+		UnitFrame_OnEnter(self)
 	end
 end
 
@@ -494,13 +503,11 @@ function Units:SetFrameAttributes(frame, type)
 	end
 	
 	frame:SetAttribute("point", config.attribPoint)
-	frame:SetAttribute("showRaid", type == "raid" and true or false)
-	frame:SetAttribute("showParty", type == "party" and true or false)
 	frame:SetAttribute("xOffset", config.xOffset)
 	frame:SetAttribute("yOffset", config.yOffset)
 	frame:SetAttribute("sortMethod", config.sortMethod)
 	frame:SetAttribute("sortDir", config.sortOrder)
-
+	
 	if( type == "raid" ) then
 		local filter
 		for id, enabled in pairs(config.filters) do
@@ -513,6 +520,7 @@ function Units:SetFrameAttributes(frame, type)
 			end
 		end
 	
+		frame:SetAttribute("showRaid", true)
 		frame:SetAttribute("maxColumns", config.maxColumns)
 		frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
 		frame:SetAttribute("columnSpacing", config.columnSpacing)
@@ -526,6 +534,14 @@ function Units:SetFrameAttributes(frame, type)
 			frame:SetAttribute("groupingOrder", "1,2,3,4,5,6,7,8")
 			frame:SetAttribute("groupBy", "GROUP")
 		end
+	-- Update party frames to not show anyone if they should be in raids
+	elseif( type == "party" ) then
+		frame:SetAttribute("showParty", ( not config.showAsRaid or not ShadowUF.db.profile.units.raid.enabled ) and true or false)
+	end
+
+	-- Update the raid frames to if they should be showing raid or party
+	if( unitFrames.raid and unitFrames.party ) then
+		unitFrames.raid:SetAttribute("showParty", not unitFrames.party:GetAttribute("showParty"))
 	end
 end
 
