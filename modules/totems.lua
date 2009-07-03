@@ -8,10 +8,8 @@ function Totems:OnEnable(frame)
 	end
 			
 	if( not frame.totemBar ) then
-		frame.totemBar = CreateFrame("StatusBar", nil, frame)
+		frame.totemBar = CreateFrame("Frame", nil, frame)
 		frame.totemBar:SetFrameLevel(frame.topFrameLevel)
-		frame.totemBar:SetMinMaxValues(0, 1)
-		frame.totemBar:SetValue(0)
 		frame.totemBar.totems = {}
 		
 		for i=1, 4 do

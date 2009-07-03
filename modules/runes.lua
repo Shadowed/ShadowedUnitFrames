@@ -7,10 +7,8 @@ function Runes:OnEnable(frame)
 	end
 			
 	if( not frame.runeBar ) then
-		frame.runeBar = CreateFrame("StatusBar", nil, frame)
+		frame.runeBar = CreateFrame("Frame", nil, frame)
 		frame.runeBar:SetFrameLevel(frame.topFrameLevel)
-		frame.runeBar:SetMinMaxValues(0, 1)
-		frame.runeBar:SetValue(0)
 		frame.runeBar.runes = {}
 		
 		for i=1, 6 do
