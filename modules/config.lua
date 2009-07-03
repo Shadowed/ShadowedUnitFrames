@@ -222,9 +222,9 @@ local function loadData()
 	getVariable = function(unit, moduleKey, moduleSubKey, key)
 		local configTbl = unit == "global" and globalConfig or ShadowUF.db.profile.units[unit]
 		if( moduleKey and moduleSubKey ) then
-			return configTbl[moduleKey][moduleSubKey][key]
+			return configTbl[moduleKey][moduleSubKey] and configTbl[moduleKey][moduleSubKey][key]
 		elseif( moduleKey and not moduleSubKey ) then
-			return configTbl[moduleKey][key]
+			return configTbl[moduleKey] and configTbl[moduleKey][key]
 		end
 
 		return configTbl[key]
@@ -1291,6 +1291,15 @@ local function loadUnitOptions()
 		},
 	}
 	
+	local function hideBarOption(info)
+		local module = info[#(info) - 1]
+		if( ShadowUF.modules[module].moduleHasBar or getVariable(info[2], module, nil, "isBar") ) then
+			return false
+		end
+		
+		return true
+	end
+	
 	Config.barTable = {
 		order = getModuleOrder,
 		name = getName,
@@ -1298,12 +1307,21 @@ local function loadUnitOptions()
 		inline = true,
 		hidden = function(info) return hideRestrictedOption(info) or not getVariable(info[2], info[#(info)], nil, "enabled") end,
 		args = {
+			enableBar = {
+				order = 1,
+				type = "toggle",
+				name = L["Show as bar"],
+				desc = L["Turns this widget into a bar that can be resized and ordered just like health and power bars."],
+				hidden = function(info) return ShadowUF.modules[info[#(info) - 1]].moduleHasBar end,
+				arg = "$parent.isBar",
+				width = "full",
+			},
 			background = {
 				order = 2,
 				type = "toggle",
 				name = L["Show background"],
 				desc = L["Show a background behind the bars with the same texture/color but faded out."],
-				hidden = false,
+				hidden = hideBarOption,
 				arg = "$parent.background",
 			},
 			order = {
@@ -1311,7 +1329,7 @@ local function loadUnitOptions()
 				type = "range",
 				name = L["Order"],
 				min = 0, max = 100, step = 5,
-				hidden = false,
+				hidden = hideBarOption,
 				arg = "$parent.order",
 			},
 			height = {
@@ -1320,7 +1338,7 @@ local function loadUnitOptions()
 				name = L["Height"],
 				desc = L["How much of the frames total height this bar should get, this is a weighted value, the higher it is the more it gets."],
 				min = 0, max = 10, step = 0.1,
-				hidden = false,
+				hidden = hideBarOption,
 				arg = "$parent.height",
 			},
 		},
@@ -1589,12 +1607,37 @@ local function loadUnitOptions()
 							},
 						},
 					},
+					-- This might need some help text indicating why the options disappeared, will see.
+					barComboPoints = {
+						order = 4,
+						type = "group",
+						inline = true,
+						name = L["Combo points"],
+						hidden = function(info) return not getVariable(info[2], "comboPoints", nil, "isBar") or not getVariable(info[2], nil, nil, "comboPoints") end,
+						args = {
+							enabled = {
+								order = 1,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Combo points"]),
+								hidden = false,
+								arg = "comboPoints.enabled",
+							},
+							growth = {
+								order = 2,
+								type = "select",
+								name = L["Growth"],
+								values = {["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
+								hidden = false,
+								arg = "comboPoints.growth",
+							},
+						},
+					},
 					comboPoints = {
 						order = 4,
 						type = "group",
 						inline = true,
 						name = L["Combo points"],
-						hidden = function(info) if( info[2] == "global" ) then return true end return hideRestrictedOption(info) end,
+						hidden = function(info) if( info[2] == "global" or getVariable(info[2], "comboPoints", nil, "isBar") ) then return true end return hideRestrictedOption(info) end,
 						args = {
 							enabled = {
 								order = 0,
@@ -2310,30 +2353,60 @@ local function loadUnitOptions()
 						name = L["Portrait"],
 						inline = true,
 						args = {
-							width = {
+							enableBar = {
 								order = 1,
+								type = "toggle",
+								name = L["Show as bar"],
+								desc = L["Turns this widget into a bar that can be resized and ordered just like health and power bars."],
+								arg = "$parent.isBar",
+							},
+							sep = {
+								order = 1.5,
+								type = "description",
+								name = "",
+								width = "full",
+							},
+							width = {
+								order = 2,
 								type = "range",
 								name = L["Width percent"],
 								desc = L["Percentage of width the portrait should use."],
 								min = 0, max = 1.0, step = 0.01,
-								isPercent = true,
-								arg = "portrait.width",
+								hidden = function(info) return getVariable(info[2], "portrait", nil, "isBar") end,
+								arg = "$parent.width",
 							},
 							before = {
-								order = 2,
+								order = 3,
 								type = "range",
 								name = L["Full size before"],
 								min = 0, max = 100, step = 5,
-								hidden = false,
+								hidden = function(info) return getVariable(info[2], "portrait", nil, "isBar") end,
 								arg = "$parent.fullBefore",
 							},
 							after = {
-								order = 3,
+								order = 4,
 								type = "range",
 								name = L["Full size after"],
 								min = 0, max = 100, step = 5,
-								hidden = false,
+								hidden = function(info) return getVariable(info[2], "portrait", nil, "isBar") end,
 								arg = "$parent.fullAfter",
+							},
+							order = {
+								order = 3,
+								type = "range",
+								name = L["Order"],
+								min = 0, max = 100, step = 5,
+								hidden = hideBarOption,
+								arg = "portrait.order",
+							},
+							height = {
+								order = 4,
+								type = "range",
+								name = L["Height"],
+								desc = L["How much of the frames total height this bar should get, this is a weighted value, the higher it is the more it gets."],
+								min = 0, max = 10, step = 0.1,
+								hidden = hideBarOption,
+								arg = "portrait.height",
 							},
 						},
 					},
@@ -2473,7 +2546,14 @@ local function loadUnitOptions()
 	
 	-- Load modules into the unit table
 	for key, module in pairs(ShadowUF.modules) do
-		if( module.moduleHasBar ) then
+		local canHaveBar = module.moduleHasBar
+		for _, data in pairs(ShadowUF.defaults.profile.units) do
+			if( data[key] and data[key].isBar ~= nil ) then
+				canHaveBar = true
+			end
+		end
+		
+		if( canHaveBar ) then
 			Config.unitTable.args.widgetSize.args[key] = Config.barTable
 		end
 	end
