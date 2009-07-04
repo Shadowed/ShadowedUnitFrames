@@ -225,14 +225,9 @@ function Auras:Scan(frame, type, config, filter)
 		if( not name ) then break end
 		
 		if( not config.player or caster == ShadowUF.playerUnit ) then
-			frame.totalAuras = frame.totalAuras + 1
-			
-			-- Hit our limit, too many shown
-			if( frame.totalAuras >= frame.maxAuras ) then
-				frame.totalAuras = frame.maxAuras
-				return
 			-- Create any buttons we need
-			elseif( frame.createdButtons < frame.totalAuras ) then
+			frame.totalAuras = frame.totalAuras + 1
+			if( frame.createdButtons < frame.totalAuras ) then
 				updateButton(frame.totalAuras, frame, ShadowUF.db.profile.units[frame.parent.unitType].auras[frame.type])
 			end
 			
@@ -249,6 +244,9 @@ function Auras:Scan(frame, type, config, filter)
 			button.type = type
 			button.filter = filter
 			button.unit = frame.parent.unit
+			
+			-- Too many auras shown break out
+			if( frame.totalAuras >= frame.maxAuras ) then break end
 		end
 	end
 end
