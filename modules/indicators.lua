@@ -27,7 +27,7 @@ function Indicators:UpdateMasterLoot(frame)
 	local lootType, partyID, raidID = GetLootMethod()
 	if( lootType ~= "master" ) then
 		frame.indicators.masterLoot:Hide()
-	elseif( ( partyID and partyID == 0 and UnitIsUnit(frame.unit, "player") ) or ( partyID and partyID > 0 and UnitIsUnit(frame.unit, ShadowUF.partyUnitss[partyID]) ) or ( raidID and raidID > 0 and UnitIsUnit(frame.unit, ShadowUF.raidUnits[raidID]) ) ) then
+	elseif( ( partyID and partyID == 0 and UnitIsUnit(frame.unit, "player") ) or ( partyID and partyID > 0 and UnitIsUnit(frame.unit, ShadowUF.partyUnits[partyID]) ) or ( raidID and raidID > 0 and UnitIsUnit(frame.unit, ShadowUF.raidUnits[raidID]) ) ) then
 		frame.indicators.masterLoot:Show()
 	else
 		frame.indicators.masterLoot:Hide()
