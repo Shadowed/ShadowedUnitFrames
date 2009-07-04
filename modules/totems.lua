@@ -6,13 +6,14 @@ function Totems:OnEnable(frame)
 	if( select(2, UnitClass("player")) ~= "SHAMAN" ) then return end
 			
 	if( not frame.totemBar ) then
-		frame.totemBar = CreateFrame("Frame", nil, frame)
-		frame.totemBar:SetFrameLevel(frame.topFrameLevel)
+		frame.totemBar = CreateFrame("StatusBar", nil, frame)
+		frame.totemBar:SetMinMaxValues(0, 1)
+		frame.totemBar:SetValue(0)
 		frame.totemBar.totems = {}
 		
 		for id=1, 4 do
 			local totem = CreateFrame("StatusBar", frame.totemBar)
-			totem:SetFrameLevel(frame.totemBar:GetFrameLevel() - 1)
+			totem:SetFrameLevel(1)
 			totem.id = id
 			
 			if( id > 1 ) then
@@ -35,7 +36,7 @@ end
 
 function Totems:OnLayoutApplied(frame)
 	if( frame.totemBar ) then
-		local barWidth = (frame.totemBar:GetWidth() - 3 ) / 4
+		local barWidth = (frame.totemBar:GetWidth() - 3) / 4
 		
 		for id, totem in pairs(frame.totemBar.totems) do
 			totem:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
@@ -43,8 +44,6 @@ function Totems:OnLayoutApplied(frame)
 			totem:SetHeight(frame.totemBar:GetHeight())
 			totem:SetWidth(barWidth)
 		end
-		
-		self:Update(frame)
 	end
 end
 

@@ -592,7 +592,7 @@ function Units:LoadChildUnit(parent, type, unit)
 		return
 	end
 	
-	local frame = CreateFrame("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate,SecureHandlerShowHideTemplate")
+	local frame = CreateFrame("Button", "SUFUnit" .. unit, parent, "SecureUnitButtonTemplate")
 	frame:SetFrameStrata("LOW")
 	self:CreateUnit(frame)
 	frame:SetAttribute("unit", unit)
