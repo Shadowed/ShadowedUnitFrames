@@ -120,11 +120,7 @@ end
 
 -- Create an aura anchor as well as the buttons to contain it
 local function updateAnchor(self, type, config)
-	-- Anchor type is disabled so hide it
-	if( not config.enabled ) then
-		ShadowUF.Layout:ToggleVisibility(self.auras[type], false)
-		return
-	end
+	if( not config.enabled ) then return end
 	
 	self.auras[type] = self.auras[type] or CreateFrame("Frame", nil, self.highFrame)
 	
@@ -154,18 +150,31 @@ local function updateAnchor(self, type, config)
 end
 
 function Auras:OnLayoutApplied(frame, config)
-	if( not frame.visibility.auras ) then
-		if( frame.auras ) then
-			if( frame.auras.buffs ) then for _, button in pairs(frame.auras.buffs.buttons) do button:Hide() end end
-			if( frame.auras.debuffs ) then for _, button in pairs(frame.auras.debuffs.buttons) do button:Hide() end end
+	if( frame.auras ) then
+		if( frame.auras.buffs ) then
+			for _, button in pairs(frame.auras.buffs.buttons) do
+				button:Hide() 
+			end 
 		end
-		return
+		if( frame.auras.debuffs ) then
+			for _, button in pairs(frame.auras.debuffs.buttons) do
+				button:Hide()
+			end
+		end
 	end
 	
+	if( not frame.visibility.auras ) then return end
+
 	updateAnchor(frame, "buffs", config.auras.buffs)
 	updateAnchor(frame, "debuffs", config.auras.debuffs)
 
-	frame.auras.anchor = config.auras.buffs.enabled and "buffs" or "debuffs"
+	if( config.auras.buffs.anchorPoint == config.auras.debuffs.anchorPoint and config.auras.buffs.enabled and config.auras.debuffs.enabled ) then
+		frame.auras.anchor = frame.auras[config.auras.buffs.enabled and "buffs" or "debuffs"]
+		frame.auras.primary = config.auras.buffs.prioritize and "buffs" or "debuffs"
+		frame.auras.secondary = frame.auras.primary == "buffs" and "debuffs" or "buffs"
+	else
+		frame.auras.anchor = nil
+	end
 end
 
 function Auras:UpdateDisplay(frame, unitType)
@@ -247,36 +256,28 @@ end
 -- This needs a bit of optimization later
 function Auras:Update(frame)
 	local config = ShadowUF.db.profile.units[frame.unitType].auras
-	if( config.buffs.anchorPoint == config.debuffs.anchorPoint ) then
-		frame.auras[frame.auras.anchor].totalAuras = 0
-				
-		if( config.buffs.prioritize ) then
-			if( config.buffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], "buffs", config.buffs, frame.auras.buffs.filter)
-			end
-			if( config.debuffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], "debuffs", config.debuffs, frame.auras.debuffs.filter)
-			end
-		else
-			if( config.debuffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], "debuffs", config.debuffs, frame.auras.debuffs.filter)
-			end
-			if( config.buffs.enabled ) then
-				self:Scan(frame.auras[frame.auras.anchor], "buffs", config.buffs, frame.auras.buffs.filter)
-			end
+	if( frame.auras.anchor ) then
+		frame.auras.anchor.totalAuras = 0
+		
+		if( config[frame.auras.primary].enabled ) then
+			self:Scan(frame.auras.anchor, frame.auras.primary, config[frame.auras.primary], frame.auras[frame.auras.primary].filter)
 		end
 		
-		self:UpdateDisplay(frame.auras[frame.auras.anchor], frame.unitType)
+		if( config[frame.auras.secondary].enabled ) then
+			self:Scan(frame.auras.anchor, frame.auras.secondary, config[frame.auras.secondary], frame.auras[frame.auras.secondary].filter)
+		end
+		
+		self:UpdateDisplay(frame.auras.anchor, frame.unitType)
 	else
 		if( config.buffs.enabled ) then
 			frame.auras.buffs.totalAuras = 0
-			self:Scan(frame.auras[frame.auras.anchor], "buffs", config.buffs, frame.auras.buffs.filter)
+			self:Scan(frame.auras.buffs, "buffs", config.buffs, frame.auras.buffs.filter)
 			self:UpdateDisplay(frame.auras.buffs, frame.unitType)
 		end
 
 		if( config.debuffs.enabled ) then
 			frame.auras.debuffs.totalAuras = 0
-			self:Scan(frame.auras[frame.auras.anchor], "debuffs", config.debuffs, frame.auras.debuffs.filter)
+			self:Scan(frame.auras.debuffs, "debuffs", config.debuffs, frame.auras.debuffs.filter)
 			self:UpdateDisplay(frame.auras.debuffs, frame.unitType)
 		end
 	end
