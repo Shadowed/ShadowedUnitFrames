@@ -195,7 +195,7 @@ function ShadowUF:LoadDefaultLayout()
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
 			},
 			text = {
-				{text = "[afk( )][name]"},
+				{text = "[name]"},
 				{text = "[curhp]"},
 				{text = ""},
 				{text = ""},
