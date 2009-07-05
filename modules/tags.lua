@@ -422,17 +422,12 @@ Tags.defaultTags = {
 	end]],
 	["name"] = [[function(unit, unitOwner) return UnitName(unitOwner or unit) end]],
 	["perhp"] = [[function(unit, unitOwner)
-		if( UnitIsDead(unit) ) then
-			return ShadowUFLocals["Dead"]
-		elseif( UnitIsGhost(unit) ) then
-			return ShadowUFLocals["Ghost"]
-		elseif( not UnitIsConnected(unit) ) then
-			return ShadowUFLocals["Offline"]
+		local max = UnitHealthMax(unit)
+		if( max <= 0 or UnitIsDead(unit) or UnitIsGhost(unit) or not UnitIsConnected(unit) ) then
+			return "0%"
 		end
 		
-		local max = UnitHealthMax(unit);
-		
-		return max == 0 and 0 or math.floor(UnitHealth(unit) / max * 100 + 0.5) .. "%"
+		return math.floor(UnitHealth(unit) / max * 100 + 0.5) .. "%"
 	end]],
 	["perpp"] = [[function(unit, unitOwner)
 		local maxPower = UnitPowerMax(unit)
@@ -770,8 +765,9 @@ function Tags:IdentifyEvents(code, parentTag)
 	return string.trim(eventList or "")
 end
 
---[[
+
 -- Checker function, makes sure tags are all happy
+--[[
 function Tags:Verify()
 	local fine = true
 	for tag, events in pairs(self.defaultEvents) do
@@ -797,6 +793,8 @@ function Tags:Verify()
 			print(string.format("Failed to load tag %s.", tag))
 			print(msg)
 			fine = nil
+		else
+			funct("player")
 		end
 	end
 	
