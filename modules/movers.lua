@@ -30,16 +30,9 @@ function Movers:Enable()
 	
 	-- Show an info frame that users can lock the frames through
 	local frame = CreateFrame("Frame", nil, UIParent)
-	frame:SetHeight(90)
-	frame:SetWidth(250)
-	frame:SetBackdrop({
-		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-		edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
-		edgeSize = 1,
-		insets = {left = 1, right = 1, top = 1, bottom = 1}})
-	frame:SetBackdropColor(0, 0, 0, 1)
-	frame:SetBackdropBorderColor(0.50, 0.50, 0.50, 1.0)
-	frame:SetPoint("CENTER", UIParent, "CENTER", 0, 225)
+	frame:SetClampedToScreen(true)
+	frame:SetWidth(300)
+	frame:SetHeight(115)
 	frame:RegisterForDrag("LeftButton")
 	frame:EnableMouse(true)
 	frame:SetMovable(true)
@@ -49,24 +42,41 @@ function Movers:Enable()
 	frame:SetScript("OnDragStop", function(self)
 		self:StopMovingOrSizing()
 	end)
-	
+	frame:SetBackdrop({
+		  bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+		  edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+		  edgeSize = 26,
+		  insets = {left = 9, right = 9, top = 9, bottom = 9},
+	})
+	frame:SetBackdropColor(0, 0, 0, 0.85)
+	frame:SetPoint("CENTER", UIParent, "CENTER", 0, 225)
+
+	frame.titleBar = frame:CreateTexture(nil, "ARTWORK")
+	frame.titleBar:SetTexture("Interface\\DialogFrame\\UI-DialogBox-Header")
+	frame.titleBar:SetPoint("TOP", 0, 8)
+	frame.titleBar:SetWidth(350)
+	frame.titleBar:SetHeight(45)
+
+	frame.title = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	frame.title:SetPoint("TOP", 0, 0)
+	frame.title:SetText("Shadowed Unit Frames")
+
 	frame.text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-	frame.text:SetAllPoints(frame)
-	frame.text:SetText(L["The black boxes you see can be used to position different units in Shadowed Unit Frames.\n\nLocking the frames through the button below or in /shadoweduf (/suf) will hide them."])
-	frame.text:SetPoint("TOPLEFT", frame, 1, -2)
-	frame.text:SetWidth(frame:GetWidth() - 10)
+	frame.text:SetText(L["You can use the black boxes can be used to position all enabled unit frames.\n\nThey can be hidden by locking them in /shadowuf or by clicking the button below."])
+	frame.text:SetPoint("TOPLEFT", 12, -22)
+	frame.text:SetWidth(frame:GetWidth() - 35)
 	frame.text:SetJustifyH("LEFT")
-	frame.text:SetJustifyV("TOP")
-	
-	frame.lock = CreateFrame("Button", nil, frame, "UIPanelButtonGrayTemplate")
+
+	frame.lock = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
 	frame.lock:SetText(L["Lock frames"])
 	frame.lock:SetHeight(20)
 	frame.lock:SetWidth(100)
-	frame.lock:SetPoint("CENTER", frame, "BOTTOM", 0, 11)
+	frame.lock:SetPoint("CENTER", frame, "BOTTOM", 0, 18)
 	frame.lock:SetScript("OnClick", function()
 		ShadowUF.db.profile.locked = true
 		Movers:Update()
 	end)
+
 
 	self.infoFrame = frame
 end
