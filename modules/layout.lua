@@ -382,6 +382,11 @@ function Layout:PositionWidgets(frame, config)
 			-- Set the portrait width so we can figure out the offset to use on bars, will do height and position later
 			portraitWidth = math.floor(config.width * config.portrait.width) - ShadowUF.db.profile.backdrop.inset
 			frame.portrait:SetWidth(portraitWidth - (portraitAlignment == "RIGHT" and 1 or 0.5))
+			
+			-- Disable portrait if there isn't enough room
+			if( portraitWidth <= 0 ) then
+				frame.portrait:Hide()
+			end
 
 			-- As well as how much to offset bars by (if it's using a left alignment) to keep them all fancy looking
 			portraitOffset = clip
@@ -399,13 +404,13 @@ function Layout:PositionWidgets(frame, config)
 		
 		-- Position the actual bar based on it's type
 		if( bar.fullSize ) then
-			bar:SetWidth(math.ceil(frame:GetWidth() - clipDoubled))
+			bar:SetWidth(frame:GetWidth() - clipDoubled)
 			bar:SetHeight(availableHeight * (config[key].height / totalWeight))
 
 			bar:ClearAllPoints()
 			bar:SetPoint("TOPLEFT", frame, "TOPLEFT", clip, xOffset)
 		else
-			bar:SetWidth(math.ceil(frame:GetWidth() - portraitWidth - clipDoubled))
+			bar:SetWidth(frame:GetWidth() - portraitWidth - clipDoubled)
 			bar:SetHeight(availableHeight * (config[key].height / totalWeight))
 
 			bar:ClearAllPoints()
