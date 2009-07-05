@@ -251,6 +251,7 @@ function Cast:EventInterruptCast(frame, event, unit, spell)
 end
 
 function Cast:UpdateDelay(frame, spell, rank, displayName, icon, startTime, endTime)
+	if( not spell ) then return end
 	local cast = frame.castBar.bar
 	startTime = startTime / 1000
 	endTime = endTime / 1000
