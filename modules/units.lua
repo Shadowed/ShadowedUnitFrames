@@ -1,3 +1,4 @@
+
 local Units = {unitFrames = {}, loadedUnits = {}}
 local vehicleMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 local unitFrames, loadedUnits, unitEvents, queuedCombat = Units.unitFrames, Units.loadedUnits, {}, {}
@@ -119,7 +120,11 @@ local function TargetUnitUpdate(self, elapsed)
 	
 	if( self.timeElapsed >= 0.50 ) then
 		self.timeElapsed = 0
-		self:FullUpdate()
+		
+		-- Have to make sure the unit exists or else the frame will flash offline for a second until it hides
+		if( UnitExists(self.unit) ) then
+			self:FullUpdate()
+		end
 	end
 end
 
@@ -225,7 +230,7 @@ end
 
 -- The argument from UNIT_PET is the pets owner, so the player summoning a new pet gets "player", party1 summoning a new pet gets "party1" and so on
 function Units:CheckUnitUpdated(frame, event, unit)
-	if( unit ~= frame.unitRealOwner or not UnitExists(unit) ) then return end
+	if( unit ~= frame.unitRealOwner or not UnitExists(frame.unit) ) then return end
 	frame:FullUpdate()
 end
 
@@ -418,7 +423,8 @@ local function initializeUnit(self)
 	self:SetAttribute("toggleForVehicle", true)
 	
 	-- We can't set the attribute for game menus in combat by the time OnAttributeChanged fires
-	if( unitType == "party" ) then
+	-- if they are using invalid sorting, will force it to use the dynamic show menu 
+	if( unitType == "party" and config.sortMethod == "INDEX" and config.sortOrder == "ASC" ) then
 		local unitID = string.match(self:GetName(), "(%d+)")
 		self.dropdownMenu = _G["PartyMemberFrame" .. unitID .. "DropDown"]
 		self:SetAttribute("_menu", _G["PartyMemberFrame" .. unitID].menu)
@@ -507,7 +513,7 @@ function Units:SetFrameAttributes(frame, type)
 	frame:SetAttribute("yOffset", config.yOffset)
 	frame:SetAttribute("sortMethod", config.sortMethod)
 	frame:SetAttribute("sortDir", config.sortOrder)
-	
+		
 	if( type == "raid" ) then
 		local filter
 		for id, enabled in pairs(config.filters) do
@@ -537,6 +543,11 @@ function Units:SetFrameAttributes(frame, type)
 	-- Update party frames to not show anyone if they should be in raids
 	elseif( type == "party" ) then
 		frame:SetAttribute("showParty", ( not config.showAsRaid or not ShadowUF.db.profile.units.raid.enabled ) and true or false)
+
+		if( config.sortMethod ~= "INDEX" or config.sortOrder ~= "ASC" ) then
+			frame.dropdownMenu = FriendsDropDown
+			frame.menu = ShowMenu
+		end
 	end
 
 	-- Update the raid frames to if they should be showing raid or party
@@ -588,6 +599,10 @@ end
 function Units:LoadChildUnit(parent, type, unit)
 	if( unitFrames[unit] ) then
 		ShadowUF.Layout:AnchorFrame(parent, unitFrames[unit], ShadowUF.db.profile.positions[type])
+
+		unitFrames[unit]:SetParent(parent)
+		unitFrames[unit].parent = parent
+
 		RegisterUnitWatch(unitFrames[unit], type == "partypet")
 		return
 	end
