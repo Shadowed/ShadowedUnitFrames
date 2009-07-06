@@ -332,12 +332,19 @@ local function loadGeneralOptions()
 		get = get,
 		arg = "hidden.$key",
 	}
+
+	local barModules = {}
+	for	key, module in pairs(ShadowUF.modules) do
+		if( module.moduleHasBar ) then
+			barModules["$" .. key] = module.moduleName
+		end
+	end
 	
 	local addTextParent = {
 		order = 1,
 		type = "group",
 		inline = true,
-		name = function(info) return info[#(info)] == "$healthBar" and L["Health bar"] or info[#(info)] == "$powerBar" and L["Power bar"] end,
+		name = function(info) return barModules[info[#(info)]] end,
 		hidden = function(info)
 			for _, text in pairs(ShadowUF.db.profile.units.player.text) do
 				if( text.anchorTo == info[#(info)] ) then
@@ -729,7 +736,7 @@ local function loadGeneralOptions()
 								type = "select",
 								name = L["Text parent"],
 								desc = L["Where inside the frame the text should be anchored to."],
-								values = {["$healthBar"] = L["Health bar"], ["$powerBar"] = L["Power bar"]},
+								values = barModules,
 							},
 							add = {
 								order = 2,
@@ -2294,8 +2301,16 @@ local function loadUnitOptions()
 								hidden = false,
 								arg = "castBar.enabled",
 							},
-							castIcon = {
+							autoHide = {
 								order = 2,
+								type = "toggle",
+								name = L["Hide bar when empty"],
+								desc = L["Hides the cast bar if there is no cast active."],
+								hidden = false,
+								arg = "castBar.autoHide",
+							},
+							castIcon = {
+								order = 2.5,
 								type = "select",
 								name = L["Cast icon"],
 								arg = "castBar.icon",
