@@ -439,7 +439,7 @@ Tags.defaultTags = {
 		
 		return string.format("%d%%", math.floor(UnitPower(unit) / maxPower * 100 + 0.5))
 	end]],
-	["plus"] = [[function(unit, unitOwner) local classif = UnitClassification(unit) return (c == "elite" or classif == "rareelite") and "+" end]],
+	["plus"] = [[function(unit, unitOwner) local classif = UnitClassification(unit) return (classif == "elite" or classif == "rareelite") and "+" end]],
 	["race"] = [[function(unit, unitOwner) return UnitRace(unit) end]],
 	["rare"] = [[function(unit, unitOwner) local classif = UnitClassification(unit) return (classif == "rare" or classif == "rareelite") and ShadowUFLocals["Rare"] end]],
 	["sex"] = [[function(unit, unitOwner) local sex = UnitSex(unit) return sex == 2 and ShadowUFLocals["Male"] or sex == 3 and ShadowUFLocals["Female"] end]],
