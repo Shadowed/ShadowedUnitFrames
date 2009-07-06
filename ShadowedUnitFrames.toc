@@ -17,6 +17,8 @@ libs\AceConfig-3.0\AceConfig-3.0.xml
 localization.enUS.lua
 localization.koKR.lua
 localization.ruRU.lua
+localization.zhCN.lua
+localization.zhTW.lua
 
 ShadowedUnitFrames.lua
 modules\highlight.lua
