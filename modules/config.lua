@@ -344,7 +344,7 @@ local function loadGeneralOptions()
 		order = 1,
 		type = "group",
 		inline = true,
-		name = function(info) return barModules[info[#(info)]] end,
+		name = function(info) return barModules[info[#(info)]] or string.sub(info[#(info)], 2) end,
 		hidden = function(info)
 			for _, text in pairs(ShadowUF.db.profile.units.player.text) do
 				if( text.anchorTo == info[#(info)] ) then
@@ -962,7 +962,7 @@ local function loadUnitOptions()
 		
 		Config.advanceTextTable = {
 			order = 1,
-			name = function(info) return getVariable(info[2], "text", quickIDMap[info[#(info)]], "name") or "" end,
+			name = function(info) return getVariable(info[2], "text", quickIDMap[info[#(info)]], "name")  end,
 			type = "group",
 			inline = true,
 			hidden = function(info)
@@ -1029,7 +1029,7 @@ local function loadUnitOptions()
 			order = 0,
 			type = "group",
 			hidden = false,
-			name = getName,
+			name = function(info) return getName(info) or string.sub(info[info[#(info)]], 2) end,
 			args = {}
 		}
 		
