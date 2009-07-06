@@ -13,6 +13,7 @@ function Cast:OnEnable(frame, unit)
 		frame.castBar.bar.background:SetHeight(0)
 		frame.castBar.bar.background:SetHeight(0)
 		frame.castBar.bar.background:SetAllPoints(frame.castBar.bar)
+		frame.castBar.bar.parent = frame
 		
 		frame.castBar.icon = frame.castBar.bar:CreateTexture(nil, "ARTWORK")
 		frame.castBar.bar.name = frame.castBar.bar:CreateFontString(nil, "ARTWORK")
@@ -99,10 +100,24 @@ function Cast:OnLayoutApplied(frame, config)
 	
 	-- So we don't have to check the entire thing in an OnUpdate
 	frame.castBar.bar.time.enabled = config.castBar.time.enabled
+	
+	if( config.castBar.autoHide and not UnitCastingInfo(frame.unit) and not UnitChannelInfo(frame.unit) ) then
+		self:ToggleVisibility(frame, false)
+	end
 end
 
 function Cast:OnDisable(frame, unit)
 	frame:UnregisterAll(self)
+end
+
+function Cast:ToggleVisibility(frame, status)
+	if( not ShadowUF.db.profile.units[frame.unitType].castBar.autoHide ) then return end
+
+	local wasShown = frame.castBar:IsShown()
+	ShadowUF.Layout:ToggleVisibility(frame.castBar, status)
+	if( wasShown and not status or not wasShown and status ) then
+		ShadowUF.Layout:PositionWidgets(frame, ShadowUF.db.profile.units[frame.unitType])
+	end
 end
 
 -- Easy coloring
@@ -120,6 +135,8 @@ local function fadeOnUpdate(self, elapsed)
 		self.name:Hide()
 		self.time:Hide()
 		self:Hide()
+		
+		Cast:ToggleVisibility(self.parent, false)
 	else
 		local alpha = self.fadeElapsed / self.fadeStart
 		self:SetAlpha(alpha)
@@ -180,6 +197,7 @@ local function channelOnUpdate(self, elapsed)
 	-- Channel finished, do a quick fade
 	if( self.elapsed <= 0 ) then
 		self.fadeElapsed = FADE_TIME
+		self.fadeStart = FADE_TIME
 		self:SetScript("OnUpdate", fadeOnUpdate)
 	end
 end
@@ -190,6 +208,7 @@ function Cast:UpdateCurrentCast(frame)
 	elseif( UnitChannelInfo(frame.unit) ) then
 		self:UpdateCast(frame, frame.unit, true, UnitChannelInfo(frame.unit))
 	else
+		self:ToggleVisibility(frame, false)
 		setBarColor(frame.castBar.bar, 0, 0, 0)
 		
 		frame.castBar.bar.spellName = nil
@@ -225,10 +244,11 @@ function Cast:EventStopCast(frame, event, unit, spell)
 	end
 
 	setBarColor(frame.castBar.bar, 1.0, 0.0, 0.0)
+	self:ToggleVisibility(frame, true)
 
 	frame.castBar.bar.spellName = nil
 	frame.castBar.bar.fadeElapsed = FADE_TIME
-	frame.castBar.bar.fadeStart = frame.castBar.bar.fadeElapsed
+	frame.castBar.bar.fadeStart = FADE_TIME
 	frame.castBar.bar:SetScript("OnUpdate", fadeOnUpdate)
 	frame.castBar.bar:SetMinMaxValues(0, 1)
 	frame.castBar.bar:SetValue(1)
@@ -240,6 +260,7 @@ function Cast:EventInterruptCast(frame, event, unit, spell)
 	if( frame.castBar.bar.spellName ~= spell ) then return end
 	
 	setBarColor(frame.castBar.bar, 1.0, 0.0, 0.0)
+	self:ToggleVisibility(frame, true)
 
 	frame.castBar.bar.spellName = nil
 	frame.castBar.bar.fadeElapsed = FADE_TIME + 0.20
@@ -276,16 +297,17 @@ function Cast:UpdateCast(frame, unit, channelled, spell, rank, displayName, icon
 	if( not spell ) then return end
 	
 	local cast = frame.castBar.bar
+	self:ToggleVisibility(frame, true)
 
 	-- Set casted spell
 	if( ShadowUF.db.profile.units[frame.unitType].castBar.name.enabled ) then
 		if( rank and rank ~= "" ) then
 			cast.name:SetFormattedText("%s (%s)", spell, rank)
-			cast.name:SetAlpha(1)
+			cast.name:SetAlpha(ShadowUF.db.profile.bars.alpha)
 			cast.name:Show()
 		else
 			cast.name:SetText(spell)
-			cast.name:SetAlpha(1)
+			cast.name:SetAlpha(ShadowUF.db.profile.bars.alpha)
 			cast.name:Show()
 		end
 	end
