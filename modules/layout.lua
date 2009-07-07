@@ -236,7 +236,7 @@ function Layout:SetupFrame(frame, config)
 		
 	-- Let the frame clip closer to the edge
 	local clip = backdrop.inset + backdrop.clip
-	frame:SetClampRectInsets(clip, clip, clip, clip)
+	frame:SetClampRectInsets(clip, -clip, -clip, clip)
 	
 	if( not frame.ignoreAnchor ) then
 		self:AnchorFrame(frame.parent or UIParent, frame, ShadowUF.db.profile.positions[frame.unitType])
