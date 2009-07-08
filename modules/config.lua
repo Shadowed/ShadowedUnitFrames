@@ -3345,6 +3345,6 @@ SlashCmdList["SSUF"] = function(msg)
 		AceDialog:SetDefaultSize("ShadowedUF", 835, 525)
 		registered = true
 	end
-
+	
 	AceDialog:Open("ShadowedUF")
 end
