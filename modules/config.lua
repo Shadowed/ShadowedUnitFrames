@@ -197,6 +197,16 @@ local function loadData()
 			ShadowUF.Layout:Reload(unit)
 		end
 	end
+	
+	local function specialRestricted(unit, moduleKey, moduleSubKey, key)
+		if( moduleKey ~= "healthBar" ) then return false end
+		
+		if( string.match(unit, "%w+target") and key == "colorAggro" ) then
+			return true
+		elseif( unit == "player" and key == "reaction" ) then
+			return true
+		end
+	end
 
 	setUnit = function(info, value)
 		local unit = info[2]
@@ -210,7 +220,9 @@ local function loadData()
 					
 		if( unit == "global" ) then
 			for unit in pairs(modifyUnits) do
-				setVariable(unit, moduleKey, moduleSubKey, key, value)
+				if( not specialRestricted(unit, moduleKey, moduleSubKey, key) ) then
+					setVariable(unit, moduleKey, moduleSubKey, key, value)
+				end
 			end
 			
 			setVariable("global", moduleKey, moduleSubKey, key, value)
