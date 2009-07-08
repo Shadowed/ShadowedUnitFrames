@@ -139,7 +139,8 @@ local function SetVisibility(self)
 			local key = module.moduleKey
 			local enabled = ShadowUF.db.profile.units[self.unitType][key].enabled or nil
 			
-			-- Make sure at least one option is enabled if it's an aura or indicator
+			-- These have child options where we want to disable the entire module if they are all disabled
+			-- but we want to enable the module if at least one is enabled
 			if( key == "auras" or key == "indicators" or key == "highlight" ) then
 				enabled = nil
 				for _, option in pairs(ShadowUF.db.profile.units[self.unitType][key]) do
@@ -149,7 +150,8 @@ local function SetVisibility(self)
 					end
 				end
 			end
-					
+			
+			-- In an actual zone, check to see if we have an override for the zone
 			if( zone ~= "none" ) then
 				if( ShadowUF.db.profile.visibility[zone][self.unitType .. key] == false ) then
 					enabled = nil
@@ -167,22 +169,23 @@ local function SetVisibility(self)
 			self.visibility[key] = enabled
 			
 			-- Module isn't enabled all the time, only in this zone so we need to force it to be enabled
-			if( enabled and ( not self[key] or self[key].disabled )) then
+			if( enabled and ( not self[key] or not self[key].enabled ) ) then
 				module:OnEnable(self)
-			elseif( not enabled and wasEnabled ) then
+				self[key].enabled = true
+			elseif( not enabled and wasEnabled and self[key] and self[key].enabled ) then
 				module:OnDisable(self)
-				if( self[key] ) then self[key].disabled = true end
+				self[key].enabled = nil
 			end
 		end
 	end
 	
-	-- We had a module update, so redo everything
+	-- We had a module update, force a full layout update
 	if( layoutUpdate ) then
 		ShadowUF.Layout:Load(self)
 	end
 end
 
--- Annoying, but a pure OnUpdate seems to be the most accurate way of ensuring we got data if it was delayed
+-- Vehicles do not always return their data right away, a pure OnUpdate check seems to be the most accurate unfortunately
 local function checkVehicleData(self, elapsed)
 	self.timeElapsed = self.timeElapsed + elapsed
 	if( self.timeElapsed >= 0.20 ) then
@@ -204,7 +207,7 @@ function Units:CheckVehicleStatus(frame, event, unit)
 	-- Not in a vehicle yet, and they entered one that has a UI 
 	if( not frame.inVehicle and UnitHasVehicleUI(frame.unitOwner) and not ShadowUF.db.profile.units[frame.unitType].disableVehicle ) then
 		frame.inVehicle = true
-		frame.unit = frame.unitOwner == "player" and "vehicle" or frame.unitType == "party" and "partypet" .. frame.unitID or frame.unitType == "raid" and "raidpet" .. frame.unitID
+		frame.unit = frame.vehicleUnit
 
 		if( not UnitIsConnected(frame.unit) or UnitHealthMax(frame.unit) == 0 ) then
 			frame.timeElapsed = 0
@@ -265,6 +268,11 @@ local function ShowMenu(self)
 end
 
 -- Attribute set, something changed
+-- unit = Active unitid
+-- unitID = Just the number from the unitid
+-- unitType = Unitid minus numbers in it, used for configuration
+-- unitOwner = Always the units owner even when unit changes due to vehicles
+-- vehicleUnit = Unit to use when the unitOwner is in a vehicle
 local function OnAttributeChanged(self, name, unit)
 	if( name ~= "unit" or not unit or unit == self.unitOwner ) then return end
 	
@@ -275,7 +283,9 @@ local function OnAttributeChanged(self, name, unit)
 		self.unit = unit
 		self.unitID = tonumber(string.match(unit, "([0-9]+)"))
 		self.unitOwner = unit
-
+		self.vehicleUnit = self.unitOwner == "player" and "vehicle" or self.unitType == "party" and "partypet" .. self.unitID or self.unitType == "raid" and "raidpet" .. self.unitID or nil
+		self.inVehicle = false
+		
 		Units:CheckUnitGUID(self)
 		return
 	end
@@ -285,6 +295,7 @@ local function OnAttributeChanged(self, name, unit)
 	self.unitID = tonumber(string.match(unit, "([0-9]+)"))
 	self.unitType = self.unitType or string.gsub(unit, "([0-9]+)", "")
 	self.unitOwner = unit
+	self.vehicleUnit = self.unitOwner == "player" and "vehicle" or self.unitType == "party" and "partypet" .. self.unitID or self.unitType == "raid" and "raidpet" .. self.unitID or nil
 	
 	-- Add to Clique
 	ClickCastFrames = ClickCastFrames or {}
@@ -301,14 +312,15 @@ local function OnAttributeChanged(self, name, unit)
 		if( self.unit == "pet" ) then
 			self.dropdownMenu = PetFrameDropDown
 			self:SetAttribute("_menu", PetFrame.menu)
+			self:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units.player.disableVehicle)
+		else
+			self:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units.party.disableVehicle)
 		end
 	
 		-- Logged out in a vehicle
 		if( UnitHasVehicleUI(self.unitRealOwner) ) then
 			self:SetAttribute("unitIsVehicle", true)
 		end
-		
-		self:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units[self.unit == "pet" and "player" or "party"].disableVehicle)
 
 		-- Hide any pet that became a vehicle, we detect this by the owner being untargetable but we have a pet out
 		RegisterStateDriver(self, "vehicleupdated", string.format("[target=%s, nohelp, noharm] vehicle; [target=%s, exists] pet", self.unitRealOwner, self.unit))
@@ -342,11 +354,12 @@ local function OnAttributeChanged(self, name, unit)
 		self:SetAttribute("_menu", FocusFrame.menu)
 		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", Units, "CheckUnitGUID")
 				
-	-- When a player is force ressurected by releasing in naxx/tk/etc then they might freeze
 	elseif( self.unit == "player" ) then
 		self.dropdownMenu = PlayerFrameDropDown
-		self:SetAttribute("toggleForVehicle", true)
 		self:SetAttribute("_menu", PlayerFrame.menu)
+		self:SetAttribute("toggleForVehicle", true)
+		
+		-- Force a full update when the player is alive to prevent freezes when releasing in a zone that forces a ressurect (naxx/tk/etc)
 		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
 	
 	-- Check for a unit guid to do a full update
@@ -379,7 +392,7 @@ local function OnAttributeChanged(self, name, unit)
 		self.timeElapsed = 0
 		self:SetScript("OnUpdate", TargetUnitUpdate)
 		
-		-- This speeds up updating of fake units, if party1 changes target than party1target is force updated, if target changes target, then targettarget and targettarget are force updated
+		-- This speeds up updating of fake units, if party1 changes target then party1target is force updated, if target changes target, then targettarget and targettarget are force updated
 		-- same goes for focus changing target, focustarget is forced to update.
 		self.unitRealOwner = self.unitType == "partytarget" and ShadowUF.partyUnits[self.unitID] or self.unitType == "focustarget" and "focus" or "target"
 		self:RegisterNormalEvent("UNIT_TARGET", Units, "CheckUnitUpdated")
@@ -411,6 +424,7 @@ local function OnAttributeChanged(self, name, unit)
 	Units:CheckUnitGUID(self)
 end
 
+-- Header unit initialized
 local function initializeUnit(self)
 	local unitType = self:GetParent().unitType
 	local config = ShadowUF.db.profile.units[unitType]
@@ -438,7 +452,7 @@ end
 
 -- Show tooltip
 local function OnEnter(self)
-	if( not ShadowUF.db.profile.tooltipCombat or not inCombat ) then
+	if( not ShadowUF.db.profile.tooltipCombat or not InCombatLockdown() ) then
 		UnitFrame_OnEnter(self)
 	end
 end
@@ -450,9 +464,6 @@ end)
 
 -- Create the generic things that we want in every secure frame regardless if it's a button or a header
 function Units:CreateUnit(frame)
-	frame.barFrame = CreateFrame("Frame", nil, frame)
-	frame.secondBarFrame = CreateFrame("Frame", nil, frame)
-	
 	frame.fullUpdates = {}
 	frame.registeredEvents = {}
 	frame.visibility = {}
@@ -470,9 +481,11 @@ function Units:CreateUnit(frame)
 	frame.highFrame:SetAllPoints(frame)
 	
 	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
+	frame:SetScript("OnEvent", OnEvent)
 	frame:SetScript("OnEnter", OnEnter)
 	frame:SetScript("OnLeave", UnitFrame_OnLeave)
-	frame:SetScript("OnEvent", OnEvent)
+	frame:SetScript("OnShow", OnShow)
+	frame:SetScript("OnHide", OnHide)
 
 	frame:RegisterForClicks("AnyUp")	
 	frame:SetAttribute("*type1", "target")
@@ -487,14 +500,10 @@ function Units:CreateUnit(frame)
 	
 	-- allowVehicleTarget
 	--[16:42] <+alestane> Shadowed: It says whether a unit defined as, for instance, "party1target" should be remapped to "partypet1target" when party1 is in a vehicle.
-	--frame.menu = ShowMenu
-
-	frame:SetScript("OnShow", OnShow)
-	frame:SetScript("OnHide", OnHide)
 end
 
+-- Update the main header
 function Units:ReloadHeader(type)
-	-- Update the main header
 	local frame = unitFrames[type]
 	if( frame ) then
 		self:SetFrameAttributes(frame, type)
@@ -577,7 +586,6 @@ end
 -- Load a header unit, party or raid
 function Units:LoadGroupHeader(config, type)
 	if( unitFrames[type] ) then
-		self:SetFrameAttributes(unitFrames[type], type)
 		unitFrames[type]:Show()
 		return
 	end
@@ -673,8 +681,8 @@ function Units:ProfileChanged()
 		if( frame:GetAttribute("unit") ) then
 			-- Force all enabled modules to disable
 			for key, module in pairs(ShadowUF.modules) do
-				if( frame[key] and frame[key].disabled ) then
-					frame[key].disabled = true
+				if( frame[key] and frame[key].enabled ) then
+					frame[key].enabled = nil
 					module:OnDisable(frame)
 				end
 			end
