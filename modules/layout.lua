@@ -35,7 +35,6 @@ function Layout:CheckMedia()
 	mediaPath[SML.MediaType.BORDER] = loadMedia(SML.MediaType.BORDER, ShadowUF.db.profile.backdrop.borderTexture, "")
 
 	self.mediaPath = mediaPath
-
 end
 
 -- We might not have had a media we required at initial load, wait for it to load and then update everything when it does
@@ -316,7 +315,6 @@ function Layout:SetupText(frame, config)
 			fontString:Show()
 			
 			frame.fontStrings[id] = fontString
-			frame:RegisterUpdateFunc(fontString, "UpdateTags")
 		end
 	end
 
@@ -325,6 +323,10 @@ function Layout:SetupText(frame, config)
 		if( fontString:IsShown() ) then
 			fontString:SetWidth(fontString.availableWidth * (config.text[id].width / totalWeight[fontString.widthID]))
 			fontString:SetHeight(ShadowUF.db.profile.font.size + 1)
+
+			frame:RegisterUpdateFunc(fontString, "UpdateTags")
+		else
+			frame:UnregisterAll(fontString)
 		end
 	end
 end	
