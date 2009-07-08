@@ -1,5 +1,5 @@
-local IncHeal = {}
-local frames, playerHeals, totalHealing = {}, {}, {}
+local IncHeal = {playerHeals = {}, totalHeaing = {}}
+local frames, playerHeals, totalHealing = {}, IncHeal.playerHeals, IncHeal.totalHeaing
 local playerName = UnitName("player")
 local HealComm, resetFrame
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUFLocals["Incoming heals"])
