@@ -169,12 +169,12 @@ local function SetVisibility(self)
 			self.visibility[key] = enabled
 			
 			-- Module isn't enabled all the time, only in this zone so we need to force it to be enabled
-			if( enabled and ( not self[key] or not self[key].enabled ) ) then
+			if( enabled and not self.status[key] ) then
 				module:OnEnable(self)
-				self[key].enabled = true
-			elseif( not enabled and wasEnabled and self[key] and self[key].enabled ) then
+				self.status[key] = true
+			elseif( not enabled and self.status[key] ) then
 				module:OnDisable(self)
-				self[key].enabled = nil
+				self.status[key] = nil
 			end
 		end
 	end
@@ -467,6 +467,7 @@ function Units:CreateUnit(frame)
 	frame.fullUpdates = {}
 	frame.registeredEvents = {}
 	frame.visibility = {}
+	frame.status = {}
 	frame.RegisterNormalEvent = RegisterNormalEvent
 	frame.RegisterUnitEvent = RegisterUnitEvent
 	frame.RegisterUpdateFunc = RegisterUpdateFunc
@@ -681,8 +682,8 @@ function Units:ProfileChanged()
 		if( frame:GetAttribute("unit") ) then
 			-- Force all enabled modules to disable
 			for key, module in pairs(ShadowUF.modules) do
-				if( frame[key] and frame[key].enabled ) then
-					frame[key].enabled = nil
+				if( frame[key] and frame.status[key] ) then
+					frame.status[key] = nil
 					module:OnDisable(frame)
 				end
 			end
