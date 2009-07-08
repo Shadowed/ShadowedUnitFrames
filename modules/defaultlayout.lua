@@ -280,7 +280,7 @@ function ShadowUF:LoadDefaultLayout()
 			},
 			text = {
 				{text = "[afk( )][name]"},
-				{text = "[maxhp]"},
+				{text = "[curhp]"},
 				{text = ""},
 				{text = ""},
 			},
