@@ -104,12 +104,15 @@ function ShadowUF:CheckUpgrade()
 		-- June 26th
 		data.healthBar.fullSize = nil
 		
-		-- June 28th
-		if( string.match(unit, "%w+target") and data.castBar ) then
+		if( string.match(unit, "%w+target") ) then
+			-- June 28th
 			data.castBar = nil
+			
+			-- July 8th
+			data.healthBar.colorAggro = nil
 		end
 		
-		-- July 03th
+		-- July 3th
 		if( data.castBar and data.castName and data.castTime ) then
 			data.name = CopyTable(data.castName)
 			data.castName = nil
@@ -123,12 +126,15 @@ function ShadowUF:CheckUpgrade()
 	self.db.profile.positions.partypet.anchorTo = "$parent"
 	self.db.profile.positions.partytarget.anchorTo = "$parent"
 	
-	-- July 02th
+	-- July 2th
 	self.db.profile.units.targettarget.healthBar.colorAggro = nil
 	self.db.profile.units.targettargettarget.healthBar.colorAggro = nil
 	self.db.profile.units.focustarget.healthBar.colorAggro = nil
 	self.db.profile.units.partytarget.healthBar.colorAggro = nil
 	self.db.profile.units.pettarget.healthBar.colorAggro = nil
+	
+	-- July 8th
+	self.db.profile.units.player.healthBar.reaction = nil
 end
 	
 local partyDisabled
