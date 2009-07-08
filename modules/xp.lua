@@ -87,7 +87,17 @@ end
 
 function XP:UpdateRep(frame)
 	local name, reaction, min, max, current = GetWatchedFactionInfo()
-	frame.xpBar:SetMinMaxValues(min, max)
+	if( not name ) then
+		self:SetBarVisibility(frame, false)
+		return
+	end
+	
+	-- Blizzard stores faction info related to Exalted, not your current level so do a little bit of mathier to get the current
+	-- reputations level information out
+	current = math.abs(min - current)
+	max = math.abs(min - max)
+		
+	frame.xpBar:SetMinMaxValues(0, max)
 	frame.xpBar:SetValue(current)
 	frame.xpBar.type = "rep"
 	frame.xpBar.tooltip = string.format(L["%s (%s): %s/%s (%.2f%% done)"], name, GetText("FACTION_STANDING_LABEL" .. reaction, UnitSex("player")), formatNumber(current), formatNumber(max), (current / max) * 100)
@@ -102,7 +112,7 @@ end
 function XP:Update(frame)
 	-- At the level cap
 	if( UnitLevel(frame.unit) == MAX_PLAYER_LEVEL or IsXPUserDisabled() ) then
-		if( frame.unit == "player" and GetWatchedFactionInfo() ) then
+		if( frame.unit == "player" ) then
 			self:UpdateRep(frame)
 		else
 			self:SetBarVisibility(frame, false)
