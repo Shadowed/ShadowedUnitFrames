@@ -131,7 +131,7 @@ local function updateAnchor(self, type, config)
 	anchor.totalAuras = 0
 	anchor.type = type
 	anchor.parent = self
-	anchor:SetFrameLevel(config.anchorPoint == "INSIDE" and 5 or 1)
+	anchor:SetFrameLevel(5)
 	anchor:Show()
 	
 	-- Update filters used for the anchor
