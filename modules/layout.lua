@@ -440,12 +440,10 @@ function Layout:PositionWidgets(frame, config)
 		end
 			
 		if( hasFullSize ) then
-			frame.portrait:SetHeight(math.floor(portraitHeight))
+			frame.portrait:SetHeight(portraitHeight)
 		else
 			frame.portrait:SetHeight(config.height - clipDoubled)
 		end
 	end
 end
-
-
 
