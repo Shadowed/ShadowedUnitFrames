@@ -39,11 +39,13 @@
 -- end
 -- @class file
 -- @name AceDB-3.0.lua
--- @release $Id: AceDB-3.0.lua 810 2009-07-02 11:42:40Z mikk $
-local ACEDB_MAJOR, ACEDB_MINOR = "AceDB-3.0", 13
+-- @release $Id: AceDB-3.0.lua 813 2009-07-06 21:36:37Z kaelten $
+local ACEDB_MAJOR, ACEDB_MINOR = "AceDB-3.0", 15
 local AceDB, oldminor = LibStub:NewLibrary(ACEDB_MAJOR, ACEDB_MINOR)
 
 if not AceDB then return end -- No upgrade needed
+
+local _G = getfenv(0)
 
 local type = type
 local pairs, next = pairs, next
@@ -651,7 +653,7 @@ end
 function AceDB:New(tbl, defaults, defaultProfile)
 	if type(tbl) == "string" then
 		local name = tbl
-		tbl = getglobal(name)
+		tbl = _G[name]
 		if not tbl then
 			tbl = {}
 			setglobal(name, tbl)

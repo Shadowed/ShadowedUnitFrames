@@ -24,8 +24,8 @@
 -- f:AddChild(btn)
 -- @class file
 -- @name AceGUI-3.0
--- @release $Id: AceGUI-3.0.lua 803 2009-04-14 12:37:54Z nevcairiel $
-local ACEGUI_MAJOR, ACEGUI_MINOR = "AceGUI-3.0", 23
+-- @release $Id: AceGUI-3.0.lua 815 2009-07-08 20:58:17Z nevcairiel $
+local ACEGUI_MAJOR, ACEGUI_MINOR = "AceGUI-3.0", 25
 local AceGUI, oldminor = LibStub:NewLibrary(ACEGUI_MAJOR, ACEGUI_MINOR)
 
 if not AceGUI then return end -- No upgrade needed
@@ -205,7 +205,7 @@ function AceGUI:Release(widget)
 	widget.noAutoHeight = nil
 	widget.frame:ClearAllPoints()
 	widget.frame:Hide()
-	widget.frame:SetParent(nil)
+	widget.frame:SetParent(UIParent)
 	widget.frame.width = nil
 	widget.frame.height = nil
 	if widget.content then
@@ -465,7 +465,7 @@ do
 	
 	WidgetContainerBase.ReleaseChildren = function(self)
 		local children = self.children
-		for i in ipairs(children) do
+		for i = 1,#children do
 			AceGUI:Release(children[i])
 			children[i] = nil
 		end
@@ -739,7 +739,7 @@ AceGUI:RegisterLayout("Flow",
 			frame:ClearAllPoints()
 			if i == 1 then
 				-- anchor the first control to the top left
-				--frame:SetPoint("TOPLEFT",content,"TOPLEFT",0,0)
+				frame:SetPoint("TOPLEFT",content,"TOPLEFT",0,0)
 				rowheight = frameheight
 				rowoffset = frameoffset
 				rowstart = frame

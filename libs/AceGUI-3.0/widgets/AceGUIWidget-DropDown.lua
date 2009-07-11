@@ -1,4 +1,4 @@
---[[ $Id: AceGUIWidget-DropDown.lua 793 2009-04-07 09:26:44Z nevcairiel $ ]]--
+--[[ $Id: AceGUIWidget-DropDown.lua 815 2009-07-08 20:58:17Z nevcairiel $ ]]--
 local min, max, floor = math.min, math.max, math.floor
 
 local AceGUI = LibStub("AceGUI-3.0")
@@ -342,9 +342,9 @@ do
 	AceGUI:RegisterWidgetType(widgetType, Constructor, widgetVersion)
 end
 
-do 
+do
 	local widgetType = "Dropdown"
-	local widgetVersion = 19
+	local widgetVersion = 20
 	
 	--[[ Static data ]]--
 	
@@ -455,6 +455,7 @@ do
 			self.pullout:Close()
 		end
 		AceGUI:Release(self.pullout)
+		self.pullout = nil
 		
 		self:SetText("")
 		self:SetLabel("")
@@ -462,12 +463,12 @@ do
 		self:SetMultiselect(false)
 		
 		self.value = nil
-		self.list = nil		
+		self.list = nil
 		self.open = nil
 		self.hasClose = nil
 		
 		self.frame:ClearAllPoints()
-		self.frame:Hide()		
+		self.frame:Hide()
 	end
 	
 	-- exported
@@ -555,7 +556,7 @@ do
 			local close = AceGUI:Create("Dropdown-Item-Execute")
 			close:SetText(CLOSE)
 			self.pullout:AddItem(close)
-			self.hasClose = true		
+			self.hasClose = true
 		end
 	end
 	
