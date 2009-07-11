@@ -128,16 +128,19 @@ end
 	Keep in mind this is relative to where you're parenting it, RT will put the object outside of the frame, on the right side, at the top of it
 	while ITR will put it inside the frame, at the top to the right
 	
+	* Positions OUTSIDE the frame
 	RT = Right Top, RC = Right Center, RB = Right Bottom
 	LT = Left Top, LC = Left Center, LB = Left Bottom,
 	BL = Bottom Left, BC = Bottom Center, BR = Bottom Right
-	ICL = Inside Center Left, IC = Inside Center Center, ICR = Inside Center Right
 	TR = Top Right, TC = Top Center, TL = Top Left
-	ITR = Inside Top Right, ITL = Inside Top Left
+	
+	* Positions INSIDE the frame
+	CLI = Inside Center Left, CRI = Inside Center Right
+	TRI = Inside Top Right, TLI = Inside Top Left
 ]]
 
-local preDefPoint = {C = "CENTER", ICL = "LEFT", RT = "TOPLEFT", BC = "TOP", ICR = "RIGHT", LT = "TOPRIGHT", TR = "TOPRIGHT", BL = "TOPLEFT", LB = "BOTTOMRIGHT", LC = "RIGHT", RB = "BOTTOMLEFT", RC = "LEFT", TC = "BOTTOM", BR = "TOPRIGHT", TL = "TOPLEFT", IBR = "BOTTOMRIGHT", IBL = "BOTTOM", ITR = "BOTTOMRIGHT", ITL = "BOTTOM", IC = "CENTER"}
-local preDefRelative = {C = "CENTER", ICL = "LEFT", RT = "TOPRIGHT", BC = "BOTTOM", ICR = "RIGHT", LT = "TOPLEFT", TR = "TOPRIGHT", BL = "BOTTOMLEFT", LB = "BOTTOMLEFT", LC = "LEFT", RB = "BOTTOMRIGHT", RC = "RIGHT", TC = "TOP", BR = "BOTTOMRIGHT", TL = "TOPLEFT", IBR = "BOTTOMRIGHT", IBL = "BOTTOMLEFT", ITR = "RIGHT", ITL = "LEFT", IC = "CENTER"}
+local preDefPoint = {C = "CENTER", CLI = "LEFT", RT = "TOPLEFT", BC = "TOP", CRI = "RIGHT", LT = "TOPRIGHT", TR = "BOTTOMRIGHT", BL = "TOPLEFT", LB = "BOTTOMRIGHT", LC = "RIGHT", RB = "BOTTOMLEFT", RC = "LEFT", TC = "BOTTOM", BR = "TOPRIGHT", TL = "BOTTOMLEFT", IBR = "BOTTOMRIGHT", IBL = "BOTTOMLEFT", TRI = "TOPRIGHT", TLI = "TOPLEFT"}
+local preDefRelative = {C = "CENTER", CLI = "LEFT", RT = "TOPRIGHT", BC = "BOTTOM", CRI = "RIGHT", LT = "TOPLEFT", TR = "TOPRIGHT", BL = "BOTTOMLEFT", LB = "BOTTOMLEFT", LC = "LEFT", RB = "BOTTOMRIGHT", RC = "RIGHT", TC = "TOP", BR = "BOTTOMRIGHT", TL = "TOPLEFT", IBR = "BOTTOMRIGHT", IBL = "BOTTOMLEFT", TRI = "TOPRIGHT", TLI = "TOPLEFT"}
 
 -- Figures out how text should be justified based on where it's anchoring
 function Layout:GetJustify(config)
@@ -304,7 +307,7 @@ function Layout:SetupText(frame, config)
 			self:AnchorFrame(frame, fontString, row)
 			
 			-- We figure out the anchor point so we can put text in the same area with the same width requirements
-			local anchorPoint = (row.anchorPoint == "ITR" or row.anchorPoint == "ITL") and "IT" or (row.anchorPoint == "ICL" or row.anchorPoint == "ICR" ) and "IC" or row.anchorPoint
+			local anchorPoint = (row.anchorPoint == "TRI" or row.anchorPoint == "TLI") and "IT" or (row.anchorPoint == "CLI" or row.anchorPoint == "CRI" ) and "IC" or row.anchorPoint
 			
 			fontString.availableWidth = parent:GetWidth() - row.x
 			fontString.widthID = row.anchorTo .. anchorPoint .. row.y
