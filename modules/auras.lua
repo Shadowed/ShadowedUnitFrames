@@ -42,7 +42,6 @@ local function updateButton(id, anchor, config)
 	local button = anchor.buttons[id]
 	if( not button ) then
 		anchor.buttons[id] = CreateFrame("Button", nil, anchor)
-		anchor.createdButtons = anchor.createdButtons + 1
 		
 		button = anchor.buttons[id]
 		button:SetScript("OnEnter", showTooltip)
@@ -75,43 +74,13 @@ local function updateButton(id, anchor, config)
 	end
 	
 	-- Set the button sizing
+	button.isSelfScaled = nil
 	button:SetHeight(config.size)
 	button:SetWidth(config.size)
 	button.border:SetHeight(config.size + 1)
 	button.border:SetWidth(config.size + 1)
 	button:ClearAllPoints()
 	button:Hide()
-	
-	-- Position, oh god is this long :<
-	if( id > 1 ) then
-		if( config.anchorPoint == "BL" or config.anchorPoint == "TL" ) then
-			if( id % config.perRow == 1 or config.perRow == 1 ) then
-				if( config.anchorPoint == "TL" ) then
-					button:SetPoint("BOTTOM", anchor.buttons[id - config.perRow], "TOP", 0, 2)
-				else
-					button:SetPoint("TOP", anchor.buttons[id - config.perRow], "BOTTOM", 0, -2)
-				end
-			else
-				button:SetPoint("LEFT", anchor.buttons[id - 1], "RIGHT", 1, 0)
-			end
-		elseif( id % config.perRow == 1 or config.perRow == 1 ) then
-			if( config.anchorPoint == "RT77" ) then
-				button:SetPoint("LEFT", anchor.buttons[id - config.perRow], "RIGHT", 1, 0)
-			else
-				button:SetPoint("RIGHT", anchor.buttons[id - config.perRow], "LEFT", -1, 0)
-			end
-		else
-			button:SetPoint("TOP", anchor.buttons[id - 1], "BOTTOM", 0, -2)
-		end
-	elseif( config.anchorPoint == "BL" ) then
-		button:SetPoint("BOTTOMLEFT", anchor.parent, "BOTTOMLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + -(config.size + 2))
-	elseif( config.anchorPoint == "TL" ) then
-		button:SetPoint("TOPLEFT", anchor.parent, "TOPLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + (config.size + 2))
-	elseif( config.anchorPoint == "LT" ) then
-		button:SetPoint("TOPLEFT", anchor.parent, "TOPLEFT", config.x + -config.size, config.y + ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip)
-	elseif( config.anchorPoint == "RT" ) then
-		button:SetPoint("TOPRIGHT", anchor.parent, "TOPRIGHT", config.x + config.size, config.y + ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip)
-	end
 end
 
 -- Create an aura anchor as well as the buttons to contain it
@@ -122,10 +91,10 @@ local function updateAnchor(self, type, config)
 	group.buttons = group.buttons or {}
 	
 	group.maxAuras = config.perRow * config.maxRows
-	group.createdButtons = 0
 	group.totalAuras = 0
 	group.type = type
 	group.parent = self
+	group.anchorTo = self
 	group:SetFrameLevel(5)
 	group:Show()
 	
@@ -139,6 +108,7 @@ local function updateAnchor(self, type, config)
 	end
 end
 
+-- Update aura positions based off of configuration
 function Auras:OnLayoutApplied(frame, config)
 	if( frame.auras ) then
 		if( frame.auras.buffs ) then
@@ -182,6 +152,72 @@ function Auras:OnLayoutApplied(frame, config)
 	end
 end
 
+local function load(text)
+	local result, err = loadstring(text)
+	if( err ) then
+		error(err, 3)
+		return nil
+	end
+		
+	return result()
+end
+
+local positionData = setmetatable({}, {
+	__index = function(tbl, index)
+		local data = {}
+		local columnGrowth = ShadowUF.Layout:GetColumnGrowth(index)
+		local auraGrowth = ShadowUF.Layout:GetAuraGrowth(index)
+		data.xMod = (columnGrowth == "RIGHT" or auraGrowth == "RIGHT") and 1 or -1
+		data.yMod = (columnGrowth ~= "TOP" and auraGrowth ~= "TOP") and -1 or 1
+		
+		local auraX, colX, xOffset, auraY, colY, yOffset = 0, 0, "", 0, 0, ""
+		if( columnGrowth == "LEFT" or columnGrowth == "RIGHT" ) then
+			colX = 1
+			auraY = 2
+			xOffset = " + offset"
+		elseif( columnGrowth == "TOP" or columnGrowth == "BOTTOM" ) then
+			colY = 2
+			auraX = 1
+			yOffset = " + offset"
+		end
+		
+		data.column = load(string.format([[return function(button, positionTo, offset) button:ClearAllPoints() button:SetPoint("%s", positionTo, "%s", %d * (%d%s), %d * (%d%s)) end]], ShadowUF.Layout:ReverseDirection(columnGrowth), columnGrowth, data.xMod, colX, xOffset, data.yMod, colY, yOffset))
+		data.aura = load(string.format([[return function(button, positionTo) button:ClearAllPoints() button:SetPoint("%s", positionTo, "%s", %d, %d) end]], ShadowUF.Layout:ReverseDirection(auraGrowth), auraGrowth, data.xMod * auraX, data.yMod * auraY))
+		
+		tbl[index] = data
+		return tbl[index]
+	end,
+})
+
+local function position(frame, config)
+	if( frame.totalAuras == 0 ) then return end
+	
+	local position = positionData[config.anchorPoint] 
+	local row, columnOffset = 0, 0
+	for id=1, frame.totalAuras do
+		local button = frame.buttons[id]
+		
+		if( id > 1 ) then
+			if( row >= config.perRow ) then
+				if( button.isSelfScaled and frame.buttons[id - config.perRow].isSelfScaled ) then columnOffset = 0 end
+				position.column(button, frame.buttons[id - config.perRow], columnOffset / 2)
+				
+				row, columnOffset = 0, 0
+			else
+				position.aura(button, frame.buttons[id - 1])
+			end
+		else
+			button:SetPoint(ShadowUF.Layout:GetPoint(config.anchorPoint), frame.anchorTo, ShadowUF.Layout:GetRelative(config.anchorPoint), config.x + (position.xMod * ShadowUF.db.profile.backdrop.inset), config.y + (position.yMod * ShadowUF.db.profile.backdrop.inset))
+		end
+
+		if( button.isSelfScaled ) then
+			columnOffset = math.max(columnOffset, (button:GetHeight() * button:GetScale()) - button:GetHeight())
+		end
+
+		row = row + 1
+	end
+end
+
 -- Scan for auras
 local function scan(frame, type, config, filter)
 	local index = 0
@@ -193,7 +229,7 @@ local function scan(frame, type, config, filter)
 		if( not config.player or caster == ShadowUF.playerUnit ) then
 			-- Create any buttons we need
 			frame.totalAuras = frame.totalAuras + 1
-			if( frame.createdButtons < frame.totalAuras ) then
+			if( #(frame.buttons) < frame.totalAuras ) then
 				updateButton(frame.totalAuras, frame, ShadowUF.db.profile.units[frame.parent.unitType].auras[frame.type])
 			end
 				
@@ -214,18 +250,20 @@ local function scan(frame, type, config, filter)
 				button.cooldown:Hide()
 			end
 			
+			-- Enlarge our own auras
+			if( config.enlargeSelf and caster == ShadowUF.playerUnit ) then
+				button.isSelfScaled = true
+				button:SetScale(config.selfScale)
+			else
+				button.isSelfScaled = nil
+				button:SetScale(1)
+			end
+
 			-- Size it
 			button:SetHeight(config.size)
 			button:SetWidth(config.size)
 			button.border:SetHeight(config.size + 1)
 			button.border:SetWidth(config.size + 1)
-
-			-- Enlarge our own auras
-			if( config.enlargeSelf and caster == ShadowUF.playerUnit ) then
-				button:SetScale(config.selfScale)
-			else
-				button:SetScale(1)
-			end
 			
 			-- Stack + icon + show! Never understood why, auras sometimes return 1 for stack even if they don't stack
 			button.auraID = index
@@ -240,7 +278,7 @@ local function scan(frame, type, config, filter)
 		end
 	end
 
-	for i=frame.totalAuras + 1, frame.createdButtons do frame.buttons[i]:Hide() end
+	for i=frame.totalAuras + 1, #(frame.buttons) do frame.buttons[i]:Hide() end
 end
 
 -- Do an update and figure out what we need to scan
@@ -251,15 +289,18 @@ function Auras:Update(frame)
 		
 		scan(frame.auras.anchor, frame.auras.primary, config[frame.auras.primary], frame.auras[frame.auras.primary].filter)
 		scan(frame.auras.anchor, frame.auras.secondary, config[frame.auras.secondary], frame.auras[frame.auras.secondary].filter)
+		position(frame.auras.anchor, config[frame.auras.anchor.type])
 	else
 		if( config.buffs.enabled ) then
 			frame.auras.buffs.totalAuras = 0
 			scan(frame.auras.buffs, "buffs", config.buffs, frame.auras.buffs.filter)
+			position(frame.auras.buffs, config.buffs)
 		end
 
 		if( config.debuffs.enabled ) then
 			frame.auras.debuffs.totalAuras = 0
 			scan(frame.auras.debuffs, "debuffs", config.debuffs, frame.auras.debuffs.filter)
+			position(frame.auras.debuffs, config.debuffs)
 		end
 	end
 end
