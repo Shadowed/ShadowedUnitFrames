@@ -11,27 +11,19 @@ ShadowUF.Config = Config
 	
 	TOC note suggestions from the IRC-crazies
 
-	[28:58] <Aikiwoce> Shadow Unit Frames now with 100% less fail
-	[33:24] <Aikiwoce> Shadowed Unit Frames, Only you can prevent people from standing in fire.
 	[33:29] <+forostie> Shadowed Unit Frames - Go hard or get mrgggl'd
 	[33:54] <+forostie> Shadowed Unit Frames - Live long and be prosperous
-	[34:24] <+forostie> Shadowed Unit Frames - Dick Don't Pay For Strange
 	[34:24] <Aikiwoce> Shadowed Unit Frames, The champagne of unit frames.
 	[34:31] <+Darkside> SUF: Carrying bad arena teams to glad since S5
 	[34:44] <+forostie> Shadowed Unit Frames - The basement your daughter never had
 	[35:11] <Aikiwoce> SUF: Where's the cream filling?
-	[35:29] <+forostie> SUF: Almost SUP, but heaps not
 	[35:35] <TNSe> Shadowed Unit Frames: Now you know what SUF stands for.
 	[35:39] <+Darkside> SUF: Happy cows make happy unit frames. CAAALIFORNIA
 	[36:09] <TNSe> Shadowed Unit Frames: Not the cause of BRG.
 	[36:09] <+forostie> Shadowed Unit Frames: Made by the guy who also made that arena thing
 	[36:59] <Aikiwoce> Shadowed Unit Frames: So easy a caveman can do it.
-	[37:01] <+forostie> and post it on wowi
-	[37:02] <L_J> should change the name tbh, there's no shadows in SUF :I
 	[37:05] <friar> Shadowed Unit Frames: Probably no shadow option.
 	[37:07] <@jabowah> Shadowed Unit Frames: CRUSHING ALL THE OPPOSITION W/ OUR MIGHTY LASER CANNON
-	[41:57] <friar> SUF: Single Undead Female
-	[42:48] <Kalroth> SUF: Six Under Feet.
 	[44:51] <Aikiwoce> SUF: Kid tested, EJ-approved
 ]]
 
@@ -762,7 +754,7 @@ local function loadGeneralOptions()
 									
 									-- Add the new entry
 									for _, unit in pairs(ShadowUF.units) do
-										table.insert(ShadowUF.db.profile.units[unit].text, {enabled = true, name = textData.name or "??", text = "", anchorTo = textData.parent, x = 0, y = 0, anchorPoint = "IC", size = 0, width = 0.50})
+										table.insert(ShadowUF.db.profile.units[unit].text, {enabled = true, name = textData.name or "??", text = "", anchorTo = textData.parent, x = 0, y = 0, anchorPoint = "C", size = 0, width = 0.50})
 									end
 									
 									-- Add it to the GUI
@@ -994,7 +986,7 @@ local function loadUnitOptions()
 					order = 1,
 					type = "select",
 					name = L["Anchor point"],
-					values = {["LC"] = L["Left Center"], ["RC"] = L["Right Center"],["ITR"] = L["Inside Top Right"], ["ITL"] = L["Inside Top Left"], ["ICL"] = L["Inside Center Left"], ["IC"] = L["Inside Center"], ["ICR"] = L["Inside Center Right"]},
+					values = {["LC"] = L["Left Center"], ["RC"] = L["Right Center"],["TRI"] = L["Inside Top Right"], ["TLI"] = L["Inside Top Left"], ["CLI"] = L["Inside Center Left"], ["C"] = L["Inside Center"], ["CRI"] = L["Inside Center Right"]},
 					hidden = hideAdvancedOption,
 				},
 				sep = {
@@ -1157,11 +1149,19 @@ local function loadUnitOptions()
 	end
 		
 	local function disableSameAnchor(info)
-		local anchor = getVariable(info[2], "auras", "buffs", "enabled") and "buffs" or "debuffs"
+		local buffs = getVariable(info[2], "auras", nil, "buffs")
+		local debuffs = getVariable(info[2], "auras", nil, "debuffs")
+		local anchor = buffs.enabled and buffs.prioritize and "buffs" or "debuffs"
 		
-		if( anchor == info[#(info) - 1] or getVariable(info[2], "auras", "buffs", "anchorPoint") ~= getVariable(info[2], "auras", "debuffs", "anchorPoint") ) then return false end
+		if( not getVariable(info[2], "auras", info[#(info) - 1], "enabled") ) then
+			return true
+		end
 		
-		return true
+		if( anchor == info[#(info) - 1] or buffs.anchorOn or debuffs.anchorOn ) then
+			return false
+		end	
+		
+		return buffs.anchorPoint == debuffs.anchorPoint
 	end
 	
 	Config.auraTable = {
@@ -1179,79 +1179,117 @@ local function loadUnitOptions()
 				disabled = false,
 				arg = "auras.$parent.enabled",
 			},
-			prioritize = {
+			--[[
+			anchorOn = {
 				order = 2,
+				type = "toggle",
+				name = function(info) return info[#(info) - 1] == "buffs" and L["Anchor to debuffs"] or L["Anchor to buffs"] end,
+				desc = L["Allows you to anchor the aura group to another, you can then choose where it will be anchored using the position.\n\nUse this if you want to duplicate the default ui style where buffs and debuffs are separate groups."],
+				set = function(info, value)
+					setVariable(info[2], "auras", info[#(info) - 1] == "buffs" and "debuffs" or "buffs", false)
+					setUnit(info, value)
+				end,
+				arg = "auras.$parent.anchorOn",
+			},
+			]]
+			prioritize = {
+				order = 2.25,
 				type = "toggle",
 				name = L["Prioritize buffs"],
 				desc = L["Show buffs before debuffs when sharing the same anchor point."],
-				hidden = function(info) return info[#(info) - 1] == "debuffs" or getVariable(info[2], "auras", "buffs", "anchorPoint") ~= getVariable(info[2], "auras", "debuffs", "anchorPoint") end,
-				width = "double",
+				hidden = function(info) 
+					if( info[#(info) - 1] == "debuffs" ) then return true end
+					
+					local buffs = getVariable(info[2], "auras", nil, "buffs")
+					local debuffs = getVariable(info[2], "auras", nil, "debuffs")
+					
+					return buffs.anchorOn or debuffs.anchorOn or buffs.anchorPoint ~= debuffs.anchorPoint
+				end,
 				arg = "auras.$parent.prioritize",
 			},
-			sep1 = {
-				order = 4,
+			sep2 = {
+				order = 6,
 				type = "description",
 				name = "",
 				width = "full",
 			},
 			player = {
-				order = 5,
+				order = 7,
 				type = "toggle",
 				name = L["Show your auras only"],
 				desc = L["Filter out any auras that you did not cast yourself."],
 				arg = "auras.$parent.player",
 			},
 			raid = {
-				order = 6,
+				order = 8,
 				type = "toggle",
 				name = function(info) return info[#(info) - 1] == "buffs" and L["Show castable on other auras only"] or L["Show curable only"] end,
 				desc = function(info) return info[#(info) - 1] == "buffs" and L["Filter out any auras that you cannot cast on another player, or yourself."] or L["Filter out any aura that you cannot cure."] end,
 				width = "double",
 				arg = "auras.$parent.raid",
 			},
-			sep2 = {
-				order = 7,
+			sep3 = {
+				order = 9,
 				type = "description",
 				name = "",
 				width = "full",
 			},
 			enlargeSelf = {
-				order = 8,
+				order = 10,
 				type = "toggle",
 				name = L["Enlarge your auras"],
 				desc = L["If you casted the aura, then the buff icon will be increased in size to make it more visible."],
 				arg = "auras.$parent.enlargeSelf",
 			},
 			selfTimers = {
-				order = 9,
+				order = 11,
 				type = "toggle",
 				name = L["Timers for self auras only"],
 				desc = L["Hides the cooldown ring for any auras that you did not cast."],
-				width = "double",
 				arg = "auras.$parent.selfTimers",
+				width = "double",
 			},
-			sep3 = {
-				order = 10,
+			--[[
+			selfScale = {
+				order = 11,
+				type = "range",
+				name = L["Self aura size"],
+				desc = L["Scale for auras that you casted, any number above 100% is bigger tahn default, any number below 100% is smaller than default."],
+				min = 0.01, max = 3, step = 0.10,
+				isPercent = true,
+				disabled = function(info) return not getVariable(info[2], "auras", info[#(info) - 1], "enlargeSelf") end,
+				arg = "auras.$parent.selfScale",
+			},
+			]]
+			sep4 = {
+				order = 12,
 				type = "description",
 				name = "",
 				width = "full",
 			},
 			perRow = {
-				order = 10,
+				order = 13,
 				type = "range",
-				name = L["Per row"],
+				name = function(info)
+					local anchorPoint = getVariable(info[2], "auras", info[#(info) - 1], "anchorPoint")
+					if( anchorPoint == "LEFT" or anchorPoint == "RIGHT" ) then
+						return L["Per column"]
+					end
+					
+					return L["Per row"]
+				end,
 				desc = L["How many auras to show in a single row."],
 				min = 1, max = 50, step = 1,
 				disabled = disableSameAnchor,
 				arg = "auras.$parent.perRow",
 			},
 			maxRows = {
-				order = 11,
+				order = 14,
 				type = "range",
 				name = function(info)
 					local anchorPoint = getVariable(info[2], "auras", info[#(info) - 1], "anchorPoint")
 					if( anchorPoint == "LEFT" or anchorPoint == "RIGHT" ) then
-						return L["Per column"]
+						return L["Max columns"]
 					end
 					
 					return L["Max rows"]
@@ -1269,29 +1307,29 @@ local function loadUnitOptions()
 				arg = "auras.$parent.maxRows",
 			},
 			size = {
-				order = 12,
+				order = 15,
 				type = "range",
 				name = L["Size"],
 				min = 1, max = 30, step = 1,
 				disabled = disableSameAnchor,
 				arg = "auras.$parent.size",
 			},
-			sep4 = {
-				order = 13,
+			sep5 = {
+				order = 16,
 				type = "description",
 				name = "",
 				width = "full",
 			},
 			anchorPoint = {
-				order = 14,
+				order = 17,
 				type = "select",
 				name = L["Position"],
 				desc = L["How you want this aura to be anchored to the unit frame."],
-				values = {["INSIDE"] = L["Inside"], ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
+				values = {["BL"] = L["Bottom"], ["TL"] = L["Top"], ["LT"] = L["Left"], ["RT"] = L["Right"]},
 				arg = "auras.$parent.anchorPoint",
 			},
 			x = {
-				order = 15,
+				order = 18,
 				type = "range",
 				name = L["X Offset"],
 				min = -100, max = 100, step = 1,
@@ -1300,7 +1338,7 @@ local function loadUnitOptions()
 				arg = "auras.$parent.x",
 			},
 			y = {
-				order = 16,
+				order = 19,
 				type = "range",
 				name = L["Y Offset"],
 				min = -100, max = 100, step = 1,
@@ -2347,7 +2385,7 @@ local function loadUnitOptions()
 								type = "select",
 								name = L["Anchor point"],
 								desc = L["Where to anchor the cast name text."],
-								values = {["ICL"] = L["Inside Center Left"], ["ICR"] = L["Inside Center Right"]},
+								values = {["CLI"] = L["Inside Center Left"], ["CRI"] = L["Inside Center Right"]},
 								hidden = hideAdvancedOption,
 								arg = "castBar.name.anchorPoint",
 							},
@@ -2402,7 +2440,7 @@ local function loadUnitOptions()
 								type = "select",
 								name = L["Anchor point"],
 								desc = L["Where to anchor the cast time text."],
-								values = {["ICL"] = L["Inside Center Left"], ["ICR"] = L["Inside Center Right"]},
+								values = {["CLI"] = L["Inside Center Left"], ["CRI"] = L["Inside Center Right"]},
 								hidden = hideAdvancedOption,
 								arg = "castBar.time.anchorPoint",
 							},
