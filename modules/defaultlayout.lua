@@ -84,15 +84,15 @@ function ShadowUF:LoadDefaultLayout()
 	local parentUnit = {
 		portrait = {enabled = false, alignment = "LEFT", width = 0.22, order = 15},
 		auras = {
-			buffs = {enabled = false, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0},
-			debuffs = {enabled = false, anchorPoint = "BOTTOM", size = 16, x = 0, y = 0},
+			buffs = {enabled = false, anchorPoint = "BL", size = 16, x = 0, y = 0},
+			debuffs = {enabled = false, anchorPoint = "BL", size = 16, x = 0, y = 0},
 		},
 		text = {
-			{width = 0.50, name = L["Left text"], anchorTo = "$healthBar", anchorPoint = "ICL", x = 3, y = 0, size = 0},
-			{width = 0.60, name = L["Right text"], anchorTo = "$healthBar", anchorPoint = "ICR", x = -3, y = 0, size = 0},
+			{width = 0.50, name = L["Left text"], anchorTo = "$healthBar", anchorPoint = "CLI", x = 3, y = 0, size = 0},
+			{width = 0.60, name = L["Right text"], anchorTo = "$healthBar", anchorPoint = "CRI", x = -3, y = 0, size = 0},
 
-			{width = 0.50, name = L["Left text"], anchorTo = "$powerBar", anchorPoint = "ICL", x = 3, y = 0, size = 0},
-			{width = 0.60, name = L["Right text"], anchorTo = "$powerBar", anchorPoint = "ICR", x = -3, y = 0, size = 0},
+			{width = 0.50, name = L["Left text"], anchorTo = "$powerBar", anchorPoint = "CLI", x = 3, y = 0, size = 0},
+			{width = 0.60, name = L["Right text"], anchorTo = "$powerBar", anchorPoint = "CRI", x = -3, y = 0, size = 0},
 		},
 		indicators = {
 			raidTarget = {anchorTo = "$parent", anchorPoint = "C", size = 20, x = 0, y = 0},
