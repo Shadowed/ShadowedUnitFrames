@@ -1,6 +1,6 @@
 ## Interface: 30100
 ## Title: Shadowed Unit Frames
-## Notes: Shadowed Unit Frames, Made from the best stuff on Azeroth.
+## Notes: Shadowed Unit Frames, Only you can prevent people from standing in fire.
 ## Author: Mayen
 ## SavedVariables: ShadowedUFDB
 

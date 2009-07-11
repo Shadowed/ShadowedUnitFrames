@@ -72,14 +72,7 @@ function ShadowUF:OnInitialize()
 	self.modules.movers:Update()
 end
 
-function ShadowUF:CheckUpgrade()
-	-- June 11th
-	if( not self.db.profile.healthColors.friendly ) then
-		self.db.profile.healthColors.friendly = CopyTable(self.db.profile.healthColors.green)
-		self.db.profile.healthColors.neutral = CopyTable(self.db.profile.healthColors.yellow)
-		self.db.profile.healthColors.hostile = CopyTable(self.db.profile.healthColors.red)
-	end
-	
+function ShadowUF:CheckUpgrade()	
 	-- June 17th
 	self.db.profile.layoutInfo = nil
 
@@ -95,12 +88,6 @@ function ShadowUF:CheckUpgrade()
 	end
 	
 	for unit, data in pairs(self.db.profile.units) do
-		-- June 25th
-		if( data.auras.debuffs.raid == nil ) then
-			data.auras.debuffs.raid = data.auras.buffs.curable
-			data.auras.buffs.curable = nil
-		end
-
 		-- June 26th
 		data.healthBar.fullSize = nil
 		
@@ -113,15 +100,54 @@ function ShadowUF:CheckUpgrade()
 		end
 		
 		-- July 3th
-		if( data.castBar and data.castName and data.castTime ) then
-			data.name = CopyTable(data.castName)
-			data.castName = nil
+		if( data.castBar ) then
+			if( data.castName and data.castTime ) then
+				data.name = CopyTable(data.castName)
+				data.castName = nil
 
-			data.time = CopyTable(data.castTime)
-			data.castTime = nil
+				data.time = CopyTable(data.castTime)
+				data.castTime = nil
+			end
+			
+			-- July 9th
+			if( data.castBar.name and string.match(data.castBar.name.anchorPoint, "^I") ) then
+				data.castBar.name.anchorPoint = string.gsub(data.castBar.name.anchorPoint, "^I([A-Z][A-Z])", "%1I")
+			end
+			
+			if( data.castBar.time and string.match(data.castBar.time.anchorPoint, "^I") ) then
+				data.castBar.time.anchorPoint = string.gsub(data.castBar.time.anchorPoint, "^I([A-Z][A-Z])", "%1I")
+			end
+		end
+		
+		if( data.auras ) then
+			-- June 25th
+			data.auras.debuffs.raid = data.auras.buffs.curable
+			data.auras.buffs.curable = nil
+
+			-- July 9th
+			for _, aura in pairs(data.auras) do
+				if( aura.anchorPoint == "BOTTOM" ) then
+					aura.anchorPoint = "BL"
+				elseif( aura.anchorPoint == "TOP" ) then
+					aura.anchorPoint = "TL"
+				elseif( aura.anchorPoint == "LEFT" ) then
+					aura.anchorPoint = "LT"
+				elseif( aura.anchorPoint == "RIGHT" ) then
+					aura.anchorPoint = "RT"
+				end
+			end
+		end
+		
+		-- July 9th
+		for _, text in pairs(data.text) do
+			if( text.anchorPoint == "IC" ) then
+				text.anchorPoint = "C"
+			elseif( string.match(text.anchorPoint, "^I") ) then
+				text.anchorPoint = string.gsub(text.anchorPoint, "^I([A-Z][A-Z])", "%1I")
+			end
 		end
 	end
-	
+		
 	-- June 28th
 	self.db.profile.positions.partypet.anchorTo = "$parent"
 	self.db.profile.positions.partytarget.anchorTo = "$parent"
@@ -188,18 +214,18 @@ function ShadowUF:LoadUnitDefaults()
 			powerBar = {enabled = true},
 			portrait = {enabled = false, type = "3D", fullBefore = 0, fullAfter = 100, order = 40, height = 0.50},
 			range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0},
-			text = {{enabled = true, name = L["Left text"], text = "[name]", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Left text"], text = "[level] [race]", anchorTo = "$powerBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxpp]", anchorTo = "$powerBar", size = 0}},
+			text = {{enabled = true, name = L["Left text"], text = "[name]", anchorPoint = "C", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorPoint = "C", anchorTo = "$healthBar", size = 0}, {enabled = true, name = L["Left text"], text = "[level] [race]", anchorPoint = "C", anchorTo = "$powerBar", size = 0}, {enabled = true, name = L["Right text"], text = "[curmaxpp]", anchorPoint = "C", anchorTo = "$powerBar", size = 0}},
 			indicators = {raidTarget = {enabled = true, size = 0}}, 
 			auras = {
-				buffs = {enabled = false, perRow = 11, maxRows = 4, prioritize = true, enlargeSelf = false},
-				debuffs = {enabled = false, perRow = 11, maxRows = 4, enlargeSelf = true},
+				buffs = {enabled = false, perRow = 11, maxRows = 4, selfScale = 1.30, prioritize = true, enlargeSelf = false},
+				debuffs = {enabled = false, perRow = 11, maxRows = 4, selfScale = 1.30, enlargeSelf = true},
 			},
 		}
 				
 		-- These modules are not enabled for "fake" units so don't bother with adding defaults
 		if( not string.match(unit, "%w+target") ) then
 			self.defaults.profile.units[unit].incHeal = {enabled = false, cap = 1.30}
-			self.defaults.profile.units[unit].castBar = {enabled = false, icon = "HIDE", name = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "ICL", x = 1, y = 0}, time = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "ICR", x = -1, y = 0}}
+			self.defaults.profile.units[unit].castBar = {enabled = false, icon = "HIDE", name = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CLI", x = 1, y = 0}, time = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}}
 			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
 		end
 			
