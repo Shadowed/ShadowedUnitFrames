@@ -84,68 +84,58 @@ local function updateButton(id, anchor, config)
 	
 	-- Position, oh god is this long :<
 	if( id > 1 ) then
-		if( config.anchorPoint == "BOTTOM" or config.anchorPoint == "TOP" or config.anchorPoint == "INSIDE" ) then
-			if( id % config.perRow == 1 ) then
-				if( config.anchorPoint == "TOP" ) then
+		if( config.anchorPoint == "BL" or config.anchorPoint == "TL" ) then
+			if( id % config.perRow == 1 or config.perRow == 1 ) then
+				if( config.anchorPoint == "TL" ) then
 					button:SetPoint("BOTTOM", anchor.buttons[id - config.perRow], "TOP", 0, 2)
 				else
 					button:SetPoint("TOP", anchor.buttons[id - config.perRow], "BOTTOM", 0, -2)
 				end
-			elseif( config.anchorPoint == "INSIDE" ) then
-				button:SetPoint("RIGHT", anchor.buttons[id - 1], "LEFT", -1, 0)
 			else
 				button:SetPoint("LEFT", anchor.buttons[id - 1], "RIGHT", 1, 0)
 			end
-		elseif( id % config.maxRows == 1 or config.maxRows == 1 ) then
-			if( config.anchorPoint == "RIGHT" ) then
-				button:SetPoint("LEFT", anchor.buttons[id - config.maxRows], "RIGHT", 1, 0)
+		elseif( id % config.perRow == 1 or config.perRow == 1 ) then
+			if( config.anchorPoint == "RT77" ) then
+				button:SetPoint("LEFT", anchor.buttons[id - config.perRow], "RIGHT", 1, 0)
 			else
-				button:SetPoint("RIGHT", anchor.buttons[id - config.maxRows], "LEFT", -1, 0)
+				button:SetPoint("RIGHT", anchor.buttons[id - config.perRow], "LEFT", -1, 0)
 			end
 		else
 			button:SetPoint("TOP", anchor.buttons[id - 1], "BOTTOM", 0, -2)
 		end
-	elseif( config.anchorPoint == "INSIDE" ) then
-		button:SetPoint("TOPRIGHT", anchor.parent.healthBar, "TOPRIGHT", config.x + -ShadowUF.db.profile.backdrop.clip, config.y + -ShadowUF.db.profile.backdrop.clip)
-	elseif( config.anchorPoint == "BOTTOM" ) then
+	elseif( config.anchorPoint == "BL" ) then
 		button:SetPoint("BOTTOMLEFT", anchor.parent, "BOTTOMLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + -(config.size + 2))
-	elseif( config.anchorPoint == "TOP" ) then
+	elseif( config.anchorPoint == "TL" ) then
 		button:SetPoint("TOPLEFT", anchor.parent, "TOPLEFT", config.x + ShadowUF.db.profile.backdrop.inset, config.y + (config.size + 2))
-	elseif( config.anchorPoint == "LEFT" ) then
+	elseif( config.anchorPoint == "LT" ) then
 		button:SetPoint("TOPLEFT", anchor.parent, "TOPLEFT", config.x + -config.size, config.y + ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip)
-	elseif( config.anchorPoint == "RIGHT" ) then
+	elseif( config.anchorPoint == "RT" ) then
 		button:SetPoint("TOPRIGHT", anchor.parent, "TOPRIGHT", config.x + config.size, config.y + ShadowUF.db.profile.backdrop.inset + ShadowUF.db.profile.backdrop.clip)
 	end
 end
 
 -- Create an aura anchor as well as the buttons to contain it
 local function updateAnchor(self, type, config)
-	if( not config.enabled ) then return end
-	
 	self.auras[type] = self.auras[type] or CreateFrame("Frame", nil, self.highFrame)
 	
-	local anchor = self.auras[type]
-	anchor.buttons = anchor.buttons or {}
-	anchor.maxAuras = config.perRow * config.maxRows
-	anchor.createdButtons = 0
-	anchor.totalAuras = 0
-	anchor.type = type
-	anchor.parent = self
-	anchor:SetFrameLevel(5)
-	anchor:Show()
+	local group = self.auras[type]
+	group.buttons = group.buttons or {}
+	
+	group.maxAuras = config.perRow * config.maxRows
+	group.createdButtons = 0
+	group.totalAuras = 0
+	group.type = type
+	group.parent = self
+	group:SetFrameLevel(5)
+	group:Show()
 	
 	-- Update filters used for the anchor
-	anchor.filter = anchor.type == "buffs" and "HELPFUL" or anchor.type == "debuffs" and "HARMFUL" or ""
+	group.filter = group.type == "buffs" and "HELPFUL" or group.type == "debuffs" and "HARMFUL" or ""
 
 	-- This is a bit of an odd filter, when used with a HELPFUL filter, it will only return buffs you can cast on group members
 	-- When used with HARMFUL it will only return debuffs you can cure
 	if( config.raid ) then
-		anchor.filter = anchor.filter .. "|RAID"
-	end
-
-	-- Create and position all of the sub anchors
-	for id=1, anchor.createdButtons do
-		updateButton(id, anchor, config)
+		group.filter = group.filter .. "|RAID"
 	end
 end
 
@@ -165,10 +155,25 @@ function Auras:OnLayoutApplied(frame, config)
 	
 	if( not frame.visibility.auras ) then return end
 
-	updateAnchor(frame, "buffs", config.auras.buffs)
-	updateAnchor(frame, "debuffs", config.auras.debuffs)
-
-	if( config.auras.buffs.anchorPoint == config.auras.debuffs.anchorPoint and config.auras.buffs.enabled and config.auras.debuffs.enabled ) then
+	if( config.auras.buffs.enabled ) then
+		updateAnchor(frame, "buffs", config.auras.buffs)
+	end
+	
+	if( config.auras.debuffs.enabled ) then
+		updateAnchor(frame, "debuffs", config.auras.debuffs)
+	end
+		
+	-- Anchor an aura group to another aura group
+	if( config.auras.buffs.enabled and config.auras.debuffs.enabled ) then
+		if( config.auras.buffs.anchorOn ) then
+			frame.auras.buffs.anchorTo = frame.auras.debuffs
+		elseif( config.auras.debuffs.anchorOn ) then
+			frame.auras.debuffs.anchorTo = frame.auras.buffs
+		end
+	end
+		
+	-- Check if either auras are anchored to each other
+	if( config.auras.buffs.anchorPoint == config.auras.debuffs.anchorPoint and config.auras.buffs.enabled and config.auras.debuffs.enabled and not config.auras.buffs.anchorOn and not config.auras.debuffs.anchorOn ) then
 		frame.auras.anchor = frame.auras[config.auras.buffs.enabled and "buffs" or "debuffs"]
 		frame.auras.primary = config.auras.buffs.prioritize and "buffs" or "debuffs"
 		frame.auras.secondary = frame.auras.primary == "buffs" and "debuffs" or "buffs"
@@ -177,51 +182,12 @@ function Auras:OnLayoutApplied(frame, config)
 	end
 end
 
-function Auras:UpdateDisplay(frame, unitType)
-	for _, button in pairs(frame.buttons) do button:Hide() end
-	
-	-- Position aura
-	for i=1, frame.totalAuras do
-		local button = frame.buttons[i]
-		if( button ) then
-			local config = ShadowUF.db.profile.units[unitType].auras[button.type]
-			
-			-- Show debuff border, or a special colored border if it's stealable
-			if( button.type == "debuffs" ) then
-				local color =  button.auraStealable and stealableColor or button.auraType and DebuffTypeColor[button.auraType] or DebuffTypeColor.none
-				button.border:SetVertexColor(color.r, color.g, color.b)
-			else
-				button.border:SetVertexColor(0.60, 0.60, 0.60, 1.0)
-			end
-			
-			-- Show the cooldown ring
-			if( ( not config.selfTimers or ( config.selfTimers and button.auraPlayers ) ) and button.auraDuration > 0 and button.auraEnd > 0 ) then
-				button.cooldown:SetCooldown(button.auraEnd - button.auraDuration, button.auraDuration)
-				button.cooldown:Show()
-			else
-				button.cooldown:Hide()
-			end
-			
-			-- Enlarge our own auras
-			if( config.enlargeSelf and button.auraPlayers ) then
-				button:SetScale(1.30)
-			else
-				button:SetScale(1)
-			end
-			
-			-- Stack + icon + show!
-			button.icon:SetTexture(button.auraTexture)
-			button.stack:SetText(button.auraCount > 1 and button.auraCount or "")
-			button:Show()
-		end
-	end
-end
-
-function Auras:Scan(frame, type, config, filter)
+-- Scan for auras
+local function scan(frame, type, config, filter)
 	local index = 0
 	while( true ) do
 		index = index + 1
-		local name, _, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(frame.parent.unit, index, filter)
+		local name, rank, texture, count, debuffType, duration, endTime, caster, isStealable = UnitAura(frame.parent.unit, index, filter)
 		if( not name ) then break end
 		
 		if( not config.player or caster == ShadowUF.playerUnit ) then
@@ -230,53 +196,70 @@ function Auras:Scan(frame, type, config, filter)
 			if( frame.createdButtons < frame.totalAuras ) then
 				updateButton(frame.totalAuras, frame, ShadowUF.db.profile.units[frame.parent.unitType].auras[frame.type])
 			end
-			
+				
+			-- Show debuff border, or a special colored border if it's stealable
 			local button = frame.buttons[frame.totalAuras]
-			button.auraName = name
-			button.auraTexture = texture
-			button.auraCount = count
-			button.auraType = debuffType
-			button.auraDuration = duration
-			button.auraEnd = endTime
-			button.auraStealable = isStealable
-			button.auraPlayers = caster == ShadowUF.playerUnit
+			if( button.type == "debuffs" ) then
+				local color = isStealable and stealableColor or debuffType and DebuffTypeColor[debuffType] or DebuffTypeColor.none
+				button.border:SetVertexColor(color.r, color.g, color.b)
+			else
+				button.border:SetVertexColor(0.60, 0.60, 0.60)
+			end
+			
+			-- Show the cooldown ring
+			if( ( not config.selfTimers or ( config.selfTimers and caster == ShadowUF.playerUnit ) ) and duration > 0 and endTime > 0 ) then
+				button.cooldown:SetCooldown(endTime - duration, duration)
+				button.cooldown:Show()
+			else
+				button.cooldown:Hide()
+			end
+			
+			-- Size it
+			button:SetHeight(config.size)
+			button:SetWidth(config.size)
+			button.border:SetHeight(config.size + 1)
+			button.border:SetWidth(config.size + 1)
+
+			-- Enlarge our own auras
+			if( config.enlargeSelf and caster == ShadowUF.playerUnit ) then
+				button:SetScale(config.selfScale)
+			else
+				button:SetScale(1)
+			end
+			
+			-- Stack + icon + show! Never understood why, auras sometimes return 1 for stack even if they don't stack
 			button.auraID = index
-			button.type = type
 			button.filter = filter
 			button.unit = frame.parent.unit
+			button.icon:SetTexture(texture)
+			button.stack:SetText(count > 1 and count or "")
+			button:Show()
 			
 			-- Too many auras shown break out
 			if( frame.totalAuras >= frame.maxAuras ) then break end
 		end
 	end
+
+	for i=frame.totalAuras + 1, frame.createdButtons do frame.buttons[i]:Hide() end
 end
 
--- This needs a bit of optimization later
+-- Do an update and figure out what we need to scan
 function Auras:Update(frame)
 	local config = ShadowUF.db.profile.units[frame.unitType].auras
 	if( frame.auras.anchor ) then
 		frame.auras.anchor.totalAuras = 0
 		
-		if( config[frame.auras.primary].enabled ) then
-			self:Scan(frame.auras.anchor, frame.auras.primary, config[frame.auras.primary], frame.auras[frame.auras.primary].filter)
-		end
-		
-		if( config[frame.auras.secondary].enabled ) then
-			self:Scan(frame.auras.anchor, frame.auras.secondary, config[frame.auras.secondary], frame.auras[frame.auras.secondary].filter)
-		end
-		
-		self:UpdateDisplay(frame.auras.anchor, frame.unitType)
+		scan(frame.auras.anchor, frame.auras.primary, config[frame.auras.primary], frame.auras[frame.auras.primary].filter)
+		scan(frame.auras.anchor, frame.auras.secondary, config[frame.auras.secondary], frame.auras[frame.auras.secondary].filter)
 	else
 		if( config.buffs.enabled ) then
 			frame.auras.buffs.totalAuras = 0
-			self:Scan(frame.auras.buffs, "buffs", config.buffs, frame.auras.buffs.filter)
-			self:UpdateDisplay(frame.auras.buffs, frame.unitType)
+			scan(frame.auras.buffs, "buffs", config.buffs, frame.auras.buffs.filter)
 		end
 
 		if( config.debuffs.enabled ) then
 			frame.auras.debuffs.totalAuras = 0
-			self:Scan(frame.auras.debuffs, "debuffs", config.debuffs, frame.auras.debuffs.filter)
-			self:UpdateDisplay(frame.auras.debuffs, frame.unitType)
+			scan(frame.auras.debuffs, "debuffs", config.debuffs, frame.auras.debuffs.filter)
 		end
 	end
 end
