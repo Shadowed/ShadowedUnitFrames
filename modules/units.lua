@@ -598,6 +598,7 @@ function Units:LoadGroupHeader(config, type)
 	headerFrame:SetAttribute("initial-unitWatch", true)
 	headerFrame.initialConfigFunction = initializeUnit
 	headerFrame.unitType = type
+	headerFrame:UnregisterEvent("UNIT_NAME_UPDATE")
 	headerFrame:Show()
 
 	unitFrames[type] = headerFrame
