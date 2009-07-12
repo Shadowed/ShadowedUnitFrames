@@ -137,10 +137,13 @@ end
 	* Positions INSIDE the frame
 	CLI = Inside Center Left, CRI = Inside Center Right
 	TRI = Inside Top Right, TLI = Inside Top Left
+	BRI = Inside Bottom Right, BRI = Inside Bottom left
 ]]
 
-local preDefPoint = {C = "CENTER", CLI = "LEFT", RT = "TOPLEFT", BC = "TOP", CRI = "RIGHT", LT = "TOPRIGHT", TR = "BOTTOMRIGHT", BL = "TOPLEFT", LB = "BOTTOMRIGHT", LC = "RIGHT", RB = "BOTTOMLEFT", RC = "LEFT", TC = "BOTTOM", BR = "TOPRIGHT", TL = "BOTTOMLEFT", IBR = "BOTTOMRIGHT", IBL = "BOTTOMLEFT", TRI = "TOPRIGHT", TLI = "TOPLEFT"}
-local preDefRelative = {C = "CENTER", CLI = "LEFT", RT = "TOPRIGHT", BC = "BOTTOM", CRI = "RIGHT", LT = "TOPLEFT", TR = "TOPRIGHT", BL = "BOTTOMLEFT", LB = "BOTTOMLEFT", LC = "LEFT", RB = "BOTTOMRIGHT", RC = "RIGHT", TC = "TOP", BR = "BOTTOMRIGHT", TL = "TOPLEFT", IBR = "BOTTOMRIGHT", IBL = "BOTTOMLEFT", TRI = "TOPRIGHT", TLI = "TOPLEFT"}
+local preDefPoint = {C = "CENTER", CLI = "LEFT", RT = "TOPLEFT", BC = "TOP", CRI = "RIGHT", LT = "TOPRIGHT", TR = "BOTTOMRIGHT", BL = "TOPLEFT", LB = "BOTTOMRIGHT", LC = "RIGHT", RB = "BOTTOMLEFT", RC = "LEFT", TC = "BOTTOM", BR = "TOPRIGHT", TL = "BOTTOMLEFT", BRI = "BOTTOMRIGHT", BLI = "BOTTOMLEFT", TRI = "TOPRIGHT", TLI = "TOPLEFT"}
+local preDefRelative = {C = "CENTER", CLI = "LEFT", RT = "TOPRIGHT", BC = "BOTTOM", CRI = "RIGHT", LT = "TOPLEFT", TR = "TOPRIGHT", BL = "BOTTOMLEFT", LB = "BOTTOMLEFT", LC = "LEFT", RB = "BOTTOMRIGHT", RC = "RIGHT", TC = "TOP", BR = "BOTTOMRIGHT", TL = "TOPLEFT", IBR = "BOTTOMRIGHT", BLI = "BOTTOMLEFT", TRI = "TOPRIGHT", TLI = "TOPLEFT"}
+local columnDirection = {RT = "RIGHT", C = "RIGHT", BC = "BOTTOM", LT = "LEFT", TR = "TOP", BL = "BOTTOM", LB = "LEFT", LC = "LEFT", TRI = "TOP", RB = "RIGHT", RC = "RIGHT", TC = "TOP", CLI = "RIGHT", TL = "TOP", BR = "BOTTOM", IBL = "RIGHT", IBR = "RIGHT", CRI = "RIGHT", TLI = "TOP"}
+local auraDirection = {RT = "BOTTOM", C = "LEFT", BC = "LEFT", LT = "BOTTOM", TR = "LEFT", BL = "RIGHT", LB = "TOP", LC = "LEFT", TRI = "LEFT", RB = "TOP", RC = "LEFT", TC = "LEFT", CLI = "RIGHT", TL = "RIGHT", BR = "LEFT", IBL = "TOP", IBR = "TOP", CRI = "LEFT", TLI = "RIGHT"}
 
 -- Figures out how text should be justified based on where it's anchoring
 function Layout:GetJustify(config)
@@ -164,6 +167,18 @@ function Layout:GetRelative(key)
 	return preDefRelative[key] or "CENTER"
 end
 
+function Layout:GetColumnGrowth(key)
+	return columnDirection[key] or "DOWN"
+end
+
+function Layout:GetAuraGrowth(key)
+	return auraDirection[key] or "LEFT"
+end
+
+function Layout:ReverseDirection(key)
+	return key == "LEFT" and "RIGHT" or key == "RIGHT" and "LEFT" or key == "TOP" and "BOTTOM" or key == "BOTTOM" and "TOP"
+end
+
 function Layout:AnchorFrame(parent, frame, config)
 	if( not config or not config.anchorTo ) then
 		return
@@ -179,6 +194,7 @@ function Layout:AnchorFrame(parent, frame, config)
 	-- # is used as an indicator of an actual frame created by SUF, SUFUnittarget, etc. It also means, that the frame might not have been created yet
 	elseif( prefix == "#" ) then
 		anchorTo = string.sub(config.anchorTo, 2)
+		
 		-- The frame we wanted to anchor to doesn't exist yet, so will queue and wait for it to exist
 		if( not _G[anchorTo] ) then
 			frame.queuedParent = parent
@@ -307,7 +323,8 @@ function Layout:SetupText(frame, config)
 			self:AnchorFrame(frame, fontString, row)
 			
 			-- We figure out the anchor point so we can put text in the same area with the same width requirements
-			local anchorPoint = (row.anchorPoint == "TRI" or row.anchorPoint == "TLI") and "IT" or (row.anchorPoint == "CLI" or row.anchorPoint == "CRI" ) and "IC" or row.anchorPoint
+			local anchorPoint = columnDirection[row.anchorPoint]
+			if( string.len(row.anchorPoint) == 3 ) then anchorPoint = anchorPoint .. "I" end
 			
 			fontString.availableWidth = parent:GetWidth() - row.x
 			fontString.widthID = row.anchorTo .. anchorPoint .. row.y
