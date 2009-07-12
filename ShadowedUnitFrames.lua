@@ -126,7 +126,7 @@ function ShadowUF:CheckUpgrade()
 
 			-- July 9th
 			for _, aura in pairs(data.auras) do
-				if( aura.anchorPoint == "BOTTOM" ) then
+				if( aura.anchorPoint == "BOTTOM" or aura.anchorPoint == "INSIDE" ) then
 					aura.anchorPoint = "BL"
 				elseif( aura.anchorPoint == "TOP" ) then
 					aura.anchorPoint = "TL"
