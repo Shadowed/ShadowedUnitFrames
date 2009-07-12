@@ -986,7 +986,7 @@ local function loadUnitOptions()
 					order = 1,
 					type = "select",
 					name = L["Anchor point"],
-					values = {["LC"] = L["Left Center"], ["RC"] = L["Right Center"],["TRI"] = L["Inside Top Right"], ["TLI"] = L["Inside Top Left"], ["CLI"] = L["Inside Center Left"], ["C"] = L["Inside Center"], ["CRI"] = L["Inside Center Right"]},
+					values = {["LC"] = L["Left Center"], ["RT"] = L["Right Top"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LB"] = L["Left Bottom"], ["RC"] = L["Right Center"],["TRI"] = L["Inside Top Right"], ["TLI"] = L["Inside Top Left"], ["CLI"] = L["Inside Center Left"], ["C"] = L["Inside Center"], ["CRI"] = L["Inside Center Right"], ["TR"] = L["Top Right"], ["TL"] = L["Top Left"], ["BR"] = L["Bottom Right"], ["BL"] = L["Bottom Left"]},
 					hidden = hideAdvancedOption,
 				},
 				sep = {
@@ -1164,6 +1164,12 @@ local function loadUnitOptions()
 		return buffs.anchorPoint == debuffs.anchorPoint
 	end
 	
+	local defaultAuraList = {["BL"] = L["Bottom"], ["TL"] = L["Top"], ["LT"] = L["Left"], ["RT"] = L["Right"]}
+	local advancedAuraList = {["BL"] = L["Bottom Left"], ["BR"] = L["Bottom Right"], ["TL"] = L["Top Left"], ["TR"] = L["Top Right"], ["RT"] = L["Right Top"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LB"] = L["Left Bottom"]}
+	local function getAuraAnchors()
+		return ShadowUF.db.profile.advanced and advancedAuraList or defaultAuraList
+	end
+	
 	Config.auraTable = {
 		type = "group",
 		inline = true,
@@ -1197,9 +1203,8 @@ local function loadUnitOptions()
 				type = "toggle",
 				name = L["Prioritize buffs"],
 				desc = L["Show buffs before debuffs when sharing the same anchor point."],
-				hidden = function(info) 
-					if( info[#(info) - 1] == "debuffs" ) then return true end
-					
+				hidden = function(info) return info[#(info) - 1] == "debuffs" end,
+				disabled = function(info) 
 					local buffs = getVariable(info[2], "auras", nil, "buffs")
 					local debuffs = getVariable(info[2], "auras", nil, "debuffs")
 					
@@ -1255,7 +1260,7 @@ local function loadUnitOptions()
 				type = "range",
 				name = L["Self aura size"],
 				desc = L["Scale for auras that you casted, any number above 100% is bigger tahn default, any number below 100% is smaller than default."],
-				min = 0.01, max = 3, step = 0.10,
+				min = 1, max = 3, step = 0.10,
 				isPercent = true,
 				disabled = function(info) return not getVariable(info[2], "auras", info[#(info) - 1], "enlargeSelf") end,
 				arg = "auras.$parent.selfScale",
@@ -1272,7 +1277,7 @@ local function loadUnitOptions()
 				type = "range",
 				name = function(info)
 					local anchorPoint = getVariable(info[2], "auras", info[#(info) - 1], "anchorPoint")
-					if( anchorPoint == "LEFT" or anchorPoint == "RIGHT" ) then
+					if( ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "LEFT" or ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "RIGHT" ) then
 						return L["Per column"]
 					end
 					
@@ -1286,23 +1291,34 @@ local function loadUnitOptions()
 			maxRows = {
 				order = 14,
 				type = "range",
-				name = function(info)
-					local anchorPoint = getVariable(info[2], "auras", info[#(info) - 1], "anchorPoint")
-					if( anchorPoint == "LEFT" or anchorPoint == "RIGHT" ) then
-						return L["Max columns"]
-					end
-					
-					return L["Max rows"]
-				end,
-				desc = function(info)
-					local anchorPoint = getVariable(info[2], "auras", info[#(info) - 1], "anchorPoint")
-					if( anchorPoint == "LEFT" or anchorPoint == "RIGHT" ) then
-						return L["How many auras per a column for example, entering two her will create two rows that are filled up to whatever per row is set as."]
-					end
-					
-					return L["How many rows total should be used, rows will be however long the per row value is set at."]
-				end,
+				name = L["Max rows"],
+				desc = L["How many rows total should be used, rows will be however long the per row value is set at."],
 				min = 1, max = 5, step = 1,
+				disabled = disableSameAnchor,
+				hidden = function(info)
+					local anchorPoint = getVariable(info[2], "auras", info[#(info) - 1], "anchorPoint")
+					if( ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "LEFT" or ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "RIGHT" ) then
+						return true
+					end
+					
+					return false
+				end,
+				arg = "auras.$parent.maxRows",
+			},
+			maxColumns = {
+				order = 14,
+				type = "range",
+				name = L["Max columns"],
+				desc = L["How many auras per a column for example, entering two her will create two rows that are filled up to whatever per row is set as."],
+				min = 1, max = 50, step = 1,
+				hidden = function(info)
+					local anchorPoint = getVariable(info[2], "auras", info[#(info) - 1], "anchorPoint")
+					if( ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "LEFT" or ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "RIGHT" ) then
+						return false
+					end
+					
+					return true
+				end,
 				disabled = disableSameAnchor,
 				arg = "auras.$parent.maxRows",
 			},
@@ -1325,7 +1341,7 @@ local function loadUnitOptions()
 				type = "select",
 				name = L["Position"],
 				desc = L["How you want this aura to be anchored to the unit frame."],
-				values = {["BL"] = L["Bottom"], ["TL"] = L["Top"], ["LT"] = L["Left"], ["RT"] = L["Right"]},
+				values = getAuraAnchors,
 				arg = "auras.$parent.anchorPoint",
 			},
 			x = {
@@ -1540,7 +1556,7 @@ local function loadUnitOptions()
 							alignment = {
 								order = 2,
 								type = "select",
-								name = L["Alignment"],
+								name = L["Position"],
 								values = {["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
 								arg = "portrait.alignment",
 							},
