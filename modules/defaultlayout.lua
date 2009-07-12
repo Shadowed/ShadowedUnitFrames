@@ -96,8 +96,8 @@ function ShadowUF:LoadDefaultLayout()
 		},
 		indicators = {
 			raidTarget = {anchorTo = "$parent", anchorPoint = "C", size = 20, x = 0, y = 0},
-			masterLoot = {anchorTo = "$parent", anchorPoint = "TL", size = 12, x = 16, y = 3},
-			leader = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 2, y = 4},
+			masterLoot = {anchorTo = "$parent", anchorPoint = "TL", size = 12, x = 16, y = -8},
+			leader = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 2, y = -10},
 			pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 40, y = 11},
 			ready = {anchorTo = "$parent", anchorPoint = "C", size = 24, x = 0, y = 0},
 		},
@@ -208,8 +208,8 @@ function ShadowUF:LoadDefaultLayout()
 			portrait = {enabled = true},
 			comboPoints = {anchorTo = "$parent", anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "UP"},
 			indicators = {
-				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -16, y = 3},
-				leader = {anchorTo = "$parent", anchorPoint = "TR", size = 14, x = -2, y = 4},
+				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -16, y = -8},
+				leader = {anchorTo = "$parent", anchorPoint = "TR", size = 14, x = -2, y = 10},
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = -3, y = 11},
 			},
 			auras = {
