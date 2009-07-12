@@ -19,7 +19,6 @@ ShadowUFLocals = {
 	["Add tags"] = "Add tags",
 	["Adds %s to the list of units to be modified when you change values in this tab."] = "Adds %s to the list of units to be modified when you change values in this tab.",
 	["Advanced"] = "Advanced",
-	["Alignment"] = "Alignment",
 	["Allows you to anchor the aura group to another, you can then choose where it will be anchored using the position.\n\nUse this if you want to duplicate the default ui style where buffs and debuffs are separate groups."] = "Allows you to anchor the aura group to another, you can then choose where it will be anchored using the position.\n\nUse this if you want to duplicate the default ui style where buffs and debuffs are separate groups.",
 	["Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%."] = "Alpha to use when the unit is inactive meaning, not in combat, have no target and mana is at 100%.",
 	["Alpha to use when you are in combat for this unit."] = "Alpha to use when you are in combat for this unit.",
