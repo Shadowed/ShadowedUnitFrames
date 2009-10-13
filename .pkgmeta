@@ -1,0 +1,41 @@
+package-as: ShadowedUnitFrames
+enable-nolib-creation: yes
+
+externals:
+    libs/LibStub:
+        url: svn://svn.wowace.com/wow/libstub/mainline/trunk
+        tag: latest
+    libs/CallbackHandler-1.0:
+        url: svn://svn.wowace.com/wow/callbackhandler/mainline/trunk
+        tag: latest
+    libs/AceAddon-3.0:
+        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceAddon-3.0
+        tag: latest
+    libs/AceConfig-3.0:
+        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConfig-3.0
+        tag: latest
+    libs/AceDB-3.0:
+        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDB-3.0
+        tag: latest
+    libs/AceDBOptions-3.0:
+        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDBOptions-3.0
+        tag: latest
+    libs/AceGUI-3.0:
+        url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0
+        tag: latest
+	libs/AceGUI-3.0-SharedMediaWidgets:
+		url: svn://svn.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline/trunk
+ 		tag: latest
+    libs/LibSharedMedia-3.0:
+        url: svn://svn.wowace.com/wow/libsharedmedia-3-0/mainline/trunk
+        tag: latest
+    libs/LibHealComm-4.0:
+        url: git://git.wowace.com/wow/libhealcomm-4-0/mainline.git
+        tag: latest
+    libs/LibWrapperHealComm-1.0:
+        url: git://git.wowace.com/wow/libwrapperhealcomm-1-0/mainline.git
+        tag: latest
+ignore:
+	- globalcheck.lua
+	- localcheck.lua
+
