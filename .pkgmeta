@@ -1,5 +1,4 @@
 package-as: ShadowedUnitFrames
-enable-nolib-creation: yes
 
 externals:
     libs/LibStub:
@@ -26,7 +25,7 @@ externals:
     libs/AceGUI-3.0-SharedMediaWidgets:
         url: svn://svn.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline/trunk
         tag: latest
-   libs/LibSharedMedia-3.0:
+    libs/LibSharedMedia-3.0:
         url: svn://svn.wowace.com/wow/libsharedmedia-3-0/mainline/trunk
         tag: latest
     libs/LibHealComm-4.0:
