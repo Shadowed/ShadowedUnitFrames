@@ -1048,7 +1048,7 @@ function Units:LoadChildUnit(parent, type, id)
 	if( not parent.isWrapped ) then
 		parent.isWrapped = true
 		stateMonitor:WrapScript(parent, "OnAttributeChanged", [[
-			if( name ~= "unit" or not value or or self:GetAttribute("lastUnit") == value ) then return end
+			if( name ~= "unit" or not value or self:GetAttribute("lastUnit") == value ) then return end
 			self:SetAttribute("lastUnit", value)
 
 			local id = 1
