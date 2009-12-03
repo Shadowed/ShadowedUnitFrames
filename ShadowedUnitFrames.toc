@@ -4,17 +4,12 @@
 ## Author: Shadowed
 ## SavedVariables: ShadowedUFDB
 
-
 #@no-lib-strip@
 libs\LibStub-1.0\LibStub-1.0.xml
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 libs\LibSharedMedia-3.0\lib.xml
 libs\LibHealComm-4.0\LibHealComm-4.0.xml
-libs\AceDB-3.0\AceDB-3.0.xmllibs\AceDBOptions-3.0\AceDBOptions-3.0.xml
-libs\AceGUI-3.0\AceGUI-3.0.xml
-libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
-libs\AceConfig-3.0\AceConfig-3.0.xml
-#@end-no-lib-strip@
+libs\AceDB-3.0\AceDB-3.0.xml#@end-no-lib-strip@
 
 localization.enUS.lua
 localization.koKR.lua
@@ -46,4 +41,6 @@ modules\range.lua
 modules\empty.lua
 modules\druid.lua
 
+#@do-not-package@
 options\config.lua
+#@end-do-not-package@
