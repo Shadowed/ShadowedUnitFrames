@@ -3236,7 +3236,7 @@ local function loadUnitOptions()
 		name = L["Units"],
 		args = {
 			help = {
-				order = 3,
+				order = 1,
 				type = "group",
 				inline = true,
 				name = L["Help"],
@@ -3249,7 +3249,7 @@ local function loadUnitOptions()
 				},
 			},
 			enabled = {
-				order = 1,
+				order = 2,
 				type = "group",
 				inline = true,
 				name = L["Enable units"],
