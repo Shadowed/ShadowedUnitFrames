@@ -1,0 +1,49 @@
+## Interface: 30200
+## Title: Shadowed Unit Frames
+## Notes: Standby for witty TOC note.
+## Author: Shadowed
+## SavedVariables: ShadowedUFDB
+
+
+#@no-lib-strip@
+libs\LibStub-1.0\LibStub-1.0.xml
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\LibSharedMedia-3.0\lib.xml
+libs\LibHealComm-4.0\LibHealComm-4.0.xml
+libs\AceDB-3.0\AceDB-3.0.xmllibs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+libs\AceGUI-3.0\AceGUI-3.0.xml
+libs\AceGUI-3.0-SharedMediaWidgets\widget.xml
+libs\AceConfig-3.0\AceConfig-3.0.xml
+#@end-no-lib-strip@
+
+localization.enUS.lua
+localization.koKR.lua
+localization.ruRU.lua
+localization.zhCN.lua
+localization.zhTW.lua
+
+ShadowedUnitFrames.lua
+modules\units.lua
+modules\layout.lua
+modules\movers.lua
+modules\defaultlayout.lua
+modules\highlight.lua
+modules\tags.lua
+modules\health.lua
+modules\power.lua
+modules\portrait.lua
+modules\indicators.lua
+modules\xp.lua
+modules\cast.lua
+modules\auras.lua
+modules\combattext.lua
+modules\totems.lua
+modules\runes.lua
+modules\fader.lua
+modules\combopoints.lua
+modules\incheal.lua
+modules\range.lua
+modules\empty.lua
+modules\druid.lua
+
+options\config.lua
