@@ -3361,6 +3361,12 @@ local function loadUnitOptions()
 		name = getName,
 		set = function(info, value)
 			local unit = info[#(info)]
+			for child, parent in pairs(ShadowUF.Units.childUnits) do
+				if( unit == parent and not value ) then
+					ShadowUF.db.profile.units[child].enabled = false
+				end
+			end
+			
 			ShadowUF.db.profile.units[unit].enabled = value
 			ShadowUF:LoadUnits()
 
@@ -3373,6 +3379,26 @@ local function loadUnitOptions()
 		end,
 		get = function(info)
 			return ShadowUF.db.profile.units[info[#(info)]].enabled
+		end,
+		desc = function(info)
+			local unit = info[#(info)]
+			if( ShadowUF.db.profile.units[unit].enabled and ShadowUF.Units.childUnits[unit] ) then
+				return string.format(L["This unit depends on another to work, disabling %s will disable %s."], L.units[ShadowUF.Units.childUnits[unit]], L.units[unit])
+			elseif( not ShadowUF.db.profile.units[unit].enabled ) then 
+				for child, parent in pairs(ShadowUF.Units.childUnits) do
+					if( parent == unit ) then
+						return L["This unit has child units that depend on it, you need to enable this unit before you can enable its children."]
+					end
+				end
+			end
+		end,
+		disabled = function(info)
+			local unit = info[#(info)]
+			if( ShadowUF.Units.childUnits[unit] ) then
+				return not ShadowUF.db.profile.units[ShadowUF.Units.childUnits[unit]].enabled	
+			end
+			
+			return false
 		end,
 	}
 	
