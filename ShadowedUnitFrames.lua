@@ -142,13 +142,11 @@ function ShadowUF:CheckUpgrade()
 		DEFAULT_CHAT_FRAME:AddMessage(L["[WARNING!] ShadowedUF_Arena is unnecessary now as it has been added into SUF by default, please delete ShadowedUF_Arena to prevent conflicts."])
 	end
 	
-	--[[
-	if( select(6, GetAddOnInfo("ShadowedUF_Options")) ) then
+	if( not ShadowUF.Config and select(6, GetAddOnInfo("ShadowedUF_Options")) ) then
 		SlashCmdList["SUF"] = function()
 			DEFAULT_CHAT_FRAME:AddMessage(L["[WARNING!] Configuration in SUF has been split into a separate addon, you will need to restart your game before you can open the configuration."])
 		end
 	end
-	]]
 end
 	
 function ShadowUF:LoadUnits()
@@ -475,7 +473,7 @@ SLASH_SHADOWEDUF2 = "/shadowuf"
 SLASH_SHADOWEDUF3 = "/shadoweduf"
 SLASH_SHADOWEDUF4 = "/shadowedunitframes"
 SlashCmdList["SHADOWEDUF"] = function(msg)
-	--LoadAddOn("ShadowedUF_Options")
+	LoadAddOn("ShadowedUF_Options")
 	if( not ShadowUF.Config ) then
 		DEFAULT_CHAT_FRAME:AddMessage(L["Failed to open configuration, could not load ShadowedUF_Options. Make sure you installed the addon correctly."])
 		return
