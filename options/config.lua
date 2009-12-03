@@ -156,7 +156,7 @@ local function getColor(info)
 end
 
 -- These are for setting complex options like units.player.auras.buffs.enabled = true or units.player.portrait.enabled = true
-function setVariable(unit, moduleKey, moduleSubKey, key, value)
+local function setVariable(unit, moduleKey, moduleSubKey, key, value)
 	local configTable = unit == "global" and globalConfig or ShadowUF.db.profile.units[unit]
 		
 	-- For setting options like units.player.auras.buffs.enabled = true
