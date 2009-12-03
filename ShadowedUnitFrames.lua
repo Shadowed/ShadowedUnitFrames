@@ -473,9 +473,9 @@ SLASH_SHADOWEDUF2 = "/shadowuf"
 SLASH_SHADOWEDUF3 = "/shadoweduf"
 SLASH_SHADOWEDUF4 = "/shadowedunitframes"
 SlashCmdList["SHADOWEDUF"] = function(msg)
-	LoadAddOn("ShadowedUF_Options")
+	local loaded, reason = LoadAddOn("ShadowedUF_Options")
 	if( not ShadowUF.Config ) then
-		DEFAULT_CHAT_FRAME:AddMessage(L["Failed to open configuration, could not load ShadowedUF_Options. Make sure you installed the addon correctly."])
+		DEFAULT_CHAT_FRAME:AddMessage(string.format(L["Failed to load ShadowedUF_Options, cannot load configuration. Error returned: %s"], reason and _G["ADDON_" .. reason] or ""))
 		return
 	end
 	
