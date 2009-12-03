@@ -1,7 +1,7 @@
 package-as: ShadowedUnitFrames
 
 move-folders:
-	ShadowedUnitFrames:	ShadowedUF_Options/
+	ShadowedUnitFrames: ShadowedUF_Options/
 
 externals:
     libs/LibStub:
