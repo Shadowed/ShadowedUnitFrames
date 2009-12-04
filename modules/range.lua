@@ -63,7 +63,7 @@ function Range:UpdateFlags(frame)
 	frame.range.spell = frame.range.canAttack and hostile[playerClass] or frame.range.isFriendly and friendly[playerClass] or nil
 
 	-- No sense in updating range if we have no data
-	if( not frame.range.spell and not frame.range.grouped and not frame.range.isFriendly ) then
+	if( not UnitIsConnected(frame.unit) or ( not frame.range.spell and not frame.range.grouped and not frame.range.isFriendly ) ) then
 		frame:SetAlpha(ShadowUF.db.profile.units[frame.unitType].range.inAlpha)
 		frame.range:Hide()
 	else
