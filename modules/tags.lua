@@ -1067,6 +1067,7 @@ Tags.eventType = {
 	["PLAYER_LEVEL_UP"] = "unitless",
 	["UPDATE_EXHAUSTION"] = "unitless",
 	["PLAYER_UPDATE_RESTING"] = "unitless",
+	["PLAYER_TARGET_UPDATE"] = "unitless",
 	["UNIT_COMBO_POINTS"] = "unitless",
 }
 
