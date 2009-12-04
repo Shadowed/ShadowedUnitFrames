@@ -313,7 +313,7 @@ local function loadGeneralOptions()
 		type = "toggle",
 		name = function(info)
 			local key = info[#(info)]
-			return string.format(L["Hide %s"], L.units[key] or key == "cast" and L["Cast bars"] or key == "runes" and L["Rune bar"] or key == "buffs" and L["Buff frames"])
+			return string.format(L["Hide %s"], L.units[key] or key == "cast" and L["Player cast bar"] or key == "runes" and L["Rune bar"] or key == "buffs" and L["Player buff frames"])
 		end,
 		set = function(info, value)
 			set(info, value)
@@ -3218,7 +3218,7 @@ local function loadUnitOptions()
 			},
 			tag = {
 				order = 7,
-				name = L["Text"],
+				name = L["Text/Tags"],
 				type = "group",
 				hidden = isModifiersSet,
 				childGroups = "tree",
