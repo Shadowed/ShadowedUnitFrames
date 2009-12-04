@@ -147,6 +147,10 @@ function ShadowUF:CheckUpgrade()
 			DEFAULT_CHAT_FRAME:AddMessage(L["[WARNING!] Configuration in SUF has been split into a separate addon, you will need to restart your game before you can open the configuration."])
 		end
 	end
+	
+	if( not ShadowUF.db.profile.healthColors.offline ) then
+		ShadowUF.db.profile.healthColors.offline = {r = 0.50, g = 0.50, b = 0.50}
+	end
 end
 	
 function ShadowUF:LoadUnits()
