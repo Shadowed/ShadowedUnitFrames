@@ -1153,7 +1153,7 @@ end
 -- Small helper function for creating bars with
 function Units:CreateBar(parent)
 	local bar = CreateFrame("StatusBar", nil, parent)
-	bar:SetFrameLevel(parent.topFrameLevel)
+	bar:SetFrameLevel(parent.topFrameLevel or 5)
 	bar.parent = parent
 	
 	bar.background = bar:CreateTexture(nil, "BORDER")
