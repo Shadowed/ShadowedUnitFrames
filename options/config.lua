@@ -4603,8 +4603,24 @@ local function loadVisibilityOptions()
 		order = function(info) return info[#(info)] == "global" and 1 or (getUnitOrder(info) + 1) end,
 		name = function(info) return info[#(info)] == "global" and L["Global"] or getName(info) end,
 		args = {
-			enabled = {
+			help = {
 				order = 0,
+				type = "group",
+				name = L["Help"],
+				inline = true,
+				hidden = hideBasicOption,
+				args = {
+					help = {
+						order = 0,
+						type = "description",
+						name = function(info)
+							return string.format(L["Disabling a module on this page disables it while inside %s. Do not disable a module here if you do not want this to happen!."], string.lower(L.areas[info[2]]))
+						end,
+					},		
+				}, 	
+			},
+			enabled = {
+				order = 0.25,
 				type = "toggle",
 				name = function(info)
 					local unit = info[#(info) - 1]
@@ -4627,7 +4643,7 @@ local function loadVisibilityOptions()
 	}
 	
 	local moduleTable = {
-		order = getModuleOrder,
+		order = 1,
 		type = "toggle",
 		name = getName,
 		desc = getHelp,
@@ -4667,7 +4683,7 @@ local function loadVisibilityOptions()
 					help = {
 						order = 0,
 						type = "description",
-						name = L["This page gives you finer control over what units and modules are enabled and in what zone. For example, should you want raid frames disabled only in arenas you or perhaps you want cast bars enabled in arenas for your target but nowhere else.\n\nGold checkmark - Enabled in this zone / Grey checkmark - Disabled in this zone / No checkmark - Use the default unit settings"],
+						name = L["Gold checkmark - Enabled in this zone / Grey checkmark - Disabled in this zone / No checkmark - Use the default unit settings"],
 					},
 				},
 			},
