@@ -15,14 +15,24 @@ end
 
 function XP:OnEnable(frame)
 	if( not frame.xpBar ) then
-		frame.xpBar = ShadowUF.Units:CreateBar(frame)
-		frame.xpBar:EnableMouse(true)
+		frame.xpBar = CreateFrame("Frame", nil, frame)
 		frame.xpBar:SetScript("OnEnter", OnEnter)
 		frame.xpBar:SetScript("OnLeave", OnLeave)
-
-		frame.xpBar.rested = CreateFrame("StatusBar", nil, frame.xpBar)
-		frame.xpBar.rested:SetFrameLevel(frame.xpBar:GetFrameLevel() - 1)
-		frame.xpBar.rested:SetAllPoints(frame.xpBar)
+		frame.xpBar:EnableMouse(true)
+		
+		frame.xpBar.xp = ShadowUF.Units:CreateBar(frame.xpBar)
+		frame.xpBar.xp:SetPoint("BOTTOMLEFT", frame.xpBar)
+		frame.xpBar.xp:SetPoint("BOTTOMRIGHT", frame.xpBar)
+				
+		if( frame.unitType == "player" ) then
+			frame.xpBar.rep = ShadowUF.Units:CreateBar(frame.xpBar)
+			frame.xpBar.rep:SetPoint("TOPLEFT", frame.xpBar)
+			frame.xpBar.rep:SetPoint("TOPRIGHT", frame.xpBar)
+		end
+		
+		frame.xpBar.rested = CreateFrame("StatusBar", nil, frame.xpBar.xp)
+		frame.xpBar.rested:SetFrameLevel(frame.xpBar.xp:GetFrameLevel() - 1)
+		frame.xpBar.rested:SetAllPoints(frame.xpBar.xp)
 	end
 	
 	frame:RegisterNormalEvent("ENABLE_XP_GAIN", self, "Update")
@@ -47,18 +57,19 @@ end
 
 function XP:OnLayoutApplied(frame)
 	if( frame.visibility.xpBar ) then
+		frame.xpBar.xp:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
+		frame.xpBar.xp:SetStatusBarColor(ShadowUF.db.profile.xpColors.normal.r, ShadowUF.db.profile.xpColors.normal.g, ShadowUF.db.profile.xpColors.normal.b, ShadowUF.db.profile.bars.alpha)
+		
+		frame.xpBar.xp.background:SetVertexColor(ShadowUF.db.profile.xpColors.normal.r, ShadowUF.db.profile.xpColors.normal.g, ShadowUF.db.profile.xpColors.normal.b, ShadowUF.db.profile.bars.backgroundAlpha)
+		frame.xpBar.xp.background:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
+		
 		frame.xpBar.rested:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
-	end
-end
-
-function XP:SetColor(frame)
-	if( frame.xpBar.type == "rep" ) then
-		frame.xpBar:SetStatusBarColor(FACTION_BAR_COLORS[frame.xpBar.reaction].r, FACTION_BAR_COLORS[frame.xpBar.reaction].g, FACTION_BAR_COLORS[frame.xpBar.reaction].b, ShadowUF.db.profile.bars.alpha)
-		frame.xpBar.background:SetVertexColor(FACTION_BAR_COLORS[frame.xpBar.reaction].r, FACTION_BAR_COLORS[frame.xpBar.reaction].g, FACTION_BAR_COLORS[frame.xpBar.reaction].b, ShadowUF.db.profile.bars.backgroundAlpha)
-	else
-		frame.xpBar:SetStatusBarColor(ShadowUF.db.profile.xpColors.normal.r, ShadowUF.db.profile.xpColors.normal.g, ShadowUF.db.profile.xpColors.normal.b, ShadowUF.db.profile.bars.alpha)
-		frame.xpBar.background:SetVertexColor(ShadowUF.db.profile.xpColors.normal.r, ShadowUF.db.profile.xpColors.normal.g, ShadowUF.db.profile.xpColors.normal.b, ShadowUF.db.profile.bars.backgroundAlpha)
 		frame.xpBar.rested:SetStatusBarColor(ShadowUF.db.profile.xpColors.rested.r, ShadowUF.db.profile.xpColors.rested.g, ShadowUF.db.profile.xpColors.rested.b, ShadowUF.db.profile.bars.alpha)
+
+		if( frame.xpBar.rep ) then
+			frame.xpBar.rep:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
+			frame.xpBar.rep.background:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
+		end
 	end
 end
 
@@ -76,35 +87,27 @@ end
 function XP:UpdateRep(frame)
 	local name, reaction, min, max, current = GetWatchedFactionInfo()
 	if( not name ) then
-		ShadowUF.Layout:SetBarVisibility(frame, "xpBar", false)
+		frame.xpBar.rep:Hide()
 		return
 	end
 	
-	-- Blizzard stores faction info related to Exalted, not your current level so do a little bit of mathier to get the current
-	-- reputations level information out
+	-- Blizzard stores faction info related to Exalted, not your current level, so get more mathier to find the current reputation using the current standing tier
 	current = math.abs(min - current)
 	max = math.abs(min - max)
 		
-	frame.xpBar:SetMinMaxValues(0, max)
-	frame.xpBar:SetValue(current)
-	frame.xpBar.type = "rep"
-	frame.xpBar.tooltip = string.format(L["%s (%s): %s/%s (%.2f%% done)"], name, GetText("FACTION_STANDING_LABEL" .. reaction, UnitSex("player")), formatNumber(current), formatNumber(max), (current / max) * 100)
-	frame.xpBar.reaction = reaction
-	frame.xpBar.rested:SetMinMaxValues(0, 1)
-	frame.xpBar.rested:SetValue(0)
-
-	XP:SetColor(frame)
-	ShadowUF.Layout:SetBarVisibility(frame, "xpBar", true)
+	local color = FACTION_BAR_COLORS[reaction]
+	frame.xpBar.rep:SetMinMaxValues(0, max)
+	frame.xpBar.rep:SetValue(reaction == 8 and max or current)
+	frame.xpBar.rep.tooltip = string.format(L["%s (%s): %s/%s (%.2f%% done)"], name, GetText("FACTION_STANDING_LABEL" .. reaction, UnitSex("player")), formatNumber(current), formatNumber(max), reaction == 8 and 100 or (current / max) * 100)
+	frame.xpBar.rep:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
+	frame.xpBar.rep.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
+	frame.xpBar.rep:Show()
 end
 
-function XP:Update(frame)
+function XP:UpdateXP(frame)
 	-- At the level cap or XP is disabled, or the pet is actually a vehicle right now, swap to reputation bar (or hide it)
 	if( UnitLevel(frame.unitOwner) == MAX_PLAYER_LEVEL or IsXPUserDisabled() or ( frame.unitOwner == "pet" and UnitExists("vehicle") ) ) then
-		if( frame.unitOwner == "player" ) then
-			self:UpdateRep(frame)
-		else
-			ShadowUF.Layout:SetBarVisibility(frame, "xpBar", false)
-		end
+		frame.xpBar.xp:Hide()
 		return
 	end
 	
@@ -116,22 +119,42 @@ function XP:Update(frame)
 	end
 	
 	local min = math.min(0, current)
-	frame.xpBar:SetMinMaxValues(min, max)
-	frame.xpBar:SetValue(current)
-	frame.xpBar.type = "xp"
-
+	frame.xpBar.xp:SetMinMaxValues(min, max)
+	frame.xpBar.xp:SetValue(current)
+	frame.xpBar.xp:Show()
+	
 	if( frame.unitOwner == "player" and GetXPExhaustion() ) then
 		frame.xpBar.rested:SetMinMaxValues(min, max)
 		frame.xpBar.rested:SetValue(math.min(current + GetXPExhaustion(), max))
-		frame.xpBar.tooltip = string.format(L["%s/%s (%.2f%% done), %s rested."], formatNumber(current), formatNumber(max), (current / max) * 100, formatNumber(GetXPExhaustion()))
+		frame.xpBar.rested:Show()
+		frame.xpBar.xp.tooltip = string.format(L["Level %s - %s: %s/%s (%.2f%% done), %s rested."], UnitLevel(frame.unitOwner), UnitLevel(frame.unitOwner) + 1, formatNumber(current), formatNumber(max), (current / max) * 100, formatNumber(GetXPExhaustion()))
 	else
-		frame.xpBar.rested:SetMinMaxValues(0, 1)
-		frame.xpBar.rested:SetValue(0)
-		frame.xpBar.tooltip = string.format(L["%s/%s (%.2f%% done)"], formatNumber(current), formatNumber(max), (current / max) * 100)
+		frame.xpBar.rested:Hide()
+		frame.xpBar.xp.tooltip = string.format(L["Level %s - %s: %s/%s (%.2f%% done)"], UnitLevel(frame.unitOwner), UnitLevel(frame.unitOwner) + 1, formatNumber(current), formatNumber(max), (current / max) * 100)
 	end
-	
-	-- Update coloring
-	self:SetColor(frame, frame.unitOwner)
-	ShadowUF.Layout:SetBarVisibility(frame, "xpBar", true)
 end
 
+function XP:Update(frame)
+	self:UpdateRep(frame)
+	self:UpdateXP(frame)
+
+	if( ( not frame.xpBar.rep or not frame.xpBar.rep:IsShown() ) and not frame.xpBar.xp:IsShown() ) then
+		ShadowUF.Layout:SetBarVisibility(frame, "xpBar", false)
+		return
+	end
+	
+	ShadowUF.Layout:SetBarVisibility(frame, "xpBar", true)
+	if( frame.xpBar.rep and frame.xpBar.rep:IsVisible() and frame.xpBar.xp:IsVisible() ) then
+		frame.xpBar.rep:SetHeight(frame.xpBar:GetHeight() * 0.48)
+		frame.xpBar.xp:SetHeight(frame.xpBar:GetHeight() * 0.48)
+		frame.xpBar.tooltip = frame.xpBar.rep.tooltip .. "\n" .. frame.xpBar.xp.tooltip
+
+	elseif( frame.xpBar.rep and frame.xpBar.rep:IsVisible() ) then
+		frame.xpBar.rep:SetHeight(frame.xpBar:GetHeight())
+		frame.xpBar.tooltip = frame.xpBar.rep.tooltip
+
+	elseif( frame.xpBar.xp:IsVisible() ) then
+		frame.xpBar.xp:SetHeight(frame.xpBar:GetHeight())
+		frame.xpBar.tooltip = frame.xpBar.xp.tooltip
+	end
+end
