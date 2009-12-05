@@ -502,7 +502,7 @@ end
 
 local function ShowMenu(self)
 	local menuFrame
-	if( self.unit == "player" ) then
+	if( self.unitOwner == "player" ) then
 		menuFrame = PlayerFrameDropDown
 	elseif( self.unitRealType == "party" ) then
 		menuFrame = getglobal("PartyMemberFrame" .. self.unitID .. "DropDown")
