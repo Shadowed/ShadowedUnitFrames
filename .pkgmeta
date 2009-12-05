@@ -29,7 +29,7 @@ externals:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0
         tag: latest
     options/libs/AceGUI-3.0-SharedMediaWidgets:
-        url: git://git.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline.git
+        url: svn://svn.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline/trunk
         tag: latest
 ignore:
 	- globalcheck.lua
