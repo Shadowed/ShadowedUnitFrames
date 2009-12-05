@@ -1243,6 +1243,14 @@ local function loadUnitOptions()
 	local function hideRaidOption(info)
 		return info[2] ~= "raid" and info[2] ~= "maintank" and info[2] ~= "mainassist"
 	end
+	
+	local function hideSplitOrRaidOption(info)
+		if( info[2] == "raid" and ShadowUF.db.profile.units.raid.frameSplit ) then
+			return true
+		end
+		
+		return hideRaidOption(info) 
+	end
 
 	-- Not every option should be changed via global settings
 	local function hideSpecialOptions(info)
@@ -2369,11 +2377,26 @@ local function loadUnitOptions()
 								end,
 								arg = "hideAnyRaid",
 							},
-							showInRaid = {
+							separateFrames = {
 								order = 3,
+								type = "toggle",
+								name = L["Separate raid frames"],
+								desc = L["Splits raid frames into individual frames for each raid group instead of one single frame.\nNOTE! You cannot drag each group frame individualy, but how they grow is set through the column and row growth options."],
+								hidden = function(info) return info[2] ~= "raid" end,	
+								arg = "frameSplit",
+							},
+							showInRaid = {
+								order = 4,
 								type = "toggle",
 								name = L["Show party as raid"],
 								hidden = hideRaidOption,
+								set = function(info, value)
+									setUnit(info, value)
+									
+									ShadowUF.Units:ReloadHeader("party")
+									ShadowUF.Units:ReloadHeader("raid")
+									ShadowUF.modules.movers:Update()
+								end,
 								arg = "showParty",
 							},
 						},
@@ -2473,7 +2496,7 @@ local function loadUnitOptions()
 								name = L["Max columns"],
 								min = 1, max = 20, step = 1,
 								arg = "maxColumns",
-								hidden = function(info) return info[2] == "boss" or info[2] == "arena" end,
+								hidden = function(info) return info[2] == "boss" or info[2] == "arena" or hideSplitOrRaidOption(info) end,
 							},
 							unitsPerColumn = {
 								order = 8,
@@ -2481,7 +2504,7 @@ local function loadUnitOptions()
 								name = L["Units per column"],
 								min = 1, max = 40, step = 1,
 								arg = "unitsPerColumn",
-								hidden = function(info) return info[2] == "boss" or info[2] == "arena" end,
+								hidden = function(info) return info[2] == "boss" or info[2] == "arena" or hideSplitOrRaidOption(info) end,
 							},
 						},
 					},
@@ -2523,7 +2546,7 @@ local function loadUnitOptions()
 								name = L["Group by"],
 								values = {["GROUP"] = L["Group number"], ["CLASS"] = L["Class"]},
 								arg = "groupBy",
-								hidden = false,
+								hidden = hideSplitOrRaidOption,
 							},
 							sortMethod = {
 								order = 5,
@@ -2544,7 +2567,7 @@ local function loadUnitOptions()
 							selectedGroups = {
 								order = 7,
 								type = "multiselect",
-								name = L["Raid groups to show"],
+								name = L["Groups to show"],
 								values = {string.format(L["Group %d"], 1), string.format(L["Group %d"], 2), string.format(L["Group %d"], 3), string.format(L["Group %d"], 4), string.format(L["Group %d"], 5), string.format(L["Group %d"], 6), string.format(L["Group %d"], 7), string.format(L["Group %d"], 8)},
 								set = function(info, key, value)
 									local tbl = getVariable(info[2], nil, nil, "filters")
@@ -3371,8 +3394,8 @@ local function loadUnitOptions()
 			ShadowUF:LoadUnits()
 
 			-- Update party frame visibility
-			if( unit == "raid" and ShadowUF.Units.unitFrames.party ) then
-				ShadowUF.Units:SetHeaderAttributes(ShadowUF.Units.unitFrames.party, "party")
+			if( unit == "raid" and ShadowUF.Units.headerFrames.party ) then
+				ShadowUF.Units:SetHeaderAttributes(ShadowUF.Units.headerFrames.party, "party")
 			end
 			
 			ShadowUF.modules.movers:Update()
