@@ -3,6 +3,7 @@
 ## Notes: Standby for witty TOC note.
 ## Author: Shadowed
 ## SavedVariables: ShadowedUFDB
+## OptionalDeps: Ace3, LibSharedMedia-3.0, LibHealComm-4.0, AceGUI-3.0-SharedMediaWidgets
 
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
