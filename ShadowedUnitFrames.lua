@@ -80,11 +80,6 @@ function ShadowUF:OnInitialize()
 end
 
 function ShadowUF:CheckUpgrade()
-	-- LHC-4.0 isn't found yet meaning they have to relog to load the new files in
-	if( not LibStub("LibHealComm-4.0", true) ) then
-		DEFAULT_CHAT_FRAME:AddMessage("[WARNING!] As this is your first time using this version of SUF, you will need to restart your game to avoid errors about LibHealComm-4.0 missing.")
-	end
-	
 	-- September 21th, 2009
 	for _, unit in pairs(self.units) do
 		if( self.db.profile.units[unit].indicators.role and not self.db.profile.units[unit].indicators.role.anchorTo ) then
@@ -168,9 +163,9 @@ function ShadowUF:LoadUnits()
 		end
 		
 		if( enabled ) then
-			self.Units:InitializeFrame(config, type)
+			self.Units:InitializeFrame(type)
 		else
-			self.Units:UninitializeFrame(config, type)
+			self.Units:UninitializeFrame(type)
 		end
 	end
 end
@@ -399,10 +394,10 @@ function ShadowUF:HideBlizzardFrames()
 	end
 end
 
-local function dummy() end
+ShadowUF.noop = function() end
 function ShadowUF:HideBlizzard(type)
 	if( type == "runes" ) then
-		RuneFrame.Show = dummy
+		RuneFrame.Show = self.noop
 		RuneFrame:Hide()
 	elseif( type == "buffs" ) then
 		BuffFrame:UnregisterEvent("UNIT_AURA")
@@ -410,21 +405,21 @@ function ShadowUF:HideBlizzard(type)
 		BuffFrame:Hide()
 	elseif( type == "player" ) then
 		PlayerFrame:UnregisterAllEvents()
-		PlayerFrame.Show = dummy
+		PlayerFrame.Show = self.noop
 		PlayerFrame:Hide()
 
 		PlayerFrameHealthBar:UnregisterAllEvents()
 		PlayerFrameManaBar:UnregisterAllEvents()
 	elseif( type == "pet" ) then
 		PetFrame:UnregisterAllEvents()
-		PetFrame.Show = dummy
+		PetFrame.Show = self.noop
 		PetFrame:Hide()
 
 		PetFrameHealthBar:UnregisterAllEvents()
 		PetFrameManaBar:UnregisterAllEvents()
 	elseif( type == "target" ) then
 		TargetFrame:UnregisterAllEvents()
-		TargetFrame.Show = dummy
+		TargetFrame.Show = self.noop
 		TargetFrame:Hide()
 
 		TargetFrameHealthBar:UnregisterAllEvents()
@@ -432,11 +427,11 @@ function ShadowUF:HideBlizzard(type)
 		TargetFrameSpellBar:UnregisterAllEvents()
 
 		ComboFrame:UnregisterAllEvents()
-		ComboFrame.Show = dummy
+		ComboFrame.Show = self.noop
 		ComboFrame:Hide()
 	elseif( type == "focus" ) then
 		FocusFrame:UnregisterAllEvents()
-		FocusFrame.Show = dummy
+		FocusFrame.Show = self.noop
 		FocusFrame:Hide()
 
 		FocusFrameHealthBar:UnregisterAllEvents()
@@ -451,7 +446,7 @@ function ShadowUF:HideBlizzard(type)
 			local frame = _G[party]
 
 			frame:UnregisterAllEvents()
-			frame.Show = dummy
+			frame.Show = self.noop
 			frame:Hide()
 
 			_G[party .. "HealthBar"]:UnregisterAllEvents()
@@ -479,7 +474,7 @@ SLASH_SHADOWEDUF4 = "/shadowedunitframes"
 SlashCmdList["SHADOWEDUF"] = function(msg)
 	local loaded, reason = LoadAddOn("ShadowedUF_Options")
 	if( not ShadowUF.Config ) then
-		DEFAULT_CHAT_FRAME:AddMessage(string.format(L["Failed to load ShadowedUF_Options, cannot load configuration. Error returned: %s"], reason and _G["ADDON_" .. reason] or ""))
+		DEFAULT_CHAT_FRAME:AddMessage(string.format(L["Failed to load ShadowedUF_Options, cannot open configuration. Error returned: %s"], reason and _G["ADDON_" .. reason] or ""))
 		return
 	end
 	

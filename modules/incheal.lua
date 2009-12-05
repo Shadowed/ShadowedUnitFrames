@@ -150,15 +150,3 @@ end
 function IncHeal:HealComm_GUIDDisappeared(event, guid)
 	self:UpdateIncoming(true, guid)
 end
-
--- "Upgrade code" remove later
-if( not HealComm ) then
-	local blank = function() end
-	IncHeal.OnEnable = blank
-	IncHeal.OnDisable = blank
-	IncHeal.EnableTag = blank
-	IncHeal.DisableTag = blank
-	IncHeal.Setup = blank
-	IncHeal.OnLayoutApplied = blank
-end
-
