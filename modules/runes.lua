@@ -1,4 +1,5 @@
 local Runes = {}
+local RUNE_MAP = {[1] = 1, [2] = 2, [3] = 5, [4] = 6, [5] = 3, [6] = 4}
 local runeColors
 ShadowUF:RegisterModule(Runes, "runeBar", ShadowUFLocals["Rune bar"], true, "DEATHKNIGHT")
 
@@ -12,6 +13,7 @@ function Runes:OnEnable(frame)
 		for id=1, 6 do
 			local rune = CreateFrame("StatusBar", nil, frame.runeBar)
 			rune:SetFrameLevel(1)
+			rune.id = RUNE_MAP[id]
 			rune.id = id
 			
 			if( id > 1 ) then
@@ -61,9 +63,9 @@ end
 
 -- Updates the timers on runes
 function Runes:UpdateUsable(frame, event, rune, available)
-	for id, indicator in pairs(frame.runeBar.runes) do
-		if( not rune or id == rune ) then
-			local startTime, cooldown, cooled = GetRuneCooldown(id)
+	for _, indicator in pairs(frame.runeBar.runes) do
+		if( not rune or indicator.id == rune ) then
+			local startTime, cooldown, cooled = GetRuneCooldown(indicator.id)
 			if( not cooled ) then
 				indicator.endTime = GetTime() + cooldown
 				indicator:SetMinMaxValues(startTime, indicator.endTime)
@@ -83,7 +85,7 @@ end
 -- No rune is passed for full update (Login), a single rune is passed when a single rune type changes, such as Blood Tap
 function Runes:Update(frame, event, rune)
 	for _, indicator in pairs(frame.runeBar.runes) do
-		if( not rune or indicator.id == id ) then
+		if( not rune or indicator.id == rune ) then
 			local color = runeColors[GetRuneType(indicator.id)]
 			indicator:SetStatusBarColor(color.r, color.g, color.b)
 		end
