@@ -24,11 +24,39 @@ local function OnLeave(self)
 	GameTooltip:Hide()
 end
 
+local function OnShow(self)
+	for frame in pairs(ShadowUF.Units.frameList) do
+		--frame:SetAlpha(0)
+		--frame.OrigSetAlpha = frame.SetAlpha
+		--frame.SetAlpha = ShadowUF.noop
+		
+		if( frame:IsShown() ) then
+			frame.wasVisible = true
+		--	frame:Hide()
+		end
+	end
+end
+
+local function OnHide(self)
+	for frame in pairs(ShadowUF.Units.frameList) do
+		if( frame.OrigSetAlpha ) then
+			frame.OrigSetAlpha = nil
+			frame.SetAlpha = frame.OrigSetAlpha
+		end
+		frame:SetAlpha(1)
+		
+		if( frame.wasVisible ) then
+			frame.wasVisible = nil
+			frame:Show()
+		end
+	end
+end
+
 function Movers:Enable()
 	-- Enable it for all units that are enabled
 	-- Create necessary frames
-	for unit, data in pairs(ShadowUF.db.profile.units) do
-		if( data.enabled and not childUnits[unit] ) then
+	for unit, config in pairs(ShadowUF.db.profile.units) do
+		if( config.enabled and not childUnits[unit] ) then
 			if( self.headers[unit] ) then
 				self:CreateHeader(unit)
 			else
@@ -59,6 +87,8 @@ function Movers:Enable()
 	frame:RegisterForDrag("LeftButton")
 	frame:EnableMouse(true)
 	frame:SetMovable(true)
+	frame:SetScript("OnShow", OnShow)
+	frame:SetScript("OnHide", OnHide)
 	frame:SetScript("OnDragStart", function(self)
 		self:StartMoving()
 	end)
@@ -125,22 +155,6 @@ function Movers:Enable()
 	self.infoFrame = frame
 end
 
-local function OnShow(self)
-	for frame in pairs(ShadowUF.Units.frameList) do
-		if( frame.unit == self.unit ) then
-			frame:SetAlpha(0)
-		end
-	end
-end
-
-local function OnHide(self)
-	for frame in pairs(ShadowUF.Units.frameList) do
-		if( frame.unit == self.unit ) then
-			frame:SetAlpha(1)
-		end
-	end
-end
-
 local function OnDragStart(self)
 	if( not self:IsMovable() ) then return end
 	
@@ -149,10 +163,12 @@ local function OnDragStart(self)
 	frame:StartMoving()
 	self.parentMover = frame
 	
-	local parent = ShadowUF.Units.unitFrames[frame.unitType]
-	if( parent ) then
-		frame.parent = parent
-		parent:SetAllPoints(frame)
+	if( frame.unitType == "raid" and ShadowUF.Units.headerFrames.raidParent and ShadowUF.Units.headerFrames.raidParent:IsVisible() ) then
+		frame.parent = ShadowUF.Units.headerFrames.raidParent
+		frame.isSplitFrame = true
+	else
+		frame.parent = ShadowUF.Units.headerFrames[frame.unitType] or ShadowUF.Units.unitFrames[frame.unitType]
+		frame.isSplitframe = nil
 	end
 end
 
@@ -168,45 +184,29 @@ local function OnDragStop(self)
 	local scale = frame:GetEffectiveScale()
 	local position = ShadowUF.db.profile.positions[frame.unitType]
 	local point, _, relativePoint, x, y = frame:GetPoint()
-	 
-	-- Thanks Mikk for the improved positioning code from LibWindows-1.1
-	local position = ShadowUF.db.profile.positions[frame.unitType]
-	local scale = frame:GetScale()
-	local left, right = frame:GetLeft() * scale, frame:GetRight() * scale
-	local top, bottom = frame:GetTop() * scale, frame:GetBottom() * scale
-	local parentWidth, parentHeight = UIParent:GetWidth(), UIParent:GetHeight()
-	local point, x, y = ""
 	
 	-- Figure out the horizontal anchor
-	if( left < (parentWidth - right) and left < math.abs((left + right) / 2 - parentWidth / 2) ) then
-		x = left
-		point = "LEFT"
-	elseif( (parentWidth - right) < math.abs((left + right) / 2 - parentWidth / 2) ) then
-		x = right - parentWidth
-		point = "RIGHT"
-	else
-		x = (left + right) / 2 - parentWidth / 2
+	if( frame.isHeaderFrame ) then
+		local left, right = frame:GetLeft() * scale, frame:GetRight() * scale
+		local top, bottom = frame:GetTop() * scale, frame:GetBottom() * scale
+		local parentWidth, parentHeight = UIParent:GetWidth(), UIParent:GetHeight()
+
+		if( ShadowUF.db.profile.units[frame.unitType].attribAnchorPoint == "RIGHT" ) then
+			x = right - parentWidth
+			point = "RIGHT"
+		else
+			x = left
+			point = "LEFT"
+		end
+		
+		if( ShadowUF.db.profile.units[frame.unitType].attribPoint == "TOP" ) then
+			y = top - parentHeight
+			point = "TOP" .. point
+		else
+			y = bottom
+			point = "BOTTOM" .. point
+		end
 	end
-	
-	-- Now for the vertical
-	local forcePoint = point ~= "" and ShadowUF.db.profile.units[frame.unitType].attribPoint
-	if( forcePoint == "TOP" ) then
-		y = top - parentHeight
-		point = "TOP" .. point
-	elseif( forcePoint == "BOTTOM" ) then
-		y = bottom
-		point = "BOTTOM" .. point
-	elseif( bottom < (parentHeight - top) and bottom < math.abs((bottom + top) / 2 - parentHeight / 2) ) then
-		y = bottom
-		point = "BOTTOM" .. point
-	elseif( parentHeight - top < math.abs((bottom + top) / 2 - parentHeight / 2) ) then
-		y = top - parentHeight
-		point = "TOP" .. point
-	else
-		y = (bottom + top) / 2 - parentHeight / 2
-	end
-	
-	point = point == "" and "CENTER" or point
 	
 	position.anchorTo = "UIParent"
 	position.movedAnchor = nil
@@ -228,29 +228,6 @@ local function OnDragStop(self)
 end
 
 -- Handles the header creation to mimick all the frames they have
-local function getRelativeAnchor(point)
-	if( not point ) then return end
-	if( point == "TOP") then
-		return "BOTTOM", 0, -1
-	elseif( point == "BOTTOM") then
-		return "TOP", 0, 1
-	elseif( point == "LEFT") then
-		return "RIGHT", 1, 0
-	elseif( point == "RIGHT") then
-		return "LEFT", -1, 0
-	elseif( point == "TOPLEFT") then
-		return "BOTTOMRIGHT", 1, -1
-	elseif( point == "TOPRIGHT") then
-		return "BOTTOMLEFT", -1, -1
-	elseif( point == "BOTTOMLEFT") then
-		return "TOPRIGHT", 1, 1
-	elseif( point == "BOTTOMRIGHT") then
-		return "TOPLEFT", -1, 1
-	else
-		return "CENTER", 0, 0
-	end
-end
-
 local function positionFrame(frame)
 	tempPositions[frame.unitType] = tempPositions[frame.unitType] or {}
 	table.wipe(tempPositions[frame.unitType])
@@ -358,7 +335,7 @@ function Movers:CreateHeader(type)
 				
 	-- Position all of the children headers so they mimick the real ones
 	local config = ShadowUF.db.profile.units[type]
-	local unitsPerColumn = config.unitsPerColumn or #(headerFrame.children)
+	local unitsPerColumn = config.frameSplit and 5 or config.unitsPerColumn or #(headerFrame.children)
 	local maxUnits = 0
 	if( config.filters ) then
 		for _, enabled in pairs(config.filters) do
@@ -371,10 +348,10 @@ function Movers:CreateHeader(type)
 	end
 	
 	local point = config.attribPoint or "TOP"
-    local relativePoint, xOffsetMulti, yOffsetMulti = getRelativeAnchor(point)
+    local relativePoint, xOffsetMulti, yOffsetMulti = ShadowUF.Layout:GetRelativeAnchor(point)
     local xMultiplier, yMultiplier = math.abs(xOffsetMulti), math.abs(yOffsetMulti)
-	local columnRelativePoint, colxMulti, colyMulti = getRelativeAnchor(config.attribAnchorPoint)
-    local maxColumns = config.maxColumns or 1
+	local columnRelativePoint, colxMulti, colyMulti = ShadowUF.Layout:GetRelativeAnchor(config.attribAnchorPoint)
+    local maxColumns = config.frameSplit and 8 or config.maxColumns or 1
 	local totalDisplayed = math.min(maxUnits, (maxColumns * unitsPerColumn))
 	local numColumns = math.ceil(totalDisplayed / unitsPerColumn)
     local x = (config.offset or 0) * xOffsetMulti
@@ -454,8 +431,6 @@ function Movers:CreateFrame(unit, unitType, dontPosition, parent)
 	moverFrame:SetScript("OnDragStop", OnDragStop)
 	moverFrame:SetScript("OnEnter", OnEnter)
 	moverFrame:SetScript("OnLeave", OnLeave)
-	moverFrame:SetScript("OnShow", OnShow)
-	moverFrame:SetScript("OnHide", OnHide)
 	moverFrame:SetFrameStrata("DIALOG")
 	moverFrame:SetClampedToScreen(true)
 	moverFrame:EnableMouse(true)
