@@ -1,10 +1,10 @@
-local Units = {unitFrames = {}, frameList = {}, loadedUnits = {}, unitEvents = {}}
+local Units = {headerFrames = {}, unitFrames = {}, frameList = {}, loadedUnits = {}, unitEvents = {}}
 Units.childUnits = {["partytarget"] = "party", ["partypet"] = "party", ["maintanktarget"] = "maintank", ["mainassisttarget"] = "mainassist", ["bosstarget"] = "boss", ["arenatarget"] = "arena", ["arenapet"] = "arena"}
 Units.zoneUnits = {["arena"] = "arena", ["boss"] = "raid"}
 
 local stateMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 local playerClass = select(2, UnitClass("player"))
-local unitFrames, frameList, unitEvents, childUnits, queuedCombat = Units.unitFrames, Units.frameList, Units.unitEvents, Units.childUnits, {}
+local unitFrames, headerFrames, frameList, unitEvents, childUnits, queuedCombat = Units.unitFrames, Units.headerFrames, Units.frameList, Units.unitEvents, Units.childUnits, {}
 local combatDebug = ""
 local _G = getfenv(0)
 
@@ -375,7 +375,7 @@ local function SetVisibility(self)
 				end
 			end
 			
-			-- Force disable modules for people who aren't the class for it
+			-- Force disable modules for people who aren't the appropriate class
 			if( module.moduleClass and module.moduleClass ~= playerClass ) then
 				enabled = nil
 			end
@@ -446,7 +446,7 @@ function Units:CheckVehicleStatus(frame, event, unit)
 			frame:FullUpdate()
 		end
 		
-		-- Keep track of what the players current unit is supposed to be, so things like auras can figure it out
+		-- Keep track of what the players current unit is supposed to be, so things like auras can figure out what unit to filter
 		if( frame.unitOwner == "player" ) then
 			ShadowUF.playerUnit = frame.unit
 		end
@@ -485,10 +485,10 @@ function Units:CheckPetUnitUpdated(frame, event, unit)
 	end
 end
 
+-- When raid1, raid2, raid3 are in a group with each other and raid1 or raid2 are in a vehicle and get kicked
+-- OnAttributeChanged won't do anything because the frame is already setup, however, the active unit is non-existant
+-- while the primary unit is. So if we see they're in a vehicle with this case, we force the full update to get the vehicle change
 function Units:CheckGroupedUnitStatus(frame)
-	-- When raid1, raid2, raid3 are in a group with each other and raid1 or raid2 are in a vehicle and get kicked
-	-- OnAttributeChanged won't do anything because the frame is already setup, however, the active unit is non-existant
-	-- while the primary unit is. So if we see they're in a vehicle with this case, we force the full update to get the vehicle change
 	if( frame.inVehicle and not UnitExists(frame.unit) and UnitExists(frame.unitOwner) ) then
 		frame.inVehicle = false
 		frame.unit = frame.unitOwner
@@ -762,14 +762,23 @@ function Units:CreateUnit(...)
 	return frame
 end
 
--- Update the main header
+-- Reload a header completely
 function Units:ReloadHeader(type)
-	local frame = unitFrames[type]
-	if( frame ) then
-		self:SetHeaderAttributes(frame, type)
-
-		ShadowUF.Layout:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[type])
+	if( ShadowUF.db.profile.units[type].frameSplit ) then
+		if( headerFrames.raidParent ) then
+			self:InitializeFrame("raid")
+		else
+			self:SetHeaderAttributes(headerFrames.raidParent, type)
+			ShadowUF.Layout:AnchorFrame(UIParent, headerFrames.raidParent, ShadowUF.db.profile.positions[type])
+			ShadowUF:FireModuleEvent("OnLayoutReload", type)
+		end
+	elseif( type == "raid" and not ShadowUF.db.profile.units[type].frameSplit and headerFrames.raidParent ) then
+		self:InitializeFrame("raid")
+	
+	elseif( headerFrames[type] ) then
+		self:SetHeaderAttributes(headerFrames[type], type)
 		ShadowUF:FireModuleEvent("OnLayoutReload", type)
+		ShadowUF.Layout:AnchorFrame(UIParent, headerFrames[type], ShadowUF.db.profile.positions[type])
 	end
 end
 
@@ -796,8 +805,6 @@ end
 
 function Units:SetHeaderAttributes(frame, type)
 	local config = ShadowUF.db.profile.units[type]
-	if( not config ) then return end
-	
 	local xMod = config.attribPoint == "LEFT" and 1 or config.attribPoint == "RIGHT" and -1 or 0
 	local yMod = config.attribPoint == "TOP" and -1 or config.attribPoint == "BOTTOM" and 1 or 0
 	
@@ -809,8 +816,37 @@ function Units:SetHeaderAttributes(frame, type)
 	frame:SetAttribute("yOffset", config.offset * yMod)
 	frame:SetAttribute("xMod", xMod)
 	frame:SetAttribute("yMod", yMod)
+	
+	-- Split up raid frame groups
+	if( config.frameSplit and type == "raid" ) then
+		local anchorPoint, relativePoint, xMod, yMod = ShadowUF.Layout:GetSplitRelativeAnchor(config.attribPoint, config.attribAnchorPoint)
+		local lastHeader = frame
+		for id=1, 8 do
+			local childHeader = headerFrames["raid" .. id]
+			if( childHeader and childHeader:IsVisible() ) then
+				childHeader:SetAttribute("minWidth", config.width)
+				childHeader:SetAttribute("minHeight", config.height)
 				
-	if( type == "raid" or type == "mainassist" or type == "maintank" ) then
+				if( childHeader ~= frame ) then
+					childHeader:SetAttribute("point", config.attribPoint)
+					childHeader:SetAttribute("sortMethod", config.sortMethod)
+					childHeader:SetAttribute("sortDir", config.sortOrder)
+					childHeader:SetAttribute("showPlayer", nil)
+					childHeader:SetAttribute("showParty", nil)
+					
+					childHeader:SetAttribute("xOffset", frame:GetAttribute("xOffset"))
+					childHeader:SetAttribute("yOffset", frame:GetAttribute("yOffset"))
+					
+					childHeader:ClearAllPoints()
+					childHeader:SetPoint(anchorPoint, lastHeader, relativePoint, config.columnSpacing * xMod, config.columnSpacing * yMod)
+	
+					lastHeader = childHeader
+				end
+			end	
+		end
+		
+	-- Normal raid, ma or mt
+	elseif( type == "raid" or type == "mainassist" or type == "maintank" ) then
 		local filter
 		if( config.filters ) then
 			for id, enabled in pairs(config.filters) do
@@ -851,12 +887,13 @@ function Units:SetHeaderAttributes(frame, type)
 		frame:SetAttribute("showParty", ( not ShadowUF.db.profile.units.raid.showParty or not ShadowUF.db.profile.units.raid.enabled ) and true or false)
 		frame:SetAttribute("showPlayer", config.showPlayer)
 	end
-
+	
 	-- Update the raid frames to if they should be showing raid or party
 	if( type == "party" or type == "raid" ) then
-		if( unitFrames.raid and unitFrames.party ) then
-			unitFrames.raid:SetAttribute("showParty", not unitFrames.party:GetAttribute("showParty"))
-			unitFrames.raid:SetAttribute("showPlayer", unitFrames.party:GetAttribute("showPlayer"))
+		local raid = headerFrames.raid and headerFrames.raid:IsVisible() or headerFrames.raidParent
+		if( raid and headerFrames.party ) then
+			raid:SetAttribute("showParty", not headerFrames.party:GetAttribute("showParty"))
+			raid:SetAttribute("showPlayer", headerFrames.party:GetAttribute("showPlayer"))
 		end
 		
 		-- Need to update our flags on the state monitor so it knows what to do
@@ -866,7 +903,7 @@ function Units:SetHeaderAttributes(frame, type)
 end
 
 -- Load a single unit such as player, target, pet, etc
-function Units:LoadUnit(config, unit)
+function Units:LoadUnit(unit)
 	-- Already be loaded, just enable
 	if( unitFrames[unit] ) then
 		RegisterUnitWatch(unitFrames[unit], unit == "pet")
@@ -880,10 +917,57 @@ function Units:LoadUnit(config, unit)
 	RegisterUnitWatch(frame, unit == "pet")
 end
 
+function Units:LoadSplitGroupHeader(type)
+	if( headerFrames.raid ) then headerFrames.raid:Hide() end
+	headerFrames.raidParent = nil
+
+	for id, enabled in pairs(ShadowUF.db.profile.units[type].filters) do
+		local frame = headerFrames["raid" .. id]
+		if( enabled ) then
+			if( not frame ) then
+				frame = CreateFrame("Frame", "SUFHeader" .. type .. id, UIParent, "SecureGroupHeaderTemplate")
+				frame:SetAttribute("template", "SecureUnitButtonTemplate")
+				frame:SetAttribute("initial-unitWatch", true)
+				frame:SetAttribute("showRaid", true)
+				frame:SetAttribute("groupFilter", id)
+				frame:UnregisterEvent("UNIT_NAME_UPDATE")
+				frame.initialConfigFunction = initializeUnit
+				frame.isHeaderFrame = true
+				frame.unitType = type
+				frame.splitParent = type
+				frame.groupID = id
+				headerFrames["raid" .. id] = frame
+			end
+			
+			frame:Show()
+			
+			if( not headerFrames.raidParent or headerFrames.raidParent.groupID > id ) then
+				headerFrames.raidParent = frame
+			end
+			
+		elseif( frame ) then
+			frame:Hide()	
+		end
+	end
+	
+	if( headerFrames.raidParent ) then
+		self:SetHeaderAttributes(headerFrames.raidParent, type)
+		ShadowUF.Layout:AnchorFrame(UIParent, headerFrames.raidParent, ShadowUF.db.profile.positions.raid)
+	end
+end
+
 -- Load a header unit, party or raid
-function Units:LoadGroupHeader(config, type)
-	if( unitFrames[type] ) then
-		unitFrames[type]:Show()
+function Units:LoadGroupHeader(type)
+	-- Any frames that were split out in this group need to be hidden
+	for _, headerFrame in pairs(headerFrames) do
+		if( headerFrame.splitParent == type ) then
+			headerFrame:Hide()
+		end
+	end
+	
+	-- Already created, so just reshow and we out
+	if( headerFrames[type] ) then
+		headerFrames[type]:Show()
 		
 		if( type == "party" ) then
 			stateMonitor:SetAttribute("partyDisabled", nil)
@@ -892,7 +976,7 @@ function Units:LoadGroupHeader(config, type)
 	end
 	
 	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent, "SecureGroupHeaderTemplate")
-	unitFrames[type] = headerFrame
+	headerFrames[type] = headerFrame
 
 	self:SetHeaderAttributes(headerFrame, type)
 	
@@ -935,9 +1019,9 @@ function Units:LoadGroupHeader(config, type)
 end
 
 -- Fake headers that are supposed to act like headers to the users, but are really not
-function Units:LoadZoneHeader(config, type)
-	if( unitFrames[type] ) then
-		unitFrames[type]:Show()
+function Units:LoadZoneHeader(type)
+	if( headerFrames[type] ) then
+		headerFrames[type]:Show()
 		return
 	end
 	
@@ -948,7 +1032,7 @@ function Units:LoadZoneHeader(config, type)
 	headerFrame:SetMovable(true)
 	headerFrame:SetHeight(0.1)
 	headerFrame.children = {}
-	unitFrames[type] = headerFrame
+	headerFrames[type] = headerFrame
 	
 	if( type == "arena" ) then
 		headerFrame:SetScript("OnAttributeChanged", function(self, key, value)
@@ -1072,11 +1156,13 @@ function Units:LoadChildUnit(parent, type, id)
 end
 
 -- Initialize units
-function Units:InitializeFrame(config, type)
-	if( type == "party" or type == "raid" or type == "maintank" or type == "mainassist" ) then
-		self:LoadGroupHeader(config, type)
+function Units:InitializeFrame(type)
+	if( type == "raid" and ShadowUF.db.profile.units[type].frameSplit ) then
+		self:LoadSplitGroupHeader(type)
+	elseif( type == "party" or type == "raid" or type == "maintank" or type == "mainassist" ) then
+		self:LoadGroupHeader(type)
 	elseif( self.zoneUnits[type] ) then
-		self:LoadZoneHeader(config, type)
+		self:LoadZoneHeader(type)
 	elseif( self.childUnits[type] ) then
 		for frame in pairs(frameList) do
 			if( frame.unitType == self.childUnits[type] and ShadowUF.db.profile.units[frame.unitType] ) then
@@ -1084,25 +1170,31 @@ function Units:InitializeFrame(config, type)
 			end
 		end
 	else
-		self:LoadUnit(config, type)
+		self:LoadUnit(type)
 	end
 end
 
 -- Uninitialize units
-function Units:UninitializeFrame(config, type)
+function Units:UninitializeFrame(type)
 	-- Disables showing party in raid automatically if raid frames are disabled
 	if( type == "party" ) then
 		stateMonitor:SetAttribute("partyDisabled", true)
-	elseif( type == "raid" and unitFrames.party ) then
-		unitFrames.party:SetAttribute("showParty", true)
+	elseif( type == "raid" and headerFrames.party ) then
+		headerFrames.party:SetAttribute("showParty", true)
 	end
-
+	
 	-- Disable the parent and the children will follow
-	if( unitFrames[type] and unitFrames[type].isHeaderFrame ) then
-		unitFrames[type]:Hide()
+	if( ShadowUF.db.profile.units[type].frameSplit ) then
+		for _, headerFrame in pairs(headerFrames) do
+			if( headerFrame.splitParent == type ) then
+				headerFrame:Hide()
+			end
+		end
+	elseif( headerFrames[type] ) then
+		headerFrames[type]:Hide()
 		
-		if( unitFrames[type].children ) then
-			for _, frame in pairs(unitFrames[type].children) do
+		if( headerFrames[type].children ) then
+			for _, frame in pairs(headerFrames[type].children) do
 				frame:Hide()
 			end
 		end
@@ -1143,8 +1235,8 @@ function Units:ProfileChanged()
 		end
 	end
 	
-	for _, frame in pairs(unitFrames) do
-		if( frame.isHeaderFrame and ShadowUF.db.profile.units[frame.unitType].enabled ) then
+	for _, frame in pairs(headerFrames) do
+		if( ShadowUF.db.profile.units[frame.unitType].enabled ) then
 			self:ReloadHeader(frame.unitType)
 		end
 	end

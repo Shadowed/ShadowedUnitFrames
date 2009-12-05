@@ -193,8 +193,43 @@ function Layout:ReverseDirection(key)
 	return key == "LEFT" and "RIGHT" or key == "RIGHT" and "LEFT" or key == "TOP" and "BOTTOM" or key == "BOTTOM" and "TOP"
 end
 
+-- Gets the relative anchoring for Blizzards default raid frames, these differ from the split ones
 function Layout:GetRelativeAnchor(point)
-	return point == "TOP" and "BOTTOM" or point == "BOTTOM" and "TOP" or point == "RIGHT" and "LEFT" or point == "TOPLEFT" and "BOTTOMRIGHT" or point == "TOPRIGHT" and "BOTTOMLEFT" or point == "BOTTOMLEFT" and "TOPRIGHT" or point == "BOTTOMRIGHT" and "TOPLEFT" or "CENTER"
+	if( point == "TOP" ) then
+		return "BOTTOM", 0, -1
+	elseif( point == "BOTTOM" ) then
+		return "TOP", 0, 1
+	elseif( point == "LEFT" ) then
+		return "RIGHT", 1, 0
+	elseif( point == "RIGHT" ) then
+		return "LEFT", -1, 0
+	elseif( point == "TOPLEFT" ) then
+		return "BOTTOMRIGHT", 1, -1
+	elseif( point == "TOPRIGHT" ) then
+		return "BOTTOMLEFT", -1, -1
+	elseif( point == "BOTTOMLEFT" ) then
+		return "TOPRIGHT", 1, 1
+	elseif( point == "BOTTOMRIGHT" ) then
+		return "TOPLEFT", -1, 1
+	else
+		return "CENTER", 0, 0
+	end
+end
+
+function Layout:GetSplitRelativeAnchor(point, columnPoint)
+	-- Column is growing to the RIGHT
+	if( columnPoint == "LEFT" ) then
+		return "TOPLEFT", "TOPRIGHT", 1, 0
+	-- Column is growing to the LEFT
+	elseif( columnPoint == "RIGHT" ) then
+		return "TOPRIGHT", "TOPLEFT", -1, 0
+	-- Column is growing DOWN
+	elseif( columnPoint == "TOP" ) then
+		return "TOP" .. point, "BOTTOM" .. point, 0, -1
+	-- Column is growing UP
+	elseif( columnPoint == "BOTTOM" ) then
+		return "BOTTOM" .. point, "TOP" .. point, 0, 1
+	end
 end
 
 function Layout:AnchorFrame(parent, frame, config)
