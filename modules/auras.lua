@@ -9,6 +9,11 @@ function Auras:OnEnable(frame)
 	frame:RegisterNormalEvent("PLAYER_ENTERING_WORLD", self, "Update")
 	frame:RegisterUnitEvent("UNIT_AURA", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
+
+	self:UpdateFilter(frame)
+end
+
+function Auras:OnLayoutApplied(frame)
 	self:UpdateFilter(frame)
 end
 
