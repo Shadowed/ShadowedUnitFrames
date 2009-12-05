@@ -85,6 +85,7 @@ local function formatNumber(number)
 end
 
 function XP:UpdateRep(frame)
+	if( not frame.xpBar.rep ) then return end
 	local name, reaction, min, max, current = GetWatchedFactionInfo()
 	if( not name ) then
 		frame.xpBar.rep:Hide()
