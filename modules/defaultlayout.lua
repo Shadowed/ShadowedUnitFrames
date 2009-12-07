@@ -94,6 +94,13 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		shadowX = 0.80,
 		shadowY = -0.80,
 	}
+	
+	-- Some localizations do not work with Myriad Condensed Web, need to automatically swap it to a localization that will work for it
+	local SML = LibStub:GetLibrary("LibSharedMedia-3.0")
+	if( GetLocale() == "koKR" or GetLocale() == "zhCN" or GetLocale() == "zhTW" or GetLocale() == "ruRU" ) then
+		config.font.name = SML.DefaultMedia.font
+	end
+	
 	config.classColors = {
 		HUNTER = {r = 0.67, g = 0.83, b = 0.45},
 		WARLOCK = {r = 0.58, g = 0.51, b = 0.79},

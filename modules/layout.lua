@@ -118,7 +118,7 @@ function Layout:Load(frame)
 end
 
 -- Register it on file load because authors seem to do a bad job at registering the callbacks
-SML = SML or LibStub:GetLibrary("LibSharedMedia-3.0")
+SML = LibStub:GetLibrary("LibSharedMedia-3.0")
 SML:Register(SML.MediaType.FONT, "Myriad Condensed Web", "Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf")
 SML:Register(SML.MediaType.BORDER, "Square Clean", "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\ABFBorder")
 SML:Register(SML.MediaType.BACKGROUND, "Chat Frame", "Interface\\ChatFrame\\ChatFrameBackground")
