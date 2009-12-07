@@ -890,7 +890,7 @@ function Units:SetHeaderAttributes(frame, type)
 	
 	-- Update the raid frames to if they should be showing raid or party
 	if( type == "party" or type == "raid" ) then
-		local raid = headerFrames.raid and headerFrames.raid:IsVisible() or headerFrames.raidParent
+		local raid = headerFrames.raid and headerFrames.raid:IsVisible() and headerFrames.raid or headerFrames.raidParent
 		if( raid and headerFrames.party ) then
 			raid:SetAttribute("showParty", not headerFrames.party:GetAttribute("showParty"))
 			raid:SetAttribute("showPlayer", headerFrames.party:GetAttribute("showPlayer"))
