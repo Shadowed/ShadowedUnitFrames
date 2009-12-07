@@ -17,7 +17,7 @@ for i=1, 5 do ShadowUF.arenaUnits[i] = "arena" .. i end
 if( ShadowUF.isBuild30300 ) then
 	table.insert(ShadowUF.units, "boss")
 	table.insert(ShadowUF.units, "bosstarget")
-	for i=1, MAX_BOSS_FRAMES do table.insert(ShadowUF.bossUnits[i], "boss" .. i) end
+	for i=1, MAX_BOSS_FRAMES do table.insert(ShadowUF.bossUnits, "boss" .. i) end
 end
 
 function ShadowUF:OnInitialize()
