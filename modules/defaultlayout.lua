@@ -251,7 +251,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			},
 			indicators = {
 				role = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 30, y = -10},
-				lfdRole = {enabled = true, size = 16, x = 6, y = 14, anchorTo = "$parent"}
+				lfdRole = {enabled = true, anchorPoint = "BR", size = 16, x = 6, y = 14, anchorTo = "$parent"}
 			},
 			text = {
 				{text = "[(()afk() )][name][( ()group())]"},
@@ -274,7 +274,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			},
 			indicators = {
 				role = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 30, y = -10},
-				lfdRole = {enabled = true, size = 16, x = 6, y = 14, anchorTo = "$parent"}
+				lfdRole = {enabled = true, anchorPoint = "BR", size = 16, x = 6, y = 14, anchorTo = "$parent"}
 			},
 			text = {
 				{text = "[(()afk() )][name]"},

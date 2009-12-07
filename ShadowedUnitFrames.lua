@@ -15,8 +15,8 @@ for i=1, MAX_RAID_MEMBERS do ShadowUF.raidUnits[i] = "raid" .. i end
 for i=1, 5 do ShadowUF.arenaUnits[i] = "arena" .. i end
 
 if( ShadowUF.isBuild30300 ) then
-	table.insert(ShadowUF.units, "boss")
-	table.insert(ShadowUF.units, "bosstarget")
+	table.insert(ShadowUF.units, 13, "boss")
+	table.insert(ShadowUF.units, 14, "bosstarget")
 	for i=1, MAX_BOSS_FRAMES do table.insert(ShadowUF.bossUnits, "boss" .. i) end
 end
 
@@ -106,7 +106,7 @@ function ShadowUF:CheckUpgrade()
 	end
 	
 	-- December 1th, 2009
-	if( not self.db.profile.units.player.indicators.lfdRole.anchorTo and not self.db.profile.units.party.indicators.lfdRole.anchorTo ) then
+	if( not self.db.profile.units.player.indicators.lfdRole.anchorPoint and not self.db.profile.units.party.indicators.lfdRole.anchorPoint ) then
 		self.db.profile.units.player.indicators.lfdRole = {enabled = true, size = 16, x = 6, y = 14, anchorPoint = "BR", anchorTo = "$parent"}
 		self.db.profile.units.party.indicators.lfdRole = {enabled = true, size = 16, x = 6, y = 14, anchorPoint = "BR", anchorTo = "$parent"}
 	end
