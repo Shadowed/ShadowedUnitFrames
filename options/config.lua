@@ -1120,7 +1120,7 @@ local function loadGeneralOptions()
 				type = "group",
 				order = 6,
 				name = L["Text management"],
-				hidden = hideAdvancedOption,
+				hidden = false,
 				args = {
 					help = {
 						order = 0,
