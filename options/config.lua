@@ -81,7 +81,16 @@ local function hideBasicOption(info)
 end
 
 local function isUnitDisabled(info)
-	return not ShadowUF.db.profile.units[info[#(info)]].enabled
+	local unit = info[#(info)]
+	local enabled = ShadowUF.db.profile.units[unit].enabled
+	for _, visibility in pairs(ShadowUF.db.profile.visibility) do
+		if( visibility[unit] ) then
+			enabled = visibility[unit]
+			break
+		end
+	end
+	
+	return not enabled
 end
 
 local function mergeTables(parent, child)
