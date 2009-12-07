@@ -21,6 +21,11 @@ local unitCategories = {
 	raid = {"raid", "maintank", "maintanktarget", "mainassist", "mainassisttarget"},
 	arena = {"arena", "arenapet", "arenatarget"}}
 
+if( ShadowUF.isBuild30300 ) then
+	table.insert(unitCategories.raid, 2, "boss")
+	table.insert(unitCategories.raid, 3, "bosstarget")
+end
+	
 local pointPositions = {["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["CENTER"] = L["Center"]}
 local positionList = {["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
 
@@ -3414,15 +3419,21 @@ local function loadUnitOptions()
 		end,
 		desc = function(info)
 			local unit = info[#(info)]
+			local unitDesc = L.unitDesc[unit] or ""
+			
 			if( ShadowUF.db.profile.units[unit].enabled and ShadowUF.Units.childUnits[unit] ) then
-				return string.format(L["This unit depends on another to work, disabling %s will disable %s."], L.units[ShadowUF.Units.childUnits[unit]], L.units[unit])
+				if( unitDesc ~= "" ) then unitDesc = unitDesc .. "\n\n" end
+				return unitDesc .. string.format(L["This unit depends on another to work, disabling %s will disable %s."], L.units[ShadowUF.Units.childUnits[unit]], L.units[unit])
 			elseif( not ShadowUF.db.profile.units[unit].enabled ) then 
 				for child, parent in pairs(ShadowUF.Units.childUnits) do
 					if( parent == unit ) then
-						return L["This unit has child units that depend on it, you need to enable this unit before you can enable its children."]
+						if( unitDesc ~= "" ) then unitDesc = unitDesc .. "\n\n" end
+						return unitDesc .. L["This unit has child units that depend on it, you need to enable this unit before you can enable its children."]
 					end
 				end
 			end
+			
+			return unitDesc ~= "" and unitDesc
 		end,
 		disabled = function(info)
 			local unit = info[#(info)]
