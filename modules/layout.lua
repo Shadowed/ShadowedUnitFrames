@@ -272,7 +272,7 @@ function Layout:AnchorFrame(parent, frame, config)
 	local relativePoint = config.relativePoint and config.relativePoint ~= "" and config.relativePoint or preDefRelative[config.anchorPoint] or "CENTER"
 
 	-- Effective scaling is only used for unit based frames and if they are anchored to UIParent
-	local scale = config.anchorTo == "UIParent" and frame.unitType and frame:GetEffectiveScale() or 1
+	local scale = config.anchorTo == "UIParent" and frame.unitType and GetCVarBool("useUiScale") and frame:GetEffectiveScale() or 1
 	
 	frame:ClearAllPoints()
 	frame:SetPoint(point, anchorTo, relativePoint, config.x / scale, config.y / scale)

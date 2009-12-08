@@ -181,29 +181,25 @@ local function OnDragStop(self)
 	
 	-- When dragging the frame around, Blizzard changes the anchoring based on the closet portion of the screen
 	-- When a widget is near the top left it uses top left, near the left it uses left and so on, which messes up positioning for header frames
-	local scale = frame:GetEffectiveScale()
+	local scale = GetCVarBool("useUiScale") and frame:GetEffectiveScale() or 1
 	local position = ShadowUF.db.profile.positions[frame.unitType]
-	local point, _, relativePoint, x, y = frame:GetPoint()
+	local point, _, _, x, y = frame:GetPoint()
 	
 	-- Figure out the horizontal anchor
 	if( frame.isHeaderFrame ) then
-		local left, right = frame:GetLeft() * scale, frame:GetRight() * scale
-		local top, bottom = frame:GetTop() * scale, frame:GetBottom() * scale
-		local parentWidth, parentHeight = UIParent:GetWidth(), UIParent:GetHeight()
-
 		if( ShadowUF.db.profile.units[frame.unitType].attribAnchorPoint == "RIGHT" ) then
-			x = right - parentWidth
+			x = frame:GetRight() - GetScreenWidth()
 			point = "RIGHT"
 		else
-			x = left
+			x = frame:GetLeft()
 			point = "LEFT"
 		end
 		
 		if( ShadowUF.db.profile.units[frame.unitType].attribPoint == "TOP" ) then
-			y = top - parentHeight
+			y = frame:GetTop() - GetScreenHeight()
 			point = "TOP" .. point
 		else
-			y = bottom
+			y = frame:GetBottom()
 			point = "BOTTOM" .. point
 		end
 	end
@@ -213,9 +209,9 @@ local function OnDragStop(self)
 	position.anchorPoint = ""
 	position.point = point
 	position.relativePoint = point
-	position.x = (x / scale) * frame:GetEffectiveScale()
-	position.y = (y / scale) * frame:GetEffectiveScale()
-		
+	position.x = x * scale
+	position.y = y * scale
+	
 	ShadowUF.Layout:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[frame.unitType])
 
 	-- Unlock the parent frame from the mover now too
