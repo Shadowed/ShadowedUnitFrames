@@ -1,6 +1,6 @@
-## Interface: 30200
+## Interface: 30300
 ## Title: Shadowed Unit Frames
-## Notes: Standby for witty TOC note.
+## Notes: Your advertisement here, for 10 low payments of $19.99, act now this is a $39.99 deal, a 49.98749% savings!
 ## Author: Shadowed
 ## SavedVariables: ShadowedUFDB
 ## OptionalDeps: Ace3, LibSharedMedia-3.0, LibHealComm-4.0, AceGUI-3.0-SharedMediaWidgets

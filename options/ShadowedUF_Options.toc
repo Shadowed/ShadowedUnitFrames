@@ -1,4 +1,4 @@
-## Interface: 30200
+## Interface: 30300
 ## Title: Shadowed UF (Options)
 ## Notes: Configuration for Shadowed Unit Frames.
 ## Author: Shadowed
