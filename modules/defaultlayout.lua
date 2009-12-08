@@ -383,7 +383,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				debuffs = {enabled = false},
 			},
 			text = {
-				{text = "[(()afk() )][group ( )][name]"},
+				{text = "[(()afk() )][group( )][name]"},
 				{text = "[curmaxhp]"},
 				{text = "[perpp]"},
 				{text = "[curmaxpp]"},
@@ -399,7 +399,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				debuffs = {enabled = false},
 			},
 			text = {
-				{text = "[(()afk() )][group ( )][name]"},
+				{text = "[(()afk() )][group( )][name]"},
 				{text = "[curmaxhp]"},
 				{text = "[classification( )][perpp]", width = 0.50},
 				{text = "[curmaxpp]", anchorTo = "$powerBar", width = 0.60},
@@ -422,7 +422,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				debuffs = {enabled = false},
 			},
 			text = {
-				{text = "[(()afk() )][group ( )][name]"},
+				{text = "[(()afk() )][group( )][name]"},
 				{text = "[curmaxhp]"},
 				{text = "[level( )][perpp]"},
 				{text = "[curmaxpp]"},
@@ -438,7 +438,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				debuffs = {enabled = false},
 			},
 			text = {
-				{text = "[(()afk() )][group ( )][name]"},
+				{text = "[(()afk() )][group( )][name]"},
 				{text = "[curmaxhp]"},
 				{text = "[level( )][classification( )][perpp]", width = 0.50},
 				{text = "[curmaxpp]", anchorTo = "$powerBar", width = 0.60},
