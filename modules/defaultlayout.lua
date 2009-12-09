@@ -130,7 +130,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		tapped = {r = 0.5, g = 0.5, b = 0.5},
 		red = {r = 0.90, g = 0.0, b = 0.0},
 		green = {r = 0.20, g = 0.90, b = 0.20},
-		static = {r = 0.20, g = 0.90, b = 0.20},
+		static = {r = 0.40, g = 0.40, b = 0.80},
 		yellow = {r = 0.93, g = 0.93, b = 0.0},
 		inc = {r = 0, g = 0.35, b = 0.23},
 		enemyUnattack = {r = 0.60, g = 0.20, b = 0.20},
