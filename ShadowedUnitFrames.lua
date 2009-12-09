@@ -267,6 +267,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.party.auras.debuffs.maxRows = 1
 	self.defaults.profile.units.party.auras.buffs.maxRows = 1
 	self.defaults.profile.units.party.offset = 0
+	self.defaults.profile.units.party.columnSpacing = 0
 	self.defaults.profile.units.party.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.party.combatText.enabled = false
 	self.defaults.profile.units.party.indicators.lfdRole = {enabled = true, size = 0, x = 0, y = 0}
