@@ -37,6 +37,11 @@ local function updateTimer(self)
 		end
 	end
 
+	-- Update incoming heal number
+	if( self.parent.incHeal and self.parent.incHeal.total ) then
+		self.parent.incHeal:SetValue(currentHealth + self.parent.incHeal.total)
+	end
+	
 	-- The target is not offline, and we have a health percentage so update the gradient
 	if( not self.parent.healthBar.wasOffline and self.parent.healthBar.hasPercent ) then
 		Health:SetBarColor(self.parent.healthBar, getGradientColor(self.parent.unit))

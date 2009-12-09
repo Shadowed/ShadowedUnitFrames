@@ -113,6 +113,7 @@ local function updateHealthBar(frame, interrupted)
 			frame.incHeal:SetValue(frame.incHeal.total)
 			frame.incHeal:Show()
 		else
+			frame.incHeal.total = nil
 			frame.incHeal:Hide()
 		end
 	end
