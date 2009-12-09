@@ -25,7 +25,44 @@ if( ShadowUF.isBuild30300 ) then
 	table.insert(unitCategories.raid, 2, "boss")
 	table.insert(unitCategories.raid, 3, "bosstarget")
 end
-	
+
+local UNIT_NAMES = {
+	["arena"] = L["Arena"], ["arenapet"] = L["Arena Pet"], ["arenatarget"] = L["Arena Target"],
+	["boss"] = L["Boss"], ["bosstarget"] = L["Boss Target"],
+	["focus"] = L["Focus"], ["focustarget"] = L["Focus Target"],
+	["mainassist"] = L["Main Assist"], ["mainassisttarget"] = L["Main Assist Target"],
+	["maintank"] = L["Main Tank"], ["maintanktarget"] = L["Main Tank Target"],
+	["party"] = L["Party"], ["partypet"] = L["Party Pet"], ["partytarget"] = L["Party Target"],
+	["player"] = L["Player"], ["pet"] = L["Pet"], ["pettarget"] = L["Pet Target"],
+	["target"] = L["Target"], ["targettarget"] = L["Target of Target"],["targettargettarget"] = L["Target of Target of Target"],
+	["raid"] = L["Raid"], ["PET"] = L["Pet"], ["VEHICLE"] = L["Vehicle"],
+}
+
+local UNIT_DESC = {
+	["boss"] = L["Boss units are for council type of fights, Iron Council, Illidari Council, Blood Princes. They do not work for every boss fight."],
+	["mainassist"] = L["Main Assists's are set by the Blizzard Main Assist system or mods that use them such as oRA3."],
+	["maintank"] = L["Main Tank's are set by the Blizzard Main Tank system or mods that use them such as oRA3."],
+}
+
+local PAGE_DESC = {
+	["general"] = L["General configuration to all enabled units."],
+	["enableUnits"] = L["Various units can be enabled through this page, such as raid or party targets."],
+	["hideBlizzard"] = L["Hiding and showing various aspects of the default UI such as the player buff frames."],
+	["units"] = L["Configuration to specific unit frames."],
+	["visibility"] = L["Disabling unit modules in various instances."],
+	["tags"] = L["Advanced tag management, allows you to add your own custom tags."],
+	["filter"] = L["Simple aura filtering by whitelists and blacklists."],
+}
+local AREA_NAMES = {["arena"] = "Arenas",["none"] = "Everywhere else", ["party"] = "Party instances", ["pvp"] = "Battlegrounds", ["raid"] = "Raid instances",}
+local INDICATOR_NAMES = {["happiness"] = L["Happiness"], ["leader"] = L["Leader"], ["lfdRole"] = L["Dungeon Role"], ["masterLoot"] = L["Master looter"], ["pvp"] = L["PvP Flag"],["raidTarget"] = L["Raid target"], ["ready"] = L["Ready status"], ["role"] = L["Raid role"], ["status"] = L["Combat status"],}
+local AREA_NAMES = {["arena"] = "Arenas",["none"] = "Everywhere else", ["party"] = "Party instances", ["pvp"] = "Battlegrounds", ["raid"] = "Raid instances",}
+local INDICATOR_DESC = {["happiness"] = "Indicator for your pet's happiness, only applies to Hunters.",
+		["leader"] = "Crown indicator for group leaders.", ["lfdRole"] = "Role the unit is playing in dungeons formed through the Looking For Dungeon system.",
+		["masterLoot"] = "Bag indicator for master looters.", ["pvp"] = "PVP flag indicator, Horde for Horde flagged pvpers and Alliance for Alliance flagged pvpers.",
+		["raidTarget"] = "Raid target indicator.", ["ready"] = "Ready status of group members.",
+		["role"] = "Raid role indicator, adds a shield indicator for main tanks and a sword icon for main assists.", ["status"] = "Status indicator, shows if the unit is currently in combat. For the plyer it will also show if you are rested.",}
+local TAG_GROUPS = {["classification"] = "Classifications", ["health"] = "Health", ["misc"] = "Miscellaneous", ["playerthreat"] = "Player threat", ["power"] = "Power", ["status"] = "Status", ["threat"] = "Threat",}
+
 local pointPositions = {["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["CENTER"] = L["Center"]}
 local positionList = {["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
 
@@ -35,6 +72,10 @@ local fullReload = {["bars"] = true, ["auras"] = true, ["backdrop"] = true, ["fo
 local quickIDMap = {}
 
 -- Helper functions
+local function getPageDescription(info)
+	return PAGE_DESC[info[#(info)]]
+end
+
 local function getFrameName(unit)
 	if( unit == "raid" or unit == "party" or unit == "maintank" or unit == "mainassist" or unit == "boss" or unit == "arena" ) then
 		return string.format("#SUFHeader%s", unit)
@@ -49,7 +90,7 @@ local function getAnchorParents(info)
 	for k in pairs(anchorList) do anchorList[k] = nil end
 	
 	if( ShadowUF.Units.childUnits[unit] ) then
-		anchorList["$parent"] = string.format(L["%s member"], L.units[ShadowUF.Units.childUnits[unit]])
+		anchorList["$parent"] = string.format(L["%s member"], UNIT_NAMES[ShadowUF.Units.childUnits[unit]])
 		return anchorList
 	end
 	
@@ -59,7 +100,7 @@ local function getAnchorParents(info)
 	local currentName = getFrameName(unit)
 	for _, unitID in pairs(ShadowUF.units) do
 		if( unitID ~= unit and ShadowUF.db.profile.positions[unitID] and ShadowUF.db.profile.positions[unitID].anchorTo ~= currentName ) then
-			anchorList[getFrameName(unitID)] = string.format(L["%s frames"], L.units[unitID])
+			anchorList[getFrameName(unitID)] = string.format(L["%s frames"], UNIT_NAMES[unitID])
 		end
 	end
 	
@@ -118,7 +159,7 @@ local function getName(info)
 		return ShadowUF.modules[key].moduleName
 	end
 	
-	return LOCALIZED_CLASS_NAMES_MALE[key] or L.indicators[key] or L.units[key] or L.tags[key] or L[key]
+	return LOCALIZED_CLASS_NAMES_MALE[key] or INDICATOR_NAMES[key] or UNIT_NAMES[key] or TAG_GROUPS[key] or L[key]
 end
 
 local function getUnitOrder(info)
@@ -322,21 +363,6 @@ local function loadGeneralOptions()
 		return MediaList[mediaType]
 	end
 	
-	Config.hideTable = {
-		order = 0,
-		type = "toggle",
-		name = function(info)
-			local key = info[#(info)]
-			return string.format(L["Hide %s"], L.units[key] or key == "cast" and L["Player cast bar"] or key == "runes" and L["Rune bar"] or key == "buffs" and L["Player buff frames"])
-		end,
-		set = function(info, value)
-			set(info, value)
-			if( value ) then ShadowUF:HideBlizzard(info[#(info)]) end
-		end,
-		hidden = false,
-		get = get,
-		arg = "hidden.$key",
-	}
 
 	local barModules = {}
 	for	key, module in pairs(ShadowUF.modules) do
@@ -868,134 +894,8 @@ local function loadGeneralOptions()
 				type = "group",
 				name = L["Colors"],
 				args = {
-					power = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Power"],
-						set = setColor,
-						get = getColor,
-						args = {
-							MANA = {
-								order = 0,
-								type = "color",
-								name = L["Mana"],
-								hasAlpha = true,
-								width = "half",
-								arg = "powerColors.MANA",
-							},
-							RAGE = {
-								order = 1,
-								type = "color",
-								name = L["Rage"],
-								hasAlpha = true,
-								width = "half",
-								arg = "powerColors.RAGE",
-							},
-							FOCUS = {
-								order = 2,
-								type = "color",
-								name = L["Focus"],
-								hasAlpha = true,
-								arg = "powerColors.FOCUS",
-								width = "half",
-							},
-							ENERGY = {
-								order = 3,
-								type = "color",
-								name = L["Energy"],
-								hasAlpha = true,
-								arg = "powerColors.ENERGY",
-								width = "half",
-							},
-							HAPPINESS = {
-								order = 5,
-								type = "color",
-								name = L["Happiness"],
-								hasAlpha = true,
-								arg = "powerColors.HAPPINESS",
-							},
-							RUNIC_POWER = {
-								order = 6,
-								type = "color",
-								name = L["Runic Power"],
-								hasAlpha = true,
-								arg = "powerColors.RUNIC_POWER",
-							},
-							AMMOSLOT = {
-								order = 7,
-								type = "color",
-								name = L["Ammo"],
-								hasAlpha = true,
-								arg = "powerColors.AMMOSLOT",
-								hidden = hideAdvancedOption,
-							},
-							FUEL = {
-								order = 8,
-								type = "color",
-								name = L["Fuel"],
-								hasAlpha = true,
-								arg = "powerColors.FUEL",
-								hidden = hideAdvancedOption,
-							},
-						},
-					},
-					cast = {
-						order = 2,
-						type = "group",
-						inline = true,
-						name = L["Cast"],
-						set = setColor,
-						get = getColor,
-						args = {
-							cast = {
-								order = 0,
-								type = "color",
-								name = L["Casting"],
-								desc = L["Color used when an unit is casting a spell."],
-								arg = "castColors.cast",
-							},
-							channel = {
-								order = 1,
-								type = "color",
-								name = L["Channelling"],
-								desc = L["Color used when a cast is a channel."],
-								arg = "castColors.channel",
-							},
-							sep = {
-								order = 2,
-								type = "description",
-								name = "",
-								hidden = hideAdvancedOption,
-								width = "full",
-							},
-							finished = {
-								order = 3,
-								type = "color",
-								name = L["Finished cast"],
-								desc = L["Color used when a cast is successfully finished."],
-								hidden = hideAdvancedOption,
-								arg = "castColors.finished",
-							},
-							interrupted = {
-								order = 4,
-								type = "color",
-								name = L["Cast interrupted"],
-								desc = L["Color used when a cast is interrupted either by the caster themselves or by another unit."],
-								hidden = hideAdvancedOption,
-								arg = "castColors.interrupted",
-							},
-							uninterruptible = {
-								order = 5,
-								type = "color",
-								name = L["Cast uninterruptible"],
-								desc = L["Color used when a cast cannot be interrupted, this is only used for PvE mobs."],
-								arg = "castColors.uninterruptible",
-							},
-						},
-					},
 					health = {
-						order = 3,
+						order = 1,
 						type = "group",
 						inline = true,
 						name = L["Health"],
@@ -1068,6 +968,132 @@ local function loadGeneralOptions()
 							},
 						},
 					},
+					power = {
+						order = 2,
+						type = "group",
+						inline = true,
+						name = L["Power"],
+						set = setColor,
+						get = getColor,
+						args = {
+							MANA = {
+								order = 0,
+								type = "color",
+								name = L["Mana"],
+								hasAlpha = true,
+								width = "half",
+								arg = "powerColors.MANA",
+							},
+							RAGE = {
+								order = 1,
+								type = "color",
+								name = L["Rage"],
+								hasAlpha = true,
+								width = "half",
+								arg = "powerColors.RAGE",
+							},
+							FOCUS = {
+								order = 2,
+								type = "color",
+								name = L["Focus"],
+								hasAlpha = true,
+								arg = "powerColors.FOCUS",
+								width = "half",
+							},
+							ENERGY = {
+								order = 3,
+								type = "color",
+								name = L["Energy"],
+								hasAlpha = true,
+								arg = "powerColors.ENERGY",
+								width = "half",
+							},
+							HAPPINESS = {
+								order = 5,
+								type = "color",
+								name = L["Happiness"],
+								hasAlpha = true,
+								arg = "powerColors.HAPPINESS",
+							},
+							RUNIC_POWER = {
+								order = 6,
+								type = "color",
+								name = L["Runic Power"],
+								hasAlpha = true,
+								arg = "powerColors.RUNIC_POWER",
+							},
+							AMMOSLOT = {
+								order = 7,
+								type = "color",
+								name = L["Ammo"],
+								hasAlpha = true,
+								arg = "powerColors.AMMOSLOT",
+								hidden = hideAdvancedOption,
+							},
+							FUEL = {
+								order = 8,
+								type = "color",
+								name = L["Fuel"],
+								hasAlpha = true,
+								arg = "powerColors.FUEL",
+								hidden = hideAdvancedOption,
+							},
+						},
+					},
+					cast = {
+						order = 3,
+						type = "group",
+						inline = true,
+						name = L["Cast"],
+						set = setColor,
+						get = getColor,
+						args = {
+							cast = {
+								order = 0,
+								type = "color",
+								name = L["Casting"],
+								desc = L["Color used when an unit is casting a spell."],
+								arg = "castColors.cast",
+							},
+							channel = {
+								order = 1,
+								type = "color",
+								name = L["Channelling"],
+								desc = L["Color used when a cast is a channel."],
+								arg = "castColors.channel",
+							},
+							sep = {
+								order = 2,
+								type = "description",
+								name = "",
+								hidden = hideAdvancedOption,
+								width = "full",
+							},
+							finished = {
+								order = 3,
+								type = "color",
+								name = L["Finished cast"],
+								desc = L["Color used when a cast is successfully finished."],
+								hidden = hideAdvancedOption,
+								arg = "castColors.finished",
+							},
+							interrupted = {
+								order = 4,
+								type = "color",
+								name = L["Cast interrupted"],
+								desc = L["Color used when a cast is interrupted either by the caster themselves or by another unit."],
+								hidden = hideAdvancedOption,
+								arg = "castColors.interrupted",
+							},
+							uninterruptible = {
+								order = 5,
+								type = "color",
+								name = L["Cast uninterruptible"],
+								desc = L["Color used when a cast cannot be interrupted, this is only used for PvE mobs."],
+								arg = "castColors.uninterruptible",
+							},
+						},
+					},
 					classColors = {
 						order = 4,
 						type = "group",
@@ -1076,42 +1102,6 @@ local function loadGeneralOptions()
 						set = setColor,
 						get = getColor,
 						args = {}
-					},
-				},
-			},
-			hide = {
-				type = "group",
-				order = 3,
-				name = L["Hide Blizzard Frames"],
-				args = {
-					help = {
-						order = 0,
-						type = "group",
-						name = L["Help"],
-						inline = true,
-						args = {
-							description = {
-								type = "description",
-								name = L["You can hide the default frames that Blizzard provides through this, if you want to show a frame after hiding it you will need to do a /console reloadui before it becomes visibile."],
-								width = "full",
-							},
-						},
-					},
-					hide = {
-						order = 1,
-						type = "group",
-						name = L["Frames"],
-						inline = true,
-						args = {
-							player = Config.hideTable,
-							pet = Config.hideTable,
-							target = Config.hideTable,
-							party = Config.hideTable,
-							focus = Config.hideTable,
-							buffs = Config.hideTable,
-							cast = Config.hideTable,
-							runes = Config.hideTable,
-						},
 					},
 				},
 			},
@@ -1225,6 +1215,64 @@ local function loadGeneralOptions()
 	options.args.general.args.color.args.classColors.args.VEHICLE = Config.classTable
 	
 	options.args.general.args.profile.order = 4
+end
+
+---------------------
+-- HIDE BLIZZARD FRAMES CONFIGURATION
+---------------------
+local function loadHideOptions()
+	Config.hideTable = {
+		order = function(info) return info[#(info)] == "buffs" and 1 or 2 end,
+		type = "toggle",
+		name = function(info)
+			local key = info[#(info)]
+			return string.format(L["Hide %s"], UNIT_NAMES[key] or key == "cast" and L["Player cast bar"] or key == "runes" and L["Rune bar"] or key == "buffs" and L["Buff frames"])
+		end,
+		set = function(info, value)
+			set(info, value)
+			if( value ) then ShadowUF:HideBlizzard(info[#(info)]) end
+		end,
+		hidden = false,
+		get = get,
+		arg = "hidden.$key",
+	}
+	
+	options.args.hideBlizzard = {
+		type = "group",
+		name = L["Hide Blizzard"],
+		desc = getPageDescription,
+		args = {
+			help = {
+				order = 0,
+				type = "group",
+				name = L["Help"],
+				inline = true,
+				args = {
+					description = {
+						type = "description",
+						name = L["You will need to do a /console reloadui before a hidden frame becomes visible again."],
+						width = "full",
+					},
+				},
+			},
+			hide = {
+				order = 1,
+				type = "group",
+				name = L["Frames"],
+				inline = true,
+				args = {
+					player = Config.hideTable,
+					pet = Config.hideTable,
+					target = Config.hideTable,
+					party = Config.hideTable,
+					focus = Config.hideTable,
+					buffs = Config.hideTable,
+					cast = Config.hideTable,
+					runes = Config.hideTable,
+				},
+			},
+		}
+	}
 end
 
 ---------------------
@@ -1926,7 +1974,7 @@ local function loadUnitOptions()
 			
 			return getName(info)
 		end,
-		desc = function(info) return L.indicatorDesc[info[#(info)]] end,
+		desc = function(info) return INDICATOR_DESC[info[#(info)]] end,
 		type = "group",
 		hidden = hideRestrictedOption,
 		args = {
@@ -2331,7 +2379,7 @@ local function loadUnitOptions()
 			attributes = {
 				order = 1.5,
 				type = "group",
-				name = function(info) return L.units[info[#(info) - 1]] end,
+				name = function(info) return UNIT_NAMES[info[#(info) - 1]] end,
 				hidden = function(info)
 					local unit = info[#(info) - 1]
 					return unit ~= "raid" and unit ~= "party" and unit ~= "mainassist" and unit ~= "maintank" and unit ~= "boss" and unit ~= "arena"
@@ -3275,15 +3323,17 @@ local function loadUnitOptions()
 		Config.unitTable.args.indicators.args[indicator] = Config.indicatorTable
 	end
 	
-	options.args.units = {
+	options.args.enableUnits = {
 		type = "group",
-		name = L["Units"],
+		name = L["Unit status"],
+		desc = getPageDescription,
 		args = {
 			help = {
 				order = 1,
 				type = "group",
 				inline = true,
 				name = L["Help"],
+				hidden = hideBasicOption,
 				args = {
 					help = {
 						order = 0,
@@ -3298,6 +3348,28 @@ local function loadUnitOptions()
 				inline = true,
 				name = L["Enable units"],
 				args = {},
+			},
+		},
+	}
+	
+	options.args.units = {
+		type = "group",
+		name = L["Unit configuration"],
+		desc = getPageDescription,
+		args = {
+			help = {
+				order = 1,
+				type = "group",
+				inline = true,
+				name = L["Help"],
+				args = {
+					help = {
+						order = 0,
+						type = "description",
+						name = L["Wondering what all of the tabs for the unit configuration mean? Here's some information:\n\n|cfffed000General:|r Portrait, range checker, combat fader, border highlighting\n|cfffed000Frame:|r Unit positioning and frame anchoring\n|cfffed000Bars:|r Health, power, empty and cast bar, and combo point configuration\n|cfffed000Widget size:|r All bar and portrait sizing and ordering options\n|cfffed000Auras:|r All aura configuration for enabling/disabling/enlarging self/etc\n|cfffed000Indicators:|r All indicator configuration\n|cfffed000Text/Tags:|r Tag management as well as text positioning and width settings.\n\n\n*** Frequently looked for options ***\n\n|cfffed000Class coloring:|r Bars -> Color health by\n|cfffed000Timers on auras:|r You need OmniCC for that\n|cfffed000Showing default buff frames:|r Hide Blizzard -> Uncheck Hide buff frames"],
+						fontSize = "medium",
+					},
+				},
 			},
 			global = {
 				type = "group",
@@ -3393,7 +3465,7 @@ local function loadUnitOptions()
 		name = getName,
 		hidden = isUnitDisabled,
 		desc = function(info)
-			return string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], L.units[info[#(info)]])
+			return string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], UNIT_NAMES[info[#(info)]])
 		end,
 	}
 	
@@ -3426,11 +3498,11 @@ local function loadUnitOptions()
 		end,
 		desc = function(info)
 			local unit = info[#(info)]
-			local unitDesc = L.unitDesc[unit] or ""
+			local unitDesc = UNIT_DESC[unit] or ""
 			
 			if( ShadowUF.db.profile.units[unit].enabled and ShadowUF.Units.childUnits[unit] ) then
 				if( unitDesc ~= "" ) then unitDesc = unitDesc .. "\n\n" end
-				return unitDesc .. string.format(L["This unit depends on another to work, disabling %s will disable %s."], L.units[ShadowUF.Units.childUnits[unit]], L.units[unit])
+				return unitDesc .. string.format(L["This unit depends on another to work, disabling %s will disable %s."], UNIT_NAMES[ShadowUF.Units.childUnits[unit]], UNIT_NAMES[unit])
 			elseif( not ShadowUF.db.profile.units[unit].enabled ) then 
 				for child, parent in pairs(ShadowUF.Units.childUnits) do
 					if( parent == unit ) then
@@ -3466,7 +3538,7 @@ local function loadUnitOptions()
 	}
 	
 	for cat, list in pairs(unitCategories) do
-		options.args.units.args.enabled.args[cat .. "cat"] = unitCategory
+		options.args.enableUnits.args.enabled.args[cat .. "cat"] = unitCategory
 
 		for _, unit in pairs(list) do
 			unitCatOrder[unit] = cat == "player" and 50 or cat == "general" and 100 or cat == "party" and 200 or cat == "raid" and 300 or 400
@@ -3474,7 +3546,7 @@ local function loadUnitOptions()
 	end
 
 	for order, unit in pairs(ShadowUF.units) do
-		options.args.units.args.enabled.args[unit] = enabledUnits
+		options.args.enableUnits.args.enabled.args[unit] = enabledUnits
 		options.args.units.args.global.args.units.args.units.args[unit] = perUnitList
 		options.args.units.args[unit] = Config.unitTable
 		
@@ -3683,7 +3755,7 @@ local function loadFilterOptions()
 		type = "group",
 		inline = true,
 		hidden = function() return not hasWhitelist and not hasBlacklist end,
-		name = function(info) return L.areas[info[#(info)]] or L["Global"] end,
+		name = function(info) return AREA_NAMES[info[#(info)]] or L["Global"] end,
 		set = function(info, value)
 			local filter = filterMap[info[#(info)]]
 			local zone = info[#(info) - 1]
@@ -3874,7 +3946,7 @@ local function loadFilterOptions()
 			header = {
 				order = 0,
 				type = "header",
-				name = function(info) return (info[#(info) - 1] == "global" and L["Global"] or L.units[info[#(info) - 1]]) end,
+				name = function(info) return (info[#(info) - 1] == "global" and L["Global"] or UNIT_NAMES[info[#(info) - 1]]) end,
 				hidden = function() return not hasWhitelist and not hasBlacklist end,
 			},
 			global = filterTable,
@@ -4125,7 +4197,7 @@ local function loadTagOptions()
 		for k in pairs(tagCategories) do tagCategories[k] = nil end
 		
 		for _, cat in pairs(ShadowUF.Tags.defaultCategories) do
-			tagCategories[cat] = L.tags[cat]
+			tagCategories[cat] = TAG_GROUPS[cat]
 		end
 		
 		return tagCategories
@@ -4136,6 +4208,8 @@ local function loadTagOptions()
 		type = "group",
 		childGroups = "tab",
 		name = L["Add tags"],
+		desc = getPageDescription,
+		hidden = hideAdvancedOption,
 		args = {
 			general = {
 				order = 0,
@@ -4628,9 +4702,9 @@ local function loadVisibilityOptions()
 		end
 		
 		if( current == false ) then
-			return string.format(L["Disabled in %s"], L.areas[area])
+			return string.format(L["Disabled in %s"], AREA_NAMES[area])
 		elseif( current == true ) then
-			return string.format(L["Enabled in %s"], L.areas[area])
+			return string.format(L["Enabled in %s"], AREA_NAMES[area])
 		end
 
 		return L["Using unit settings"]
@@ -4641,7 +4715,7 @@ local function loadVisibilityOptions()
 		order = function(info) return info[#(info)] == "none" and 2 or 1 end,
 		childGroups = "tree",
 		name = function(info)
-			return L.areas[info[#(info)]]
+			return AREA_NAMES[info[#(info)]]
 		end,
 		get = get,
 		set = set,
@@ -4664,7 +4738,7 @@ local function loadVisibilityOptions()
 						order = 0,
 						type = "description",
 						name = function(info)
-							return string.format(L["Disabling a module on this page disables it while inside %s. Do not disable a module here if you do not want this to happen!."], string.lower(L.areas[info[2]]))
+							return string.format(L["Disabling a module on this page disables it while inside %s. Do not disable a module here if you do not want this to happen!."], string.lower(AREA_NAMES[info[2]]))
 						end,
 					},		
 				}, 	
@@ -4675,7 +4749,7 @@ local function loadVisibilityOptions()
 				name = function(info)
 					local unit = info[#(info) - 1]
 					if( unit == "global" ) then return "" end
-					return string.format(L["Enable %s frames"], L.units[unit])
+					return string.format(L["Enable %s frames"], UNIT_NAMES[unit])
 				end,
 				hidden = function(info) return info[#(info) - 1] == "global" end,
 				desc = getHelp,
@@ -4722,6 +4796,7 @@ local function loadVisibilityOptions()
 		type = "group",
 		childGroups = "tab",
 		name = L["Visibility"],
+		desc = getPageDescription,
 		args = {
 			start = {
 				order = 0,
@@ -4754,16 +4829,19 @@ local function loadOptions()
 
 	loadGeneralOptions()
 	loadUnitOptions()
+	loadHideOptions()
 	loadTagOptions()
 	loadFilterOptions()
 	loadVisibilityOptions()	
 	
 	-- Ordering
-	options.args.general.order = 0
-	options.args.units.order = 1
-	options.args.filter.order = 2
-	options.args.visibility.order = 3
-	options.args.tags.order = 4
+	options.args.general.order = 1
+	options.args.enableUnits.order = 2
+	options.args.units.order = 3
+	options.args.filter.order = 4
+	options.args.hideBlizzard.order = 5
+	options.args.visibility.order = 6
+	options.args.tags.order = 7
 	
 	-- So modules can access it easier/debug
 	Config.options = options
