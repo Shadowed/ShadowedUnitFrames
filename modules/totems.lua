@@ -36,9 +36,9 @@ function Totems:OnLayoutApplied(frame)
 	if( frame.visibility.totemBar ) then
 		local barWidth = (frame.totemBar:GetWidth() - 3) / 4
 		
-		for id, totem in pairs(frame.totemBar.totems) do
+		for _, totem in pairs(frame.totemBar.totems) do
 			totem:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
-			totem:SetStatusBarColor(totemColors[id].r, totemColors[id].g, totemColors[id].b, ShadowUF.db.profile.bars.alpha)
+			totem:SetStatusBarColor(totemColors[totem.id].r, totemColors[totem.id].g, totemColors[totem.id].b, ShadowUF.db.profile.bars.alpha)
 			totem:SetHeight(frame.totemBar:GetHeight())
 			totem:SetWidth(barWidth)
 		end
