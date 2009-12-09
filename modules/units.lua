@@ -526,6 +526,8 @@ end
 
 -- More fun with sorting, due to sorting magic we have to check if we want to create stuff when the frame changes of partys too
 local function createChildUnits(self)
+	if( not self.unitID ) then return end
+	
 	self.loadStatus = "createChildUnits"
 	for child, parentUnit in pairs(childUnits) do
 		if( parentUnit == self.unitType and ShadowUF.db.profile.units[child].enabled ) then
