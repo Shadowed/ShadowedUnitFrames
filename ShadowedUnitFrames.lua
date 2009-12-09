@@ -20,6 +20,14 @@ if( ShadowUF.isBuild30300 ) then
 	for i=1, MAX_BOSS_FRAMES do table.insert(ShadowUF.bossUnits, "boss" .. i) end
 end
 
+-- Temporarily moving this up here
+if( not select(6, GetAddOnInfo("ShadowedUF_Arena")) ) then
+	DisableAddOn("ShadowedUF_Arena")
+	DEFAULT_CHAT_FRAME:AddMessage(L["[WARNING!] ShadowedUF_Arena is unnecessary now as it has been added into SUF by default, please delete ShadowedUF_Arena to prevent conflicts."])
+	DEFAULT_CHAT_FRAME:AddMessage(L["[WARNING!] ShadowedUF_Arena is unnecessary now as it has been added into SUF by default, please delete ShadowedUF_Arena to prevent conflicts."])
+end
+
+
 function ShadowUF:OnInitialize()
 	self.defaults = {
 		profile = {
@@ -131,12 +139,7 @@ function ShadowUF:CheckUpgrade()
 			break
 		end
 	end
-	
-	if( not select(6, GetAddOnInfo("ShadowedUF_Arena")) ) then
-		DisableAddOn("ShadowedUF_Arena")
-		DEFAULT_CHAT_FRAME:AddMessage(L["[WARNING!] ShadowedUF_Arena is unnecessary now as it has been added into SUF by default, please delete ShadowedUF_Arena to prevent conflicts."])
-	end
-	
+		
 	if( not ShadowUF.Config and select(6, GetAddOnInfo("ShadowedUF_Options")) ) then
 		SlashCmdList["SUF"] = function()
 			DEFAULT_CHAT_FRAME:AddMessage(L["[WARNING!] Configuration in SUF has been split into a separate addon, you will need to restart your game before you can open the configuration."])
