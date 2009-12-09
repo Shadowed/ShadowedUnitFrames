@@ -26,13 +26,13 @@ end
 
 local function OnShow(self)
 	for frame in pairs(ShadowUF.Units.frameList) do
-		--frame:SetAlpha(0)
-		--frame.OrigSetAlpha = frame.SetAlpha
-		--frame.SetAlpha = ShadowUF.noop
+		frame:SetAlpha(0)
+		frame.OrigSetAlpha = frame.SetAlpha
+		frame.SetAlpha = ShadowUF.noop
 		
 		if( frame:IsShown() ) then
 			frame.wasVisible = true
-		--	frame:Hide()
+			frame:Hide()
 		end
 	end
 end
@@ -183,7 +183,7 @@ local function OnDragStop(self)
 	-- When a widget is near the top left it uses top left, near the left it uses left and so on, which messes up positioning for header frames
 	local scale = GetCVarBool("useUiScale") and frame:GetEffectiveScale() or 1
 	local position = ShadowUF.db.profile.positions[frame.unitType]
-	local point, _, _, x, y = frame:GetPoint()
+	local point, _, relativePoint, x, y = frame:GetPoint()
 	
 	-- Figure out the horizontal anchor
 	if( frame.isHeaderFrame ) then
@@ -195,12 +195,12 @@ local function OnDragStop(self)
 			point = "LEFT"
 		end
 		
-		if( ShadowUF.db.profile.units[frame.unitType].attribPoint == "TOP" ) then
-			y = frame:GetTop() - GetScreenHeight()
-			point = "TOP" .. point
-		else
+		if( ShadowUF.db.profile.units[frame.unitType].attribPoint == "BOTTOM" ) then
 			y = frame:GetBottom()
 			point = "BOTTOM" .. point
+		else
+			y = frame:GetTop() - GetScreenHeight()
+			point = "TOP" .. point
 		end
 	end
 	
@@ -208,7 +208,7 @@ local function OnDragStop(self)
 	position.movedAnchor = nil
 	position.anchorPoint = ""
 	position.point = point
-	position.relativePoint = point
+	position.relativePoint = frame.isHeaderFrame and point or relativePoint
 	position.x = x * scale
 	position.y = y * scale
 	
