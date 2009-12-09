@@ -199,19 +199,23 @@ local function OnDragStop(self)
 			y = frame:GetBottom()
 			point = "BOTTOM" .. point
 		else
-			y = frame:GetTop() - GetScreenHeight()
+			y = frame:GetTop()
 			point = "TOP" .. point
 		end
+		
+		relativePoint = "BOTTOMLEFT"
+		position.bottom = frame:GetBottom() * scale
+		position.top = frame:GetTop() * scale
 	end
 	
 	position.anchorTo = "UIParent"
 	position.movedAnchor = nil
 	position.anchorPoint = ""
 	position.point = point
-	position.relativePoint = frame.isHeaderFrame and point or relativePoint
+	position.relativePoint = relativePoint
 	position.x = x * scale
 	position.y = y * scale
-	
+		
 	ShadowUF.Layout:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[frame.unitType])
 
 	-- Unlock the parent frame from the mover now too

@@ -2439,16 +2439,23 @@ local function loadUnitOptions()
 								arg = "attribPoint",
 								set = function(info, value)
 									-- If you set the frames to grow left, the columns have to grow down or up as well
+									local attribAnchorPoint = getVariable(info[2], nil, nil, "attribAnchorPoint")
 									if( info[2] ~= "party" ) then
-										local attribAnchorPoint = getVariable(info[2], nil, nil, "attribAnchorPoint")
 										if( ( value == "LEFT" or value == "RIGHT" ) and attribAnchorPoint ~= "BOTTOM" and attribAnchorPoint ~= "TOP" ) then
 											ShadowUF.db.profile.units[info[2]].attribAnchorPoint = "BOTTOM"
 										elseif( ( value == "TOP" or value == "BOTTOM" ) and attribAnchorPoint ~= "LEFT" and attribAnchorPoint ~= "RIGHT" ) then
 											ShadowUF.db.profile.units[info[2]].attribAnchorPoint = "RIGHT"
 										end
 									end
-								
+									
 									setUnit(info, value)
+
+									local position = ShadowUF.db.profile.positions[info[2]]
+									if( position.top and position.bottom ) then
+										local point = ShadowUF.db.profile.units[info[2]].attribAnchorPoint == "RIGHT" and "RIGHT" or "LEFT"
+										position.point = (ShadowUF.db.profile.units[info[2]].attribPoint == "BOTTOM" and "BOTTOM" or "TOP") .. point
+										position.y = ShadowUF.db.profile.units[info[2]].attribPoint == "BOTTOM" and position.bottom or position.top
+									end
 
 									ShadowUF.Units:ReloadHeader(info[2])
 									ShadowUF.modules.movers:Update()
