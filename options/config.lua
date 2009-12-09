@@ -4795,7 +4795,7 @@ local function loadVisibilityOptions()
 	options.args.visibility = {
 		type = "group",
 		childGroups = "tab",
-		name = L["Visibility"],
+		name = L["Zone configuration"],
 		desc = getPageDescription,
 		args = {
 			start = {

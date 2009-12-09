@@ -613,6 +613,7 @@ ShadowUFLocals = {
 	["You will need to do a /console reloadui before a hidden frame becomes visible again."] = "You will need to do a /console reloadui before a hidden frame becomes visible again.",
 	["Your active layout is the profile used for import backup, this cannot be overwritten by an import. Change your profiles to something else and try again."] = "Your active layout is the profile used for import backup, this cannot be overwritten by an import. Change your profiles to something else and try again.",
 	["Your code must be wrapped in a function, for example, if you were to make a tag to return the units name you would do:\n\nfunction(unit, unitOwner)\nreturn UnitName(unitOwner)\nend"] = "Your code must be wrapped in a function, for example, if you were to make a tag to return the units name you would do:\n\nfunction(unit, unitOwner)\nreturn UnitName(unitOwner)\nend",
+	["Zone configuration"] = "Zone configuration",
 	["[WARNING!] Configuration in SUF has been split into a separate addon, you will need to restart your game before you can open the configuration."] = "[WARNING!] Configuration in SUF has been split into a separate addon, you will need to restart your game before you can open the configuration.",
 	["[WARNING!] ShadowedUF_Arena is unnecessary now as it has been added into SUF by default, please delete ShadowedUF_Arena to prevent conflicts."] = "[WARNING!] ShadowedUF_Arena is unnecessary now as it has been added into SUF by default, please delete ShadowedUF_Arena to prevent conflicts.",
 }
