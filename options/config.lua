@@ -26,18 +26,6 @@ if( ShadowUF.isBuild30300 ) then
 	table.insert(unitCategories.raid, 3, "bosstarget")
 end
 
-local UNIT_NAMES = {
-	["arena"] = L["Arena"], ["arenapet"] = L["Arena Pet"], ["arenatarget"] = L["Arena Target"],
-	["boss"] = L["Boss"], ["bosstarget"] = L["Boss Target"],
-	["focus"] = L["Focus"], ["focustarget"] = L["Focus Target"],
-	["mainassist"] = L["Main Assist"], ["mainassisttarget"] = L["Main Assist Target"],
-	["maintank"] = L["Main Tank"], ["maintanktarget"] = L["Main Tank Target"],
-	["party"] = L["Party"], ["partypet"] = L["Party Pet"], ["partytarget"] = L["Party Target"],
-	["player"] = L["Player"], ["pet"] = L["Pet"], ["pettarget"] = L["Pet Target"],
-	["target"] = L["Target"], ["targettarget"] = L["Target of Target"],["targettargettarget"] = L["Target of Target of Target"],
-	["raid"] = L["Raid"], ["PET"] = L["Pet"], ["VEHICLE"] = L["Vehicle"],
-}
-
 local UNIT_DESC = {
 	["boss"] = L["Boss units are for council type of fights, Iron Council, Illidari Council, Blood Princes. They do not work for every boss fight."],
 	["mainassist"] = L["Main Assists's are set by the Blizzard Main Assist system or mods that use them such as oRA3."],
@@ -90,7 +78,7 @@ local function getAnchorParents(info)
 	for k in pairs(anchorList) do anchorList[k] = nil end
 	
 	if( ShadowUF.Units.childUnits[unit] ) then
-		anchorList["$parent"] = string.format(L["%s member"], UNIT_NAMES[ShadowUF.Units.childUnits[unit]])
+		anchorList["$parent"] = string.format(L["%s member"], L.units[ShadowUF.Units.childUnits[unit]])
 		return anchorList
 	end
 	
@@ -100,7 +88,7 @@ local function getAnchorParents(info)
 	local currentName = getFrameName(unit)
 	for _, unitID in pairs(ShadowUF.units) do
 		if( unitID ~= unit and ShadowUF.db.profile.positions[unitID] and ShadowUF.db.profile.positions[unitID].anchorTo ~= currentName ) then
-			anchorList[getFrameName(unitID)] = string.format(L["%s frames"], UNIT_NAMES[unitID])
+			anchorList[getFrameName(unitID)] = string.format(L["%s frames"], L.units[unitID])
 		end
 	end
 	
@@ -159,7 +147,7 @@ local function getName(info)
 		return ShadowUF.modules[key].moduleName
 	end
 	
-	return LOCALIZED_CLASS_NAMES_MALE[key] or INDICATOR_NAMES[key] or UNIT_NAMES[key] or TAG_GROUPS[key] or L[key]
+	return LOCALIZED_CLASS_NAMES_MALE[key] or INDICATOR_NAMES[key] or L.units[key] or TAG_GROUPS[key] or L[key]
 end
 
 local function getUnitOrder(info)
@@ -425,7 +413,7 @@ local function loadGeneralOptions()
 			if( not getVariable("player", "text", nil, id) ) then return true end
 			return getVariable("player", "text", id, "anchorTo") ~= info[#(info) - 1]
 		end,
-		disabled = function(info) return tonumber(info[#(info)]) <= 5 end,
+		disabled = function(info) return tonumber(info[#(info)]) <= 6 end,
 		confirmText = L["Are you sure you want to delete this text? All settings for it will be deleted."],
 		confirm = true,
 		func = function(info)
@@ -1226,7 +1214,7 @@ local function loadHideOptions()
 		type = "toggle",
 		name = function(info)
 			local key = info[#(info)]
-			return string.format(L["Hide %s"], UNIT_NAMES[key] or key == "cast" and L["Player cast bar"] or key == "runes" and L["Rune bar"] or key == "buffs" and L["Buff frames"])
+			return string.format(L["Hide %s"], L.units[key] or key == "cast" and L["Player cast bar"] or key == "runes" and L["Rune bar"] or key == "buffs" and L["Buff frames"])
 		end,
 		set = function(info, value)
 			set(info, value)
@@ -2379,7 +2367,7 @@ local function loadUnitOptions()
 			attributes = {
 				order = 1.5,
 				type = "group",
-				name = function(info) return UNIT_NAMES[info[#(info) - 1]] end,
+				name = function(info) return L.units[info[#(info) - 1]] end,
 				hidden = function(info)
 					local unit = info[#(info) - 1]
 					return unit ~= "raid" and unit ~= "party" and unit ~= "mainassist" and unit ~= "maintank" and unit ~= "boss" and unit ~= "arena"
@@ -2923,6 +2911,14 @@ local function loadUnitOptions()
 								values = {["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"]},
 								arg = "healthBar.colorType",
 							},
+							reaction = {
+								order = 6,
+								type = "toggle",
+								name = function(info) return info[2] == "pet" and L["Color by happiness"] or L["Color by reaction"] end,
+								desc = function(info) return info[2] == "pet" and L["Colors the health bar by how happy your pet is."] or L["If the unit is not a player or friendly then they will be colored by their reaction. This will override the color health by coloring."] end,
+								arg = "healthBar.reactionType",
+								hidden = function(info) return info[2] == "player" end,
+							},
 							colorAggro = {
 								order = 5,
 								type = "toggle",
@@ -2930,14 +2926,6 @@ local function loadUnitOptions()
 								desc = L["Changes the health bar to the set hostile color (Red by default) when the unit takes aggro."],
 								arg = "healthBar.colorAggro",
 								hidden = hideRestrictedOption,
-							},
-							reaction = {
-								order = 6,
-								type = "toggle",
-								name = function(info) return info[2] == "pet" and L["Color by happiness"] or L["Color by reaction"] end,
-								desc = function(info) return info[2] == "pet" and L["Colors the health bar by how happy your pet is."] or L["If the unit is not a player or friendly then they will be colored by their reaction. This will override the color health by coloring."] end,
-								arg = "healthBar.reaction",
-								hidden = function(info) return info[2] == "player" end,
 							},
 						},
 					},
@@ -3465,7 +3453,7 @@ local function loadUnitOptions()
 		name = getName,
 		hidden = isUnitDisabled,
 		desc = function(info)
-			return string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], UNIT_NAMES[info[#(info)]])
+			return string.format(L["Adds %s to the list of units to be modified when you change values in this tab."], L.units[info[#(info)]])
 		end,
 	}
 	
@@ -3502,7 +3490,7 @@ local function loadUnitOptions()
 			
 			if( ShadowUF.db.profile.units[unit].enabled and ShadowUF.Units.childUnits[unit] ) then
 				if( unitDesc ~= "" ) then unitDesc = unitDesc .. "\n\n" end
-				return unitDesc .. string.format(L["This unit depends on another to work, disabling %s will disable %s."], UNIT_NAMES[ShadowUF.Units.childUnits[unit]], UNIT_NAMES[unit])
+				return unitDesc .. string.format(L["This unit depends on another to work, disabling %s will disable %s."], L.units[ShadowUF.Units.childUnits[unit]], L.units[unit])
 			elseif( not ShadowUF.db.profile.units[unit].enabled ) then 
 				for child, parent in pairs(ShadowUF.Units.childUnits) do
 					if( parent == unit ) then
@@ -3946,7 +3934,7 @@ local function loadFilterOptions()
 			header = {
 				order = 0,
 				type = "header",
-				name = function(info) return (info[#(info) - 1] == "global" and L["Global"] or UNIT_NAMES[info[#(info) - 1]]) end,
+				name = function(info) return (info[#(info) - 1] == "global" and L["Global"] or L.units[info[#(info) - 1]]) end,
 				hidden = function() return not hasWhitelist and not hasBlacklist end,
 			},
 			global = filterTable,
@@ -4749,7 +4737,7 @@ local function loadVisibilityOptions()
 				name = function(info)
 					local unit = info[#(info) - 1]
 					if( unit == "global" ) then return "" end
-					return string.format(L["Enable %s frames"], UNIT_NAMES[unit])
+					return string.format(L["Enable %s frames"], L.units[unit])
 				end,
 				hidden = function(info) return info[#(info) - 1] == "global" end,
 				desc = getHelp,
