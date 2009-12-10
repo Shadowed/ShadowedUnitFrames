@@ -762,7 +762,7 @@ end
 -- Reload a header completely
 function Units:ReloadHeader(type)
 	if( ShadowUF.db.profile.units[type].frameSplit ) then
-		if( headerFrames.raidParent ) then
+		if( headerFrames.raid ) then
 			self:InitializeFrame("raid")
 		else
 			self:SetHeaderAttributes(headerFrames.raidParent, type)
@@ -887,7 +887,7 @@ function Units:SetHeaderAttributes(frame, type)
 	
 	-- Update the raid frames to if they should be showing raid or party
 	if( type == "party" or type == "raid" ) then
-		local raid = headerFrames.raid and headerFrames.raid:IsVisible() and headerFrames.raid or headerFrames.raidParent
+		local raid = headerFrames.raid and not ShadowUF.db.profile.units.raid.frameSplit and headerFrames.raid or headerFrames.raidParent
 		if( raid and headerFrames.party ) then
 			raid:SetAttribute("showParty", not headerFrames.party:GetAttribute("showParty"))
 			raid:SetAttribute("showPlayer", headerFrames.party:GetAttribute("showPlayer"))
