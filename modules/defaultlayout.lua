@@ -86,6 +86,9 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		borderTexture = "None",
 		borderColor = {r = 0.30, g = 0.30, b = 0.50, a = 1},
 	}
+	config.hidden = {
+		player = true, pet = true, target = true, party = true, focus = true, targettarget = true, cast = false, runes = true, buffs = false,
+	}
 	config.font = {
 		name = "Myriad Condensed Web",
 		size = 11,
@@ -246,8 +249,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			runeBar = {enabled = true, order = 70},
 			totemBar = {enabled = true, order = 70},
 			auras = {
-				buffs = {enabled = true, maxRows = 1},
-				debuffs = {enabled = true, maxRows = 1},
+				buffs = {enabled = false, maxRows = 1},
+				debuffs = {enabled = false, maxRows = 1},
 			},
 			indicators = {
 				role = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 30, y = -10},

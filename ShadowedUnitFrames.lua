@@ -39,7 +39,7 @@ function ShadowUF:OnInitialize()
 			positions = {},
 			filters = {zones = {}, whitelists = {}, blacklists = {}},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
-			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true, cast = nil, runes = true, buffs = true},
+			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true, cast = false, runes = true, buffs = true},
 		},
 	}
 	
