@@ -29,8 +29,9 @@ function Empty:OnLayoutApplied(frame)
 end
 
 function Empty:UpdateColor(frame)
-	local color = frame.emptyBar.background.overrideColor or fallbackColor
-	if( ShadowUF.db.profile.units[frame.unitType].emptyBar.reaction and not UnitIsPlayer(frame.unit) and not UnitPlayerOrPetInRaid(frame.unit) and not UnitPlayerOrPetInParty(frame.unit) ) then
+	local color
+	local reactionType = ShadowUF.db.profile.units[frame.unitType].emptyBar.reactionType
+	if( not UnitPlayerOrPetInRaid(frame.unit) and not UnitPlayerOrPetInParty(frame.unit) and ( ( ( reactionType == "player" or reactionType == "both" ) and UnitIsPlayer(frame.unit) and not UnitIsFriend(frame.unit, "player") ) or ( ( reactionType == "npc" or reactionType == "both" ) and not UnitIsPlayer(frame.unit) ) ) ) then
 		if( not UnitIsFriend(frame.unit, "player") and UnitPlayerControlled(frame.unit) ) then
 			if( UnitCanAttack("player", frame.unit) ) then
 				color = ShadowUF.db.profile.healthColors.hostile
@@ -52,6 +53,7 @@ function Empty:UpdateColor(frame)
 		color = class and ShadowUF.db.profile.classColors[class]
 	end
 	
+	color = color or frame.emptyBar.background.overrideColor or fallbackColor
 	frame.emptyBar.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
 end
 

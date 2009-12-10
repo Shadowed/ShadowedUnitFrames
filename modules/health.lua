@@ -95,6 +95,7 @@ function Health:UpdateColor(frame)
 	
 	local color
 	local unit = frame.unit
+	local reactionType = ShadowUF.db.profile.units[frame.unitType].healthBar.reactionType
 	if( not UnitIsConnected(unit) ) then
 		frame.healthBar.wasOffline = true
 		self:SetBarColor(frame.healthBar, ShadowUF.db.profile.healthColors.offline.r, ShadowUF.db.profile.healthColors.offline.g, ShadowUF.db.profile.healthColors.offline.b)
@@ -106,7 +107,7 @@ function Health:UpdateColor(frame)
 		color = ShadowUF.db.profile.classColors.VEHICLE
 	elseif( not UnitIsTappedByPlayer(unit) and UnitIsTapped(unit) and UnitCanAttack("player", unit) ) then
 		color = ShadowUF.db.profile.healthColors.tapped
-	elseif( unit == "pet" and ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and GetPetHappiness() ) then
+	elseif( unit == "pet" and reactionType == "happiness" and GetPetHappiness() ) then
 		local happiness = GetPetHappiness()
 		if( happiness == 3 ) then
 			color = ShadowUF.db.profile.healthColors.friendly
@@ -115,8 +116,7 @@ function Health:UpdateColor(frame)
 		elseif( happiness == 1 ) then
 			color = ShadowUF.db.profile.healthColors.hostile
 		end
-	-- Unit is not a player, or they are not a friend, but they aren't a player or pet the raid.
-	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.reaction and not UnitIsPlayer(unit) and not UnitPlayerOrPetInRaid(unit) and not UnitPlayerOrPetInParty(unit) ) then
+	elseif( not UnitPlayerOrPetInRaid(unit) and not UnitPlayerOrPetInParty(unit) and ( ( ( reactionType == "player" or reactionType == "both" ) and UnitIsPlayer(unit) and not UnitIsFriend(unit, "player") ) or ( ( reactionType == "npc" or reactionType == "both" )  and not UnitIsPlayer(unit) ) ) ) then
 		if( not UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) ) then
 			if( UnitCanAttack("player", unit) ) then
 				color = ShadowUF.db.profile.healthColors.hostile
