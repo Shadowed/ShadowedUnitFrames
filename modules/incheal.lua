@@ -109,11 +109,13 @@ local function updateHealthBar(frame, interrupted)
 	if( frame.visibility.incHeal ) then
 		if( healed > 0 ) then
 			frame.incHeal.total = UnitHealth(frame.unit) + healed
+			frame.incHeal.healed = healed
 			frame.incHeal:SetMinMaxValues(0, UnitHealthMax(frame.unit) * ShadowUF.db.profile.units[frame.unitType].incHeal.cap)
 			frame.incHeal:SetValue(frame.incHeal.total)
 			frame.incHeal:Show()
 		else
 			frame.incHeal.total = nil
+			frame.incHeal.healed = nil
 			frame.incHeal:Hide()
 		end
 	end
