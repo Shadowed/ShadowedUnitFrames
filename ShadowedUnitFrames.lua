@@ -162,11 +162,14 @@ function ShadowUF:CheckUpgrade()
 			
 			config.healthBar.reaction = nil
 		end
-
+		
 		if( config.emptyBar.reaction ~= nil ) then
 			config.emptyBar.reactionType = config.emptyBar.reaction and "npc" or "none"
 			config.emptyBar.reaction = nil
 		end
+		
+		config.emptyBar.reactionType = config.emptyBar.reactionType or "none"
+		config.healthBar.reactionType = config.healthBar.reactionType or "none"
 	end
 end
 	

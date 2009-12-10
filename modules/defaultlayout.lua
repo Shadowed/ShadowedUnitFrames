@@ -204,8 +204,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			status = {anchorTo = "$parent", anchorPoint = "LB", size = 16, x = 12, y = -2},
 		},
 		combatText = {anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0},
-		emptyBar = {background = true, height = 1, width = 1.0, order = 0},
-		healthBar = {background = true, colorType = "class", height = 1.20, width = 1.0, order = 10},
+		emptyBar = {background = true, height = 1, reactionType = "none", width = 1.0, order = 0},
+		healthBar = {background = true, colorType = "class", reactionType = "npc", height = 1.20, width = 1.0, order = 10},
 		powerBar = {background = true, height = 1.0, width = 1.0, order = 20},
 		druidBar = {background = true, height = 0.40, width = 1.0, order = 25},
 		xpBar = {background = true, height = 0.25, width = 1.0, order = 55},
@@ -505,6 +505,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			height = 30,
 			scale = 1.0,
 			powerBar = {height = 0.70},
+			healthBar = {reactionType = "none"},
 			indicators = {
 				status = {anchorTo = "$parent", anchorPoint = "LB", size = 16, y = -2, x = 12},
 				happiness = {anchorTo = "$parent", anchorPoint = "BR", size = 14, x = 3, y = 13},
