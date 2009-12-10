@@ -149,6 +149,25 @@ function ShadowUF:CheckUpgrade()
 	if( not ShadowUF.db.profile.healthColors.offline ) then
 		ShadowUF.db.profile.healthColors.offline = {r = 0.50, g = 0.50, b = 0.50}
 	end
+	
+	-- December 9th
+	for unit, config in pairs(self.db.profile.units) do
+		if( not config.healthBar.colorType or config.healthBar.reaction ~= nil ) then
+			config.healthBar.colorType = config.healthBar.colorType or "percent"
+			if( config.healthBar.reaction ) then
+				config.healthBar.reactionType = unit == "pet" and "happiness" or "npc"
+			else
+				config.healthBar.reactionType = "none"
+			end
+			
+			config.healthBar.reaction = nil
+		end
+
+		if( config.emptyBar.reaction ~= nil ) then
+			config.emptyBar.reactionType = config.emptyBar.reaction and "npc" or "none"
+			config.emptyBar.reaction = nil
+		end
+	end
 end
 	
 function ShadowUF:LoadUnits()
@@ -183,7 +202,7 @@ function ShadowUF:LoadUnitDefaults()
 		-- as an indication that hey, the unit wants this, if it doesn't that it won't want it.
 		self.defaults.profile.units[unit] = {
 			enabled = false, height = 0, width = 0, scale = 1.0,
-			healthBar = {enabled = true, colorType = "percent", reaction = true},
+			healthBar = {enabled = true},
 			powerBar = {enabled = true},
 			emptyBar = {enabled = false},
 			portrait = {enabled = false, type = "3D", fullBefore = 0, fullAfter = 100, order = 40, height = 0.50},
