@@ -188,7 +188,7 @@ local function OnDragStop(self)
 	-- Figure out the horizontal anchor
 	if( frame.isHeaderFrame ) then
 		if( ShadowUF.db.profile.units[frame.unitType].attribAnchorPoint == "RIGHT" ) then
-			x = frame:GetRight() - GetScreenWidth()
+			x = frame:GetRight()
 			point = "RIGHT"
 		else
 			x = frame:GetLeft()
