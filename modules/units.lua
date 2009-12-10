@@ -436,6 +436,8 @@ function Units:CheckVehicleStatus(frame, event, unit)
 	if( ( not frame.inVehicle or frame.unitGUID ~= UnitGUID(frame.vehicleUnit) ) and UnitHasVehicleUI(frame.unitOwner) and not ShadowUF.db.profile.units[frame.unitType].disableVehicle ) then
 		frame.inVehicle = true
 		frame.unit = frame.vehicleUnit
+		-- Keep track of what the players current unit is supposed to be, so things like auras can figure out what unit to filter
+		if( frame.unitOwner == "player" ) then ShadowUF.playerUnit = frame.unit end
 
 		if( not UnitIsConnected(frame.unit) or UnitHealthMax(frame.unit) == 0 ) then
 			frame.timeElapsed = 0
@@ -445,22 +447,15 @@ function Units:CheckVehicleStatus(frame, event, unit)
 			frame.unitGUID = UnitGUID(frame.unit)
 			frame:FullUpdate()
 		end
-		
-		-- Keep track of what the players current unit is supposed to be, so things like auras can figure out what unit to filter
-		if( frame.unitOwner == "player" ) then
-			ShadowUF.playerUnit = frame.unit
-		end
 				
 	-- Was in a vehicle, no longer has a UI
 	elseif( frame.inVehicle and ( not UnitHasVehicleUI(frame.unitOwner) or ShadowUF.db.profile.units[frame.unitType].disableVehicle ) ) then
+		if( frame.unitOwner == "player" ) then ShadowUF.playerUnit = frame.unitOwner end
+
 		frame.inVehicle = false
 		frame.unit = frame.unitOwner
 		frame.unitGUID = UnitGUID(frame.unit)
 		frame:FullUpdate()
-
-		if( frame.unitOwner == "player" ) then
-			ShadowUF.playerUnit = frame.unitOwner
-		end
 	end
 end
 
