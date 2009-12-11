@@ -2177,8 +2177,25 @@ local function loadUnitOptions()
 						name = L["Border highlighting"],
 						hidden = hideRestrictedOption,
 						args = {
-							mouseover = {
+							alpha = {
 								order = 1,
+								type = "range",
+								name = L["Border alpha"],
+								min = 0, max = 1, step = 0.05,
+								isPercent = true,
+								hidden = false,
+								arg = "highlight.alpha",
+							},
+							size = {
+								order = 2,
+								type = "range",
+								name = L["Border thickness"],
+								min = 0, max = 50, step = 1,
+								arg = "highlight.size",
+								hidden = false,
+							},
+							mouseover = {
+								order = 3,
 								type = "toggle",
 								name = L["On mouseover"],
 								desc = L["Highlight units when you mouse over them."],
@@ -2186,7 +2203,7 @@ local function loadUnitOptions()
 								hidden = false,
 							},
 							attention = {
-								order = 2,
+								order = 4,
 								type = "toggle",
 								name = L["For target/focus"],
 								desc = L["Highlight units that you are targeting or have focused."],
@@ -2194,7 +2211,7 @@ local function loadUnitOptions()
 								hidden = function(info) return info[2] == "target" or info[2] == "focus" end,
 							},
 							aggro = {
-								order = 3,
+								order = 5,
 								type = "toggle",
 								name = L["On aggro"],
 								desc = L["Highlight units that have aggro on any mob."],
@@ -2202,7 +2219,7 @@ local function loadUnitOptions()
 								hidden = function(info) return info[2] == "arena" or info[2] == "arenapet" or info[2] == "boss" or string.match(info[2], "(%w+)target") end,
 							},
 							debuff = {
-								order = 4,
+								order = 6,
 								type = "toggle",
 								name = L["On curable debuff"],
 								desc = L["Highlight units that are debuffed with something you can cure."],

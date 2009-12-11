@@ -170,6 +170,8 @@ function ShadowUF:CheckUpgrade()
 		
 		config.emptyBar.reactionType = config.emptyBar.reactionType or "none"
 		config.healthBar.reactionType = config.healthBar.reactionType or "none"
+		config.highlight.alpha = config.highlight.alpha or 1.0
+		config.highlight.size = config.highlight.size or 30
 	end
 end
 	
