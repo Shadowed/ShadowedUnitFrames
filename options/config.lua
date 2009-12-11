@@ -1993,7 +1993,7 @@ local function loadUnitOptions()
 				order = 4,
 				type = "range",
 				name = L["Size"],
-				min = 0, max = 40, step = 1,
+				min = 1, max = 40, step = 1,
 				hidden = hideAdvancedOption,
 				arg = "indicators.$parent.size",
 			},
