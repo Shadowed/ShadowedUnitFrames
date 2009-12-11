@@ -227,6 +227,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			attribAnchorPoint = "LEFT",
 			powerBar = {height = 0.60},
 			incHeal = {cap = 1},
+			highlight = {size = 10},
 			indicators = {
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
 				role = {anchorTo = "$parent", anchorPoint = "BR", size = 14, x = 0, y = 14},

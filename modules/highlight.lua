@@ -1,5 +1,5 @@
 local Highlight = {}
-local goldColor, mouseColor
+local goldColor, mouseColor = {r = 0.75, g = 0.75, b = 0.35}, {r = 0.75, g = 0.75, b = 0.50}
 ShadowUF:RegisterModule(Highlight, "highlight", ShadowUFLocals["Highlight"])
 
 -- Might seem odd to hook my code in the core manually, but HookScript is ~40% slower due to it being a secure hook
@@ -65,6 +65,12 @@ function Highlight:OnEnable(frame)
 		frame.highlight.right:Hide()
 	end
 	
+	frame.highlight.top:SetHeight(ShadowUF.db.profile.units[frame.unitType].highlight.size)
+	frame.highlight.bottom:SetHeight(ShadowUF.db.profile.units[frame.unitType].highlight.size)
+	frame.highlight.left:SetWidth(ShadowUF.db.profile.units[frame.unitType].highlight.size)
+	frame.highlight.right:SetWidth(ShadowUF.db.profile.units[frame.unitType].highlight.size)
+	
+	
 	if( ShadowUF.db.profile.units[frame.unitType].highlight.aggro ) then
 		frame:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", self, "UpdateThreat")
 		frame:RegisterUpdateFunc(self, "UpdateThreat")
@@ -74,8 +80,6 @@ function Highlight:OnEnable(frame)
 		frame:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "UpdateAttention")
 		frame:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", self, "UpdateAttention")
 		frame:RegisterUpdateFunc(self, "UpdateAttention")
-
-		goldColor = goldColor or {r = 0.75, g = 0.75, b = 0.35}
 	end
 
 	if( ShadowUF.db.profile.units[frame.unitType].highlight.debuff ) then
@@ -89,8 +93,6 @@ function Highlight:OnEnable(frame)
 		
 		frame:SetScript("OnEnter", OnEnter)
 		frame:SetScript("OnLeave", OnLeave)
-
-		mouseColor = mouseColor or {r = 0.75, g = 0.75, b = 0.50}
 	end
 end
 
@@ -128,16 +130,16 @@ function Highlight:Update(frame)
 	end
 		
 	if( color ) then
-		frame.highlight.top:SetVertexColor(color.r, color.g, color.b, 1)
+		frame.highlight.top:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.units[frame.unitType].highlight.alpha)
 		frame.highlight.top:Show()
 
-		frame.highlight.left:SetVertexColor(color.r, color.g, color.b, 1)
+		frame.highlight.left:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.units[frame.unitType].highlight.alpha)
 		frame.highlight.left:Show()
 
-		frame.highlight.bottom:SetVertexColor(color.r, color.g, color.b, 1)
+		frame.highlight.bottom:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.units[frame.unitType].highlight.alpha)
 		frame.highlight.bottom:Show()
 
-		frame.highlight.right:SetVertexColor(color.r, color.g, color.b, 1)
+		frame.highlight.right:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.units[frame.unitType].highlight.alpha)
 		frame.highlight.right:Show()
 	else
 		frame.highlight.top:Hide()
