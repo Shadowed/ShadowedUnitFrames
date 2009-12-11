@@ -495,12 +495,16 @@ function Units:CheckGroupedUnitStatus(frame)
 	end
 end
 
+
+
 local function ShowMenu(self)
 	local menuFrame
 	if( self.unitOwner == "player" ) then
 		menuFrame = PlayerFrameDropDown
+	elseif( self.unitType == "boss" ) then
+		menuFrame = _G["Boss" .. i .. "TargetFrameDropDown"]
 	elseif( self.unitRealType == "party" ) then
-		menuFrame = getglobal("PartyMemberFrame" .. self.unitID .. "DropDown")
+		menuFrame = _G["PartyMemberFrame" .. self.unitID .. "DropDown"]
 	elseif( self.unitRealType == "raid" ) then
 		menuFrame = FriendsDropDown
 		menuFrame.displayMode = "MENU"
@@ -641,6 +645,10 @@ local function OnAttributeChanged(self, name, unit)
 		-- Force a full update when the player is alive to prevent freezes when releasing in a zone that forces a ressurect (naxx/tk/etc)
 		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
 	
+	-- Update boss
+	elseif( self.unitType == "boss" ) then
+		self:RegisterNormalEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", Units, "FullUpdate")
+		
 	-- Check for a unit guid to do a full update
 	elseif( self.unitRealType == "raid" ) then
 		self:RegisterNormalEvent("RAID_ROSTER_UPDATE", Units, "CheckGroupedUnitStatus")
