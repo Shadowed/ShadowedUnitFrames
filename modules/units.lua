@@ -1170,7 +1170,7 @@ function Units:InitializeFrame(type)
 		self:LoadZoneHeader(type)
 	elseif( self.childUnits[type] ) then
 		for frame in pairs(frameList) do
-			if( frame.unitType == self.childUnits[type] and ShadowUF.db.profile.units[frame.unitType] ) then
+			if( frame.unitType == self.childUnits[type] and ShadowUF.db.profile.units[frame.unitType] and frame.unitID ) then
 				self:LoadChildUnit(frame, type, frame.unitID)
 			end
 		end
