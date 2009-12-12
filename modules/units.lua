@@ -498,29 +498,30 @@ end
 
 
 local function ShowMenu(self)
-	local menuFrame
-	if( self.unitOwner == "player" ) then
-		menuFrame = PlayerFrameDropDown
+	if( UnitIsUnit(self.unit, "player") ) then
+		ToggleDropDownMenu(1, nil, PlayerFrameDropDown, "cursor")
+	elseif( self.unit == "pet" or self.unit == "vehicle" ) then
+		ToggleDropDownMenu(1, nil, PetFrameDropDown, "cursor")
+	elseif( self.unit == "target" ) then
+		ToggleDropDownMenu(1, nil, TargetFrameDropDown, "cursor")
 	elseif( self.unitType == "boss" ) then
-		menuFrame = _G["Boss" .. self.unitID .. "TargetFrameDropDown"]
+		ToggleDropDownMenu(1, nil, _G["Boss" .. self.unitID .. "TargetFrameDropDown"], "cursor")
+	elseif( self.unit == "focus" ) then
+		ToggleDropDownMenu(1, nil, FocusFrameDropDown, "cursor")
 	elseif( self.unitRealType == "party" ) then
-		menuFrame = _G["PartyMemberFrame" .. self.unitID .. "DropDown"]
+		ToggleDropDownMenu(1, nil, _G["PartyMemberFrame" .. self.unitID .. "DropDown"], "cursor")
 	elseif( self.unitRealType == "raid" ) then
-		menuFrame = FriendsDropDown
+		HideDropDownMenu(1)
+		
+		local menuFrame = FriendsDropDown
 		menuFrame.displayMode = "MENU"
 		menuFrame.initialize = RaidFrameDropDown_Initialize
 		menuFrame.userData = self.unitID
-	else
-		return
+		menuFrame.unit = self.unitOwner
+		menuFrame.name = UnitName(self.unitOwner)
+		menuFrame.id = self.unitID
+		ToggleDropDownMenu(1, nil, menuFrame, "cursor")
 	end	
-	
-	self.dropdownMenu = menuFrame
-	
-	HideDropDownMenu(1)
-	menuFrame.unit = self.unitOwner
-	menuFrame.name = UnitName(self.unitOwner)
-	menuFrame.id = self.unitID
-	ToggleDropDownMenu(1, nil, menuFrame, "cursor")
 end
 
 -- More fun with sorting, due to sorting magic we have to check if we want to create stuff when the frame changes of partys too
@@ -597,8 +598,6 @@ local function OnAttributeChanged(self, name, unit)
 		self:RegisterNormalEvent("UNIT_PET", Units, "CheckPetUnitUpdated")
 		
 		if( self.unit == "pet" ) then
-			self.dropdownMenu = PetFrameDropDown
-			self:SetAttribute("_menu", PetFrame.menu)
 			self:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units.player.disableVehicle)
 		else
 			self:SetAttribute("disableVehicleSwap", ShadowUF.db.profile.units.party.disableVehicle)
@@ -628,15 +627,11 @@ local function OnAttributeChanged(self, name, unit)
 	-- Automatically do a full update on target change
 	elseif( self.unit == "target" ) then
 		self.isUnitVolatile = true
-		self.dropdownMenu = TargetFrameDropDown
-		self:SetAttribute("_menu", TargetFrame.menu)
 		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", Units, "CheckUnitStatus")
 
 	-- Automatically do a full update on focus change
 	elseif( self.unit == "focus" ) then
 		self.isUnitVolatile = true
-		self.dropdownMenu = FocusFrameDropDown
-		self:SetAttribute("_menu", FocusFrame.menu)
 		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", Units, "CheckUnitStatus")
 				
 	elseif( self.unit == "player" ) then
@@ -686,9 +681,7 @@ local function OnAttributeChanged(self, name, unit)
 	end
 	
 	-- No secure menu set, default to tainted
-	if( not self:GetAttribute("_menu") ) then
-		self.menu = ShowMenu
-	end
+	self.menu = ShowMenu
 			
 	-- Update module status
 	self:SetVisibility()
@@ -726,7 +719,7 @@ end)
 
 -- Reposition the dropdown
 local function PostClick(self)
-	if( UIDROPDOWNMENU_OPEN_MENU == self.dropdownMenu and DropDownList1:IsShown() )	 then
+	if( UIDROPDOWNMENU_OPEN_MENU and DropDownList1:IsShown() ) then
 		DropDownList1:ClearAllPoints()
 		DropDownList1:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, 0)
 		DropDownList1:SetClampedToScreen(true)
