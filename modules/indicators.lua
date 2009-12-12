@@ -1,7 +1,5 @@
-local Indicators = {list = {"status", "pvp", "leader", "masterLoot", "raidTarget", "happiness", "ready", "role"}}
+local Indicators = {list = {"status", "pvp", "leader", "masterLoot", "raidTarget", "happiness", "ready", "role", "lfdRole"}}
 local leavingWorld
-
-if( ShadowUF.isBuild30300 ) then table.insert(Indicators.list, "lfdRole") end
 
 ShadowUF:RegisterModule(Indicators, "indicators", ShadowUFLocals["Indicators"])
 

@@ -2,8 +2,7 @@
 	Shadowed Unit Frames, Mayen of Mal'Ganis (US) PvP
 ]]
 
-ShadowUF = {playerUnit = "player", raidUnits = {}, partyUnits = {}, arenaUnits = {}, bossUnits = {}, modules = {}, moduleOrder = {}, units = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet"}}
-ShadowUF.isBuild30300 = tonumber((select(4, GetBuildInfo()))) >= 30300
+ShadowUF = {playerUnit = "player", raidUnits = {}, partyUnits = {}, arenaUnits = {}, bossUnits = {}, modules = {}, moduleOrder = {}, units = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet"}}
 
 local L = ShadowUFLocals
 local units = ShadowUF.units
@@ -12,21 +11,9 @@ local _G = getfenv(0)
 -- Cache the units so we don't have to concat every time it updates
 for i=1, MAX_PARTY_MEMBERS do ShadowUF.partyUnits[i] = "party" .. i end
 for i=1, MAX_RAID_MEMBERS do ShadowUF.raidUnits[i] = "raid" .. i end
+for i=1, MAX_BOSS_FRAMES do table.insert(ShadowUF.bossUnits, "boss" .. i) end
 for i=1, 5 do ShadowUF.arenaUnits[i] = "arena" .. i end
-
-if( ShadowUF.isBuild30300 ) then
-	table.insert(ShadowUF.units, 13, "boss")
-	table.insert(ShadowUF.units, 14, "bosstarget")
-	for i=1, MAX_BOSS_FRAMES do table.insert(ShadowUF.bossUnits, "boss" .. i) end
-end
-
--- Temporarily moving this up here
-if( not select(6, GetAddOnInfo("ShadowedUF_Arena")) ) then
-	DisableAddOn("ShadowedUF_Arena")
-	DEFAULT_CHAT_FRAME:AddMessage(L["[WARNING!] ShadowedUF_Arena is unnecessary now as it has been added into SUF by default, please delete ShadowedUF_Arena to prevent conflicts."])
-	DEFAULT_CHAT_FRAME:AddMessage(L["[WARNING!] ShadowedUF_Arena is unnecessary now as it has been added into SUF by default, please delete ShadowedUF_Arena to prevent conflicts."])
-end
-
+ShadowUF.unitTarget = setmetatable({}, {__index = function(tbl, unit) rawset(tbl, unit, unit .. "target"); return unit .. "target" end})
 
 function ShadowUF:OnInitialize()
 	self.defaults = {
@@ -50,7 +37,7 @@ function ShadowUF:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileChanged", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnProfileCopied", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "ProfileReset")
-			
+		
 	-- Setup tag cache
 	self.tagFunc = setmetatable({}, {
 		__index = function(tbl, index)
@@ -303,14 +290,12 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.arena.auras.buffs.maxRows = 1
 	self.defaults.profile.units.arena.offset = 0
 	-- BOSS
-	if( ShadowUF.isBuild30300 ) then
-		self.defaults.profile.units.boss.enabled = false
-		self.defaults.profile.units.boss.attribPoint = "TOP"
-		self.defaults.profile.units.boss.attribAnchorPoint = "LEFT"
-		self.defaults.profile.units.boss.auras.debuffs.maxRows = 1
-		self.defaults.profile.units.boss.auras.buffs.maxRows = 1
-		self.defaults.profile.units.boss.offset = 0
-	end
+	self.defaults.profile.units.boss.enabled = false
+	self.defaults.profile.units.boss.attribPoint = "TOP"
+	self.defaults.profile.units.boss.attribAnchorPoint = "LEFT"
+	self.defaults.profile.units.boss.auras.debuffs.maxRows = 1
+	self.defaults.profile.units.boss.auras.buffs.maxRows = 1
+	self.defaults.profile.units.boss.offset = 0
 	-- RAID
 	self.defaults.profile.units.raid.groupBy = "GROUP"
 	self.defaults.profile.units.raid.sortOrder = "ASC"

@@ -1,10 +1,8 @@
 local L = ShadowUFLocals
-local Movers = {headers = {["party"] = "partyUnits", ["raid"] = "raidUnits", ["maintank"] = "raidUnits", ["mainassist"] = "raidUnits", ["arena"] = "arenaUnits"}}
+local Movers = {headers = {["party"] = "partyUnits", ["raid"] = "raidUnits", ["maintank"] = "raidUnits", ["mainassist"] = "raidUnits", ["arena"] = "arenaUnits", ["boss"] = "bossUnits"}}
 local childUnits = ShadowUF.Units.childUnits
 local moverList, tempPositions = {}, {}
 ShadowUF:RegisterModule(Movers, "movers")
-
-if( ShadowUF.isBuild30300 ) then Movers.headers.boss = "bossUnits" end
 
 local function OnEnter(self)
 	local tooltipText = self.tooltipText or L.units[self.unitType] or self.unitType
