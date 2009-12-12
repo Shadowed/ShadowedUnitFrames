@@ -502,7 +502,7 @@ local function ShowMenu(self)
 	if( self.unitOwner == "player" ) then
 		menuFrame = PlayerFrameDropDown
 	elseif( self.unitType == "boss" ) then
-		menuFrame = _G["Boss" .. i .. "TargetFrameDropDown"]
+		menuFrame = _G["Boss" .. self.unitID .. "TargetFrameDropDown"]
 	elseif( self.unitRealType == "party" ) then
 		menuFrame = _G["PartyMemberFrame" .. self.unitID .. "DropDown"]
 	elseif( self.unitRealType == "raid" ) then
@@ -647,7 +647,9 @@ local function OnAttributeChanged(self, name, unit)
 	
 	-- Update boss
 	elseif( self.unitType == "boss" ) then
-		self:RegisterNormalEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", Units, "FullUpdate")
+		self.timeElapsed = 0
+		self:SetScript("OnUpdate", TargetUnitUpdate)
+		self:RegisterNormalEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", self, "FullUpdate")
 		
 	-- Check for a unit guid to do a full update
 	elseif( self.unitRealType == "raid" ) then
