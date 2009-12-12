@@ -26,7 +26,7 @@ function ShadowUF:OnInitialize()
 			positions = {},
 			filters = {zones = {}, whitelists = {}, blacklists = {}},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
-			hidden = {player = true, pet = true, target = true, party = true, focus = true, targettarget = true, cast = false, runes = true, buffs = true},
+			hidden = {cast = false, runes = true, buffs = true},
 		},
 	}
 	
@@ -57,20 +57,15 @@ function ShadowUF:OnInitialize()
 			return tbl[index]
 	end})
 	
-	-- No active layout, register the default one
 	if( not self.db.profile.loadedLayout ) then
 		self:LoadDefaultLayout()
 	else
 		self:CheckUpgrade()
 	end
 	
-	-- Hide any Blizzard frames
 	self:HideBlizzardFrames()
-	-- Load SML info
 	self.Layout:LoadSML()
-	-- Initialize units
 	self:LoadUnits()
-	-- Show example frames? Moved this down to after unit initialization so the frames are there
 	self.modules.movers:Update()
 end
 
@@ -184,8 +179,6 @@ function ShadowUF:LoadUnits()
 	end
 end
 
--- Why set values to nil instead of false you ask? Mostly so I can still see the fields, as when I set them to false AceDB-3.0
--- swaps settings incorrectly
 function ShadowUF:LoadUnitDefaults()
 	for _, unit in pairs(units) do
 		self.defaults.profile.positions[unit] = {point = "", relativePoint = "", anchorPoint = "", anchorTo = "UIParent", x = 0, y = 0}
@@ -333,7 +326,6 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.positions.partytarget.anchorPoint = "RT"
 	self.defaults.profile.units.partytarget.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 		
-	-- Indicate that defaults were loaded
 	self:FireModuleEvent("OnDefaultsSet")
 end
 
@@ -397,40 +389,48 @@ function ShadowUF:ProfilesChanged()
 	self.modules.movers:Update()
 end
 
--- Hiding Blizzard stuff (Stolen from haste)
-function ShadowUF:HideBlizzardFrames()
-	-- Hide Blizzard frames
-	for type, hidden in pairs(self.db.profile.hidden) do
-		if( hidden ) then
-			self:HideBlizzard(type)
-		end
-	end
-end
-
+-- Stolen from haste
 ShadowUF.noop = function() end
-function ShadowUF:HideBlizzard(type)
-	if( type == "runes" ) then
+function ShadowUF:HideBlizzardFrames()
+	if( ShadowUF.db.profile.hidden.runes ) then
 		RuneFrame.Show = self.noop
 		RuneFrame:Hide()
-	elseif( type == "buffs" ) then
-		BuffFrame:UnregisterEvent("UNIT_AURA")
-		TemporaryEnchantFrame:Hide()
+	end
+	
+	if( ShadowUF.db.profile.hidden.cast ) then
+		CastingBarFrame:UnregisterAllEvents()
+		PetCastingBarFrame:UnregisterAllEvents()
+	end
+
+	if( ShadowUF.db.profile.hidden.buffs ) then
+		BuffFrame:UnregisterAllEvents()
+		BuffFrame.Show = self.noop
 		BuffFrame:Hide()
-	elseif( type == "player" ) then
+		ConsolidatedBuffs.Show = self.noop
+		ConsolidatedBuffs:Hide()
+		TemporaryEnchantFrame.Show = self.noop
+		TemporaryEnchantFrame:Hide()
+	end
+	
+	if( ShadowUF.db.profile.units.player.enabled ) then
 		PlayerFrame:UnregisterAllEvents()
 		PlayerFrame.Show = self.noop
 		PlayerFrame:Hide()
 
 		PlayerFrameHealthBar:UnregisterAllEvents()
 		PlayerFrameManaBar:UnregisterAllEvents()
-	elseif( type == "pet" ) then
+	end
+	
+	if( ShadowUF.db.profile.units.player.enabled or ShadowUF.db.profile.units.pet.enabled ) then
 		PetFrame:UnregisterAllEvents()
 		PetFrame.Show = self.noop
 		PetFrame:Hide()
 
 		PetFrameHealthBar:UnregisterAllEvents()
 		PetFrameManaBar:UnregisterAllEvents()
-	elseif( type == "target" ) then
+	end
+	
+	if( ShadowUF.db.profile.units.target.enabled ) then
 		TargetFrame:UnregisterAllEvents()
 		TargetFrame.Show = self.noop
 		TargetFrame:Hide()
@@ -442,7 +442,9 @@ function ShadowUF:HideBlizzard(type)
 		ComboFrame:UnregisterAllEvents()
 		ComboFrame.Show = self.noop
 		ComboFrame:Hide()
-	elseif( type == "focus" ) then
+	end
+	
+	if( ShadowUF.db.profile.units.focus.enabled ) then
 		FocusFrame:UnregisterAllEvents()
 		FocusFrame.Show = self.noop
 		FocusFrame:Hide()
@@ -450,25 +452,49 @@ function ShadowUF:HideBlizzard(type)
 		FocusFrameHealthBar:UnregisterAllEvents()
 		FocusFrameManaBar:UnregisterAllEvents()
 		FocusFrameSpellBar:UnregisterAllEvents()
-	elseif( type == "cast" ) then
-		CastingBarFrame:UnregisterAllEvents()
-		PetCastingBarFrame:UnregisterAllEvents()
-	elseif( type == "party" ) then
+	end
+	
+	if( ShadowUF.db.profile.units.party.enabled ) then
 		for i=1, MAX_PARTY_MEMBERS do
-			local party = "PartyMemberFrame" .. i
-			local frame = _G[party]
+			local name = "PartyMemberFrame" .. i
+			local frame = _G[name]
 
 			frame:UnregisterAllEvents()
 			frame.Show = self.noop
 			frame:Hide()
 
-			_G[party .. "HealthBar"]:UnregisterAllEvents()
-			_G[party .. "ManaBar"]:UnregisterAllEvents()
+			_G[name .. "HealthBar"]:UnregisterAllEvents()
+			_G[name .. "ManaBar"]:UnregisterAllEvents()
+		end
+	end
+	
+	if( ShadowUF.db.profile.units.boss.enabled ) then
+		for i=1, MAX_BOSS_FRAMES do
+			local name = "Boss" .. i .. "TargetFrame"
+			local frame = _G[name]
+
+			frame:UnregisterAllEvents()
+			frame.Show = self.noop
+			frame:Hide()
+
+			_G[name .. "HealthBar"]:UnregisterAllEvents()
+			_G[name .. "ManaBar"]:UnregisterAllEvents()
+		end
+	end
+	
+	if( ShadowUF.db.profile.units.arena.enabled ) then
+		Arena_LoadUI = self.noop
+	end
+
+	for _, list in pairs(UnitPopupMenus) do
+		for i=#(list), 1, -1 do
+			if( list[i] == "SET_FOCUS" or list[i] == "CLEAR_FOCUS" or list[i] == "LOCK_FOCUS_FRAME" or list[i] == "UNLOCK_FOCUS_FRAME" ) then
+				table.remove(list, i)
+			end
 		end
 	end
 end
 
--- Open the GUI and such
 CONFIGMODE_CALLBACKS = CONFIGMODE_CALLBACKS or {}
 CONFIGMODE_CALLBACKS["Shadowed Unit Frames"] = function(mode)
 	if( mode == "ON" ) then
@@ -494,7 +520,6 @@ SlashCmdList["SHADOWEDUF"] = function(msg)
 	ShadowUF.Config:Open()
 end
 
--- Event handling, makes sure SUF loads fine
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 frame:SetScript("OnEvent", function(self, event)
