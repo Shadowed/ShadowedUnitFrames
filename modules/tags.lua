@@ -351,12 +351,22 @@ Tags.defaultTags = {
 	["unit:color:sit"] = [[function(unit, unitOwner)
 		local state = UnitThreatSituation(unit)
 		
-		return state and ShadowUF:Hex(GetThreatStatusColor(state))
+		return state and state > 0 and ShadowUF:Hex(GetThreatStatusColor(state))
+	end]],
+	["unit:color:aggro"] = [[function(unit, unitOwner)
+		local state = UnitThreatSituation(unit)
+		
+		return state and state >= 3 and ShadowUF:Hex(GetThreatStatusColor(state))
 	end]],
 	["color:sit"] = [[function(unit, unitOwner)
 		local state = UnitThreatSituation("player", "target")
 		
-		return state and ShadowUF:Hex(GetThreatStatusColor(state))
+		return state and state > 0 and ShadowUF:Hex(GetThreatStatusColor(state))
+	end]],
+	["color:aggro"] = [[function(unit, unitOwner)
+		local state = UnitThreatSituation("player", "target")
+		
+		return state and state >= 3 and ShadowUF:Hex(GetThreatStatusColor(state))
 	end]],
 	["unit:scaled:threat"] = [[function(unit, unitOwner)
 		local scaled = select(3, UnitDetailedThreatSituation(unit))
@@ -379,7 +389,7 @@ Tags.defaultTags = {
 	["color:gensit"] = [[function(unit, unitOwner)
 		local state = UnitThreatSituation("player")
 		
-		return state and ShadowUF:Hex(GetThreatStatusColor(state))
+		return state and state > 0 and ShadowUF:Hex(GetThreatStatusColor(state))
 	end]],
 	["status:time"] = [[function(unit, unitOwner)
 		local offlineStatus = ShadowUF.Tags.offlineStatus
@@ -815,6 +825,8 @@ Tags.defaultEvents = {
 	["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
 	["dechp"]				= "UNIT_HEALTH UNIT_MAXHEALTH",
 	["group"]				= "RAID_ROSTER_UPDATE",
+	["unit:color:aggro"]	= "UNIT_THREAT_SITUATION_UPDATE",
+	["color:aggro"]			= "UNIT_THREAT_SITUATION_UPDATE",
 	["situation"]			= "UNIT_THREAT_SITUATION_UPDATE",
 	["color:sit"]			= "UNIT_THREAT_SITUATION_UPDATE",
 	["scaled:threat"]		= "UNIT_THREAT_SITUATION_UPDATE",
@@ -902,9 +914,11 @@ Tags.defaultCategories = {
 	["scaled:threat"]		= "playerthreat",
 	["general:sit"]			= "playerthreat",
 	["color:gensit"]		= "playerthreat",
+	["color:aggro"]			= "playerthreat",
 	["unit:scaled:threat"]	= "threat",
 	["unit:color:sit"]		= "threat",
 	["unit:situation"]		= "threat",
+	["unit:color:aggro"]	= "threat",
 }
 	
 -- Default tag help
@@ -976,6 +990,8 @@ Tags.defaultHelp = {
 	["unit:scaled:threat"]	= L["Returns the scaled threat percentage for the unit, if you put this on a party member you would see the percentage of how close they are to getting any from any hostile mobs. Always 0 - 100%.\nThis cannot be used on target of target or focus target types of units."],
 	["unit:color:sit"]		= L["Returns the color code for the units threat situation in general: Red for Aggro, Orange for High threat and Yellow to watch out.\nThis cannot be used on target of target or focus target types of units."],
 	["unit:situation"]		= L["Returns text based on the units general threat situation: Aggro for Aggro, High for being close to taking aggro, and Medium as a warning to be wary.\nThis cannot be used on target of target or focus target types of units."],
+	["unit:color:aggro"]	= L["Same as [unit:color:sit] except it only returns red if the unit has aggro, rather than transiting from yellow -> orange -> red."],
+	["color:aggro"]			= L["Same as [color:sit] except it only returns red if you have aggro, rather than transiting from yellow -> orange -> red."],
 }
 
 Tags.defaultNames = {
@@ -1046,6 +1062,8 @@ Tags.defaultNames = {
 	["scaled:threat"]		= L["Scaled threat percent"],
 	["general:sit"]			= L["General threat situation"],
 	["color:gensit"]		= L["Color code for general situation"],
+	["color:aggro"]			= L["Color code on aggro"],
+	["unit:color:aggro"]	= L["Unit color code on aggro"],
 }
 
 -- List of event types
