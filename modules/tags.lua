@@ -773,6 +773,34 @@ Tags.defaultTags = {
 	["incheal:name"] = [[function(unit, unitOwner, fontString)
 		return fontString.incoming and string.format("+%d", fontString.incoming) or ShadowUF.tagFunc.name(unit, unitOwner)
 	end]],
+	["unit:raid:targeting"] = [[function(unit, unitOwner, fontString)
+		if( GetNumRaidMembers() == 0 ) then return nil end
+		local guid = UnitGUID(unit)
+		if( not guid ) then return "0" end
+		
+		local total = 0
+		for i=1, GetNumRaidMembers() do
+			local unit = ShadowUF.raidUnits[i]
+			if( UnitGUID(ShadowUF.unitTarget[unit]) == guid ) then
+				total = total + 1
+			end
+		end		
+		return total
+	end]],
+	["unit:raid:assist"] = [[function(unit, unitOwner, fontString)
+		if( GetNumRaidMembers() == 0 ) then return nil end
+		local guid = UnitGUID(ShadowUF.unitTarget[unit])
+		if( not guid ) then return "--" end
+		
+		local total = 0
+		for i=1, GetNumRaidMembers() do
+			local unit = ShadowUF.raidUnits[i]
+			if( UnitGUID(ShadowUF.unitTarget[unit]) == guid ) then
+				total = total + 1
+			end
+		end		
+		return total
+	end]],
 }
 
 -- Default tag events
@@ -846,6 +874,8 @@ Tags.defaultFrequents = {
 	["pvp:time"] = 1,
 	["scaled:threat"] = 1,
 	["unit:scaled:threat"] = 1,
+	["unit:raid:targeting"] = 0.50,
+	["unit:raid:assist"] = 0.50,
 }
 
 -- Default tag categories
@@ -919,6 +949,8 @@ Tags.defaultCategories = {
 	["unit:color:sit"]		= "threat",
 	["unit:situation"]		= "threat",
 	["unit:color:aggro"]	= "threat",
+	["unit:raid:assist"]	= "raid",
+	["unit:raid:targeting"] = "raid",
 }
 	
 -- Default tag help
@@ -992,6 +1024,8 @@ Tags.defaultHelp = {
 	["unit:situation"]		= L["Returns text based on the units general threat situation: Aggro for Aggro, High for being close to taking aggro, and Medium as a warning to be wary.\nThis cannot be used on target of target or focus target types of units."],
 	["unit:color:aggro"]	= L["Same as [unit:color:sit] except it only returns red if the unit has aggro, rather than transiting from yellow -> orange -> red."],
 	["color:aggro"]			= L["Same as [color:sit] except it only returns red if you have aggro, rather than transiting from yellow -> orange -> red."],
+	["unit:raid:targeting"]	= L["How many people in your raid are targeting the unit, for example if you put this on yourself it will show how many people are targeting you. This includes you in the count!"],
+	["unit:raid:assist"]	= L["How many people are assisting the unit, for example if you put this on yourself it will show how many people are targeting your target. This includes you in the count!"],
 }
 
 Tags.defaultNames = {
@@ -1064,6 +1098,8 @@ Tags.defaultNames = {
 	["color:gensit"]		= L["Color code for general situation"],
 	["color:aggro"]			= L["Color code on aggro"],
 	["unit:color:aggro"]	= L["Unit color code on aggro"],
+	["unit:raid:targeting"]	= L["Raid targeting unit"],
+	["unit:raid:assist"]	= L["Raid assisting unit"],
 }
 
 -- List of event types
