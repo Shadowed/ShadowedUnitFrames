@@ -18,16 +18,11 @@ local unitCategories = {
 	player = {"player", "pet"},
 	general = {"target", "targettarget", "targettargettarget", "focus", "focustarget", "pettarget"},
 	party = {"party", "partypet", "partytarget"},
-	raid = {"raid", "maintank", "maintanktarget", "mainassist", "mainassisttarget"},
+	raid = {"raid", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget"},
 	arena = {"arena", "arenapet", "arenatarget"}}
 
-if( ShadowUF.isBuild30300 ) then
-	table.insert(unitCategories.raid, 2, "boss")
-	table.insert(unitCategories.raid, 3, "bosstarget")
-end
-
 local UNIT_DESC = {
-	["boss"] = L["Boss units are for council type of fights, Iron Council, Illidari Council, Blood Princes. They do not work for every boss fight."],
+	["boss"] = L["Boss units are for only certain fights, such as Blood Princes or the Gunship battle, you will not see them for every boss fight."],
 	["mainassist"] = L["Main Assists's are set by the Blizzard Main Assist system or mods that use them such as oRA3."],
 	["maintank"] = L["Main Tank's are set by the Blizzard Main Tank system or mods that use them such as oRA3."],
 }
@@ -41,15 +36,14 @@ local PAGE_DESC = {
 	["tags"] = L["Advanced tag management, allows you to add your own custom tags."],
 	["filter"] = L["Simple aura filtering by whitelists and blacklists."],
 }
-local AREA_NAMES = {["arena"] = "Arenas",["none"] = "Everywhere else", ["party"] = "Party instances", ["pvp"] = "Battlegrounds", ["raid"] = "Raid instances",}
 local INDICATOR_NAMES = {["happiness"] = L["Happiness"], ["leader"] = L["Leader"], ["lfdRole"] = L["Dungeon Role"], ["masterLoot"] = L["Master looter"], ["pvp"] = L["PvP Flag"],["raidTarget"] = L["Raid target"], ["ready"] = L["Ready status"], ["role"] = L["Raid role"], ["status"] = L["Combat status"],}
-local AREA_NAMES = {["arena"] = "Arenas",["none"] = "Everywhere else", ["party"] = "Party instances", ["pvp"] = "Battlegrounds", ["raid"] = "Raid instances",}
-local INDICATOR_DESC = {["happiness"] = "Indicator for your pet's happiness, only applies to Hunters.",
-		["leader"] = "Crown indicator for group leaders.", ["lfdRole"] = "Role the unit is playing in dungeons formed through the Looking For Dungeon system.",
-		["masterLoot"] = "Bag indicator for master looters.", ["pvp"] = "PVP flag indicator, Horde for Horde flagged pvpers and Alliance for Alliance flagged pvpers.",
-		["raidTarget"] = "Raid target indicator.", ["ready"] = "Ready status of group members.",
-		["role"] = "Raid role indicator, adds a shield indicator for main tanks and a sword icon for main assists.", ["status"] = "Status indicator, shows if the unit is currently in combat. For the plyer it will also show if you are rested.",}
-local TAG_GROUPS = {["classification"] = "Classifications", ["health"] = "Health", ["misc"] = "Miscellaneous", ["playerthreat"] = "Player threat", ["power"] = "Power", ["status"] = "Status", ["threat"] = "Threat",}
+local AREA_NAMES = {["arena"] = L["Arenas"],["none"] = L["Everywhere else"], ["party"] = L["Party instances"], ["pvp"] = L["Battlegrounds"], ["raid"] = L["Raid instances"],}
+local INDICATOR_DESC = {["happiness"] = L["Indicator for your pet's happiness, only applies to Hunters."],
+		["leader"] = L["Crown indicator for group leaders."], ["lfdRole"] = L["Role the unit is playing in dungeons formed through the Looking For Dungeon system."],
+		["masterLoot"] = L["Bag indicator for master looters."], ["pvp"] = L["PVP flag indicator, Horde for Horde flagged pvpers and Alliance for Alliance flagged pvpers."],
+		["raidTarget"] = L["Raid target indicator."], ["ready"] = L["Ready status of group members."],
+		["role"] = L["Raid role indicator, adds a shield indicator for main tanks and a sword icon for main assists."], ["status"] = L["Status indicator, shows if the unit is currently in combat. For the plyer it will also show if you are rested."],}
+local TAG_GROUPS = {["classification"] = L["Classifications"], ["health"] = L["Health"], ["misc"] = L["Miscellaneous"], ["playerthreat"] = L["Player threat"], ["power"] = L["Power"], ["status"] = L["Status"], ["threat"] = L["Threat"], ["raid"] = L["Raid"],}
 
 local pointPositions = {["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["CENTER"] = L["Center"]}
 local positionList = {["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
