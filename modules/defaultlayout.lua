@@ -218,14 +218,15 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 	config.units = {
 		raid = {
 			width = 100,
-			height = 30,
+			height = 28,
 			scale = 0.85,
 			unitsPerColumn = 8,
 			maxColumns = 8,
 			columnSpacing = 5,
 			attribPoint = "TOP",
 			attribAnchorPoint = "LEFT",
-			powerBar = {height = 0.60},
+			healthBar = {reactionType = "none"},
+			powerBar = {height = 0.30},
 			incHeal = {cap = 1},
 			highlight = {size = 10},
 			indicators = {
@@ -233,11 +234,11 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				role = {anchorTo = "$parent", anchorPoint = "BR", size = 14, x = 0, y = 14},
 			},
 			text = {
-				{text = "[(()afk() )][group( )][name]"},
-				{text = "[curhp]"},
+				{text = "[(()afk() )][name]"},
+				{text = "[missinghp]"},
 				{text = ""},
-				{text = "[curpp]"},
-				{text = "[(()afk() )][group( )][name]"},
+				{text = ""},
+				{text = "[(()afk() )][name]"},
 			},
 		},
 		player = {
