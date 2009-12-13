@@ -26,7 +26,7 @@ function ShadowUF:OnInitialize()
 			positions = {},
 			filters = {zones = {}, whitelists = {}, blacklists = {}},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
-			hidden = {cast = false, runes = true, buffs = true},
+			hidden = {cast = false, runes = true, buffs = true, party = true},
 		},
 	}
 	
@@ -70,31 +70,6 @@ function ShadowUF:OnInitialize()
 end
 
 function ShadowUF:CheckUpgrade()
-	-- September 21th, 2009
-	for _, unit in pairs(self.units) do
-		if( self.db.profile.units[unit].indicators.role and not self.db.profile.units[unit].indicators.role.anchorTo ) then
-			self.db.profile.units[unit].indicators.role.anchorTo = "$parent"
-			self.db.profile.units[unit].indicators.role.anchorPoint = "BR"
-			self.db.profile.units[unit].indicators.role.x = 0
-			self.db.profile.units[unit].indicators.role.y = 16
-			self.db.profile.units[unit].indicators.role.size = 16
-		end
-		
-		if( self.db.profile.units[unit].indicators.status and not self.db.profile.units[unit].indicators.status.anchorTo ) then
-			self.db.profile.units[unit].indicators.status.anchorTo = "$parent"
-			self.db.profile.units[unit].indicators.status.anchorPoint = "LB"
-			self.db.profile.units[unit].indicators.status.x = 12
-			self.db.profile.units[unit].indicators.status.y = -2
-			self.db.profile.units[unit].indicators.status.size = 16
-		end
-	end
-
-	-- October 10th, 2009
-	if( self.db.profile.units.party.showAsRaid ~= nil ) then
-		self.db.profile.units.raid.showParty = self.db.profile.units.party.showAsRaid
-		self.db.profile.units.party.showAsRaid = nil
-	end
-	
 	-- December 1th, 2009
 	if( not self.db.profile.units.player.indicators.lfdRole.anchorPoint and not self.db.profile.units.party.indicators.lfdRole.anchorPoint ) then
 		self.db.profile.units.player.indicators.lfdRole = {enabled = true, size = 16, x = 6, y = 14, anchorPoint = "BR", anchorTo = "$parent"}
@@ -402,6 +377,20 @@ function ShadowUF:HideBlizzardFrames()
 		PetCastingBarFrame:UnregisterAllEvents()
 	end
 
+	if( ShadowUF.db.profile.hidden.party ) then
+		for i=1, MAX_PARTY_MEMBERS do
+			local name = "PartyMemberFrame" .. i
+			local frame = _G[name]
+
+			frame:UnregisterAllEvents()
+			frame.Show = self.noop
+			frame:Hide()
+
+			_G[name .. "HealthBar"]:UnregisterAllEvents()
+			_G[name .. "ManaBar"]:UnregisterAllEvents()
+		end
+	end
+
 	if( ShadowUF.db.profile.hidden.buffs ) then
 		BuffFrame:UnregisterAllEvents()
 		BuffFrame.Show = self.noop
@@ -453,21 +442,7 @@ function ShadowUF:HideBlizzardFrames()
 		FocusFrameManaBar:UnregisterAllEvents()
 		FocusFrameSpellBar:UnregisterAllEvents()
 	end
-	
-	if( ShadowUF.db.profile.units.party.enabled ) then
-		for i=1, MAX_PARTY_MEMBERS do
-			local name = "PartyMemberFrame" .. i
-			local frame = _G[name]
-
-			frame:UnregisterAllEvents()
-			frame.Show = self.noop
-			frame:Hide()
-
-			_G[name .. "HealthBar"]:UnregisterAllEvents()
-			_G[name .. "ManaBar"]:UnregisterAllEvents()
-		end
-	end
-	
+		
 	if( ShadowUF.db.profile.units.boss.enabled ) then
 		for i=1, MAX_BOSS_FRAMES do
 			local name = "Boss" .. i .. "TargetFrame"
