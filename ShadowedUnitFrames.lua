@@ -26,7 +26,7 @@ function ShadowUF:OnInitialize()
 			positions = {},
 			filters = {zones = {}, whitelists = {}, blacklists = {}},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
-			hidden = {cast = false, runes = true, buffs = true, party = true},
+			hidden = {cast = false, runes = true, buffs = true, party = true, player = true, pet = true, target = true, focus = true, boss = true, arena = true},
 		},
 	}
 	
@@ -401,7 +401,7 @@ function ShadowUF:HideBlizzardFrames()
 		TemporaryEnchantFrame:Hide()
 	end
 	
-	if( ShadowUF.db.profile.units.player.enabled ) then
+	if( ShadowUF.db.profile.hidden.player ) then
 		PlayerFrame:UnregisterAllEvents()
 		PlayerFrame.Show = self.noop
 		PlayerFrame:Hide()
@@ -410,7 +410,7 @@ function ShadowUF:HideBlizzardFrames()
 		PlayerFrameManaBar:UnregisterAllEvents()
 	end
 	
-	if( ShadowUF.db.profile.units.player.enabled or ShadowUF.db.profile.units.pet.enabled ) then
+	if( ShadowUF.db.profile.hidden.pet ) then
 		PetFrame:UnregisterAllEvents()
 		PetFrame.Show = self.noop
 		PetFrame:Hide()
@@ -419,7 +419,7 @@ function ShadowUF:HideBlizzardFrames()
 		PetFrameManaBar:UnregisterAllEvents()
 	end
 	
-	if( ShadowUF.db.profile.units.target.enabled ) then
+	if( ShadowUF.db.profile.hidden.target ) then
 		TargetFrame:UnregisterAllEvents()
 		TargetFrame.Show = self.noop
 		TargetFrame:Hide()
@@ -433,7 +433,7 @@ function ShadowUF:HideBlizzardFrames()
 		ComboFrame:Hide()
 	end
 	
-	if( ShadowUF.db.profile.units.focus.enabled ) then
+	if( ShadowUF.db.profile.hidden.focus ) then
 		FocusFrame:UnregisterAllEvents()
 		FocusFrame.Show = self.noop
 		FocusFrame:Hide()
@@ -443,7 +443,7 @@ function ShadowUF:HideBlizzardFrames()
 		FocusFrameSpellBar:UnregisterAllEvents()
 	end
 		
-	if( ShadowUF.db.profile.units.boss.enabled ) then
+	if( ShadowUF.db.profile.hidden.boss ) then
 		for i=1, MAX_BOSS_FRAMES do
 			local name = "Boss" .. i .. "TargetFrame"
 			local frame = _G[name]
@@ -457,7 +457,7 @@ function ShadowUF:HideBlizzardFrames()
 		end
 	end
 	
-	if( ShadowUF.db.profile.units.arena.enabled ) then
+	if( ShadowUF.db.profile.hidden.arena ) then
 		Arena_LoadUI = self.noop
 	end
 
