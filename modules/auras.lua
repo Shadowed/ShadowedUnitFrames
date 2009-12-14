@@ -1,5 +1,6 @@
 local Auras = {}
 local stealableColor = {r = 0.80, g = 0.50, b = 0}
+local playerUnits = {player = true, vehicle = true, pet = true}
 local tempEnchantScan
 ShadowUF:RegisterModule(Auras, "auras", ShadowUFLocals["Auras"])
 
@@ -400,7 +401,7 @@ local function scan(parent, frame, type, config, filter)
 		local name, rank, texture, count, auraType, duration, endTime, caster, isStealable = UnitAura(frame.parent.unit, index, filter)
 		if( not name ) then break end
 		
-		if( ( not config.player or caster == ShadowUF.playerUnit ) and ( not parent.whitelist[type] and not parent.blacklist[type] or parent.whitelist[type] and parent.whitelist[name] or parent.blacklist[type] and not parent.blacklist[name] ) ) then
+		if( ( not config.player or playerUnits[caster] ) and ( not parent.whitelist[type] and not parent.blacklist[type] or parent.whitelist[type] and parent.whitelist[name] or parent.blacklist[type] and not parent.blacklist[name] ) ) then
 			-- Create any buttons we need
 			frame.totalAuras = frame.totalAuras + 1
 			if( #(frame.buttons) < frame.totalAuras ) then
@@ -419,7 +420,7 @@ local function scan(parent, frame, type, config, filter)
 			end
 			
 			-- Show the cooldown ring
-			if( not ShadowUF.db.profile.auras.disableCooldown and duration > 0 and endTime > 0 and ( not config.selfTimers or ( config.selfTimers and caster == ShadowUF.playerUnit ) ) ) then
+			if( not ShadowUF.db.profile.auras.disableCooldown and duration > 0 and endTime > 0 and ( not config.selfTimers or ( config.selfTimers and playerUnits[caster] ) ) ) then
 				button.cooldown:SetCooldown(endTime - duration, duration)
 				button.cooldown:Show()
 			else
