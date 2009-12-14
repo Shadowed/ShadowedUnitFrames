@@ -434,8 +434,7 @@ function Units:CheckVehicleStatus(frame, event, unit)
 		
 	-- Not in a vehicle yet, and they entered one that has a UI or they were in a vehicle but the GUID changed (vehicle -> vehicle)
 	if( ( not frame.inVehicle or frame.unitGUID ~= UnitGUID(frame.vehicleUnit) ) and UnitHasVehicleUI(frame.unitOwner) and not ShadowUF.db.profile.units[frame.unitType].disableVehicle ) then
-		-- Keep track of what the players current unit is supposed to be, so things like auras can figure out what unit to filter
-		if( frame.unitOwner == "player" ) then ShadowUF.playerUnit = frame.unit end
+		
 		frame.inVehicle = true
 		frame.unit = frame.vehicleUnit
 
@@ -450,12 +449,20 @@ function Units:CheckVehicleStatus(frame, event, unit)
 				
 	-- Was in a vehicle, no longer has a UI
 	elseif( frame.inVehicle and ( not UnitHasVehicleUI(frame.unitOwner) or ShadowUF.db.profile.units[frame.unitType].disableVehicle ) ) then
-		if( frame.unitOwner == "player" ) then ShadowUF.playerUnit = frame.unitOwner end
-
 		frame.inVehicle = false
 		frame.unit = frame.unitOwner
 		frame.unitGUID = UnitGUID(frame.unit)
 		frame:FullUpdate()
+	end
+
+	-- Keep track of the actual players unit so we can quickly see what unit to scan
+	if( frame.unitOwner == "player" and ShadowUF.playerUnit ~= frame.unit ) then
+		ShadowUF.playerUnit = frame.unit
+		
+		if( not ShadowUF.db.profile.hidden.buffs and ShadowUF.db.profile.units.player.enabled and BuffFrame:IsVisible() ) then
+			PlayerFrame.unit = frame.unit
+			BuffFrame_Update() 
+		end
 	end
 end
 
