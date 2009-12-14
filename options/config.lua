@@ -1212,7 +1212,7 @@ local function loadHideOptions()
 		end,
 		set = function(info, value)
 			set(info, value)
-			if( value ) then ShadowUF:HideBlizzard(info[#(info)]) end
+			if( value ) then ShadowUF:HideBlizzardFrames() end
 		end,
 		hidden = false,
 		get = get,
