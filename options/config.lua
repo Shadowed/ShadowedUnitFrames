@@ -283,7 +283,9 @@ end
 local function hideRestrictedOption(info)
 	local unit = type(info.arg) == "number" and info[#(info) - info.arg] or info[2]
 	local key = info[#(info)]
-	if( ( key == "druidBar" and playerClass ~= "DRUID" ) or ( key == "totemBar" and playerClass ~= "SHAMAN" ) or ( key == "runeBar" and playerClass ~= "DEATHKNIGHT" ) ) then
+	if( ShadowUF.modules[key] and ShadowUF.modules[key].moduleClass and ShadowUF.modules[key].moduleClass ~= playerClass ) then
+		return true
+	elseif( key == "incHeal" and not ShadowUF.modules.incHeal ) then
 		return true
 	-- Non-standard units do not support color by aggro or incoming heal
 	elseif( key == "colorAggro" or key == "incHeal" or key == "aggro" ) then
@@ -2847,10 +2849,12 @@ local function loadUnitOptions()
 								arg = "runeBar.enabled",
 							},
 							totemBar = {
-								order = 1,
+								order = 1.5,
 								type = "toggle",
-								name = string.format(L["Enable %s"], L["Totem bar"]),
-								desc = L["Adds totem bars with timers before they expire to the player frame."],
+								name = string.format(L["Enable %s"], ShadowUF.modules.totemBar.moduleName),
+								desc = function(info)
+									return select(2, UnitClass("player")) == "SHAMAN" and L["Adds totem bars with timers before they expire to the player frame."] or L["Adds a bar indicating how much time is left on your ghoul timer, only used if you do not have a permanent ghoul."]
+								end,
 								hidden = hideRestrictedOption,
 								arg = "totemBar.enabled",
 							},
