@@ -130,6 +130,10 @@ function ShadowUF:CheckUpgrade()
 		config.highlight.alpha = config.highlight.alpha or 1.0
 		config.highlight.size = config.highlight.size or 30
 	end
+	
+	-- December 15th
+	self.db.profile.units.boss.castBar = nil
+	self.db.profile.units.boss.combatText = nil
 end
 	
 function ShadowUF:LoadUnits()
@@ -182,11 +186,11 @@ function ShadowUF:LoadUnitDefaults()
 		}
 				
 		-- These modules are not enabled for "fake" units so don't bother with adding defaults
-		if( not string.match(unit, "%w+target") ) then
+		if( not string.match(unit, "%w+target") and unit ~= "boss" ) then
 			self.defaults.profile.units[unit].castBar = {enabled = false, icon = "HIDE", name = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}, time = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}}
 			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
 
-			if( unit ~= "boss" and unit ~= "arena" and unit ~= "arenapet" ) then
+			if( unit ~= "arena" and unit ~= "arenapet" ) then
 				self.defaults.profile.units[unit].incHeal = {enabled = false, cap = 1.30}
 			end
 		end
