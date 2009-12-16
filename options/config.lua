@@ -3338,7 +3338,7 @@ local function loadUnitOptions()
 	
 	options.args.enableUnits = {
 		type = "group",
-		name = L["Unit status"],
+		name = L["Enabled units"],
 		desc = getPageDescription,
 		args = {
 			help = {
