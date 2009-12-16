@@ -4763,7 +4763,7 @@ local function loadVisibilityOptions()
 				name = function(info)
 					local unit = info[#(info) - 1]
 					if( unit == "global" ) then return "" end
-					return string.format(L["Enable %s frames"], L.units[unit])
+					return string.format(L["%s frames"], L.units[unit])
 				end,
 				hidden = function(info) return info[#(info) - 1] == "global" end,
 				desc = getHelp,
