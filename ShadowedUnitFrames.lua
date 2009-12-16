@@ -1,5 +1,5 @@
 --[[ 
-	Shadowed Unit Frames, Mayen of Mal'Ganis (US) PvP
+	Shadowed Unit Frames, Shadow of Mal'Ganis (US) PvP
 ]]
 
 ShadowUF = {playerUnit = "player", raidUnits = {}, partyUnits = {}, arenaUnits = {}, bossUnits = {}, modules = {}, moduleOrder = {}, units = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet"}}
@@ -304,8 +304,6 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.positions.partytarget.anchorTo = "$parent"
 	self.defaults.profile.positions.partytarget.anchorPoint = "RT"
 	self.defaults.profile.units.partytarget.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
-		
-	self:FireModuleEvent("OnDefaultsSet")
 end
 
 -- Module APIs
