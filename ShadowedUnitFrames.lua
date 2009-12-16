@@ -308,6 +308,12 @@ end
 
 -- Module APIs
 function ShadowUF:RegisterModule(module, key, name, isBar, class)
+	-- December 16th
+	if( module.OnDefaultsSet ) then
+		DEFAULT_CHAT_FRAME:AddMessage(string.format("[WARNING!] You are running an outdated version of %s, you need to update it to the latest available for it to work with SUF.", name or key or "unknown"))
+		return
+	end
+
 	self.modules[key] = module
 
 	module.moduleKey = key
