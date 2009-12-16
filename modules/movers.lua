@@ -85,6 +85,15 @@ function Movers:Enable()
 	frame:RegisterForDrag("LeftButton")
 	frame:EnableMouse(true)
 	frame:SetMovable(true)
+	frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+	frame:SetScript("OnEvent", function(self)
+		if( not ShadowUF.db.profile.locked and self:IsVisible() ) then
+			ShadowUF.db.profile.locked = true
+			Movers:Disable()
+			
+			DEFAULT_CHAT_FRAME:AddMessage(L["You have entered combat, unit frames have been locked. Once you leave combat you will need to unlock them again through /shadowuf."])
+		end
+	end)
 	frame:SetScript("OnShow", OnShow)
 	frame:SetScript("OnHide", OnHide)
 	frame:SetScript("OnDragStart", function(self)
