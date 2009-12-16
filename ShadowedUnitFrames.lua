@@ -503,11 +503,11 @@ SlashCmdList["SHADOWEDUF"] = function(msg)
 end
 
 local frame = CreateFrame("Frame")
-frame:RegisterEvent("PLAYER_ENTERING_WORLD")
-frame:SetScript("OnEvent", function(self, event)
-	if( event == "PLAYER_ENTERING_WORLD" ) then
+frame:RegisterEvent("ADDON_LOADED")
+frame:SetScript("OnEvent", function(self, event, addon)
+	if( event == "ADDON_LOADED" and addon == "ShadowedUnitFrames" ) then
 		ShadowUF:OnInitialize()
-		self:UnregisterEvent("PLAYER_ENTERING_WORLD")
+		self:UnregisterEvent("ADDON_LOADED")
 	end
 end)
 
