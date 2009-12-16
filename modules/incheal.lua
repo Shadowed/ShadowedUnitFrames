@@ -1,7 +1,9 @@
+local HealComm = LibStub("LibHealComm-4.0", true)
+if( not HealComm ) then return end
+
 local IncHeal = {}
 local frames = {}
 local playerEndTime, playerGUID
-local HealComm = LibStub("LibHealComm-4.0", true)
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUFLocals["Incoming heals"])
 	
 -- How far ahead to show heals at most
