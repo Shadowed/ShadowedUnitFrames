@@ -1,18 +1,24 @@
 local Totems = {}
-local totemColors
-ShadowUF:RegisterModule(Totems, "totemBar", ShadowUFLocals["Totem bar"], true, "SHAMAN")
+local totemColors = {}
+local MAX_TOTEMS = MAX_TOTEMS
+
+-- Death Knights untalented ghouls are guardians and are considered totems........... so set it up for them
+if( select(2, UnitClass("player")) == "DEATHKNIGHT" ) then
+	MAX_TOTEMS = 1
+	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUFLocals["Guardian bar"], true, "DEATHKNIGHT")
+else
+	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUFLocals["Totem bar"], true, "SHAMAN")
+end
 
 function Totems:OnEnable(frame)
 	if( not frame.totemBar ) then
-		totemColors = {{r = 1, g = 0, b = 0.4}, {r = 0, g = 1, b = 0.4}, {r = 0, g = 0.4, b = 1}, {r = 0.90, g = 0.90, b = 0.90}}
-		
 		frame.totemBar = CreateFrame("Frame", nil, frame)
 		frame.totemBar.totems = {}
 		
 		for id=1, MAX_TOTEMS do
 			local totem = CreateFrame("StatusBar", nil, frame.totemBar)
 			totem:SetFrameLevel(1)
-			totem.id = TOTEM_PRIORITIES[id]
+			totem.id = MAX_TOTEMS == 1 and 1 or TOTEM_PRIORITIES[id]
 			
 			if( id > 1 ) then
 				totem:SetPoint("TOPLEFT", frame.totemBar.totems[id - 1], "TOPRIGHT", 1, 0)
@@ -21,6 +27,15 @@ function Totems:OnEnable(frame)
 			end
 			
 			table.insert(frame.totemBar.totems, totem)
+		end
+		
+		if( MAX_TOTEMS == 1 ) then
+			totemColors[1] = ShadowUF.db.profile.classColors.PET
+		else
+			totemColors[1] = {r = 1, g = 0, b = 0.4}
+			totemColors[2] = {r = 0, g = 1, b = 0.4}
+			totemColors[3] = {r = 0, g = 0.4, b = 1}
+			totemColors[4] = {r = 0.90, g = 0.90, b = 0.90}
 		end
 	end
 	
@@ -34,7 +49,7 @@ end
 
 function Totems:OnLayoutApplied(frame)
 	if( frame.visibility.totemBar ) then
-		local barWidth = (frame.totemBar:GetWidth() - 3) / 4
+		local barWidth = (frame.totemBar:GetWidth() - (MAX_TOTEMS - 1)) / MAX_TOTEMS
 		
 		for _, totem in pairs(frame.totemBar.totems) do
 			totem:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
@@ -56,9 +71,10 @@ local function totemMonitor(self, elapsed)
 end
 
 function Totems:Update(frame)
+	local totalActive = 0
 	for _, indicator in pairs(frame.totemBar.totems) do
 		local have, name, start, duration = GetTotemInfo(indicator.id)
-		if( have ) then
+		if( have and start > 0 ) then
 			indicator.have = true
 			indicator.endTime = start + duration
 			indicator:SetMinMaxValues(0, duration)
@@ -66,11 +82,17 @@ function Totems:Update(frame)
 			indicator:SetScript("OnUpdate", totemMonitor)
 			indicator:SetAlpha(1.0)
 			
+			totalActive = totalActive + 1
+			
 		elseif( indicator.have ) then
 			indicator.have = nil
+			indicator:SetScript("OnUpdate", nil)
 			indicator:SetMinMaxValues(0, 1)
 			indicator:SetValue(1)
-			indicator:SetAlpha(0.50)
+			indicator:SetAlpha(0.30)
 		end
 	end
+	
+	-- Only guardian timers should auto hide, nothing else
+	ShadowUF.Layout:SetBarVisibility(frame, "totemBar", (totalActive > 0 or MAX_TOTEMS > 1) and true or false)
 end
