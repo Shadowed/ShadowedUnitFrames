@@ -535,15 +535,22 @@ end
 local function createChildUnits(self)
 	if( not self.unitID ) then return end
 	
-	self.loadStatus = "createChildUnits"
 	for child, parentUnit in pairs(childUnits) do
 		if( parentUnit == self.unitType and ShadowUF.db.profile.units[child].enabled ) then
-			self.loadStatus = "createChildUnits - looped"
 			Units:LoadChildUnit(self, child, self.unitID)
 		end
 	end
 end
 
+local OnAttributeChanged
+function updateChildUnits(...)
+	for i=1, select("#", ...) do
+		local child = select(i, ...)
+		if( child.parent and child.unitType ) then
+			OnAttributeChanged(child, "unit", SecureButton_GetModifiedUnit(child))
+		end
+	end
+end
 
 -- Attribute set, something changed
 -- unit = Active unitid
@@ -552,7 +559,7 @@ end
 -- unitRealType = The actual unit type, if party is shown in raid this will be "party" while unitType is still "raid"
 -- unitOwner = Always the units owner even when unit changes due to vehicles
 -- vehicleUnit = Unit to use when the unitOwner is in a vehicle
-local function OnAttributeChanged(self, name, unit)
+OnAttributeChanged = function(self, name, unit)
 	if( name ~= "unit" or not unit or unit == self.unitOwner ) then return end
 	-- Nullify the previous entry if it had one
 	if( self.unit and unitFrames[self.unit] == self ) then unitFrames[self.unit] = nil end
@@ -574,6 +581,10 @@ local function OnAttributeChanged(self, name, unit)
 	end
 	
 	frameList[self] = true
+
+	if( self.hasChildren ) then
+		updateChildUnits(self:GetChildren())
+	end
 
 	-- Create child frames
 	createChildUnits(self)
@@ -987,12 +998,7 @@ function Units:LoadGroupHeader(type)
 
 	self:SetHeaderAttributes(headerFrame, type)
 	
-	if( type == "party" or type == "maintank" or type == "mainassist" ) then
-		headerFrame:SetAttribute("template", "SecureUnitButtonTemplate,SecureHandlerBaseTemplate")
-	else
-		headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
-	end
-	
+	headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
 	headerFrame:SetAttribute("initial-unitWatch", true)
 	headerFrame.initialConfigFunction = initializeUnit
 	headerFrame.isHeaderFrame = true
@@ -1005,7 +1011,6 @@ function Units:LoadGroupHeader(type)
 	-- technically this isn't the cleanest solution because party frames will still have unit watches active
 	-- but this isn't as big of a deal, because SUF automatically will unregister the OnEvent for party frames while hidden
 	if( type == "party" ) then
-		headerFrame.childContainer = CreateFrame("Frame", nil, headerFrame, "SecureHandlerBaseTemplate")
 		stateMonitor:SetFrameRef("partyHeader", headerFrame)
 		stateMonitor:WrapScript(stateMonitor, "OnAttributeChanged", [[
 			if( name ~= "state-raidmonitor" and name ~= "partydisabled" and name ~= "hideanyraid" and name ~= "hidesemiraid" ) then return end
@@ -1092,22 +1097,16 @@ end
 
 -- Load a unit that is a child of another unit (party pet/party target)
 function Units:LoadChildUnit(parent, type, id)
-	parent.loadStatus = "function called"
-	
-	local unitFormat = string.match(type, "pet$") and (parent.unitRealType .. "pet%d") or (parent.unitRealType .. "%dtarget")
-	local unit = string.format(unitFormat, id)
 	if( InCombatLockdown() ) then
-		parent.loadStatus = "combat lockdown"
-		if( not queuedCombat[unit .. type] ) then
-			queuedCombat[unit .. type] = {parent = parent, type = type, id = id}
+		if( not queuedCombat[parent:GetName() .. type] ) then
+			queuedCombat[parent:GetName() .. type] = {parent = parent, type = type, id = id}
 		end
 		return
 	else
 		-- This is a bit confusing to write down, but just in case I forget:
 		-- It's possible theres a bug where you have a frame skip creating it's child because it thinks one was already created, but the one that was created is actually associated to another parent. What would need to be changed is it checks if the frame has the parent set to it and it's the same unit type before returning, not that the units match.
 		for frame in pairs(frameList) do
-			if( frame.unit == unit and frame.unitType == type ) then
-				parent.loadStatus = "found existing"
+			if( frame.unitType == type and frame.parent == parent ) then
 				RegisterUnitWatch(frame, type == "partypet")
 				return
 			end
@@ -1119,47 +1118,15 @@ function Units:LoadChildUnit(parent, type, id)
 	frame.unitType = type
 	frame.parent = parent
 	frame:SetFrameStrata("LOW")
-	frame:SetAttribute("unit", unit)
-	frame:SetAttribute("unitFormat", unitFormat)
-	frame:SetAttribute("parentUnit", parent:GetAttribute("unit"))
+	frame:SetAttribute("useparent-unit", true)
+	frame:SetAttribute("unitsuffix", string.match(type, "pet$") and "pet" or "target")
+	OnAttributeChanged(frame, "unit", SecureButton_GetModifiedUnit(frame))
+	frame:SetAttribute("initial-unitWatch", true)
 	
 	RegisterUnitWatch(frame, type == "partypet")
 		
-	-- While we're at it, let us also position it for the first time
+	parent.hasChildren = true
 	ShadowUF.Layout:AnchorFrame(parent, frame, ShadowUF.db.profile.positions[type])
-	
-	-- Only raid and party types should use the special reattributing code
-	if( parent.unitType ~= "party" and parent.unitType ~= "raid" ) then return end
-	
-	-- Need to make it so the secure monitor can access the frames
-	parent.totalChildren = (parent.totalChildren or 0) + 1
-	parent:SetFrameRef("childFrame" .. parent.totalChildren, frame)
-
-	-- Parent needs to be wrapped to know when to change the childs unit
-	if( not parent.isWrapped ) then
-		parent.isWrapped = true
-		stateMonitor:WrapScript(parent, "OnAttributeChanged", [[
-			if( name ~= "unit" or not value or self:GetAttribute("lastUnit") == value ) then return end
-			self:SetAttribute("lastUnit", value)
-
-			local id = 1
-			while( true ) do
-				local child = self:GetFrameRef("childFrame" .. id)
-				if( not child ) then break end
-				
-				-- Currently the player? Then don't show any child units for it
-				if( value == "player" ) then
-					child:SetAttribute("unit", nil)
-					child:SetAttribute("parentUnit", nil)
-				elseif( child:GetAttribute("parentUnit") ~= value ) then
-					child:SetAttribute("unit", string.format(child:GetAttribute("unitFormat"), string.match(value, "(%d+)")))
-					child:SetAttribute("parentUnit", value)
-				end
-
-				id = id + 1
-			end
-		]])
-	end
 end
 
 -- Initialize units
