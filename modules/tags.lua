@@ -66,7 +66,7 @@ end)
 freqFrame:Hide()
 
 -- Register a font string with the tag system
-function Tags:Register(parent, fontString, tags)
+function Tags:Register(parent, fontString, tags, resetCache)
 	-- Unregister the font string first if we did register it already
 	if( fontString.UpdateTags ) then
 		self:Unregister(fontString)
@@ -84,7 +84,7 @@ function Tags:Register(parent, fontString, tags)
 		freqFrame:Show()
 	end
 	
-	local updateFunc = tagPool[tags]
+	local updateFunc = not resetCache and tagPool[tags]
 	if( not updateFunc ) then
 		-- Using .- prevents supporting tags such as [foo ([)]. Supporting that and having a single pattern
 		local formattedText = string.gsub(string.gsub(tags, "%%", "%%%%"), "[[].-[]]", "%%s")
@@ -92,7 +92,7 @@ function Tags:Register(parent, fontString, tags)
 		
 		for tag in string.gmatch(tags, "%[(.-)%]") do
 			-- Tags that use pre or appends "foo(|)" etc need special matching, which is what this will handle
-			local cachedFunc = functionPool[tag] or ShadowUF.tagFunc[tag]
+			local cachedFunc = not resetCache and functionPool[tag] or ShadowUF.tagFunc[tag]
 			if( not cachedFunc ) then
 				local hasPre, hasAp = true, true
 				local tagKey = select(2, string.match(tag, "(%b())([%w%p]+)(%b())"))
