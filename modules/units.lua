@@ -5,204 +5,10 @@ Units.zoneUnits = {["arena"] = "arena", ["boss"] = "raid"}
 local stateMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 local playerClass = select(2, UnitClass("player"))
 local unitFrames, headerFrames, frameList, unitEvents, childUnits, queuedCombat = Units.unitFrames, Units.headerFrames, Units.frameList, Units.unitEvents, Units.childUnits, {}
-local combatDebug = ""
 local _G = getfenv(0)
 
 ShadowUF.Units = Units
 ShadowUF:RegisterModule(Units, "units")
-
--- DEBUG CODE
-local function dumpDebugData()
-	local self = ShadowUF
-	local text = "---- Child dump\n\n"
-	local parents = {}
-	
-	for frame in pairs(frameList) do
-		if( frame.parent ) then
-			local point, anchorTo = frame:GetPoint()
-			local pointParent = anchorTo and (anchorTo:GetName() or "anonymous") or "no anchor set"
-			
-			local parent = frame:GetParent() and (frame:GetParent():GetName() or "anonymous") or "no parent"
-			text = text .. string.format("Frame %s, unit parent %s, unit %s, unit owner %s, guid %s, actual guid %s, shown %s, visible %s, format %s, parentUnit %s, point %s, pointParent %s, parent %s, attrib exists %s, attrib disableSwap %s, attrib isVehicle %s, status %s.\n\n", tostring(frame:GetName()), tostring(frame:GetAttribute("parentUnit")), tostring(frame.unit), tostring(frame.unitOwner), tostring(frame.unitGUID), tostring(UnitGUID(frame.unit)), tostring(frame:IsShown()), tostring(frame:IsVisible()), tostring(frame:GetAttribute("unitFormat")), tostring(frame:GetAttribute("parentUnit")), tostring(point), tostring(pointParent), tostring(parent), tostring(frame:GetAttribute("state-unitexists")), tostring(frame:GetAttribute("disableVehicleSwap")), tostring(frame:GetAttribute("unitIsVehicle")), tostring(frame:GetAttribute("visibilityStatus")))
-			
-			parents[frame.parent] = true
-		end
-	end
-	
-	text = text .. "\n---- Parent dump\n\n"
-	for frame in pairs(parents) do
-		local list
-		for i=1, frame.totalChildren do
-			local child = frame:GetAttribute("frameRef-childframe" .. i)
-			if( list ) then
-				list = list .. ", " .. (child and child:GetName() or "bad id" .. i)
-			else
-				list = (child and child:GetName() or "bad id" .. i)
-			end
-		end
-		
-		text = text .. string.format("Frame %s, wrapped? %s, last unit %s, unit %s, unit owner %s, guid %s, actual guid %s (%s), shown %s, visible %s, total children %s, children %s\n\n", tostring(frame:GetName()), tostring(frame.isWrapped), tostring(frame:GetAttribute("lastUnit")), tostring(frame.unit), tostring(frame.unitOwner), tostring(frame.unitGUID), tostring(UnitGUID(frame.unit)), tostring(UnitName(frame.unit)), tostring(frame:IsShown()), tostring(frame:IsVisible()), tostring(frame.totalChildren), list or "none")
-	end
-	
-	text = text .. "\n---- Direct party dump\n\n"
-	for i=1, 4 do
-		local frame = _G["SUFHeaderpartyUnitButton" .. i]
-		if( frame and frame.unit ) then
-			local list
-			if( frame.totalChildren ) then
-				for i=1, frame.totalChildren do
-					local child = frame:GetAttribute("frameRef-childframe" .. i)
-					if( list ) then
-						list = list .. ", " .. (child and child:GetName() or "bad id" .. i)
-					else
-						list = (child and child:GetName() or "bad id" .. i)
-					end
-				end
-			end
-			
-			text = text .. string.format("Frame %s, wrapped? %s (%s), last unit %s, unit %s, unit owner %s, guid %s, actual guid %s (%s), shown %s, visible %s, total children %s, children %s\n\n", tostring(frame:GetName()), tostring(frame.isWrapped), tostring(frame.loadStatus), tostring(frame:GetAttribute("lastUnit")), tostring(frame.unit), tostring(frame.unitOwner), tostring(frame.unitGUID), tostring(UnitGUID(frame.unit)), tostring(UnitName(frame.unit)), tostring(frame:IsShown()), tostring(frame:IsVisible()), tostring(frame.totalChildren), list or "none")
-		end
-	end
-	
-	text = text .. "\n---- Combat queue dump\n\n"
-	text = text .. tostring(combatDebug) .. "\n"
-	for type, data in pairs(queuedCombat) do
-		text = text .. string.format("Parent %s, type %s, id %s\n", parent and parent:GetName() or parent or "nil", type or "nil", id or "nil")
-	end
-	
-	
-	text = text .. "\n---- Party setting dump\n\n"
-	for key, value in pairs(self.db.profile.units.party) do
-		if( type(value) ~= "table" ) then
-			text = text .. string.format("%s = [%s]\n", key, tostring(value))
-		end
-	end
-
-	text = text .. "\n---- Main tank setting dump\n\n"
-	for key, value in pairs(self.db.profile.units.maintank) do
-		if( type(value) ~= "table" ) then
-			text = text .. string.format("%s = [%s]\n", key, tostring(value))
-		end
-	end
-
-	text = text .. "\n---- Main assist setting dump\n\n"
-	for key, value in pairs(self.db.profile.units.mainassist) do
-		if( type(value) ~= "table" ) then
-			text = text .. string.format("%s = [%s]\n", key, tostring(value))
-		end
-	end
-	
-	
-	self.guiFrame.editBox:SetText(text)
-end
-
-function ShadowUF:Debug()
-	local self = ShadowUF
-	if( self.guiFrame ) then
-		self.guiFrame:Show()
-		return
-	end
-	
-	local backdrop = {
-		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-		edgeFile = "Interface\\ChatFrame\\ChatFrameBackground",
-		tile = true,
-		edgeSize = 1,
-		tileSize = 5,
-		insets = {left = 1, right = 1, top = 1, bottom = 1}
-	}
-
-	self.guiFrame = CreateFrame("Frame", nil, UIParent)
-	self.guiFrame:SetWidth(550)
-	self.guiFrame:SetHeight(275)
-	self.guiFrame:SetBackdrop(backdrop)
-	self.guiFrame:SetBackdropColor(0.0, 0.0, 0.0, 1.0)
-	self.guiFrame:SetBackdropBorderColor(0.65, 0.65, 0.65, 1.0)
-	self.guiFrame:SetMovable(true)
-	self.guiFrame:EnableMouse(true)
-	self.guiFrame:SetFrameStrata("HIGH")
-	self.guiFrame:Hide()
-
-	-- Fix edit box size
-	self.guiFrame:SetScript("OnShow", function(self)
-		self.child:SetHeight(self.scroll:GetHeight())
-		self.child:SetWidth(self.scroll:GetWidth())
-		self.editBox:SetWidth(self.scroll:GetWidth())
-		
-		dumpDebugData()
-	end)
-	
-	-- Select all text
-	self.guiFrame.copy = CreateFrame("Button", nil, self.guiFrame, "UIPanelButtonGrayTemplate")
-	self.guiFrame.copy:SetWidth(70)
-	self.guiFrame.copy:SetHeight(18)
-	self.guiFrame.copy:SetText("Select all")
-	self.guiFrame.copy:SetPoint("TOPLEFT", self.guiFrame, "TOPLEFT", 1, -1)
-	self.guiFrame.copy:SetScript("OnClick", function(self)
-		self.editBox:SetFocus()
-		self.editBox:SetCursorPosition(0)
-		self.editBox:HighlightText(0)
-	end)
-	
-	-- Title info
-	self.guiFrame.title = self.guiFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
-	self.guiFrame.title:SetPoint("TOPLEFT", self.guiFrame, "TOPLEFT", 75, -4)
-	
-	-- Close button (Shocking!)
-	local button = CreateFrame("Button", nil, self.guiFrame, "UIPanelCloseButton")
-	button:SetPoint("TOPRIGHT", self.guiFrame, "TOPRIGHT", 6, 6)
-	button:SetScript("OnClick", function()
-		HideUIPanel(self.guiFrame)
-	end)
-	
-	self.guiFrame.closeButton = button
-	
-	-- Create the container frame for the scroll box
-	local container = CreateFrame("Frame", nil, self.guiFrame)
-	container:SetHeight(265)
-	container:SetWidth(1)
-	container:ClearAllPoints()
-	container:SetPoint("BOTTOMLEFT", self.guiFrame, 0, -9)
-	container:SetPoint("BOTTOMRIGHT", self.guiFrame, 4, 0)
-	
-	self.guiFrame.container = container
-	
-	-- Scroll frame
-	local scroll = CreateFrame("ScrollFrame", "SUFFrameScroll", container, "UIPanelScrollFrameTemplate")
-	scroll:SetPoint("TOPLEFT", 5, 0)
-	scroll:SetPoint("BOTTOMRIGHT", -28, 10)
-	
-	self.guiFrame.scroll = scroll
-	
-	local child = CreateFrame("Frame", nil, scroll)
-	scroll:SetScrollChild(child)
-	child:SetHeight(2)
-	child:SetWidth(2)
-	
-	self.guiFrame.child = child
-
-	-- Create the actual edit box
-	local editBox = CreateFrame("EditBox", nil, child)
-	editBox:SetPoint("TOPLEFT")
-	editBox:SetHeight(50)
-	editBox:SetWidth(50)
-
-	editBox:SetMultiLine(true)
-	editBox:SetAutoFocus(false)
-	editBox:EnableMouse(true)
-	editBox:SetFontObject(GameFontHighlightSmall)
-	editBox:SetTextInsets(0, 0, 0, 0)
-	editBox:SetScript("OnEscapePressed", editBox.ClearFocus)
-	scroll:SetScript("OnMouseUp", function() editBox:SetFocus() end)	
-
-	self.guiFrame.editBox = editBox
-	self.guiFrame.copy.editBox = editBox
-
-	self.guiFrame:SetPoint("CENTER", UIParent, "CENTER")
-	self.guiFrame:Show()
-end
-
--- DEBUG CODE
 	
 -- Frame shown, do a full update
 local function FullUpdate(self)
@@ -1231,8 +1037,13 @@ function Units:CreateBar(parent)
 end
 
 -- Deal with zone changes for enabling modules
-local instanceType
+local instanceType, queueZoneCheck
 function Units:CheckPlayerZone(force)
+	if( InCombatLockdown() ) then
+		queueZoneCheck = force and 2 or 1
+		return
+	end
+	
 	local instance = select(2, IsInInstance())
 	if( instance == instanceType and not force ) then return end
 	instanceType = instance
@@ -1281,5 +1092,10 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 		end
 		
 		table.wipe(queuedCombat)
+		
+		if( queueZoneCheck ) then
+			Units:CheckPlayerZone(queueZoneCheck == 2 and true)
+			queueZoneCheck = nil
+		end
 	end
 end)
