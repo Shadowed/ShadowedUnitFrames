@@ -5,6 +5,7 @@ local IncHeal = {}
 local frames = {}
 local playerEndTime, playerGUID
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUFLocals["Incoming heals"])
+ShadowUF.Tags.customEvents["HEALCOMM"] = IncHeal
 	
 -- How far ahead to show heals at most
 local INCOMING_SECONDS = 3
@@ -91,7 +92,7 @@ function IncHeal:UpdateTags(frame, amount)
 	if( not frame.fontStrings or not frame.hasHCTag ) then return end
 	
 	for _, fontString in pairs(frame.fontStrings) do
-		if( fontString.hasHCTag ) then
+		if( fontString.HEALCOMM ) then
 			fontString.incoming = amount > 0 and amount or nil
 			fontString:UpdateTags()
 		end

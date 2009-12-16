@@ -1,5 +1,5 @@
 -- Thanks to haste for the original tagging code, which I then mostly ripped apart and stole!
-local Tags = {afkStatus = {}, offlineStatus = {}}
+local Tags = {afkStatus = {}, offlineStatus = {}, customEvents = {}}
 local tagPool, functionPool, temp, regFontStrings, frequentUpdates, frequencyCache = {}, {}, {}, {}, {}, {}
 local L = ShadowUFLocals
 
@@ -20,9 +20,9 @@ function Tags:RegisterEvents(parent, fontString, tags)
 		local tagEvents = Tags.defaultEvents[tag] or ShadowUF.db.profile.tags[tag] and ShadowUF.db.profile.tags[tag].events
 		if( tagEvents ) then
 			for event in string.gmatch(tagEvents, "%S+") do
-				if( event == "HEALCOMM" ) then
-					ShadowUF.modules.incHeal:EnableTag(parent)
-					fontString.hasHCTag = true
+				if( self.customEvents[event] ) then
+					self.customEvents[event]:EnableTag(parent, fontString)
+					fontString[event] = true
 				elseif( Tags.eventType[event] ~= "unitless" or ShadowUF.Units.unitEvents[event] ) then
 					parent:RegisterUnitEvent(event, fontString, "UpdateTags")
 				else
@@ -184,9 +184,11 @@ function Tags:Unregister(fontString)
 	end
 	
 	-- Unregister it as using HC
-	if( fontString.hasHCTag ) then
-		fontString.hasHCTag = nil
-		ShadowUF.modules.incHeal:DisableTag(fontString.parent)
+	for key, module in pairs(self.customEvents) do
+		if( fontString[key] ) then
+			fontString[key] = nil
+			module:DisableTag(fontString.parent, fontString)
+		end
 	end
 		
 	-- Kill any tag data
