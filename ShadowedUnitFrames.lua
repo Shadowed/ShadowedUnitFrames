@@ -465,10 +465,13 @@ function ShadowUF:HideBlizzardFrames()
 		Arena_LoadUI = self.noop
 	end
 
-	for _, list in pairs(UnitPopupMenus) do
-		for i=#(list), 1, -1 do
-			if( list[i] == "SET_FOCUS" or list[i] == "CLEAR_FOCUS" or list[i] == "LOCK_FOCUS_FRAME" or list[i] == "UNLOCK_FOCUS_FRAME" ) then
-				table.remove(list, i)
+	-- Don't modify the raid menu because that will taint the MA/MT stuff and it'll break and that's bad
+	for key, list in pairs(UnitPopupMenus) do
+		if( key ~= "RAID" ) then
+			for i=#(list), 1, -1 do
+				if( list[i] == "SET_FOCUS" or list[i] == "CLEAR_FOCUS" or list[i] == "LOCK_FOCUS_FRAME" or list[i] == "UNLOCK_FOCUS_FRAME" ) then
+					table.remove(list, i)
+				end
 			end
 		end
 	end
