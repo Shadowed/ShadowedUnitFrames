@@ -39,7 +39,7 @@ function Runes:OnLayoutApplied(frame)
 		local barWidth = (frame.runeBar:GetWidth() - 5) / 6
 		
 		for id, rune in pairs(frame.runeBar.runes) do
-			local color = runeColors[GetRuneType(id)]
+			local color = runeColors[GetRuneType(id)] or runeColors[1]
 			rune:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 			rune:SetStatusBarColor(color.r, color.g, color.b)
 			rune:SetHeight(frame.runeBar:GetHeight())
