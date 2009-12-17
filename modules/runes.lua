@@ -26,7 +26,6 @@ function Runes:OnEnable(frame)
 	
 	frame:RegisterNormalEvent("RUNE_POWER_UPDATE", self, "UpdateUsable")
 	frame:RegisterNormalEvent("RUNE_TYPE_UPDATE", self, "Update")
-	frame:RegisterNormalEvent("PLAYER_ENTERING_WORLD", self, "UpdateColors")
 	frame:RegisterUpdateFunc(self, "Update")
 	frame:RegisterUpdateFunc(self, "UpdateUsable")
 end
@@ -60,7 +59,12 @@ end
 
 -- Updates the timers on runes
 function Runes:UpdateUsable(frame, event, id, usable)
-	if( not id or not frame.runeBar.runes[id] ) then return end
+	if( not id ) then
+		self:UpdateColors(frame)
+		return
+	elseif( not frame.runeBar.runes[id] ) then
+		return
+	end
 	
 	local rune = frame.runeBar.runes[id]
 	local startTime, cooldown, cooled = GetRuneCooldown(id)
@@ -81,7 +85,9 @@ end
 function Runes:UpdateColors(frame)
 	for id, rune in pairs(frame.runeBar.runes) do
 		local color = runeColors[GetRuneType(id)]
-		frame.runeBar.runes[id]:SetStatusBarColor(color.r, color.g, color.b)
+		if( color ) then
+			rune:SetStatusBarColor(color.r, color.g, color.b)
+		end
 	end
 end
 
