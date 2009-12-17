@@ -26,6 +26,7 @@ function Runes:OnEnable(frame)
 	
 	frame:RegisterNormalEvent("RUNE_POWER_UPDATE", self, "UpdateUsable")
 	frame:RegisterNormalEvent("RUNE_TYPE_UPDATE", self, "Update")
+	frame:RegisterNormalEvent("PLAYER_ENTERING_WORLD", self, "UpdateColors")
 	frame:RegisterUpdateFunc(self, "Update")
 	frame:RegisterUpdateFunc(self, "UpdateUsable")
 end
@@ -39,9 +40,7 @@ function Runes:OnLayoutApplied(frame)
 		local barWidth = (frame.runeBar:GetWidth() - 5) / 6
 		
 		for id, rune in pairs(frame.runeBar.runes) do
-			local color = runeColors[GetRuneType(id)] or runeColors[1]
 			rune:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
-			rune:SetStatusBarColor(color.r, color.g, color.b)
 			rune:SetHeight(frame.runeBar:GetHeight())
 			rune:SetWidth(barWidth)
 		end
@@ -76,6 +75,13 @@ function Runes:UpdateUsable(frame, event, id, usable)
 		rune:SetValue(1)
 		rune:SetAlpha(1.0)
 		rune:SetScript("OnUpdate", nil)
+	end
+end
+
+function Runes:UpdateColors(frame)
+	for id, rune in pairs(frame.runeBar.runes) do
+		local color = runeColors[GetRuneType(id)]
+		frame.runeBar.runes[id]:SetStatusBarColor(color.r, color.g, color.b)
 	end
 end
 
