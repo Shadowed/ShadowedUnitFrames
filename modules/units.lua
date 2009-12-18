@@ -308,8 +308,6 @@ function Units:CheckGroupedUnitStatus(frame)
 	end
 end
 
-
-
 local function ShowMenu(self)
 	if( UnitIsUnit(self.unit, "player") ) then
 		ToggleDropDownMenu(1, nil, PlayerFrameDropDown, "cursor")
@@ -349,7 +347,7 @@ local function createChildUnits(self)
 end
 
 local OnAttributeChanged
-function updateChildUnits(...)
+local function updateChildUnits(...)
 	for i=1, select("#", ...) do
 		local child = select(i, ...)
 		if( child.parent and child.unitType ) then

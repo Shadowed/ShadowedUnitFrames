@@ -63,6 +63,7 @@ function ShadowUF:OnInitialize()
 		self:CheckUpgrade()
 	end
 	
+	self:FireModuleEvent("OnInitialize")
 	self:HideBlizzardFrames()
 	self.Layout:LoadSML()
 	self:LoadUnits()
@@ -507,11 +508,11 @@ SlashCmdList["SHADOWEDUF"] = function(msg)
 end
 
 local frame = CreateFrame("Frame")
-frame:RegisterEvent("ADDON_LOADED")
+frame:RegisterEvent("PLAYER_LOGIN")
 frame:SetScript("OnEvent", function(self, event, addon)
-	if( event == "ADDON_LOADED" and addon == "ShadowedUnitFrames" ) then
+	if( event == "PLAYER_LOGIN" ) then
 		ShadowUF:OnInitialize()
-		self:UnregisterEvent("ADDON_LOADED")
+		self:UnregisterEvent("PLAYER_LOGIN")
 	end
 end)
 
