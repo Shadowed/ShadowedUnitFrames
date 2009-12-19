@@ -106,9 +106,10 @@ end
 
 function Combo:Update(frame)
 	-- For Malygos dragons, they also self cast their CP on themselves, which is why we check CP on ourself!
-	local points = GetComboPoints(ShadowUF.playerUnit)
+	local playerUnit = UnitHasVehicleUI("player") and "vehicle" or "player"
+	local points = GetComboPoints(playerUnit)
 	if( points == 0 ) then
-		points = GetComboPoints(ShadowUF.playerUnit, ShadowUF.playerUnit)
+		points = GetComboPoints(playerUnit, playerUnit)
 	end
 	
 	-- Bar display, hide it if we don't have any combo points
