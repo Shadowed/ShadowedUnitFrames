@@ -344,6 +344,9 @@ end
 
 function Indicators:OnLayoutApplied(frame, config)
 	if( frame.visibility.indicators ) then
+		self:OnDisable(frame)
+		self:OnEnable(frame)
+		
 		for _, key in pairs(self.list) do
 			local indicator = frame.indicators[key]
 			if( indicator and config.indicators[key].enabled and config.indicators[key].size ) then
