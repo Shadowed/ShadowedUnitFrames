@@ -497,6 +497,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -16, y = -8},
 				leader = {anchorTo = "$parent", anchorPoint = "TR", size = 14, x = -2, y = -10},
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = -3, y = 11},
+				lfdRole = {enabled = false, anchorPoint = "BR", size = 16, x = 6, y = 14, anchorTo = "$parent"}
 			},
 			auras = {
 				buffs = {enabled = true},
@@ -555,6 +556,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			castBar = {order = 60},
 			indicators = {
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = -3, y = 11},
+				lfdRole = {enabled = false, anchorPoint = "BR", size = 16, x = 6, y = 14, anchorTo = "$parent"},
 			},
 			text = {
 				{text = "[(()afk() )][name]"},

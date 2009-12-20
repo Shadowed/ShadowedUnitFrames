@@ -77,6 +77,11 @@ function ShadowUF:CheckUpgrade()
 		self.db.profile.units.party.indicators.lfdRole = {enabled = true, size = 16, x = 6, y = 14, anchorPoint = "BR", anchorTo = "$parent"}
 	end
 	
+	if( not self.db.profile.units.target.indicators.lfdRole.anchorPoint and not self.db.profile.units.focus.indicators.lfdRole.anchorPoint ) then
+		self.db.profile.units.target.indicators.lfdRole = {enabled = false, anchorPoint = "BR", size = 16, x = 6, y = 14, anchorTo = "$parent"}
+		self.db.profile.units.focus.indicators.lfdRole = {enabled = false, anchorPoint = "BR", size = 16, x = 6, y = 14, anchorTo = "$parent"}
+	end
+	
 	-- Put the units into a state where the next loop will force them all to reset
 	if( self.db.profile.positions.arenatarget.anchorTo ~= "$parent" or self.db.profile.positions.arenapet.anchorTo ~= "$parent" ) then
 		for _, unit in pairs({"arena", "arenapet", "arenatarget"}) do
@@ -233,12 +238,14 @@ function ShadowUF:LoadUnitDefaults()
 	-- FOCUS
 	self.defaults.profile.units.focus.enabled = true
 	self.defaults.profile.units.focus.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
+	self.defaults.profile.units.focus.indicators.lfdRole = {enabled = false, size = 0, x = 0, y = 0}
 	-- FOCUSTARGET
 	self.defaults.profile.units.focustarget.enabled = true
 	self.defaults.profile.units.focustarget.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	-- TARGET
 	self.defaults.profile.units.target.enabled = true
 	self.defaults.profile.units.target.comboPoints = {enabled = true, isBar = false, height = 0.40, order = 30, anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0}
+	self.defaults.profile.units.target.indicators.lfdRole = {enabled = false, size = 0, x = 0, y = 0}
 	-- TARGETTARGET/TARGETTARGETTARGET
 	self.defaults.profile.units.targettarget.enabled = true
 	self.defaults.profile.units.targettargettarget.enabled = true
