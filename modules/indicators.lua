@@ -378,6 +378,7 @@ function Indicators:TestMode(frame)
 	frame.RegisterNormalEvent = noop
 	frame.RegisterUnitEvent = noop
 	frame.RegisterUpdateFunc = noop
+	frame.UnregisterAll = noop
 	frame.topFrameLevel = 5
 	frame.visibility = visibility
 	self:OnEnable(frame)
