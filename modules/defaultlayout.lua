@@ -1,4 +1,5 @@
 local L = ShadowUFLocals
+local playerClass = select(2, UnitClass("player"))
 
 local function finalizeData(config, useMerge)
 	local self = ShadowUF
@@ -251,7 +252,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			runeBar = {enabled = true, order = 70},
 			totemBar = {enabled = true, order = 70},
 			auras = {
-				buffs = {enabled = false, maxRows = 1},
+				buffs = {enabled = false, maxRows = 1, temporary = playerClass == "ROGUE" or playerClass == "SHAMAN"},
 				debuffs = {enabled = false, maxRows = 1},
 			},
 			indicators = {
