@@ -1,9 +1,11 @@
-local Range = {}
+local Range = {
+	friendly = {["PRIEST"] = GetSpellInfo(2050), ["DRUID"] = GetSpellInfo(48378), ["PALADIN"] = GetSpellInfo(48782), ["SHAMAN"] = GetSpellInfo(49273)},
+	hostile = {["PRIEST"] = GetSpellInfo(48127), ["DRUID"] = GetSpellInfo(48461), ["PALADIN"] = GetSpellInfo(62124), ["HUNTER"] = GetSpellInfo(75), ["WARLOCK"] = GetSpellInfo(686), ["SHAMAN"] = GetSpellInfo(529), ["MAGE"] = GetSpellInfo(133), ["DEATHKNIGHT"] = GetSpellInfo(49576)},
+}
 ShadowUF:RegisterModule(Range, "range", ShadowUFLocals["Range indicator"])
 
-local friendly = {["PRIEST"] = GetSpellInfo(2050), ["DRUID"] = GetSpellInfo(48378), ["PALADIN"] = GetSpellInfo(48782), ["SHAMAN"] = GetSpellInfo(49273)}
-local hostile = {["PRIEST"] = GetSpellInfo(48127), ["DRUID"] = GetSpellInfo(48461), ["PALADIN"] = GetSpellInfo(62124), ["HUNTER"] = GetSpellInfo(75), ["WARLOCK"] = GetSpellInfo(686), ["SHAMAN"] = GetSpellInfo(529), ["MAGE"] = GetSpellInfo(133), ["DEATHKNIGHT"] = GetSpellInfo(49576)}
 local playerClass = select(2, UnitClass("player"))
+local friendlySpell, hostileSpell
 
 local function checkRange(self, elapsed)
 	self.timeElapsed = self.timeElapsed + elapsed
@@ -46,6 +48,13 @@ function Range:OnEnable(frame)
 	frame:RegisterUpdateFunc(self, "ForceUpdate")
 end
 
+function Range:OnLayoutApplied(frame)
+	if( frame.visibility.range ) then
+		frame.range.hostileSpell = ShadowUF.db.profile.range["hostile" .. playerClass] or self.friendly[playerClass]
+		frame.range.friendlySpell = ShadowUF.db.profile.range["friendly" .. playerClass] or self.hostile[playerClass]
+	end
+end
+
 function Range:OnDisable(frame)
 	frame:UnregisterAll(self)
 	
@@ -60,8 +69,8 @@ function Range:UpdateFlags(frame)
 	frame.range.canAttack = UnitCanAttack("player", frame.unit)
 	frame.range.isFriendly = UnitIsFriend("player", frame.unit)
 	frame.range.grouped = UnitInRaid(frame.unit) or UnitInParty(frame.unit)
-	frame.range.spell = frame.range.canAttack and hostile[playerClass] or frame.range.isFriendly and friendly[playerClass] or nil
-
+	frame.range.spell = frame.range.canAttack and frame.range.hostileSpell or frame.range.isFriendly and frame.range.friendlySpell or nil
+	
 	-- No sense in updating range if we have no data
 	if( not UnitIsConnected(frame.unit) or ( not frame.range.spell and not frame.range.grouped and not frame.range.isFriendly ) ) then
 		frame:SetAlpha(ShadowUF.db.profile.units[frame.unitType].range.inAlpha)

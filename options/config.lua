@@ -423,6 +423,24 @@ local function loadGeneralOptions()
 		end,
 	}
 
+	local function validateSpell(info, spell)
+		if( spell and spell ~= "" and not GetSpellInfo(spell) ) then
+			return string.format(L["Invalid spell \"%s\" entered."], spell or "")
+		end
+		
+		return true
+	end
+	
+	local function setRange(info, spell)
+		ShadowUF.db.profile.range[info[#(info)] .. playerClass] = spell and spell ~= "" and spell or nil
+		ShadowUF.Layout:Reload()
+	end
+	
+	local function getRange(info, spell)
+		local spell = ShadowUF.db.profile.range[info[#(info)] .. playerClass]
+		return spell and spell ~= "" and spell or ShadowUF.modules.range[info[#(info)]][playerClass]
+	end
+								
 	local textData = {}
 	
 	local function writeTable(tbl)
@@ -868,6 +886,32 @@ local function loadGeneralOptions()
 								arg = "bars.backgroundAlpha",
 								min = 0, max = 1, step = 0.05,
 								isPercent = true
+							},
+						},
+					},
+					range = {
+						order = 5,
+						type = "group",
+						inline = true,
+						name = L["Range spells"],
+						args = {
+							friendly = {
+								order = 0,
+								type = "input",
+								name = L["Friendly spell"],
+								desc = L["Name of a friendly spell to check range on friendlies.\n\nThis is automatically set for your current class only."],
+								validate = validateSpell,
+								set = setRange,
+								get = getRange,
+							},
+							hostile = {
+								order = 1,
+								type = "input",
+								name = L["Hostile spell"],
+								desc = L["Name of a hostile spell to check range on enemies.\n\nThis is automatically set for your current class only."],
+								validate = validateSpell,
+								set = setRange,
+								get = getRange,
 							},
 						},
 					},
