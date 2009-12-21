@@ -179,6 +179,7 @@ ShadowUFLocals = {
 	["Druid form"] = "Druid form",
 	["Druid form (Short)"] = "Druid form (Short)",
 	["Druid mana bar"] = "Druid mana bar",
+	["Due to the nature of fake units, cast bars for %s are not super efficient and can take at most 0.10 seconds to notice a change in cast."] = "Due to the nature of fake units, cast bars for %s are not super efficient and can take at most 0.10 seconds to notice a change in cast.",
 	["Dungeon role"] = "Dungeon role",
 	["Edge size"] = "Edge size",
 	["Edit tag"] = "Edit tag",

@@ -3097,6 +3097,7 @@ local function loadUnitOptions()
 								order = 1,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Cast bar"]),
+								desc = function(info) return ShadowUF.fakeUnits[info[2]] and string.format(L["Due to the nature of fake units, cast bars for %s are not super efficient and can take at most 0.10 seconds to notice a change in cast."], L.units[info[2]] or info[2]) end,
 								hidden = false,
 								arg = "castBar.enabled",
 							},
