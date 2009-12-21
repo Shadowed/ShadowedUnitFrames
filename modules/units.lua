@@ -1,4 +1,4 @@
-local Units = {headerFrames = {}, unitFrames = {}, frameList = {}, loadedUnits = {}, unitEvents = {}}
+local Units = {headerFrames = {}, unitFrames = {}, frameList = {}, unitEvents = {}}
 Units.childUnits = {["partytarget"] = "party", ["partypet"] = "party", ["maintanktarget"] = "maintank", ["mainassisttarget"] = "mainassist", ["bosstarget"] = "boss", ["arenatarget"] = "arena", ["arenapet"] = "arena"}
 Units.zoneUnits = {["arena"] = "arena", ["boss"] = "raid"}
 
@@ -479,7 +479,7 @@ OnAttributeChanged = function(self, name, unit)
 		self:RegisterUnitEvent("UNIT_NAME_UPDATE", Units, "CheckUnitStatus")
 	
 	-- *target units are not real units, thus they do not receive events and must be polled for data
-	elseif( string.match(self.unit, "%w+target") ) then
+	elseif( ShadowUF.fakeUnits[self.unitRealType] ) then
 		self.timeElapsed = 0
 		self:SetScript("OnUpdate", TargetUnitUpdate)
 		
