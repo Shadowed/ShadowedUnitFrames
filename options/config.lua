@@ -49,7 +49,7 @@ local pointPositions = {["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] =
 local positionList = {["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"] }
 
 local unitOrder = {}
-for order, unit in pairs(ShadowUF.units) do unitOrder[unit] = order end
+for order, unit in pairs(ShadowUF.unitList) do unitOrder[unit] = order end
 local fullReload = {["bars"] = true, ["auras"] = true, ["backdrop"] = true, ["font"] = true, ["classColors"] = true, ["powerColors"] = true, ["healthColors"] = true, ["xpColors"] = true}
 local quickIDMap = {}
 
@@ -80,9 +80,9 @@ local function getAnchorParents(info)
 	
 	-- Don't let a frame anchor to a frame thats anchored to it already (Stop infinite loops-o-doom)
 	local currentName = getFrameName(unit)
-	for _, unitID in pairs(ShadowUF.units) do
+	for _, unitID in pairs(ShadowUF.unitList) do
 		if( unitID ~= unit and ShadowUF.db.profile.positions[unitID] and ShadowUF.db.profile.positions[unitID].anchorTo ~= currentName ) then
-			anchorList[getFrameName(unitID)] = string.format(L["%s frames"], L.units[unitID])
+			anchorList[getFrameName(unitID)] = string.format(L["%s frames"], L.units[unitID] or unitID)
 		end
 	end
 	
@@ -212,7 +212,7 @@ local function setVariable(unit, moduleKey, moduleSubKey, key, value)
 end
 
 local function specialRestricted(unit, moduleKey, moduleSubKey, key)
-	if( string.match(unit, "%w+target") and ( key == "colorAggro" or key == "aggro" or moduleKey == "incHeal" or moduleKey == "castBar" ) ) then
+	if( ShadowUF.fakeUnits[unit] and ( key == "colorAggro" or key == "aggro" or moduleKey == "incHeal" or moduleKey == "castBar" ) ) then
 		return true
 	elseif( moduleKey == "healthBar" and unit == "player" and key == "reaction" ) then
 		return true
@@ -414,7 +414,7 @@ local function loadGeneralOptions()
 		confirm = true,
 		func = function(info)
 			local id = tonumber(info[#(info)])
-			for _, unit in pairs(ShadowUF.units) do
+			for _, unit in pairs(ShadowUF.unitList) do
 				table.remove(ShadowUF.db.profile.units[unit].text, id)
 			end
 			
@@ -1185,7 +1185,7 @@ local function loadGeneralOptions()
 									textData.name = textData.name ~= "" and textData.name or nil
 									
 									-- Add the new entry
-									for _, unit in pairs(ShadowUF.units) do
+									for _, unit in pairs(ShadowUF.unitList) do
 										table.insert(ShadowUF.db.profile.units[unit].text, {enabled = true, name = textData.name or "??", text = "", anchorTo = textData.parent, x = 0, y = 0, anchorPoint = "C", size = 0, width = 0.50})
 									end
 									
@@ -2257,7 +2257,7 @@ local function loadUnitOptions()
 								name = L["On aggro"],
 								desc = L["Highlight units that have aggro on any mob."],
 								arg = "highlight.aggro",
-								hidden = function(info) return info[2] == "arena" or info[2] == "arenapet" or info[2] == "boss" or string.match(info[2], "(%w+)target") end,
+								hidden = function(info) return info[2] == "arena" or info[2] == "arenapet" or ShadowUF.fakeUnits[info[2]] end,
 							},
 							debuff = {
 								order = 6,
@@ -3444,7 +3444,7 @@ local function loadUnitOptions()
 						set = function(info, value)
 							local unit = info[#(info)]
 							if( IsShiftKeyDown() ) then
-								for _, unit in pairs(ShadowUF.units) do
+								for _, unit in pairs(ShadowUF.unitList) do
 									if( ShadowUF.db.profile.units[unit].enabled ) then
 										modifyUnits[unit] = value and true or nil
 										
@@ -3605,7 +3605,7 @@ local function loadUnitOptions()
 		end
 	end
 
-	for order, unit in pairs(ShadowUF.units) do
+	for order, unit in pairs(ShadowUF.unitList) do
 		options.args.enableUnits.args.enabled.args[unit] = enabledUnits
 		options.args.units.args.global.args.units.args.units.args[unit] = perUnitList
 		options.args.units.args[unit] = Config.unitTable
@@ -3826,7 +3826,7 @@ local function loadFilterOptions()
 					if( unit == "global" ) then
 						globalSettings[zoneConfig] = value and filter or false
 						
-						for _, unit in pairs(ShadowUF.units) do
+						for _, unit in pairs(ShadowUF.unitList) do
 							ShadowUF.db.profile.filters.zones[zoneConfig .. unit] = value and filter or nil
 						end
 					else
@@ -4168,7 +4168,7 @@ local function loadFilterOptions()
 
 
 	options.args.filter.args.groups.args.global = unitFilterSelection
-	for _, unit in pairs(ShadowUF.units) do
+	for _, unit in pairs(ShadowUF.unitList) do
 		options.args.filter.args.groups.args[unit] = unitFilterSelection
 	end
 
@@ -4707,7 +4707,7 @@ local function loadVisibilityOptions()
 			value = nil
 		end
 		
-		for _, configUnit in pairs(ShadowUF.units) do
+		for _, configUnit in pairs(ShadowUF.unitList) do
 			if( ( configUnit == unit or unit == "global" ) and not unitBlacklist[configUnit] ) then
 				ShadowUF.db.profile.visibility[area][configUnit .. key] = value
 			end
@@ -4847,7 +4847,7 @@ local function loadVisibilityOptions()
 	end
 	
 	areaTable.args.global = Config.visibilityTable
-	for _, unit in pairs(ShadowUF.units) do
+	for _, unit in pairs(ShadowUF.unitList) do
 		if( not unitBlacklist[unit] ) then
 			areaTable.args[unit] = Config.visibilityTable
 		end
