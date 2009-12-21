@@ -1,10 +1,68 @@
 local Cast = {}
 local L = ShadowUFLocals
 local FADE_TIME = 0.30
+local FAKE_UPDATE_TIME = 0.10
+local UnitCastingInfo, UnitChannelInfo, GetTime = UnitCastingInfo, UnitChannelInfo, GetTime
 
 ShadowUF:RegisterModule(Cast, "castBar", L["Cast bar"], true)
 
-function Cast:OnEnable(frame, unit)
+-- I'm not really thrilled with this method of detecting fake unit casts, mostly because it's inefficient and ugly
+local function monitorFakeCast(self, elapsed)
+	self.timeElapsed = self.timeElapsed + elapsed
+	if( self.timeElapsed <= FAKE_UPDATE_TIME ) then return end
+	self.timeElapsed = self.timeElapsed - FAKE_UPDATE_TIME
+
+	local spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(self.parent.unit)
+	local isChannelled
+	if( not spell ) then
+		spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitChannelInfo(self.parent.unit)
+		isChannelled = true
+	end
+	
+	-- Cast started
+	if( not self.endTime and endTime ) then
+		self.endTime = endTime
+		self.notInterruptible = notInterruptible
+		self.spellName = spell
+		Cast:UpdateCast(self.parent, self.parent.unit, isChannelled, spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible)
+	-- Cast stopped
+	elseif( self.endTime and not endTime ) then
+		if( GetTime() <= (self.endTime / 1000) ) then
+			Cast:EventInterruptCast(self.parent, nil, self.parent.unit, self.spellName)
+		end
+		
+		self.notInterruptible = nil
+		self.spellName = nil
+		self.endTime = nil
+		return
+	end
+	
+	-- Cast delayed
+	if( self.endTime and endTime ~= self.endTime ) then
+		self.endTime = endTime
+		Cast:UpdateDelay(self.parent, spell, rank, displayName, icon, startTime, endTime)
+	end
+
+	-- Cast interruptible status changed
+	if( self.spellName and self.notInterruptible ~= notInterruptible ) then
+		self.notInterruptible = notInterruptible
+		if( notInterruptible ) then
+			Cast:EventUninterruptible(self.parent)
+		else
+			Cast:EventInterruptible(self.parent)
+		end
+	end
+end
+
+local function updateFakeUnitCast(self)
+	self.endTime = nil
+	self.notInterruptible = nil
+	self.spellName = nil
+	
+	monitorFakeCast(self, FAKE_UPDATE_TIME)
+end
+
+function Cast:OnEnable(frame)
 	if( not frame.castBar ) then
 		frame.castBar = CreateFrame("Frame", nil, frame)
 		frame.castBar.bar = ShadowUF.Units:CreateBar(frame)
@@ -15,7 +73,17 @@ function Cast:OnEnable(frame, unit)
 		frame.castBar.bar.name = frame.castBar.bar:CreateFontString(nil, "ARTWORK")
 		frame.castBar.bar.time = frame.castBar.bar:CreateFontString(nil, "ARTWORK")
 	end
-		
+	
+	if( ShadowUF.fakeUnits[frame.unitType] ) then
+		frame.castBar.monitor = frame.castBar.monitor or CreateFrame("Frame", nil, frame)
+		frame.castBar.monitor.timeElapsed = 0
+		frame.castBar.monitor.parent = frame
+		frame.castBar.monitor:SetScript("OnUpdate", monitorFakeCast)
+		frame.castBar.monitor:SetScript("OnShow", updateFakeUnitCast)
+		frame.castBar.monitor:Show()
+		return
+	end
+	
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_START", self, "EventUpdateCast")
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_STOP", self, "EventStopCast")
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_FAILED", self, "EventStopCast")
@@ -39,10 +107,14 @@ function Cast:OnLayoutApplied(frame, config)
 	
 	-- Set textures
 	frame.castBar.bar:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
-	
-	-- Setup the main bar + icon
+	frame.castBar.bar:SetStatusBarColor(0, 0, 0, 0)
+	frame.castBar.background:SetVertexColor(0, 0, 0, 0)
+
+		-- Setup the main bar + icon
 	frame.castBar.bar:ClearAllPoints()
 	frame.castBar.bar:SetHeight(frame.castBar:GetHeight())
+	frame.castBar.bar:SetValue(0)
+	frame.castBar.bar:SetMinMaxValues(0, 1)
 	
 	-- Use the entire bars width and show the icon
 	if( config.castBar.icon == "HIDE" ) then
@@ -101,6 +173,7 @@ function Cast:OnDisable(frame, unit)
 	frame:UnregisterAll(self)
 
 	if( frame.castBar ) then
+		frame.castBar.monitor:Hide()
 		frame.castBar.bar.name:Hide()
 		frame.castBar.bar.time:Hide()
 		frame.castBar.bar:Hide()
