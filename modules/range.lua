@@ -50,8 +50,8 @@ end
 
 function Range:OnLayoutApplied(frame)
 	if( frame.visibility.range ) then
-		frame.range.hostileSpell = ShadowUF.db.profile.range["hostile" .. playerClass] or self.friendly[playerClass]
-		frame.range.friendlySpell = ShadowUF.db.profile.range["friendly" .. playerClass] or self.hostile[playerClass]
+		frame.range.hostileSpell = ShadowUF.db.profile.range["hostile" .. playerClass] or self.hostile[playerClass]
+		frame.range.friendlySpell = ShadowUF.db.profile.range["friendly" .. playerClass] or self.friendly[playerClass]
 	end
 end
 
