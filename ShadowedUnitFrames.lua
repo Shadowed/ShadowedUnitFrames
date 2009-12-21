@@ -2,15 +2,17 @@
 	Shadowed Unit Frames, Shadow of Mal'Ganis (US) PvP
 ]]
 
-ShadowUF = {playerUnit = "player", raidUnits = {}, partyUnits = {}, arenaUnits = {}, bossUnits = {}, modules = {}, moduleOrder = {}, units = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet"}}
+ShadowUF = {playerUnit = "player", raidPetUnits = {}, raidUnits = {}, partyUnits = {}, arenaUnits = {}, bossUnits = {}, modules = {}, moduleOrder = {},
+	unitList = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet"},
+	fakeUnits = {["targettarget"] = true, ["targettargettarget"] = true, ["pettarget"] = true, ["arenatarget"] = true, ["boss"] = true, ["focustarget"] = true, ["focustargettarget"] = true, ["maintanktarget"] = true, ["mainassisttarget"] = true}}
 
 local L = ShadowUFLocals
-local units = ShadowUF.units
 local _G = getfenv(0)
 
 -- Cache the units so we don't have to concat every time it updates
 for i=1, MAX_PARTY_MEMBERS do ShadowUF.partyUnits[i] = "party" .. i end
 for i=1, MAX_RAID_MEMBERS do ShadowUF.raidUnits[i] = "raid" .. i end
+for i=1, MAX_RAID_MEMBERS do ShadowUF.raidPetUnits[i] = "raidpet" .. i end
 for i=1, MAX_BOSS_FRAMES do table.insert(ShadowUF.bossUnits, "boss" .. i) end
 for i=1, 5 do ShadowUF.arenaUnits[i] = "arena" .. i end
 ShadowUF.unitTarget = setmetatable({}, {__index = function(tbl, unit) rawset(tbl, unit, unit .. "target"); return unit .. "target" end})
@@ -97,7 +99,7 @@ function ShadowUF:CheckUpgrade()
 		end
 	end
 
-	for _, unit in pairs(self.units) do
+	for _, unit in pairs(self.unitList) do
 		if( not self.db.profile.units[unit].enabled and self.db.profile.units[unit].height == 0 and self.db.profile.units[unit].width == 0 and self.db.profile.positions[unit].anchorPoint == "" and self.db.profile.positions[unit].point == "" ) then
 			ShadowUF:LoadDefaultLayout(true)
 			break
@@ -114,8 +116,12 @@ function ShadowUF:CheckUpgrade()
 		ShadowUF.db.profile.healthColors.offline = {r = 0.50, g = 0.50, b = 0.50}
 	end
 	
-	-- December 9th
+	-- December 21st
+	local castName = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}
+	local castTime = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}
+
 	for unit, config in pairs(self.db.profile.units) do
+		-- December 9th
 		if( not config.healthBar.colorType or config.healthBar.reaction ~= nil ) then
 			config.healthBar.colorType = config.healthBar.colorType or "percent"
 			if( config.healthBar.reaction ) then
@@ -136,6 +142,30 @@ function ShadowUF:CheckUpgrade()
 		config.healthBar.reactionType = config.healthBar.reactionType or "none"
 		config.highlight.alpha = config.highlight.alpha or 1.0
 		config.highlight.size = config.highlight.size or 30
+		
+		-- December 21st
+		if( not config.castBar or not config.castBar.height ) then
+			config.castBar = config.castBar or {}
+			config.castBar.icon = config.castBar.icon or "HIDE"
+			config.castBar.height = config.castBar.height or 0.60
+			config.castBar.order = config.castBar.order or 40
+		
+			config.castBar.name = config.castBar.name or {}
+			config.castBar.time = config.castBar.time or {}
+			
+			for key, value in pairs(castName) do
+				if( config.castBar.name[key] == nil ) then
+					config.castBar.name[key] = value
+				end
+			end
+			
+			for key, value in pairs(castTime) do
+				if( config.castBar.time[key] == nil ) then
+					config.castBar.time[key] = value
+				end
+			end
+		end	
+		
 	end
 	
 	-- December 15th
@@ -145,7 +175,7 @@ end
 	
 function ShadowUF:LoadUnits()
 	local instanceType = select(2, IsInInstance())
-	for _, type in pairs(units) do
+	for _, type in pairs(self.unitList) do
 		local enabled = self.db.profile.units[type].enabled
 		if( ShadowUF.Units.zoneUnits[type] and enabled ) then
 			enabled = ShadowUF.Units.zoneUnits[type] == instanceType
@@ -166,7 +196,7 @@ function ShadowUF:LoadUnits()
 end
 
 function ShadowUF:LoadUnitDefaults()
-	for _, unit in pairs(units) do
+	for _, unit in pairs(self.unitList) do
 		self.defaults.profile.positions[unit] = {point = "", relativePoint = "", anchorPoint = "", anchorTo = "UIParent", x = 0, y = 0}
 		
 		-- The reason why the defaults are so sparse, is because the layout needs to specify most of this. The reason I set tables here is basically
@@ -177,6 +207,7 @@ function ShadowUF:LoadUnitDefaults()
 			powerBar = {enabled = true},
 			emptyBar = {enabled = false},
 			portrait = {enabled = false, type = "3D", fullBefore = 0, fullAfter = 100, order = 40, height = 0.50},
+			castbar = {enabled = false},
 			text = {
 				{enabled = true, name = L["Left text"], text = "[name]", anchorPoint = "C", anchorTo = "$healthBar", size = 0},
 				{enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorPoint = "C", anchorTo = "$healthBar", size = 0},
@@ -191,10 +222,8 @@ function ShadowUF:LoadUnitDefaults()
 				debuffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, enlargeSelf = true},
 			},
 		}
-				
-		-- These modules are not enabled for "fake" units so don't bother with adding defaults
-		if( not string.match(unit, "%w+target") and unit ~= "boss" ) then
-			self.defaults.profile.units[unit].castBar = {enabled = false, icon = "HIDE", name = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}, time = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}}
+		
+		if( not self.fakeUnits[unit] ) then
 			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
 
 			if( unit ~= "arena" and unit ~= "arenapet" ) then
