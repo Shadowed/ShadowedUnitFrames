@@ -2,7 +2,6 @@ local Cast = {}
 local L = ShadowUFLocals
 local FADE_TIME = 0.30
 local FAKE_UPDATE_TIME = 0.10
-local UnitCastingInfo, UnitChannelInfo, GetTime = UnitCastingInfo, UnitChannelInfo, GetTime
 
 ShadowUF:RegisterModule(Cast, "castBar", L["Cast bar"], true)
 
@@ -173,7 +172,7 @@ function Cast:OnDisable(frame, unit)
 	frame:UnregisterAll(self)
 
 	if( frame.castBar ) then
-		frame.castBar.monitor:Hide()
+		if( frame.castBar.monitor ) then frame.castBar.monitor:Hide() end
 		frame.castBar.bar.name:Hide()
 		frame.castBar.bar.time:Hide()
 		frame.castBar.bar:Hide()
