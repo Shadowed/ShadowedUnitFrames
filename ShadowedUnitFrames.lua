@@ -15,7 +15,10 @@ for i=1, MAX_RAID_MEMBERS do ShadowUF.raidUnits[i] = "raid" .. i end
 for i=1, MAX_RAID_MEMBERS do ShadowUF.raidPetUnits[i] = "raidpet" .. i end
 for i=1, MAX_BOSS_FRAMES do table.insert(ShadowUF.bossUnits, "boss" .. i) end
 for i=1, 5 do ShadowUF.arenaUnits[i] = "arena" .. i end
+
 ShadowUF.unitTarget = setmetatable({}, {__index = function(tbl, unit) rawset(tbl, unit, unit .. "target"); return unit .. "target" end})
+ShadowUF.maintankUnits = ShadowUF.raidUnits
+ShadowUF.mainassistUnits = ShadowUF.raidUnits
 
 function ShadowUF:OnInitialize()
 	self.defaults = {
