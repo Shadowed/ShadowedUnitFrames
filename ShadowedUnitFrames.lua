@@ -147,7 +147,7 @@ function ShadowUF:CheckUpgrade()
 		config.highlight.size = config.highlight.size or 30
 		
 		-- December 21st
-		if( not config.castBar or not config.castBar.height ) then
+		if( not config.castBar or not config.castBar.height or not config.castBar.name or not config.castBar.time ) then
 			config.castBar = config.castBar or {}
 			config.castBar.icon = config.castBar.icon or "HIDE"
 			config.castBar.height = config.castBar.height or 0.60
