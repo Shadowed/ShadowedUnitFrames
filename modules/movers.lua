@@ -1,81 +1,375 @@
+-- I am undecided if this is a brilliant idea or an insane one
 local L = ShadowUFLocals
-local Movers = {headers = {["party"] = "partyUnits", ["raid"] = "raidUnits", ["maintank"] = "raidUnits", ["mainassist"] = "raidUnits", ["arena"] = "arenaUnits", ["boss"] = "bossUnits"}}
-local childUnits = ShadowUF.Units.childUnits
-local moverList, tempPositions = {}, {}
+local Movers = {}
+local originalEnvs = {}
+local unitConfig = {}
+local attributeBlacklist = {["showPlayer"] = true, ["showRaid"] = true, ["showParty"] = true, ["showSolo"] = true}
+local playerClass = select(2, UnitClass("player"))
+local noop = function() end
+local OnDragStop, OnDragStart, configEnv
 ShadowUF:RegisterModule(Movers, "movers")
 
-local function OnEnter(self)
-	local tooltipText = self.tooltipText or L.units[self.unitType] or self.unitType
-	if( tooltipText and self.tooltipHeader ) then
-		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
-		GameTooltip:SetText(self.tooltipHeader, 1, 0.81, 0, 1, true)
-		GameTooltip:AddLine(tooltipText, 0.90, 0.90, 0.90, 1)
-		GameTooltip:Show()
-	elseif( tooltipText ) then
-		GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
-		GameTooltip:SetText(tooltipText, 1, 0.81, 0, 1, true)
-		GameTooltip:Show()
+-- This is the fun part, the env to fake units and make them show up as examples
+local function getValue(func, unit, value)
+	unit = string.gsub(unit, "(%d+)", "")
+	if( unitConfig[func .. unit] == nil ) then unitConfig[func .. unit] = value end
+	return unitConfig[func .. unit]
+end
+
+local function createConfigEnv()
+	if( configEnv ) then return end
+	
+	configEnv = setmetatable({
+		GetRaidTargetIndex = function(unit) return getValue("GetRaidTargetIndex", unit, math.random(1, 8)) end,
+		GetLootMethod = function(unit) return "master", 0, 0 end,
+		GetComboPoints = function() return MAX_COMBO_POINTS end,
+		GetPetHappiness = function() return getValue("GetPetHappiness", "pet", math.random(1, 3)) end,
+		UnitInRaid = function() return true end,
+		UnitInParty = function() return true end,
+		UnitIsUnit = function(unitA, unitB) return unitB == "player" and true or false end,
+		UnitIsDeadOrGhost = function(unit) return false end,
+		UnitIsConnected = function(unit) return true end,
+		UnitLevel = function(unit) return MAX_PLAYER_LEVEL end,
+		UnitIsPlayer = function(unit) return unit ~= "boss" and unit ~= "pet" and not string.match(unit, "(%w+)pet") end,
+		UnitHealth = function(unit) return getValue("UnitHealth", unit, math.random(60, 100)) end,
+		UnitHealthMax = function(unit) return 100 end,
+		UnitPower = function(unit) return getValue("UnitPower", unit, math.random(40, 100)) end,
+		UnitPowerMax = function(unit) return 100 end,
+		UnitIsPartyLeader = function() return true end,
+		UnitIsPVP = function(unit) return true end,
+		UnitFactionGroup = function(unit) return _G.UnitFactionGroup("player") end,
+		UnitAffectingCombat = function() return true end,
+		UnitCastingInfo = function(unit)
+			-- 1 -> 10: spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible
+			local data = unitConfig["UnitCastingInfo" .. unit] or {}
+			if( not data[6] or GetTime() < data[6] ) then
+				data[1] = L["Test spell"]
+				data[2] = L["Rank 1"]
+				data[3] = L["Test spell"]
+				data[4] = "Interface\\Icons\\Spell_Nature_Rejuvenation"
+				data[5] = GetTime() * 1000
+				data[6] = data[5] + 60000
+				data[7] = false
+				data[8] = math.floor(GetTime())
+				data[9] = math.random(0, 100) < 25
+				unitConfig["UnitCastingInfo" .. unit] = data
+			end
+			
+			return unpack(data)
+		end,
+		UnitIsFriend = function(unit) return unit ~= "target" and unit ~= ShadowUF.fakeUnits[unit] and unit ~= "arena" end,
+		GetReadyCheckStatus = function(unit)
+			local status = getValue("GetReadyCheckStatus", unit, math.random(1, 3))
+			return status == 1 and "ready" or status == 2 and "notready" or "waiting"
+		end,
+		GetPartyAssignment = function(type, unit)
+			local assignment = getValue("GetPartyAssignment", unit, math.random(1, 2) == 1 and "MAINTANK" or "MAINASSIST")
+			return assignment == type
+		end,
+		UnitGroupRolesAssigned = function(unit)
+			local role = getValue("UnitGroupRolesAssigned", unit, math.random(1, 3))
+			return role == 1, role == 2, role == 3
+		end,
+		UnitPowerType = function(unit)
+			local powerType = math.random(0, 4)
+			powerType = getValue("UnitPowerType", unit, powerType == 4 and 6 or powerType)
+			
+			return powerType == 0 and "MANA" or powerType == 1 and "RAGE" or powerType == 2 and "FOCUS" or powerType == 3 and "ENERGY" or powerType == 6 and "RUNIC_POWER"
+		end,
+		UnitAura = function(unit, id, filter)
+			if( id > 40 ) then return end
+			
+			local texture = filter == "HELPFUL" and "Interface\\Icons\\Spell_Nature_Rejuvenation" or "Interface\\Icons\\Ability_DualWield"
+			local mod = id % 5
+			local auraType = mod == 0 and "Magic" or mod == 1 and "Curse" or mod == 2 and "Poison" or mod == 3 and "Disease" or "none"
+			return L["Test Aura"], L["Rank 1"], texture, id, auraType, 0, 0, "player", getValue("Stealable", unit, math.random(0, 100) < 25 and true or false)
+		end,
+		UnitName = function(unit)
+			local unitID = string.match(unit, "(%d+)")
+			if( unitID ) then
+				return string.format("%s #%d", L.units[string.gsub(unit, "(%d+)", "")], unitID)
+			end
+			
+			return L.units[unit]
+		end,
+		UnitClass = function(unit)
+			local classToken = getValue("UnitClass", unit, CLASS_SORT_ORDER[math.random(1, #(CLASS_SORT_ORDER))])
+			return LOCALIZED_CLASS_NAMES_MALE[classToken], classToken
+		end,
+	}, {
+		__index = _G,
+		__newindex = function(tbl, key, value) _G[key] = value end,
+	})
+end
+
+-- Child units have to manually be added to the list to make sure they function properly
+local function prepareChildUnits(header, ...)
+	for i=1, select("#", ...) do
+		local frame = select(i, ...)
+		if( frame.unitType ) then
+			ShadowUF.Units.frameList[frame] = true
+			frame.configUnitID = header.groupID and (header.groupID * 5) - 5 + i or i
+		end
 	end
+end
+
+local function OnEnter(self)
+	local tooltip = self.tooltipText or self.unitID and string.format("%s #%d", L.units[self.unitType], self.unitID) or L.units[self.unit] or self.unit
+	local additionalText = ShadowUF.Units.childUnits[self.unitType] and L["Child units cannot be dragged, you will have to reposition them through /shadowuf."]
+	
+	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
+	GameTooltip:SetText(tooltip, 1, 0.81, 0, 1, true)
+	if( additionalText ) then GameTooltip:AddLine(additionalText, 0.90, 0.90, 0.90, 1) end
+	GameTooltip:Show()
 end
 
 local function OnLeave(self)
 	GameTooltip:Hide()
 end
 
-local function OnShow(self)
+local function setupUnits(childrenOnly)
 	for frame in pairs(ShadowUF.Units.frameList) do
-		frame:SetAlpha(0)
-		frame.OrigSetAlpha = frame.SetAlpha
-		frame.SetAlpha = ShadowUF.noop
-		
-		if( frame:IsShown() ) then
-			frame.wasVisible = true
-			frame:Hide()
-		end
-	end
-end
+		if( frame.configMode ) then
+			if( frame:IsVisible() and not ShadowUF.db.profile.units[frame.unitType].enabled ) then
+				frame:originalHide()
+			elseif( not frame:IsVisible() and ShadowUF.db.profile.units[frame.unitType].enabled ) then
+				frame:Show()
+			end
+		elseif( not frame.configMode and ShadowUF.db.profile.units[frame.unitType].enabled ) then
+			frame.originalUnit = frame:GetAttribute("unit")
+			frame.originalOnEnter = frame:GetScript("OnEnter")
+			frame.originalOnLeave = frame:GetScript("OnLeave")
+			frame:SetAttribute("unit", "player")
+			frame:SetMovable(not ShadowUF.Units.childUnits[frame.unitType])
+			frame:SetScript("OnDragStop", OnDragStop)
+			frame:SetScript("OnDragStart", OnDragStart)
+			frame:SetScript("OnEnter", OnEnter)
+			frame:SetScript("OnLeave", OnLeave)
+			frame:SetScript("OnEvent", nil)
+			frame:SetScript("OnUpdate", nil)
+			frame:RegisterForDrag("LeftButton")
+			frame.configMode = true
+			frame.unitOwner = nil
+			frame.originalMenu = frame.menu
+			frame.menu = nil
+			
+			local unit = SecureButton_GetModifiedUnit(frame)
+			if( frame.unitType ~= frame.unitRealType ) then
+				unit = frame.unitType .. (frame.configUnitID or "")
+			end
+			
+			ShadowUF.Units.OnAttributeChanged(frame, "unit", unit)
 
-local function OnHide(self)
-	for frame in pairs(ShadowUF.Units.frameList) do
-		if( frame.OrigSetAlpha ) then
-			frame.OrigSetAlpha = nil
-			frame.SetAlpha = frame.OrigSetAlpha
-		end
-		frame:SetAlpha(1)
-		
-		if( frame.wasVisible ) then
-			frame.wasVisible = nil
+			if( frame.healthBar ) then frame.healthBar:SetScript("OnUpdate", nil) end
+			if( frame.powerBar ) then frame.powerBar:SetScript("OnUpdate", nil) end
+			if( frame.indicators ) then frame.indicators:SetScript("OnUpdate", nil) end
+			frame.originalHide = frame.Hide
+			frame.Hide = noop
 			frame:Show()
 		end
 	end
 end
 
 function Movers:Enable()
-	-- Enable it for all units that are enabled
-	-- Create necessary frames
-	for unit, config in pairs(ShadowUF.db.profile.units) do
-		if( config.enabled and not childUnits[unit] ) then
-			if( self.headers[unit] ) then
-				self:CreateHeader(unit)
-			else
-				self:CreateSingle(unit)
+	createConfigEnv()
+	
+	-- Setup the test env
+	if( not self.isEnabled ) then
+		for _, func in pairs(ShadowUF.tagFunc) do
+			if( type(func) == "function" ) then
+				originalEnvs[func] = getfenv(func)
+				setfenv(func, configEnv)
+			end
+		end
+
+		for _, module in pairs(ShadowUF.modules) do
+			if( module.moduleName ) then
+				for key, func in pairs(module) do
+					if( type(func) == "function" ) then
+						originalEnvs[module[key]] = getfenv(module[key])
+						setfenv(module[key], configEnv)
+					end
+				end
 			end
 		end
 	end
 	
-	-- Disable the unnecessary
-	for _, frame in pairs(moverList) do
-		if( ( frame.unitType and not ShadowUF.db.profile.units[frame.unitType].enabled ) or ( frame.childsOwner and not frame.childsOwner:IsVisible() ) ) then
-			frame:Hide()
-		elseif( not frame.headerFrame ) then
-			frame:Show()
+	-- Force create zone headers
+	for type, zone in pairs(ShadowUF.Units.zoneUnits) do
+		if( ShadowUF.db.profile.units[type].enabled ) then
+			ShadowUF.Units:InitializeFrame(type)
 		end
 	end
 	
-	if( self.infoFrame ) then
-		self.infoFrame:Show()
-		return
+	-- Setup the headers
+	for _, header in pairs(ShadowUF.Units.headerFrames) do
+		for key in pairs(attributeBlacklist) do
+			header:SetAttribute(key, nil)
+		end
+		
+		local config = ShadowUF.db.profile.units[header.unitType]
+		if( config.frameSplit ) then
+			header:SetAttribute("startingIndex", -4)
+		elseif( config.maxColumns ) then
+			local maxUnits = MAX_RAID_MEMBERS
+			if( config.filters ) then
+				for _, enabled in pairs(config.filters) do
+					if( not enabled ) then
+						maxUnits = maxUnits - 5
+					end
+				end
+			end
+					
+			header:SetAttribute("startingIndex", -math.min(config.maxColumns * config.unitsPerColumn, maxUnits) + 1)
+		elseif( ShadowUF[header.unitType .. "Units"] ) then
+			header:SetAttribute("startingIndex", -#(ShadowUF[header.unitType .. "Units"]) + 1)
+		end
+		
+		header:SetMovable(true)
+		prepareChildUnits(header, header:GetChildren())
 	end
+	
+	-- Why is this called twice you ask? Child units are created on the OnAttributeChanged call
+	-- so the first call gets all the parent units, the second call gets the child units
+	setupUnits()
+	setupUnits()
+	
+	self:CreateInfoFrame()
+	self.infoFrame:Show()
+	self.isEnabled = true
+end
+
+function Movers:Disable()
+	if( not self.isEnabled ) then return nil end
+	
+	for func, env in pairs(originalEnvs) do
+		setfenv(func, env)
+		originalEnvs[func] = nil
+	end
+	
+	for frame in pairs(ShadowUF.Units.frameList) do
+		if( frame.configMode ) then
+			if( frame.isMoving ) then
+				frame:GetScript("OnDragStop")(frame)
+			end
+			
+			frame.configMode = nil
+			frame.unitOwner = nil
+			frame.unit = nil
+			frame.configUnitID = nil
+			frame.menu = frame.originalMenu
+			frame.originalMenu = nil
+			frame.Hide = frame.originalHide
+			frame:SetAttribute("unit", frame.originalUnit)
+			frame:SetScript("OnDragStop", nil)
+			frame:SetScript("OnDragStart", nil)
+			frame:SetScript("OnEvent", frame:IsVisible() and ShadowUF.Units.OnEvent)
+			frame:SetScript("OnEnter", frame.originalOnEnter)
+			frame:SetScript("OnLeave", frame.originalOnLeave)
+			frame:SetMovable(false)
+			frame:RegisterForDrag()
+			
+			if( not UnitExists(frame.unit) ) then
+				frame:Hide()
+			end
+		end
+	end
+			
+	for type, header in pairs(ShadowUF.Units.headerFrames) do
+		header:SetMovable(false)
+		header:SetAttribute("startingIndex", 1)
+		
+		ShadowUF.Units:ReloadHeader(type)
+	end
+	
+	ShadowUF.Units:CheckPlayerZone(true)
+	
+	self.infoFrame:Hide()
+	self.isEnabled = nil
+end
+
+OnDragStart = function(self)
+	if( not self:IsMovable() ) then return end
+	
+	if( self.unitType == "raid" and ShadowUF.Units.headerFrames.raidParent and ShadowUF.Units.headerFrames.raidParent:IsVisible() ) then
+		self = ShadowUF.Units.headerFrames.raidParent
+	else
+		self = ShadowUF.Units.headerFrames[self.unitType] or ShadowUF.Units.unitFrames[self.unitType]
+	end
+
+	self.isMoving = true
+	self:StartMoving()
+end
+
+OnDragStop = function(self)
+	if( not self:IsMovable() ) then return end
+	if( self.unitType == "raid" and ShadowUF.Units.headerFrames.raidParent and ShadowUF.Units.headerFrames.raidParent:IsVisible() ) then
+		self = ShadowUF.Units.headerFrames.raidParent
+	else
+		self = ShadowUF.Units.headerFrames[self.unitType] or ShadowUF.Units.unitFrames[self.unitType]
+	end
+
+	self.isMoving = nil
+	self:StopMovingOrSizing()
+	
+	-- When dragging the frame around, Blizzard changes the anchoring based on the closet portion of the screen
+	-- When a widget is near the top left it uses top left, near the left it uses left and so on, which messes up positioning for header frames
+	local scale = GetCVarBool("useUiScale") and self:GetScale() * GetCVar("uiScale") or 1
+	local position = ShadowUF.db.profile.positions[self.unitType]
+	local point, _, relativePoint, x, y = self:GetPoint()
+	
+	-- Figure out the horizontal anchor
+	if( self.isHeaderFrame ) then
+		if( ShadowUF.db.profile.units[self.unitType].attribAnchorPoint == "RIGHT" ) then
+			x = self:GetRight()
+			point = "RIGHT"
+		else
+			x = self:GetLeft()
+			point = "LEFT"
+		end
+		
+		if( ShadowUF.db.profile.units[self.unitType].attribPoint == "BOTTOM" ) then
+			y = self:GetBottom()
+			point = "BOTTOM" .. point
+		else
+			y = self:GetTop()
+			point = "TOP" .. point
+		end
+		
+		relativePoint = "BOTTOMLEFT"
+		position.bottom = self:GetBottom() * scale
+		position.top = self:GetTop() * scale
+	end
+	
+	position.anchorTo = "UIParent"
+	position.movedAnchor = nil
+	position.anchorPoint = ""
+	position.point = point
+	position.relativePoint = relativePoint
+	position.x = x * scale
+	position.y = y * scale
+		
+	ShadowUF.Layout:AnchorFrame(UIParent, self, ShadowUF.db.profile.positions[self.unitType])
+
+	-- Unlock the parent frame from the mover now too
+	if( self.parent ) then
+		ShadowUF.Layout:AnchorFrame(UIParent, self.parent, ShadowUF.db.profile.positions[self.parent.unitType])
+	end
+	
+	-- Notify the configuration it can update itself now
+	LibStub("AceConfigRegistry-3.0"):NotifyChange("ShadowedUF")
+end
+
+function Movers:Update()
+	if( not ShadowUF.db.profile.locked ) then
+		self:Enable()
+	elseif( ShadowUF.db.profile.locked ) then
+		self:Disable()
+	end
+end
+
+function Movers:CreateInfoFrame()
+	if( self.infoFrame ) then return end
 	
 	-- Show an info frame that users can lock the frames through
 	local frame = CreateFrame("Frame", nil, UIParent)
@@ -122,7 +416,7 @@ function Movers:Enable()
 	frame.title:SetText("Shadowed Unit Frames")
 
 	frame.text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-	frame.text:SetText(L["The black boxes are used for positioning all enabled unit frames.\n\nYou can hide them by locking them through /shadowuf or clicking the button below."])
+	frame.text:SetText(L["The unit frames you see are examples, they are not perfect and do not show all the data they normally would.\n\nYou can hide them by locking them through /shadowuf or clicking the button below."])
 	frame.text:SetPoint("TOPLEFT", 12, -22)
 	frame.text:SetWidth(frame:GetWidth() - 20)
 	frame.text:SetJustifyH("LEFT")
@@ -149,8 +443,8 @@ function Movers:Enable()
 	frame.unlink:SetScript("OnLeave", OnLeave)
 	frame.unlink.tooltipText = L["WARNING: This will unlink all frames from each other so you can move them without another frame moving with it."]
 	frame.unlink:SetScript("OnClick", function()
-		for _, frame in pairs(moverList) do
-			if( not frame.isHeaderFrame and not frame.childsOwner ) then
+		for frame in pairs(ShadowUF.Units.frameList) do
+			if( not ShadowUF.Units.childUnits[frame.unitType] ) then
 				frame:GetScript("OnDragStart")(frame)
 				frame:GetScript("OnDragStop")(frame)
 			end
@@ -160,321 +454,4 @@ function Movers:Enable()
 	end)
 
 	self.infoFrame = frame
-end
-
-local function OnDragStart(self)
-	if( not self:IsMovable() ) then return end
-	
-	local frame = self.headerFrame or self
-	frame.isMoving = true
-	frame:StartMoving()
-	self.parentMover = frame
-	
-	if( frame.unitType == "raid" and ShadowUF.Units.headerFrames.raidParent and ShadowUF.Units.headerFrames.raidParent:IsVisible() ) then
-		frame.parent = ShadowUF.Units.headerFrames.raidParent
-		frame.isSplitFrame = true
-	else
-		frame.parent = ShadowUF.Units.headerFrames[frame.unitType] or ShadowUF.Units.unitFrames[frame.unitType]
-		frame.isSplitframe = nil
-	end
-end
-
-local function OnDragStop(self)
-	if( not self:IsMovable() ) then return end
-
-	local frame = self.parentMover or self
-	frame.isMoving = nil
-	frame:StopMovingOrSizing()
-	
-	-- When dragging the frame around, Blizzard changes the anchoring based on the closet portion of the screen
-	-- When a widget is near the top left it uses top left, near the left it uses left and so on, which messes up positioning for header frames
-	local scale = GetCVarBool("useUiScale") and frame:GetScale() * GetCVar("uiScale") or 1
-	local position = ShadowUF.db.profile.positions[frame.unitType]
-	local point, _, relativePoint, x, y = frame:GetPoint()
-	
-	-- Figure out the horizontal anchor
-	if( frame.isHeaderFrame ) then
-		if( ShadowUF.db.profile.units[frame.unitType].attribAnchorPoint == "RIGHT" ) then
-			x = frame:GetRight()
-			point = "RIGHT"
-		else
-			x = frame:GetLeft()
-			point = "LEFT"
-		end
-		
-		if( ShadowUF.db.profile.units[frame.unitType].attribPoint == "BOTTOM" ) then
-			y = frame:GetBottom()
-			point = "BOTTOM" .. point
-		else
-			y = frame:GetTop()
-			point = "TOP" .. point
-		end
-		
-		relativePoint = "BOTTOMLEFT"
-		position.bottom = frame:GetBottom() * scale
-		position.top = frame:GetTop() * scale
-	end
-	
-	position.anchorTo = "UIParent"
-	position.movedAnchor = nil
-	position.anchorPoint = ""
-	position.point = point
-	position.relativePoint = relativePoint
-	position.x = x * scale
-	position.y = y * scale
-		
-	ShadowUF.Layout:AnchorFrame(UIParent, frame, ShadowUF.db.profile.positions[frame.unitType])
-
-	-- Unlock the parent frame from the mover now too
-	if( frame.parent ) then
-		ShadowUF.Layout:AnchorFrame(UIParent, frame.parent, ShadowUF.db.profile.positions[frame.parent.unitType])
-	end
-	
-	-- Notify the configuration it can update itself now
-	LibStub("AceConfigRegistry-3.0"):NotifyChange("ShadowedUF")
-end
-
--- Handles the header creation to mimick all the frames they have
-local function positionFrame(frame)
-	tempPositions[frame.unitType] = tempPositions[frame.unitType] or {}
-	table.wipe(tempPositions[frame.unitType])
-	for k, v in pairs(ShadowUF.db.profile.positions[frame.unitType]) do tempPositions[frame.unitType][k] = v end
-	tempPositions[frame.unitType].anchorTo = string.gsub(tempPositions[frame.unitType].anchorTo, "#SUFUnit", "#SUFMover")
-	tempPositions[frame.unitType].anchorTo = string.gsub(tempPositions[frame.unitType].anchorTo, "#SUFHeader", "#SUFMover")
-	
-	ShadowUF.Layout:AnchorFrame(frame.childsOwner or UIParent, frame, tempPositions[frame.unitType])
-end
-
--- Need to make sure we keep the mover frames updated to what their owners would look like
-local function setupFrame(frame)
-	ShadowUF.Layout:SetupFrame(frame, ShadowUF.db.profile.units[frame.unitType])
-	frame.text:SetWidth(frame:GetWidth() - 10)
-	frame.text:SetHeight(frame:GetHeight() - 10)
-	
-	-- Setup test mode
-	local config = ShadowUF.db.profile.units[frame.unitType]
-	for _, module in pairs(ShadowUF.modules) do
-		if( module.TestMode ) then
-			module:TestMode(frame, config)
-		end
-	end
-	
-	-- Handle anchoring an aura group to another
-	frame.auras.anchorAurasOn = nil
-	if( config.auras.buffs.enabled and config.auras.debuffs.enabled ) then
-		if( config.auras.buffs.anchorOn ) then
-			frame.auras.anchorAurasOn = frame.auras.debuffs
-			frame.auras.anchorAurasChild = frame.auras.buffs
-		elseif( config.auras.debuffs.anchorOn ) then
-			frame.auras.anchorAurasOn = frame.auras.buffs
-			frame.auras.anchorAurasChild = frame.auras.debuffs
-		end
-	end
-
-	if( frame.auras.anchorAurasOn ) then
-		ShadowUF.modules.auras.anchorGroupToGroup(frame, config[frame.auras.anchorAurasOn.type], frame.auras.anchorAurasOn, config[frame.auras.anchorAurasChild.type], frame.auras.anchorAurasChild)
-	end
-
-	-- Handle prioritizing an anchor group over another when merging them
-	if( config.auras.buffs.anchorPoint == config.auras.debuffs.anchorPoint and config.auras.buffs.enabled and config.auras.debuffs.enabled and not config.auras.buffs.anchorOn and not config.auras.debuffs.anchorOn ) then
-		if( config.auras.buffs.prioritize ) then
-			for _, button in pairs(frame.auras.debuffs.buttons) do
-				button:Hide()
-			end
-		else
-			for _, button in pairs(frame.auras.buffs.buttons) do
-				button:Hide()
-			end
-		end
-	end
-
-	if( not frame.headerFrame and not frame.dontPosition ) then
-		positionFrame(frame)
-	end
-end
-
-function Movers:OnLayoutReload(type)
-	if( ShadowUF.db.profile.locked ) then return end
-	
-	for _, frame in pairs(moverList) do
-		if( frame.unitType == type and not frame.isHeaderFrame ) then
-			setupFrame(frame)
-		end
-	end
-	
-	if( moverList[type] ) then
-		self:CreateHeader(type)
-	end
-end
-		
-function Movers:CreateHeader(type)
-	local headerFrame = moverList[type] or CreateFrame("Frame", "SUFMover" .. type, UIParent)
-	headerFrame:SetMovable(true)
-	headerFrame.unitType = type
-	headerFrame.unit = type
-	headerFrame.isHeaderFrame = true
-	
-	moverList[type] = headerFrame
-	
-	-- Ceate all of the child frames for this header
-	headerFrame.children = headerFrame.children or {}
-	for id, unit in pairs(ShadowUF[self.headers[type]]) do
-		headerFrame.children[id] = self:CreateFrame(unit, type, true)
-		headerFrame.children[id].tooltipHeader = string.format(L["%s frames"], L.units[type])
-		headerFrame.children[id].tooltipText = L.units[type] .. " #" .. id
-		headerFrame.children[id].text:SetText(headerFrame.children[id].tooltipText)
-		headerFrame.children[id].headerFrame = headerFrame
-		
-		-- And create the children of the children (Boy do they reproduce fast!)
-		for unitChild, unitParent in pairs(childUnits) do
-			if( unitParent == type ) then
-				local frame = self:CreateFrame(unitChild .. id, unitChild, true, headerFrame.children[id])
-				frame.childsOwner = headerFrame.children[id]
-				frame.tooltipHeader = L.units[unitChild] .. " (#" .. id .. ")"
-				frame.tooltipText = L["To reposition this frame, open /shadowuf and manually position it there."]
-				frame.text:SetText(frame.tooltipHeader)
-				frame:SetMovable(false)
-				
-				positionFrame(frame)
-			end
-		end
-	end
-				
-	-- Position all of the children headers so they mimick the real ones
-	local config = ShadowUF.db.profile.units[type]
-	local unitsPerColumn = config.frameSplit and 5 or config.unitsPerColumn or #(headerFrame.children)
-	local maxUnits = 0
-	if( config.filters ) then
-		for _, enabled in pairs(config.filters) do
-			if( enabled ) then maxUnits = maxUnits + 5 end
-		end
-		
-		unitsPerColumn = math.min(unitsPerColumn, maxUnits)
-	else
-		maxUnits = #(headerFrame.children)
-	end
-	
-	local point = config.attribPoint or "TOP"
-    local relativePoint, xOffsetMulti, yOffsetMulti = ShadowUF.Layout:GetRelativeAnchor(point)
-    local xMultiplier, yMultiplier = math.abs(xOffsetMulti), math.abs(yOffsetMulti)
-	local columnRelativePoint, colxMulti, colyMulti = ShadowUF.Layout:GetRelativeAnchor(config.attribAnchorPoint)
-    local maxColumns = config.frameSplit and 8 or config.maxColumns or 1
-	local totalDisplayed = math.min(maxUnits, (maxColumns * unitsPerColumn))
-	local numColumns = math.ceil(totalDisplayed / unitsPerColumn)
-    local x = (config.offset or 0) * xOffsetMulti
-    local y = (config.offset or 0) * yOffsetMulti
-    		
-	-- Position all of the children
-	local columnTotal = 0
-	for id, child in pairs(headerFrame.children) do
-		columnTotal = columnTotal + 1
-		if( numColumns > 0 and columnTotal > unitsPerColumn ) then
-			columnTotal = 1
-		end
-				
-		if( id == 1 ) then
-			child:ClearAllPoints()
-			child:SetPoint(point, headerFrame, point, 0, 0)
-			
-			if( config.attribAnchorPoint and numColumns > 1 ) then
-				child:SetPoint(config.attribAnchorPoint, headerFrame, config.attribAnchorPoint, 0, 0)
-			end
-		elseif( columnTotal == 1 ) then
-			child:ClearAllPoints()
-			child:SetPoint(config.attribAnchorPoint, headerFrame.children[id - unitsPerColumn], columnRelativePoint, colxMulti * config.columnSpacing, colyMulti * config.columnSpacing)
-		else
-			child:ClearAllPoints()
-			child:SetPoint(point, headerFrame.children[id - 1], relativePoint, xMultiplier * x, yMultiplier * y)
-		end
-	end
-
-	-- Figure out the size of the total header
-	local width = xMultiplier * ( unitsPerColumn - 1 ) * config.width + ( ( unitsPerColumn - 1 ) * ( x * xOffsetMulti ) ) + config.width
-	local height = yMultiplier * ( unitsPerColumn - 1 ) * config.height + ( ( unitsPerColumn - 1 ) * ( y * yOffsetMulti ) ) + config.height
-
-	if( numColumns > 1 ) then
-		width = width + ( ( numColumns - 1 ) * math.abs(colxMulti) * ( width + config.columnSpacing ) )
-		height = height + ( ( numColumns - 1 ) * math.abs(colyMulti) * ( height + config.columnSpacing ) )
-	end
-	
-	
-	headerFrame:SetHeight(math.max(height, 0.1))
-	headerFrame:SetWidth(math.max(width, 0.1))
-		
-	-- Now set which of the frames is shown vs hidden
-	for id, frame in pairs(headerFrame.children) do
-		if( id <= totalDisplayed ) then
-			frame:Show()
-		else
-			frame:Hide()
-		end
-	end
-		
-	-- Position the header
-	tempPositions[type] = tempPositions[type] or {}
-	table.wipe(tempPositions[type])
-	for k, v in pairs(ShadowUF.db.profile.positions[type]) do tempPositions[type][k] = v end
-	tempPositions[type].anchorTo = string.gsub(tempPositions[type].anchorTo, "#SUFUnit", "#SUFMover")
-	tempPositions[type].anchorTo = string.gsub(tempPositions[type].anchorTo, "#SUFHeader", "#SUFMover")
-		
-	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, tempPositions[type])
-end
-
-function Movers:CreateSingle(unit)
-	local frame = self:CreateFrame(unit, unit)
-	frame.text:SetText(L.units[unit])
-end
-
-function Movers:CreateFrame(unit, unitType, dontPosition, parent)
-	for _, frame in pairs(moverList) do
-		if( frame.unit == unit and frame.unitType == unitType ) then
-			setupFrame(frame)
-			return frame
-		end
-	end
-		
-	local moverFrame = CreateFrame("Frame", "SUFMover" .. unit, UIParent)
-	moverFrame:SetScript("OnDragStart", OnDragStart)
-	moverFrame:SetScript("OnDragStop", OnDragStop)
-	moverFrame:SetScript("OnEnter", OnEnter)
-	moverFrame:SetScript("OnLeave", OnLeave)
-	moverFrame:SetFrameStrata("DIALOG")
-	moverFrame:SetClampedToScreen(true)
-	moverFrame:EnableMouse(true)
-	moverFrame:RegisterForDrag("LeftButton")
-	moverFrame:SetMovable(true)
-	moverFrame.text = moverFrame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-	moverFrame.text:SetPoint("CENTER", moverFrame, "CENTER")
-
-	moverFrame.unitType = unitType or unit
-	moverFrame.unit = unit
-	moverFrame.ignoreAnchor = true
-	moverFrame.dontPosition = dontPosition
-	moverFrame.parent = parent
-	moverFrame.auras = {}
-	
-	table.insert(moverList, moverFrame)
-	setupFrame(moverFrame)
-	OnShow(moverFrame)
-	
-	return moverFrame
-end
-
-function Movers:Update()
-	if( not ShadowUF.db.profile.locked ) then
-		self:Enable()
-	elseif( ShadowUF.db.profile.locked ) then
-		self:Disable()
-	end
-end
-
-function Movers:Disable()
-	for _, frame in pairs(moverList) do
-		if( frame.isMoving ) then OnDragStop(frame) end
-		frame:Hide()
-	end
-	
-	if( self.infoFrame ) then
-		self.infoFrame:Hide()
-	end
 end
