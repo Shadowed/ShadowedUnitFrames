@@ -120,6 +120,8 @@ local function OnEvent(self, event, unit, ...)
 	end
 end
 
+Units.OnEvent = OnEvent
+
 -- Do a full update OnShow, and stop watching for events when it's not visible
 local function OnShow(self)
 	-- Reset the event handler
@@ -348,6 +350,8 @@ end
 
 local OnAttributeChanged
 local function updateChildUnits(...)
+	if( not ShadowUF.db.profile.locked ) then return end
+	
 	for i=1, select("#", ...) do
 		local child = select(i, ...)
 		if( child.parent and child.unitType ) then
@@ -502,15 +506,12 @@ OnAttributeChanged = function(self, name, unit)
 		self:RegisterNormalEvent("UNIT_TARGET", Units, "CheckPetUnitUpdated")
 	end
 	
-	-- No secure menu set, default to tainted
 	self.menu = ShowMenu
-			
-	-- Update module status
 	self:SetVisibility()
-	
-	-- Check for any unit changes
 	Units:CheckUnitStatus(self)
 end
+
+Units.OnAttributeChanged = OnAttributeChanged
 
 -- Header unit initialized
 local function initializeUnit(self)
@@ -921,6 +922,7 @@ function Units:LoadChildUnit(parent, type, id)
 	local frame = self:CreateUnit("Button", "SUFChild" .. type .. string.match(parent:GetName(), "(%d+)"), parent, "SecureUnitButtonTemplate")
 	frame.unitType = type
 	frame.parent = parent
+	frame.isChildUnit = true
 	frame:SetFrameStrata("LOW")
 	frame:SetAttribute("useparent-unit", true)
 	frame:SetAttribute("unitsuffix", string.match(type, "pet$") and "pet" or "target")
