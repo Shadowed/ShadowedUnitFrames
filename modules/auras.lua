@@ -1,5 +1,5 @@
 local Auras = {}
-local stealableColor = {r = 0.80, g = 0.50, b = 0}
+local stealableColor = {r = 1, g = 1, b = 1}
 local playerUnits = {player = true, vehicle = true, pet = true}
 local mainHand, offHand = {time = 0}, {time = 0}
 local tempEnchantScan
