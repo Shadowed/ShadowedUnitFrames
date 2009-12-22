@@ -667,7 +667,7 @@ local function loadGeneralOptions()
 								order = 1,
 								type = "toggle",
 								name = L["Lock frames"],
-								desc = L["Loads the mover frames which will let you reposition enabled unit frames."],
+								desc = L["Enables configuration mode, letting you move and giving you example frames to setup."],
 								set = function(info, value)
 									set(info, value)
 									ShadowUF.modules.movers:Update()
