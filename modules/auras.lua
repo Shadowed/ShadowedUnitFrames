@@ -1,6 +1,7 @@
 local Auras = {}
 local stealableColor = {r = 0.80, g = 0.50, b = 0}
 local playerUnits = {player = true, vehicle = true, pet = true}
+local mainHand, offHand = {time = 0}, {time = 0}
 local tempEnchantScan
 ShadowUF:RegisterModule(Auras, "auras", ShadowUFLocals["Auras"])
 
@@ -124,7 +125,7 @@ local function hideTooltip(self)
 end
 
 local function cancelBuff(self)
-	if( not ShadowUf.db.profile.locked ) then return end
+	if( not ShadowUF.db.profile.locked ) then return end
 	
 	if( self.filter == "TEMP" ) then
 		CancelItemTempEnchantment(self.auraID - 15)
@@ -217,8 +218,11 @@ local function updateGroup(self, type, config, reverseConfig)
 		group.forcedAnchorPoint = reverseConfig.anchorPoint
 	end
 	
-	if( self.unit == "player" and config.temporary ) then
-		group:SetScript("OnUpdate", tempEnchantScan)
+	if( self.unit == "player" ) then
+		mainHand.time = 0
+		offHand.time = 0
+
+		group:SetScript("OnUpdate", config.temporary and tempEnchantScan or nil)
 	else
 		group:SetScript("OnUpdate", nil)
 	end
@@ -244,7 +248,7 @@ function Auras:OnLayoutApplied(frame, config)
 			for _, button in pairs(frame.auras.buffs.buttons) do
 				button:Hide() 
 			end 
-		end
+			end
 		if( frame.auras.debuffs ) then
 			for _, button in pairs(frame.auras.debuffs.buttons) do
 				button:Hide()
@@ -286,9 +290,11 @@ end
 
 -- Temporary enchant support
 local timeElapsed = 0
-local mainHand, offHand = {time = 0}, {time = 0}
 local function updateTemporaryEnchant(frame, slot, tempData, hasEnchant, timeLeft, charges)
-	if( tempData.has and timeLeft < tempData.time and charges == tempData.charges ) then return end
+	-- If there's less than a 750 millisecond differences in the times, we don't need to bother updating.
+	-- Any sort of enchant takes more than 0.750 seconds to cast so it's impossible for the user to have two
+	-- temporary enchants with that little difference, as totems don't really give pulsing auras anymore.
+	if( tempData.has and ( timeLeft < tempData.time and ( tempData.time - timeLeft ) < 750 ) and charges == tempData.charges ) then return false end
 	
 	-- Some trickys magic, we can't get the start time of temporary enchants easily.
 	-- So will save the first time we find when a new enchant is added
@@ -347,8 +353,8 @@ end
 -- Unfortunately, temporary enchants have basically no support beyond hacks. So we will hack!
 tempEnchantScan = function(self, elapsed)
 	timeElapsed = timeElapsed + elapsed
-	if( timeElapsed < 1 ) then return end
-	timeElapsed = 0
+	if( timeElapsed < 0.50 ) then return end
+	timeElapsed = timeElapsed - 0.50
 
 	local hasMain, mainTimeLeft, mainCharges, hasOff, offTimeLeft, offCharges = GetWeaponEnchantInfo()
 	self.temporaryEnchants = 0
