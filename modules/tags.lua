@@ -56,10 +56,12 @@ end
 local freqFrame = CreateFrame("Frame")
 freqFrame:SetScript("OnUpdate", function(self, elapsed)
 	for fontString, timeLeft in pairs(frequentUpdates) do
-		frequentUpdates[fontString] = timeLeft - elapsed
-		if( frequentUpdates[fontString] <= 0 ) then
-			frequentUpdates[fontString] = fontString.frequentStart
-			fontString:UpdateTags()
+		if( fontString.parent:IsVisible() ) then
+			frequentUpdates[fontString] = timeLeft - elapsed
+			if( frequentUpdates[fontString] <= 0 ) then
+				frequentUpdates[fontString] = fontString.frequentStart
+				fontString:UpdateTags()
+			end
 		end
 	end
 end)
@@ -107,18 +109,18 @@ function Tags:Register(parent, fontString, tags, resetCache)
 					local ap = hasAp and string.sub(tag, endOff + 2, -2)
 					
 					if( pre and ap ) then
-						cachedFunc = function(unit, unitOwner)
-							local str = tagFunc(unit, unitOwner, fontString)
+						cachedFunc = function(...)
+							local str = tagFunc(...)
 							if( str ) then return pre .. str .. ap end
 						end
 					elseif( pre ) then
-						cachedFunc = function(unit, unitOwner, fontString)
-							local str = tagFunc(unit, unitOwner, fontString)
+						cachedFunc = function(...)
+							local str = tagFunc(...)
 							if( str ) then return pre .. str end
 						end
 					elseif( ap ) then
-						cachedFunc = function(unit, unitOwner, fontString)
-							local str = tagFunc(unit, unitOwner, fontString)
+						cachedFunc = function(...)
+							local str = tagFunc(...)
 							if( str ) then return str .. ap end
 						end
 					end
@@ -421,7 +423,7 @@ Tags.defaultTags = {
 		
 		return string.format(ShadowUFLocals["PVP:%s"], ShadowUF:FormatShortTime(GetPVPTimer() / 1000))
 	end]],
-	["afk"] = [[function(unit, unitOwner)
+	["afk"] = [[function(unit, unitOwner, fontString)
 		return UnitIsAFK(unitOwner) and ShadowUFLocals["AFK"] or UnitIsDND(unitOwner) and ShadowUFLocals["DND"]
 	end]],
 	["close"] = [[function(unit, unitOwner) return "|r" end]],
