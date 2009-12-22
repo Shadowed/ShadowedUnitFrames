@@ -106,8 +106,9 @@ local function updateTooltip(self)
 end
 
 local function showTooltip(self)
-	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
+	if( not ShadowUF.db.profile.locked ) then return end
 
+	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
 	if( self.filter == "TEMP" ) then
 		GameTooltip:SetInventoryItem("player", self.auraID)
 		self:SetScript("OnUpdate", nil)
@@ -115,7 +116,6 @@ local function showTooltip(self)
 		GameTooltip:SetUnitAura(self.unit, self.auraID, self.filter)
 		self:SetScript("OnUpdate", updateTooltip)
 	end
-
 end
 
 local function hideTooltip(self)
@@ -124,6 +124,8 @@ local function hideTooltip(self)
 end
 
 local function cancelBuff(self)
+	if( not ShadowUf.db.profile.locked ) then return end
+	
 	if( self.filter == "TEMP" ) then
 		CancelItemTempEnchantment(self.auraID - 15)
 	else
@@ -232,7 +234,7 @@ local function updateGroup(self, type, config, reverseConfig)
 	
 	for id, button in pairs(group.buttons) do
 		updateButton(id, group, config)
-	end
+	end	
 end
 
 -- Update aura positions based off of configuration
@@ -394,7 +396,6 @@ local function scan(parent, frame, type, config, filter)
 	
 	local isFriendly = UnitIsFriend(frame.parent.unit, "player")
 	
-	
 	local index = 0
 	while( true ) do
 		index = index + 1
@@ -461,6 +462,8 @@ local function scan(parent, frame, type, config, filter)
 	for i=frame.totalAuras + 1, #(frame.buttons) do frame.buttons[i]:Hide() end
 end
 
+Auras.scan = scan
+
 local function anchorGroupToGroup(frame, config, group, childConfig, childGroup)
 	-- Child group has nothing in it yet, so don't care
 	if( not childGroup.buttons[1] ) then return end
@@ -491,29 +494,6 @@ end
 
 Auras.anchorGroupToGroup = anchorGroupToGroup
 
---[[
--- Debug
-local textureList = {
-	[0] = "Interface\\Icons\\Spell_Nature_Rejuvenation",
-	[1] = "Interface\\Icons\\INV_Misc_Herb_Felblossom",
-	[2] = "Interface\\Icons\\Spell_Nature_ResistNature",
-	[3] = "Interface\\Icons\\Ability_Druid_Flourish",
-}
- 
-local debuffType = {
-	[0] = "Magic",
-	[1] = "Curse",
-	[2] = "Poison",
-	[3] = "Disease",
-	[4] = "none",
-}
- 
-UnitAura = function(unit, id, filter)
-	if( id >= 20 ) then return end
-	return "Test aura", "Rank 1", textureList[id % 4], id, debuffType[id % 5], 0, 0, "none", false
-end
-]]
-
 -- Do an update and figure out what we need to scan
 function Auras:Update(frame)
 	local config = ShadowUF.db.profile.units[frame.unitType].auras
@@ -537,47 +517,4 @@ function Auras:Update(frame)
 			anchorGroupToGroup(frame, config[frame.auras.anchorAurasOn.type], frame.auras.anchorAurasOn, config[frame.auras.anchorAurasChild.type], frame.auras.anchorAurasChild)
 		end
 	end
-end
-
-local function setupAuras(frame, config, type)
-	if( frame.auras[type] ) then
-		for _, button in pairs(frame.auras[type].buttons) do
-			button:Hide()
-		end
-	end
-	
-	if( not config.enabled ) then return end
-	frame.auras[type] = frame.auras[type] or CreateFrame("Frame", nil, frame)
-	frame.auras[type].buttons = frame.auras[type].buttons or {}
-	frame.auras[type].anchorTo = frame
-	frame.auras[type].totalAuras = config.maxRows * config.perRow
-		
-	-- If debuffs are anchored to buffs, debuffs need to grow however buffs do
-	local reverseConfig = type == "buffs" and ShadowUF.db.profile.units[frame.unitType].auras.debuffs or ShadowUF.db.profile.units[frame.unitType].auras.buffs
-	if( config.anchorOn and reverseConfig.enabled ) then
-		frame.auras[type].forcedAnchorPoint = reverseConfig.anchorPoint
-	end
-
-	for id=1, frame.auras[type].totalAuras do
-		updateButton(id, frame.auras[type], config)
-		local button = frame.auras[type].buttons[id]
-		
-		if( type == "buffs" ) then
-			button.border:SetVertexColor(0.60, 0.60, 0.60)
-		else
-			button.border:SetVertexColor(0.80, 0, 0)
-		end
-		
-		button.icon:SetTexture(id % 2 == 0 and "Interface\\Icons\\Spell_Nature_Rejuvenation" or "Interface\\Icons\\Spell_Nature_Riptide")
-		button.stack:SetText(id)
-		button:SetScript("OnEnter", nil)
-		button:SetScript("OnLeave", nil)
-		button:SetScript("OnClick", nil)
-		button:Show()
-	end
-end
-
-function Auras:TestMode(frame, config)
-	setupAuras(frame, config.auras.buffs, "buffs")
-	setupAuras(frame, config.auras.debuffs, "debuffs")
 end
