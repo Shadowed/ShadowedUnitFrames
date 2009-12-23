@@ -3,7 +3,7 @@ local L = ShadowUFLocals
 local Movers = {}
 local originalEnvs = {}
 local unitConfig = {}
-local attributeBlacklist = {["showPlayer"] = true, ["showRaid"] = true, ["showParty"] = true, ["showSolo"] = true}
+local attributeBlacklist = {["showPlayer"] = true, ["showRaid"] = true, ["showParty"] = true, ["showSolo"] = true, ["initial-unitWatch"] = true}
 local playerClass = select(2, UnitClass("player"))
 local noop = function() end
 local OnDragStop, OnDragStart, configEnv
@@ -166,9 +166,8 @@ local function setupUnits(childrenOnly)
 			if( frame.healthBar ) then frame.healthBar:SetScript("OnUpdate", nil) end
 			if( frame.powerBar ) then frame.powerBar:SetScript("OnUpdate", nil) end
 			if( frame.indicators ) then frame.indicators:SetScript("OnUpdate", nil) end
+			UnregisterUnitWatch(frame)
 			frame:FullUpdate()
-			frame.originalHide = frame.Hide
-			frame.Hide = noop
 			frame:Show()
 		end
 	end
@@ -272,6 +271,7 @@ function Movers:Disable()
 			frame:SetScript("OnLeave", frame.originalOnLeave)
 			frame:SetMovable(false)
 			frame:RegisterForDrag()
+			RegisterUnitWatch(frame, frame.hasStateWatch)
 			
 			if( not UnitExists(frame.unit) ) then
 				frame:Hide()
@@ -282,6 +282,7 @@ function Movers:Disable()
 	for type, header in pairs(ShadowUF.Units.headerFrames) do
 		header:SetMovable(false)
 		header:SetAttribute("startingIndex", 1)
+		header:SetAttribute("initial-unitWatch", true)
 		
 		ShadowUF.Units:ReloadHeader(type)
 	end

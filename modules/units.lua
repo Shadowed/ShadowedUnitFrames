@@ -729,15 +729,16 @@ end
 function Units:LoadUnit(unit)
 	-- Already be loaded, just enable
 	if( unitFrames[unit] ) then
-		RegisterUnitWatch(unitFrames[unit], unit == "pet")
+		RegisterUnitWatch(unitFrames[unit], unitFrames[unit].hasStateWatch)
 		return
 	end
 	
 	local frame = self:CreateUnit("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate")
 	frame:SetAttribute("unit", unit)
+	frame.hasStateWatch = unit == "pet"
 		
 	-- Annd lets get this going
-	RegisterUnitWatch(frame, unit == "pet")
+	RegisterUnitWatch(frame, frame.hasStateWatch)
 end
 
 function Units:LoadSplitGroupHeader(type)
@@ -871,6 +872,8 @@ function Units:LoadZoneHeader(type)
 		-- stealths the frame will hide which looks bad. Instead force it to stay open and it has to be manually hidden when the player leaves an arena.
 		if( type == "arena" ) then
 			frame:SetAttribute("unitID", id)
+			frame.hasStateWatch = true
+
 			stateMonitor:WrapScript(frame, "OnAttributeChanged", [[
 				if( name == "state-unitexists" ) then
 					local parent = self:GetParent()
@@ -888,7 +891,7 @@ function Units:LoadZoneHeader(type)
 				end
 			]])
 		
-			RegisterUnitWatch(frame, true)
+			RegisterUnitWatch(frame, frame.hasStateWatch)
 		else
 			RegisterUnitWatch(frame)
  		end
@@ -912,26 +915,27 @@ function Units:LoadChildUnit(parent, type, id)
 		-- It's possible theres a bug where you have a frame skip creating it's child because it thinks one was already created, but the one that was created is actually associated to another parent. What would need to be changed is it checks if the frame has the parent set to it and it's the same unit type before returning, not that the units match.
 		for frame in pairs(frameList) do
 			if( frame.unitType == type and frame.parent == parent ) then
-				RegisterUnitWatch(frame, type == "partypet")
+				RegisterUnitWatch(frame, frame.hasStateWatch)
 				return
 			end
 		end
 	end
 	
+	parent.hasChildren = true
+
 	-- Now we can create the actual frame
 	local frame = self:CreateUnit("Button", "SUFChild" .. type .. string.match(parent:GetName(), "(%d+)"), parent, "SecureUnitButtonTemplate")
 	frame.unitType = type
 	frame.parent = parent
 	frame.isChildUnit = true
+	frame.hasStateWatch = type == "partypet"
 	frame:SetFrameStrata("LOW")
 	frame:SetAttribute("useparent-unit", true)
 	frame:SetAttribute("unitsuffix", string.match(type, "pet$") and "pet" or "target")
 	OnAttributeChanged(frame, "unit", SecureButton_GetModifiedUnit(frame))
 	frameList[frame] = true
 	
-	RegisterUnitWatch(frame, type == "partypet")
-		
-	parent.hasChildren = true
+	RegisterUnitWatch(frame, frame.hasStateWatch)
 	ShadowUF.Layout:AnchorFrame(parent, frame, ShadowUF.db.profile.positions[type])
 end
 
