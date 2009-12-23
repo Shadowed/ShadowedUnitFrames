@@ -31,10 +31,11 @@ local function createConfigEnv()
 		UnitIsConnected = function(unit) return true end,
 		UnitLevel = function(unit) return MAX_PLAYER_LEVEL end,
 		UnitIsPlayer = function(unit) return unit ~= "boss" and unit ~= "pet" and not string.match(unit, "(%w+)pet") end,
-		UnitHealth = function(unit) return getValue("UnitHealth", unit, math.random(60, 100)) end,
-		UnitHealthMax = function(unit) return 100 end,
-		UnitPower = function(unit) return getValue("UnitPower", unit, math.random(40, 100)) end,
-		UnitPowerMax = function(unit) return 100 end,
+		UnitHealth = function(unit) return getValue("UnitHealth", unit, math.random(1000, 50000)) end,
+		UnitHealthMax = function(unit) return 50000 end,
+		UnitPower = function(unit) return getValue("UnitPower", unit, math.random(1000, 50000)) end,
+		UnitExists = function(unit) return true end,
+		UnitPowerMax = function(unit) return 50000 end,
 		UnitIsPartyLeader = function() return true end,
 		UnitIsPVP = function(unit) return true end,
 		UnitFactionGroup = function(unit) return _G.UnitFactionGroup("player") end,
@@ -74,7 +75,7 @@ local function createConfigEnv()
 			local powerType = math.random(0, 4)
 			powerType = getValue("UnitPowerType", unit, powerType == 4 and 6 or powerType)
 			
-			return powerType == 0 and "MANA" or powerType == 1 and "RAGE" or powerType == 2 and "FOCUS" or powerType == 3 and "ENERGY" or powerType == 6 and "RUNIC_POWER"
+			return powerType, powerType == 0 and "MANA" or powerType == 1 and "RAGE" or powerType == 2 and "FOCUS" or powerType == 3 and "ENERGY" or powerType == 6 and "RUNIC_POWER"
 		end,
 		UnitAura = function(unit, id, filter)
 			if( id > 40 ) then return end
@@ -82,7 +83,7 @@ local function createConfigEnv()
 			local texture = filter == "HELPFUL" and "Interface\\Icons\\Spell_Nature_Rejuvenation" or "Interface\\Icons\\Ability_DualWield"
 			local mod = id % 5
 			local auraType = mod == 0 and "Magic" or mod == 1 and "Curse" or mod == 2 and "Poison" or mod == 3 and "Disease" or "none"
-			return L["Test Aura"], L["Rank 1"], texture, id, auraType, 0, 0, "player", getValue("Stealable", unit, math.random(0, 100) < 25 and true or false)
+			return L["Test Aura"], L["Rank 1"], texture, id, auraType, 0, 0, "player", id % 6 == 0
 		end,
 		UnitName = function(unit)
 			local unitID = string.match(unit, "(%d+)")
@@ -106,9 +107,10 @@ end
 local function prepareChildUnits(header, ...)
 	for i=1, select("#", ...) do
 		local frame = select(i, ...)
-		if( frame.unitType ) then
+		if( frame.unitType and not ShadowUF.Units.frameList[frame] ) then
 			ShadowUF.Units.frameList[frame] = true
 			frame.configUnitID = header.groupID and (header.groupID * 5) - 5 + i or i
+			frame:SetAttribute("unit", ShadowUF[header.unitType .. "Units"][frame.configUnitID])
 		end
 	end
 end
@@ -139,7 +141,6 @@ local function setupUnits(childrenOnly)
 			frame.originalUnit = frame:GetAttribute("unit")
 			frame.originalOnEnter = frame:GetScript("OnEnter")
 			frame.originalOnLeave = frame:GetScript("OnLeave")
-			frame:SetAttribute("unit", "player")
 			frame:SetMovable(not ShadowUF.Units.childUnits[frame.unitType])
 			frame:SetScript("OnDragStop", OnDragStop)
 			frame:SetScript("OnDragStart", OnDragStart)
@@ -153,8 +154,10 @@ local function setupUnits(childrenOnly)
 			frame.originalMenu = frame.menu
 			frame.menu = nil
 			
-			local unit = SecureButton_GetModifiedUnit(frame)
-			if( frame.unitType ~= frame.unitRealType ) then
+			local unit
+			if( frame.isChildUnit ) then
+				unit = SecureButton_GetModifiedUnit(frame) or frame.unitType .. (frame.parent.configUnitID or "")
+			else
 				unit = frame.unitType .. (frame.configUnitID or "")
 			end
 			
@@ -163,6 +166,7 @@ local function setupUnits(childrenOnly)
 			if( frame.healthBar ) then frame.healthBar:SetScript("OnUpdate", nil) end
 			if( frame.powerBar ) then frame.powerBar:SetScript("OnUpdate", nil) end
 			if( frame.indicators ) then frame.indicators:SetScript("OnUpdate", nil) end
+			frame:FullUpdate()
 			frame.originalHide = frame.Hide
 			frame.Hide = noop
 			frame:Show()
