@@ -927,7 +927,7 @@ function Units:LoadChildUnit(parent, type, id)
 	frame:SetAttribute("useparent-unit", true)
 	frame:SetAttribute("unitsuffix", string.match(type, "pet$") and "pet" or "target")
 	OnAttributeChanged(frame, "unit", SecureButton_GetModifiedUnit(frame))
-	frame:SetAttribute("initial-unitWatch", true)
+	frameList[frame] = true
 	
 	RegisterUnitWatch(frame, type == "partypet")
 		
