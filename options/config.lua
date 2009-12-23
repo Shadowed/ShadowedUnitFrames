@@ -1367,8 +1367,6 @@ local function loadUnitOptions()
 		else
 			ShadowUF.Layout:Reload(info[2])
 		end
-		
-		ShadowUF.modules.movers:Update()
 	end
 	
 	local function getPosition(info)
@@ -3544,6 +3542,7 @@ local function loadUnitOptions()
 				end
 			end
 			
+			ShadowUF.modules.movers:Update()
 			ShadowUF.db.profile.units[unit].enabled = value
 			ShadowUF:LoadUnits()
 
