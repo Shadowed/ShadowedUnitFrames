@@ -162,7 +162,7 @@ local function setupUnits(childrenOnly)
 			
 			local unit
 			if( frame.isChildUnit ) then
-				unitFormat = string.gsub(string.gsub(frame.unitType, "target$", "%%dtarget"), "pet$", "pet%%d")
+				local unitFormat = string.gsub(string.gsub(frame.unitType, "target$", "%%dtarget"), "pet$", "pet%%d")
 				unit = string.format(unitFormat, frame.parent.configUnitID or "")
 			else
 				unit = frame.unitType .. (frame.configUnitID or "")
