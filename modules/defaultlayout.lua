@@ -157,13 +157,13 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 	
 	config.positions = {
 		targettargettarget = {anchorPoint = "RC", anchorTo = "#SUFUnittargettarget", x = 0, y = 0}, 
-		targettarget = {anchorPoint = "TL", anchorTo = "#SUFUnittarget", x = 0, y = -4}, 
-		focustarget = {anchorPoint = "TL", anchorTo = "#SUFUnitfocus", x = 0, y = -4},
-		party = {point = "TOPLEFT", anchorTo = "#SUFUnitplayer", relativePoint = "TOPLEFT", movedAnchor = "TL", x = 0, y = -80}, 
-		focus = {anchorPoint = "RB", anchorTo = "#SUFUnittarget", x = 35, y = 0}, 
+		targettarget = {anchorPoint = "TL", anchorTo = "#SUFUnittarget", x = 0, y = 0}, 
+		focustarget = {anchorPoint = "TL", anchorTo = "#SUFUnitfocus", x = 0, y = 0},
+		party = {point = "TOPLEFT", anchorTo = "#SUFUnitplayer", relativePoint = "TOPLEFT", movedAnchor = "TL", x = 0, y = -60}, 
+		focus = {anchorPoint = "RB", anchorTo = "#SUFUnittarget", x = 35, y = -4}, 
 		target = {anchorPoint = "RC", anchorTo = "#SUFUnitplayer", x = 50, y = 0}, 
 		player = {point = "TOPLEFT", anchorTo = "UIParent", relativePoint = "TOPLEFT", y = -25, x = 20}, 
-		pet = {anchorPoint = "TL", anchorTo = "#SUFUnitplayer", x = 0, y = 25}, 
+		pet = {anchorPoint = "TL", anchorTo = "#SUFUnitplayer", x = 0, y = 0}, 
 		pettarget = {anchorPoint = "C", anchorTo = "UIParent", x = 0, y = 0}, 
 		partypet = {anchorPoint = "RB", anchorTo = "$parent", x = 0, y = 0},
 		partytarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
@@ -199,10 +199,11 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			raidTarget = {anchorTo = "$parent", anchorPoint = "C", size = 20, x = 0, y = 0},
 			masterLoot = {anchorTo = "$parent", anchorPoint = "TL", size = 12, x = 16, y = -10},
 			leader = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 2, y = -12},
-			pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 40, y = 11},
-			ready = {anchorTo = "$parent", anchorPoint = "RC", size = 24, x = -25, y = 0},
-			role = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 30, y = -12},
+			pvp = {anchorTo = "$parent", anchorPoint = "TR", size = 22, x = 11, y = -21},
+			ready = {anchorTo = "$parent", anchorPoint = "LC", size = 24, x = 35, y = 0},
+			role = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 30, y = -11},
 			status = {anchorTo = "$parent", anchorPoint = "LB", size = 16, x = 12, y = -2},
+			lfdRole = {enabled = true, anchorPoint = "BR", size = 14, x = 3, y = 14, anchorTo = "$parent"}
 		},
 		combatText = {anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0},
 		emptyBar = {background = true, height = 1, reactionType = "none", order = 0},
@@ -219,7 +220,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 	config.units = {
 		raid = {
 			width = 100,
-			height = 28,
+			height = 30,
 			scale = 0.85,
 			unitsPerColumn = 8,
 			maxColumns = 8,
@@ -232,7 +233,9 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			highlight = {size = 10},
 			indicators = {
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
-				role = {anchorTo = "$parent", anchorPoint = "BR", size = 14, x = 0, y = 14},
+				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -2, y = -10},
+				role = {enabled = false, anchorTo = "$parent", anchorPoint = "BR", size = 14, x = 0, y = 14},
+				ready = {anchorTo = "$parent", anchorPoint = "LC", size = 24, x = 25, y = 0},
 			},
 			text = {
 				{text = "[(()afk() )][name]"},
@@ -255,16 +258,12 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				buffs = {enabled = false, maxRows = 1, temporary = playerClass == "ROGUE" or playerClass == "SHAMAN"},
 				debuffs = {enabled = false, maxRows = 1},
 			},
-			indicators = {
-				role = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 30, y = -10},
-				lfdRole = {enabled = true, anchorPoint = "BR", size = 16, x = 6, y = 14, anchorTo = "$parent"}
-			},
 			text = {
 				{text = "[(()afk() )][name][( ()group())]"},
 				{text = "[curmaxhp]"},
 				{text = "[perpp]"},
 				{text = "[curmaxpp]"},
-				{text = "[(()afk() )][group( )][name]"},
+				{text = "[(()afk() )][name][( ()group())]"},
 			},
 		},
 		party = {
@@ -275,21 +274,17 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			attribAnchorPoint = "LEFT",
 			portrait = {enabled = true, fullAfter = 50},
 			castBar = {order = 60},
-			offset = 20,
+			offset = 23,
 			auras = {
 				buffs = {enabled = true, maxRows = 1},
 				debuffs = {enabled = true, maxRows = 1},
-			},
-			indicators = {
-				role = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 30, y = -10},
-				lfdRole = {enabled = true, anchorPoint = "BR", size = 16, x = 6, y = 14, anchorTo = "$parent"}
 			},
 			text = {
 				{text = "[(()afk() )][name]"},
 				{text = "[curmaxhp]"},
 				{text = "[level( )][perpp]"},
 				{text = "[curmaxpp]"},
-				{text = "[(()afk() )][group( )][name]"},
+				{text = "[(()afk() )][name]"},
 			},
 		},
 		boss = {
@@ -300,8 +295,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			attribAnchorPoint = "LEFT",
 			offset = 20,
 			auras = {
-				buffs = {enabled = true, maxRows = 1},
-				debuffs = {enabled = true, maxRows = 1},
+				buffs = {enabled = true, maxRows = 1, perRow = 8},
+				debuffs = {enabled = true, maxRows = 1, perRow = 8},
 			},
 			text = {
 				{text = "[name]"},
@@ -326,17 +321,17 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			},
 		},
 		arena = {
-			width = 190,
+			width = 170,
 			height = 45,
 			scale = 1.0,
 			attribPoint = "TOP",
 			attribAnchorPoint = "LEFT",
 			portrait = {enabled = false, fullAfter = 50},
 			castBar = {order = 60},
-			offset = 20,
+			offset = 25,
 			auras = {
-				buffs = {enabled = true, maxRows = 1},
-				debuffs = {enabled = true, maxRows = 1},
+				buffs = {enabled = true, maxRows = 1, perRow = 9},
+				debuffs = {enabled = true, maxRows = 1, perRow = 9},
 			},
 			text = {
 				{text = "[name]"},
@@ -381,7 +376,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			scale = 1.0,
 			attribPoint = "TOP",
 			attribAnchorPoint = "LEFT",
-			offset = 20,
+			offset = 5,
 			unitsPerColumn = 5,
 			maxColumns = 1,
 			columnSpacing = 5,
@@ -393,11 +388,11 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				debuffs = {enabled = false},
 			},
 			text = {
-				{text = "[(()afk() )][group( )][name]"},
+				{text = "[(()afk() )][name]"},
 				{text = "[curmaxhp]"},
 				{text = "[perpp]"},
 				{text = "[curmaxpp]"},
-				{text = "[(()afk() )][group( )][name]"},
+				{text = "[(()afk() )][name]"},
 			},
 		},
 		maintanktarget = {
@@ -409,7 +404,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				debuffs = {enabled = false},
 			},
 			text = {
-				{text = "[(()afk() )][group( )][name]"},
+				{text = "[(()afk() )][name]"},
 				{text = "[curmaxhp]"},
 				{text = "[classification( )][perpp]", width = 0.50},
 				{text = "[curmaxpp]", anchorTo = "$powerBar", width = 0.60},
@@ -422,7 +417,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			scale = 1.0,
 			attribPoint = "TOP",
 			attribAnchorPoint = "LEFT",
-			offset = 20,
+			offset = 5,
 			unitsPerColumn = 5,
 			maxColumns = 1,
 			columnSpacing = 5,
@@ -434,11 +429,11 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				debuffs = {enabled = false},
 			},
 			text = {
-				{text = "[(()afk() )][group( )][name]"},
+				{text = "[(()afk() )][name]"},
 				{text = "[curmaxhp]"},
 				{text = "[level( )][perpp]"},
 				{text = "[curmaxpp]"},
-				{text = "[(()afk() )][group( )][name]"},
+				{text = "[(()afk() )][name]"},
 			},
 		},
 		mainassisttarget = {
@@ -450,7 +445,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				debuffs = {enabled = false},
 			},
 			text = {
-				{text = "[(()afk() )][group( )][name]"},
+				{text = "[(()afk() )][name]"},
 				{text = "[curmaxhp]"},
 				{text = "[level( )][classification( )][perpp]", width = 0.50},
 				{text = "[curmaxpp]", anchorTo = "$powerBar", width = 0.60},
@@ -492,12 +487,9 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			scale = 1.0,
 			portrait = {enabled = true, alignment = "RIGHT", fullAfter = 50},
 			castBar = {order = 60},
-			comboPoints = {anchorTo = "$parent", anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "UP"},
+			comboPoints = {anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true},
 			indicators = {
-				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -16, y = -8},
-				leader = {anchorTo = "$parent", anchorPoint = "TR", size = 14, x = -2, y = -10},
-				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = -3, y = 11},
-				lfdRole = {enabled = false, anchorPoint = "BR", size = 16, x = 6, y = 14, anchorTo = "$parent"}
+				lfdRole = {enabled = false}
 			},
 			auras = {
 				buffs = {enabled = true},
@@ -520,8 +512,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			portrait = {enabled = false, fullAfter = 50},
 			castBar = {order = 60},
 			indicators = {
-				status = {anchorTo = "$parent", anchorPoint = "LB", size = 16, y = -2, x = 12},
-				happiness = {anchorTo = "$parent", anchorPoint = "BR", size = 14, x = 3, y = 13},
+				happiness = {enabled = false, anchorTo = "$parent", anchorPoint = "BR", size = 14, x = 3, y = 13},
 			},
 			text = {
 				{text = "[name]"},
@@ -537,7 +528,6 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			scale = 1.0,
 			powerBar = {height = 0.70},
 			indicators = {
-				status = {anchorTo = "$parent", anchorPoint = "LB", size = 16, y = -2, x = 12},
 			},
 			text = {
 				{text = "[name]"},
@@ -555,8 +545,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			portrait = {enabled = false, fullAfter = 50},
 			castBar = {order = 60},
 			indicators = {
-				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = -3, y = 11},
-				lfdRole = {enabled = false, anchorPoint = "BR", size = 16, x = 6, y = 14, anchorTo = "$parent"},
+				lfdRole = {enabled = false},
 			},
 			text = {
 				{text = "[(()afk() )][name]"},
