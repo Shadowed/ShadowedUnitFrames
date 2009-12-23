@@ -395,7 +395,6 @@ end
 function ShadowUF:ProfilesChanged()
 	if( self.layoutImporting ) then return end
 	if( resetTimer ) then resetTimer:Hide() end
-	table.wipe(self.tagFunc)
 	
 	self.db:RegisterDefaults(self.defaults)
 	
@@ -406,6 +405,7 @@ function ShadowUF:ProfilesChanged()
 		self:CheckUpgrade()
 	end
 	
+	self:FireModuleEvent("OnProfileChange")
 	self:LoadUnits()
 	self:HideBlizzardFrames()
 	self.Layout:CheckMedia()
