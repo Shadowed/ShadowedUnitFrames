@@ -649,6 +649,7 @@ function Units:SetHeaderAttributes(frame, type)
 			if( childHeader and childHeader:IsVisible() ) then
 				childHeader:SetAttribute("minWidth", config.width)
 				childHeader:SetAttribute("minHeight", config.height)
+				childHeader:SetAttribute("showRaid", ShadowUF.db.profile.locked and true)
 				
 				if( childHeader ~= frame ) then
 					childHeader:SetAttribute("point", config.attribPoint)
@@ -685,7 +686,7 @@ function Units:SetHeaderAttributes(frame, type)
 			filter = config.groupFilter
 		end
 		
-		frame:SetAttribute("showRaid", true)
+		frame:SetAttribute("showRaid", ShadowUF.db.profile.locked and true)
 		frame:SetAttribute("maxColumns", config.maxColumns)
 		frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
 		frame:SetAttribute("columnSpacing", config.columnSpacing)
@@ -706,7 +707,7 @@ function Units:SetHeaderAttributes(frame, type)
 		self:PositionHeaderChildren(frame)
 	
 	-- Update party frames to not show anyone if they should be in raids
-	elseif( type == "party" ) then
+	elseif( type == "party" and ShadowUF.db.profile.locked ) then
 		frame:SetAttribute("showParty", ( not ShadowUF.db.profile.units.raid.showParty or not ShadowUF.db.profile.units.raid.enabled ) and true or false)
 		frame:SetAttribute("showPlayer", config.showPlayer)
 	end
@@ -714,7 +715,7 @@ function Units:SetHeaderAttributes(frame, type)
 	-- Update the raid frames to if they should be showing raid or party
 	if( type == "party" or type == "raid" ) then
 		local raid = headerFrames.raid and not ShadowUF.db.profile.units.raid.frameSplit and headerFrames.raid or headerFrames.raidParent
-		if( raid and headerFrames.party ) then
+		if( raid and headerFrames.party and ShadowUF.db.profile.locked ) then
 			raid:SetAttribute("showParty", not headerFrames.party:GetAttribute("showParty"))
 			raid:SetAttribute("showPlayer", headerFrames.party:GetAttribute("showPlayer"))
 		end
@@ -963,7 +964,7 @@ function Units:UninitializeFrame(type)
 	-- Disables showing party in raid automatically if raid frames are disabled
 	if( type == "party" ) then
 		stateMonitor:SetAttribute("partyDisabled", true)
-	elseif( type == "raid" and headerFrames.party ) then
+	elseif( type == "raid" and headerFrames.party and ShadowUF.db.profile.locked ) then
 		headerFrames.party:SetAttribute("showParty", true)
 	end
 	

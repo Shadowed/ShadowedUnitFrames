@@ -3,7 +3,7 @@ local L = ShadowUFLocals
 local Movers = {}
 local originalEnvs = {}
 local unitConfig = {}
-local attributeBlacklist = {["showPlayer"] = true, ["showRaid"] = true, ["showParty"] = true, ["showSolo"] = true, ["initial-unitWatch"] = true}
+local attributeBlacklist = {["showplayer"] = true, ["showraid"] = true, ["showparty"] = true, ["showsolo"] = true, ["initial-unitwatch"] = true}
 local playerClass = select(2, UnitClass("player"))
 local noop = function() end
 local OnDragStop, OnDragStart, configEnv
@@ -18,7 +18,6 @@ end
 
 local function createConfigEnv()
 	if( configEnv ) then return end
-	
 	configEnv = setmetatable({
 		GetRaidTargetIndex = function(unit) return getValue("GetRaidTargetIndex", unit, math.random(1, 8)) end,
 		GetLootMethod = function(unit) return "master", 0, 0 end,
@@ -88,7 +87,7 @@ local function createConfigEnv()
 		UnitName = function(unit)
 			local unitID = string.match(unit, "(%d+)")
 			if( unitID ) then
-				return string.format("%s #%d", L.units[string.gsub(unit, "(%d+)", "")], unitID)
+				return string.format("%s #%d", L.units[string.gsub(unit, "(%d+)", "")] or unit, unitID)
 			end
 			
 			return L.units[unit]
@@ -132,15 +131,22 @@ end
 local function setupUnits(childrenOnly)
 	for frame in pairs(ShadowUF.Units.frameList) do
 		if( frame.configMode ) then
+			-- Units visible, but it's not supposed to be
 			if( frame:IsVisible() and not ShadowUF.db.profile.units[frame.unitType].enabled ) then
-				frame:originalHide()
+				RegisterUnitWatch(frame, frame.hasStateWatch)
+				if( not UnitExists(frame.unit) ) then frame:Hide() end
+				
+			-- Unit's not visible and it's enabled so it should
 			elseif( not frame:IsVisible() and ShadowUF.db.profile.units[frame.unitType].enabled ) then
+				UnregisterUnitWatch(frame)
+				frame:FullUpdate()
 				frame:Show()
 			end
 		elseif( not frame.configMode and ShadowUF.db.profile.units[frame.unitType].enabled ) then
 			frame.originalUnit = frame:GetAttribute("unit")
 			frame.originalOnEnter = frame:GetScript("OnEnter")
 			frame.originalOnLeave = frame:GetScript("OnLeave")
+			frame.originalOnUpdate = frame:GetScript("OnUpdate")
 			frame:SetMovable(not ShadowUF.Units.childUnits[frame.unitType])
 			frame:SetScript("OnDragStop", OnDragStop)
 			frame:SetScript("OnDragStart", OnDragStart)
@@ -156,7 +162,8 @@ local function setupUnits(childrenOnly)
 			
 			local unit
 			if( frame.isChildUnit ) then
-				unit = SecureButton_GetModifiedUnit(frame) or frame.unitType .. (frame.parent.configUnitID or "")
+				unitFormat = string.gsub(string.gsub(frame.unitType, "target$", "%%dtarget"), "pet$", "pet%%d")
+				unit = string.format(unitFormat, frame.parent.configUnitID or "")
 			else
 				unit = frame.unitType .. (frame.configUnitID or "")
 			end
@@ -228,6 +235,7 @@ function Movers:Enable()
 			header:SetAttribute("startingIndex", -#(ShadowUF[header.unitType .. "Units"]) + 1)
 		end
 		
+		header.startingIndex = header:GetAttribute("startingIndex")
 		header:SetMovable(true)
 		prepareChildUnits(header, header:GetChildren())
 	end
@@ -235,7 +243,7 @@ function Movers:Enable()
 	-- Why is this called twice you ask? Child units are created on the OnAttributeChanged call
 	-- so the first call gets all the parent units, the second call gets the child units
 	setupUnits()
-	setupUnits()
+	setupUnits(true)
 	
 	self:CreateInfoFrame()
 	self.infoFrame:Show()
@@ -267,15 +275,19 @@ function Movers:Disable()
 			frame:SetScript("OnDragStop", nil)
 			frame:SetScript("OnDragStart", nil)
 			frame:SetScript("OnEvent", frame:IsVisible() and ShadowUF.Units.OnEvent)
+			frame:SetScript("OnUpdate", frame.originalOnUpdate)
 			frame:SetScript("OnEnter", frame.originalOnEnter)
 			frame:SetScript("OnLeave", frame.originalOnLeave)
 			frame:SetMovable(false)
 			frame:RegisterForDrag()
-			RegisterUnitWatch(frame, frame.hasStateWatch)
 			
-			if( not UnitExists(frame.unit) ) then
-				frame:Hide()
+			if( frame.isChildUnit ) then
+				ShadowUF.Units.OnAttributeChanged(frame, "unit", SecureButton_GetModifiedUnit(frame))
 			end
+			
+			
+			RegisterUnitWatch(frame, frame.hasStateWatch)
+			if( not UnitExists(frame.unit) ) then frame:Hide() end
 		end
 	end
 			
