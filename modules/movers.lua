@@ -31,9 +31,9 @@ local function createConfigEnv()
 		UnitIsConnected = function(unit) return true end,
 		UnitLevel = function(unit) return MAX_PLAYER_LEVEL end,
 		UnitIsPlayer = function(unit) return unit ~= "boss" and unit ~= "pet" and not string.match(unit, "(%w+)pet") end,
-		UnitHealth = function(unit) return getValue("UnitHealth", unit, math.random(1000, 50000)) end,
+		UnitHealth = function(unit) return getValue("UnitHealth", unit, math.random(20000, 50000)) end,
 		UnitHealthMax = function(unit) return 50000 end,
-		UnitPower = function(unit) return getValue("UnitPower", unit, math.random(1000, 50000)) end,
+		UnitPower = function(unit) return getValue("UnitPower", unit, math.random(20000, 50000)) end,
 		UnitExists = function(unit) return true end,
 		UnitPowerMax = function(unit) return 50000 end,
 		UnitIsPartyLeader = function() return true end,
@@ -107,7 +107,7 @@ end
 local function prepareChildUnits(header, ...)
 	for i=1, select("#", ...) do
 		local frame = select(i, ...)
-		if( frame.unitType and not ShadowUF.Units.frameList[frame] ) then
+		if( frame.unitType and not frame.configUnitID ) then
 			ShadowUF.Units.frameList[frame] = true
 			frame.configUnitID = header.groupID and (header.groupID * 5) - 5 + i or i
 			frame:SetAttribute("unit", ShadowUF[header.unitType .. "Units"][frame.configUnitID])
