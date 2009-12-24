@@ -300,7 +300,9 @@ function Movers:Disable()
 		header:SetAttribute("startingIndex", 1)
 		header:SetAttribute("initial-unitWatch", true)
 		
-		ShadowUF.Units:ReloadHeader(type)
+		if( header.unitType == type or type == "raidParent" ) then
+			ShadowUF.Units:ReloadHeader(header.unitType)
+		end
 	end
 	
 	ShadowUF.Units:CheckPlayerZone(true)
