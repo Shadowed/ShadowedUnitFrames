@@ -483,7 +483,7 @@ OnAttributeChanged = function(self, name, unit)
 		self:RegisterUnitEvent("UNIT_NAME_UPDATE", Units, "CheckUnitStatus")
 	
 	-- *target units are not real units, thus they do not receive events and must be polled for data
-	elseif( ShadowUF.fakeUnits[self.unitRealType] ) then
+	elseif( ShadowUF.fakeUnits[self.unitType] ) then
 		self.timeElapsed = 0
 		self:SetScript("OnUpdate", TargetUnitUpdate)
 		
