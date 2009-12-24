@@ -331,7 +331,7 @@ OnDragStop = function(self)
 	
 	-- When dragging the frame around, Blizzard changes the anchoring based on the closet portion of the screen
 	-- When a widget is near the top left it uses top left, near the left it uses left and so on, which messes up positioning for header frames
-	local scale = GetCVarBool("useUiScale") and self:GetScale() * GetCVar("uiScale") or 1
+	local scale = self:GetScale() * (GetCVarBool("useUiScale") and GetCVar("uiScale") or 1)
 	local position = ShadowUF.db.profile.positions[self.unitType]
 	local point, _, relativePoint, x, y = self:GetPoint()
 	
