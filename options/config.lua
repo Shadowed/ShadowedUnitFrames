@@ -1380,7 +1380,7 @@ local function loadUnitOptions()
 		
 		-- Apply effective scaling if it's anchored to UIParent
 		if( ShadowUF.db.profile.positions[unit].anchorTo == "UIParent" ) then
-			value = value * (ShadowUF.db.profile.units[unit].scale * UIParent:GetScale())
+			value = value * (ShadowUF.db.profile.units[unit].scale * (GetCVarBool("useUIScale") and GetCVar("uiScale") or 1))
 		end
 		
 		setPosition(info, tonumber(value))
@@ -1394,7 +1394,7 @@ local function loadUnitOptions()
 		
 		-- If the frame is created and it's anchored to UIParent, will return the number modified by scale
 		if( ShadowUF.db.profile.positions[unit].anchorTo == "UIParent" ) then
-			coord = coord / (ShadowUF.db.profile.units[unit].scale * UIParent:GetScale())
+			coord = coord / (ShadowUF.db.profile.units[unit].scale * (GetCVarBool("useUIScale") and GetCVar("uiScale") or 1))
 		end
 				
 		-- OCD, most definitely.
