@@ -1332,6 +1332,12 @@ local function loadUnitOptions()
 	end
 		
 	-- Hide raid option in party config
+	local function hideRaidOrAdvancedOption(info)
+		if( info[2] == "party" and ShadowUF.db.profile.advanced ) then return false end
+		
+		return info[2] ~= "raid" and info[2] ~= "maintank" and info[2] ~= "mainassist"
+	end
+	
 	local function hideRaidOption(info)
 		return info[2] ~= "raid" and info[2] ~= "maintank" and info[2] ~= "mainassist"
 	end
@@ -2532,12 +2538,10 @@ local function loadUnitOptions()
 								set = function(info, value)
 									-- If you set the frames to grow left, the columns have to grow down or up as well
 									local attribAnchorPoint = getVariable(info[2], nil, nil, "attribAnchorPoint")
-									if( info[2] ~= "party" ) then
-										if( ( value == "LEFT" or value == "RIGHT" ) and attribAnchorPoint ~= "BOTTOM" and attribAnchorPoint ~= "TOP" ) then
-											ShadowUF.db.profile.units[info[2]].attribAnchorPoint = "BOTTOM"
-										elseif( ( value == "TOP" or value == "BOTTOM" ) and attribAnchorPoint ~= "LEFT" and attribAnchorPoint ~= "RIGHT" ) then
-											ShadowUF.db.profile.units[info[2]].attribAnchorPoint = "RIGHT"
-										end
+									if( ( value == "LEFT" or value == "RIGHT" ) and attribAnchorPoint ~= "BOTTOM" and attribAnchorPoint ~= "TOP" ) then
+										ShadowUF.db.profile.units[info[2]].attribAnchorPoint = "BOTTOM"
+									elseif( ( value == "TOP" or value == "BOTTOM" ) and attribAnchorPoint ~= "LEFT" and attribAnchorPoint ~= "RIGHT" ) then
+										ShadowUF.db.profile.units[info[2]].attribAnchorPoint = "RIGHT"
 									end
 									
 									setUnit(info, value)
@@ -2565,7 +2569,7 @@ local function loadUnitOptions()
 								type = "range",
 								name = L["Column spacing"],
 								min = -10, max = 100, step = 1,
-								hidden = hideRaidOption,
+								hidden = hideRaidOrAdvancedOption,
 								arg = "columnSpacing",
 							},
 							attribAnchorPoint = {
@@ -2581,7 +2585,7 @@ local function loadUnitOptions()
 									
 									return {["LEFT"] = L["Right"], ["RIGHT"] = L["Left"]}
 								end,
-								hidden = hideRaidOption,
+								hidden = hideRaidOrAdvancedOption,
 								set = function(info, value)
 									-- If you set the frames to grow left, the columns have to grow down or up as well
 									local attribPoint = getVariable(info[2], nil, nil, "attribPoint")
@@ -2618,6 +2622,14 @@ local function loadUnitOptions()
 								min = 1, max = 40, step = 1,
 								arg = "unitsPerColumn",
 								hidden = function(info) return info[2] == "boss" or info[2] == "arena" or hideSplitOrRaidOption(info) end,
+							},
+							partyPerColumn = {
+								order = 9,
+								type = "range",
+								name = L["Units per column"],
+								min = 1, max = 5, step = 1,
+								arg = "unitsPerColumn",
+								hidden = function(info) return info[2] ~= "party" or not ShadowUF.db.profile.advanced end,
 							},
 						},
 					},

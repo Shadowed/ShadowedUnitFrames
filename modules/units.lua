@@ -707,9 +707,16 @@ function Units:SetHeaderAttributes(frame, type)
 		self:PositionHeaderChildren(frame)
 	
 	-- Update party frames to not show anyone if they should be in raids
-	elseif( type == "party" and ShadowUF.db.profile.locked ) then
-		frame:SetAttribute("showParty", ( not ShadowUF.db.profile.units.raid.showParty or not ShadowUF.db.profile.units.raid.enabled ) and true or false)
-		frame:SetAttribute("showPlayer", config.showPlayer)
+	elseif( type == "party" ) then
+		if( ShadowUF.db.profile.locked ) then
+			frame:SetAttribute("showParty", ( not ShadowUF.db.profile.units.raid.showParty or not ShadowUF.db.profile.units.raid.enabled ) and true or false)
+			frame:SetAttribute("showPlayer", config.showPlayer)
+		end
+		
+		frame:SetAttribute("maxColumns", math.ceil((config.showPlayer and 5 or 4) / config.unitsPerColumn))
+		frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
+		frame:SetAttribute("columnSpacing", config.columnSpacing)
+		frame:SetAttribute("columnAnchorPoint", config.attribAnchorPoint)
 	end
 	
 	-- Update the raid frames to if they should be showing raid or party

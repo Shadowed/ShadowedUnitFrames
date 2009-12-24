@@ -272,6 +272,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			scale = 1.0,
 			attribPoint = "TOP",
 			attribAnchorPoint = "LEFT",
+			unitsPerColumn = 5,
+			columnSpacing = 30,
 			portrait = {enabled = true, fullAfter = 50},
 			castBar = {order = 60},
 			offset = 23,
