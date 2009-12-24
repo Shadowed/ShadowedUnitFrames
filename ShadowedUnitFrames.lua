@@ -4,7 +4,7 @@
 
 ShadowUF = {playerUnit = "player", raidPetUnits = {}, raidUnits = {}, partyUnits = {}, arenaUnits = {}, bossUnits = {}, modules = {}, moduleOrder = {},
 	unitList = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet"},
-	fakeUnits = {["targettarget"] = true, ["targettargettarget"] = true, ["pettarget"] = true, ["arenatarget"] = true, ["boss"] = true, ["focustarget"] = true, ["focustargettarget"] = true, ["maintanktarget"] = true, ["mainassisttarget"] = true}}
+	fakeUnits = {["targettarget"] = true, ["targettargettarget"] = true, ["pettarget"] = true, ["arenatarget"] = true, ["boss"] = true, ["focustarget"] = true, ["focustargettarget"] = true, ["partytarget"] = true, ["raidtarget"] = true, ["bosstarget"] = true}}
 
 local L = ShadowUFLocals
 local _G = getfenv(0)
