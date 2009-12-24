@@ -130,6 +130,8 @@ end
 
 local function setupUnits(childrenOnly)
 	for frame in pairs(ShadowUF.Units.frameList) do
+		frame:UnregisterAll(ShadowUF.modules.highlight)
+
 		if( frame.configMode ) then
 			-- Units visible, but it's not supposed to be
 			if( frame:IsVisible() and not ShadowUF.db.profile.units[frame.unitType].enabled ) then
@@ -173,6 +175,7 @@ local function setupUnits(childrenOnly)
 			if( frame.healthBar ) then frame.healthBar:SetScript("OnUpdate", nil) end
 			if( frame.powerBar ) then frame.powerBar:SetScript("OnUpdate", nil) end
 			if( frame.indicators ) then frame.indicators:SetScript("OnUpdate", nil) end
+			
 			UnregisterUnitWatch(frame)
 			frame:FullUpdate()
 			frame:Show()
