@@ -39,6 +39,9 @@ local function createConfigEnv()
 		UnitIsPVP = function(unit) return true end,
 		UnitFactionGroup = function(unit) return _G.UnitFactionGroup("player") end,
 		UnitAffectingCombat = function() return true end,
+		UnitThreatSituation = function() return 0 end,
+		UnitDetailedThreatSituation = function() return nil end,
+		UnitThreatSituation = function() return 0 end,
 		UnitCastingInfo = function(unit)
 			-- 1 -> 10: spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible
 			local data = unitConfig["UnitCastingInfo" .. unit] or {}
@@ -130,8 +133,6 @@ end
 
 local function setupUnits(childrenOnly)
 	for frame in pairs(ShadowUF.Units.frameList) do
-		frame:UnregisterAll(ShadowUF.modules.highlight)
-
 		if( frame.configMode ) then
 			-- Units visible, but it's not supposed to be
 			if( frame:IsVisible() and not ShadowUF.db.profile.units[frame.unitType].enabled ) then
@@ -334,10 +335,10 @@ OnDragStop = function(self)
 	
 	-- When dragging the frame around, Blizzard changes the anchoring based on the closet portion of the screen
 	-- When a widget is near the top left it uses top left, near the left it uses left and so on, which messes up positioning for header frames
-	local scale = self:GetScale() * (GetCVarBool("useUiScale") and GetCVar("uiScale") or 1)
+	local scale = self:GetScale() * UIParent:GetScale()
 	local position = ShadowUF.db.profile.positions[self.unitType]
 	local point, _, relativePoint, x, y = self:GetPoint()
-	
+		
 	-- Figure out the horizontal anchor
 	if( self.isHeaderFrame ) then
 		if( ShadowUF.db.profile.units[self.unitType].attribAnchorPoint == "RIGHT" ) then
