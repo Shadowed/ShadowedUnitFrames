@@ -249,8 +249,14 @@ function Movers:Enable()
 	setupUnits()
 	setupUnits(true)
 	
-	self:CreateInfoFrame()
-	self.infoFrame:Show()
+	-- Don't show the dialog if the configuration is opened through the configmode spec
+	if( not self.isConfigModeSpec ) then
+		self:CreateInfoFrame()
+		self.infoFrame:Show()
+	elseif( self.infoFrame ) then
+		self.infoFrame:Hide()
+	end
+	
 	self.isEnabled = true
 end
 
@@ -307,7 +313,11 @@ function Movers:Disable()
 	
 	ShadowUF.Units:CheckPlayerZone(true)
 	
-	self.infoFrame:Hide()
+	if( self.infoFrame ) then
+		self.infoFrame:Hide()
+	end
+	
+	self.isConfigModeSpec = nil
 	self.isEnabled = nil
 end
 

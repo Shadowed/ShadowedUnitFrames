@@ -120,9 +120,17 @@ function ShadowUF:CheckUpgrade()
 	end
 	
 	-- December 21st
+	self.db.profile.units.party.sortMethod = self.db.profile.units.party.sortMethod or "INDEX"
+	self.db.profile.units.party.sortOrder = self.db.profile.units.party.sortOrder or "ASC"
+	self.db.profile.units.party.attribPoint = self.db.profile.units.party.attribPoint or "TOP"
+	self.db.profile.units.party.attribAnchorPoint = self.db.profile.units.party.attribAnchorPoint or "LEFT"
+	self.db.profile.units.party.offset = self.db.profile.units.party.offset or 0
+	self.db.profile.units.party.columnSpacing = self.db.profile.units.party.columnSpacing or 0
+	self.db.profile.units.party.unitsPerColumn = self.db.profile.units.party.unitsPerColumn or 5
+
 	local castName = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}
 	local castTime = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}
-
+	
 	for unit, config in pairs(self.db.profile.units) do
 		-- December 9th
 		if( not config.healthBar.colorType or config.healthBar.reaction ~= nil ) then
@@ -147,28 +155,25 @@ function ShadowUF:CheckUpgrade()
 		config.highlight.size = config.highlight.size or 30
 		
 		-- December 21st
-		if( not config.castBar or not config.castBar.height or not config.castBar.name or not config.castBar.time ) then
-			config.castBar = config.castBar or {}
-			config.castBar.icon = config.castBar.icon or "HIDE"
-			config.castBar.height = config.castBar.height or 0.60
-			config.castBar.order = config.castBar.order or 40
+		config.castBar = config.castBar or {}
+		config.castBar.icon = config.castBar.icon or "HIDE"
+		config.castBar.height = config.castBar.height or 0.60
+		config.castBar.order = config.castBar.order or 40
+	
+		config.castBar.name = config.castBar.name or {}
+		config.castBar.time = config.castBar.time or {}
 		
-			config.castBar.name = config.castBar.name or {}
-			config.castBar.time = config.castBar.time or {}
-			
-			for key, value in pairs(castName) do
-				if( config.castBar.name[key] == nil ) then
-					config.castBar.name[key] = value
-				end
+		for key, value in pairs(castName) do
+			if( config.castBar.name[key] == nil ) then
+				config.castBar.name[key] = value
 			end
-			
-			for key, value in pairs(castTime) do
-				if( config.castBar.time[key] == nil ) then
-					config.castBar.time[key] = value
-				end
-			end
-		end	
+		end
 		
+		for key, value in pairs(castTime) do
+			if( config.castBar.time[key] == nil ) then
+				config.castBar.time[key] = value
+			end
+		end
 	end
 	
 	-- December 15th
@@ -284,14 +289,8 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.targettargettarget.enabled = true
 	-- PARTY
 	self.defaults.profile.units.party.enabled = true
-	self.defaults.profile.units.party.sortMethod = "INDEX"
-	self.defaults.profile.units.party.sortOrder = "ASC"
-	self.defaults.profile.units.party.attribPoint = "TOP"
-	self.defaults.profile.units.party.attribAnchorPoint = "LEFT"
 	self.defaults.profile.units.party.auras.debuffs.maxRows = 1
 	self.defaults.profile.units.party.auras.buffs.maxRows = 1
-	self.defaults.profile.units.party.offset = 0
-	self.defaults.profile.units.party.columnSpacing = 0
 	self.defaults.profile.units.party.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.party.combatText.enabled = false
 	self.defaults.profile.units.party.indicators.lfdRole = {enabled = true, size = 0, x = 0, y = 0}
@@ -526,6 +525,7 @@ CONFIGMODE_CALLBACKS = CONFIGMODE_CALLBACKS or {}
 CONFIGMODE_CALLBACKS["Shadowed Unit Frames"] = function(mode)
 	if( mode == "ON" ) then
 		ShadowUF.db.profile.locked = false
+		ShadowUF.modules.movers.isConfigModeSpec = true
 	elseif( mode == "OFF" ) then
 		ShadowUF.db.profile.locked = true
 	end
