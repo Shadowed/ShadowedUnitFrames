@@ -15,10 +15,6 @@ function Auras:OnEnable(frame)
 	self:UpdateFilter(frame)
 end
 
-function Auras:OnLayoutApplied(frame)
-	self:UpdateFilter(frame)
-end
-
 function Auras:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
@@ -286,6 +282,8 @@ function Auras:OnLayoutApplied(frame, config)
 	else
 		frame.auras.anchor = nil
 	end
+
+	self:UpdateFilter(frame)
 end
 
 -- Temporary enchant support
