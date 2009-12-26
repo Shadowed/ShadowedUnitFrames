@@ -531,5 +531,7 @@ function Layout:PositionWidgets(frame, config)
 			frame.portrait:SetHeight(frame:GetHeight() - clipDoubled)
 		end
 	end
+	
+	ShadowUF:FireModuleEvent("OnLayoutWidgets", frame, config)
 end
 
