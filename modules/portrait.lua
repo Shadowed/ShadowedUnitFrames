@@ -36,7 +36,7 @@ function Portrait:OnPreLayoutApply(frame, config)
 		end
 		
 		frame.portraitTexture = frame.portraitTexture or frame:CreateTexture(nil, "ARTWORK")
-
+		
 		frame.portrait = frame.portraitModel
 		frame.portrait.guid = nil
 		frame.portrait:Show()
@@ -51,7 +51,7 @@ function Portrait:OnPreLayoutApply(frame, config)
 	end
 end
 
-function Portrait:OnLayoutApplied(frame, config)
+function Portrait:OnLayoutWidgets(frame, config)
 	if( frame.visibility.portrait and config.portrait.type == "3D" ) then
 		frame.portraitTexture:ClearAllPoints()
 		frame.portraitTexture:SetPoint(frame.portrait:GetPoint())
