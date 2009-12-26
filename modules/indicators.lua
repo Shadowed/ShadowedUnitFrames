@@ -220,7 +220,7 @@ function Indicators:OnEnable(frame)
 	-- Forces the indicators to be above the bars/portraits/etc
 	if( not frame.indicators ) then
 		frame.indicators = CreateFrame("Frame", nil, frame)
-		frame.indicators:SetFrameLevel(frame.topFrameLevel)
+		frame.indicators:SetFrameLevel(frame.topFrameLevel + 1)
 	end
 	
 	-- Now lets enable all the indicators

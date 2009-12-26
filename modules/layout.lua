@@ -386,10 +386,9 @@ function Layout:SetupText(frame, config)
 	for id, row in pairs(config.text) do
 		local parent = row.anchorTo == "$parent" and frame or frame[string.sub(row.anchorTo, 2)]
 		if( parent and parent:IsShown() and row.enabled and row.text ~= "" ) then
-			local fontString = frame.fontStrings[id] or frame:CreateFontString(nil, "ARTWORK")
+			local fontString = frame.fontStrings[id] or frame.highFrame:CreateFontString(nil, "ARTWORK")
 			self:SetupFontString(fontString, row.size)
 			fontString:SetText(row.text)
-			fontString:SetParent(frame.highFrame)
 			fontString:SetJustifyH(self:GetJustify(row))
 			self:AnchorFrame(frame, fontString, row)
 			
