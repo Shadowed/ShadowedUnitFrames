@@ -119,10 +119,16 @@ local function combatMonitor(self, elapsed)
 	end
 end
 
+-- It looks like the combat check for players is a bit buggy when they are in a vehicle, so swap it to also check polling
+function Indicators:CheckVehicle(frame)
+	frame.indicators.timeElapsed = 0
+	frame.indicators:SetScript("OnUpdate", frame.inVehicle and combatMonitor or nil)
+end
+
 function Indicators:UpdateStatus(frame)
 	if( not frame.indicators.status or not frame.indicators.status.enabled ) then return end
 
-	if( UnitAffectingCombat(frame.unit) ) then
+	if( UnitAffectingCombat(frame.unitOwner) ) then
 		frame.indicators.status:SetTexCoord(0.50, 1.0, 0.0, 0.49)
 		frame.indicators.status:Show()
 	elseif( frame.unitRealType == "player" and IsResting() ) then
@@ -223,8 +229,11 @@ function Indicators:OnEnable(frame)
 		frame:RegisterUpdateFunc(self, "UpdateStatus")
 		frame.indicators.status = frame.indicators.status or frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.status:SetTexture("Interface\\CharacterFrame\\UI-StateIcon")
+		frame.indicators.timeElapsed = 0
+		frame.indicators.parent = frame
 
 		if( frame.unitType == "player" ) then
+			frame:RegisterUpdateFunc(self, "CheckVehicle")
 			frame:RegisterNormalEvent("PLAYER_REGEN_ENABLED", self, "UpdateStatus")
 			frame:RegisterNormalEvent("PLAYER_REGEN_DISABLED", self, "UpdateStatus")
 			frame:RegisterNormalEvent("PLAYER_UPDATE_RESTING", self, "UpdateStatus")
@@ -232,8 +241,6 @@ function Indicators:OnEnable(frame)
 		else
 			frame.indicators.status:SetTexCoord(0.50, 1.0, 0.0, 0.49)
 			frame.indicators:SetScript("OnUpdate", combatMonitor)
-			frame.indicators.timeElapsed = 0
-			frame.indicators.parent = frame
 		end
 	elseif( frame.indicators.status ) then
 		frame.indicators:SetScript("OnUpdate", nil)
