@@ -22,20 +22,21 @@ local function OnLeave(frame)
 end
 
 function Highlight:OnEnable(frame)
-	-- Ironically, I stole the border texture from agUF intending to use it as a border, but it looks good
-	-- when it covers the entire unit frame, and thus I'll use it for that instead!
 	if( not frame.highlight ) then
-		frame.highlight = frame.highFrame:CreateTexture(nil, "OVERLAY")
-		frame.highlight:SetBlendMode("ADD")
-		frame.highlight:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\highlight")
-		frame.highlight:SetPoint("TOPLEFT", frame, ShadowUF.db.profile.backdrop.inset, -ShadowUF.db.profile.backdrop.inset)
-		frame.highlight:SetPoint("TOPRIGHT", frame, -ShadowUF.db.profile.backdrop.inset, ShadowUF.db.profile.backdrop.inset)
-		frame.highlight:SetHeight(30)
-		frame.highlight:SetVertexColor(r, g, b)
-		frame.highlight:SetTexCoord(0.3125, 0.625, 0, 0.3125)
-		frame.highlight.top = frame.highlight
+		frame.highlight = CreateFrame("Frame", nil, frame)
+		frame.highlight:SetFrameLevel(frame.topFrameLevel)
+		frame.highlight:SetAllPoints(frame)
+		frame.highlight:SetSize(1, 1)
 		
-		frame.highlight.left = frame.highFrame:CreateTexture(nil, "OVERLAY")
+		frame.highlight.top = frame.highlight:CreateTexture(nil, "OVERLAY")
+		frame.highlight.top:SetBlendMode("ADD")
+		frame.highlight.top:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\highlight")
+		frame.highlight.top:SetPoint("TOPLEFT", frame, ShadowUF.db.profile.backdrop.inset, -ShadowUF.db.profile.backdrop.inset)
+		frame.highlight.top:SetPoint("TOPRIGHT", frame, -ShadowUF.db.profile.backdrop.inset, ShadowUF.db.profile.backdrop.inset)
+		frame.highlight.top:SetHeight(30)
+		frame.highlight.top:SetTexCoord(0.3125, 0.625, 0, 0.3125)
+		
+		frame.highlight.left = frame.highlight:CreateTexture(nil, "OVERLAY")
 		frame.highlight.left:SetBlendMode("ADD")
 		frame.highlight.left:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\highlight")
 		frame.highlight.left:SetPoint("TOPLEFT", frame, ShadowUF.db.profile.backdrop.inset, -ShadowUF.db.profile.backdrop.inset)
@@ -43,7 +44,7 @@ function Highlight:OnEnable(frame)
 		frame.highlight.left:SetWidth(30)
 		frame.highlight.left:SetTexCoord(0, 0.3125, 0.3125, 0.625)
 
-		frame.highlight.right = frame.highFrame:CreateTexture(nil, "OVERLAY")
+		frame.highlight.right = frame.highlight:CreateTexture(nil, "OVERLAY")
 		frame.highlight.right:SetBlendMode("ADD")
 		frame.highlight.right:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\highlight")
 		frame.highlight.right:SetPoint("TOPRIGHT", frame, -ShadowUF.db.profile.backdrop.inset, -ShadowUF.db.profile.backdrop.inset)
@@ -51,18 +52,14 @@ function Highlight:OnEnable(frame)
 		frame.highlight.right:SetWidth(30)
 		frame.highlight.right:SetTexCoord(0.625, 0.93, 0.3125, 0.625)
 
-		frame.highlight.bottom = frame.highFrame:CreateTexture(nil, "OVERLAY")
+		frame.highlight.bottom = frame.highlight:CreateTexture(nil, "OVERLAY")
 		frame.highlight.bottom:SetBlendMode("ADD")
 		frame.highlight.bottom:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\highlight")
 		frame.highlight.bottom:SetPoint("BOTTOMLEFT", frame, ShadowUF.db.profile.backdrop.inset, ShadowUF.db.profile.backdrop.inset)
 		frame.highlight.bottom:SetPoint("BOTTOMRIGHT", frame, -ShadowUF.db.profile.backdrop.inset, ShadowUF.db.profile.backdrop.inset)
 		frame.highlight.bottom:SetHeight(30)
 		frame.highlight.bottom:SetTexCoord(0.3125, 0.625, 0.625, 0.93)
-
-		frame.highlight.top:Hide()
-		frame.highlight.left:Hide()
-		frame.highlight.bottom:Hide()
-		frame.highlight.right:Hide()
+		frame.highlight:Hide()
 	end
 	
 	frame.highlight.top:SetHeight(ShadowUF.db.profile.units[frame.unitType].highlight.size)
@@ -111,10 +108,7 @@ function Highlight:OnDisable(frame)
 	frame.highlight.hasAttention = nil
 	frame.highlight.hasMouseover = nil
 
-	frame.highlight.top:Hide()
-	frame.highlight.left:Hide()
-	frame.highlight.bottom:Hide()
-	frame.highlight.right:Hide()
+	frame.highlight:Hide()
 end
 
 function Highlight:Update(frame)
@@ -131,21 +125,12 @@ function Highlight:Update(frame)
 		
 	if( color ) then
 		frame.highlight.top:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.units[frame.unitType].highlight.alpha)
-		frame.highlight.top:Show()
-
 		frame.highlight.left:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.units[frame.unitType].highlight.alpha)
-		frame.highlight.left:Show()
-
 		frame.highlight.bottom:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.units[frame.unitType].highlight.alpha)
-		frame.highlight.bottom:Show()
-
 		frame.highlight.right:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.units[frame.unitType].highlight.alpha)
-		frame.highlight.right:Show()
+		frame.highlight:Show()
 	else
-		frame.highlight.top:Hide()
-		frame.highlight.left:Hide()
-		frame.highlight.bottom:Hide()
-		frame.highlight.right:Hide()
+		frame.highlight:Hide()
 	end
 end
 
