@@ -18,6 +18,8 @@ function Totems:OnEnable(frame)
 		for id=1, MAX_TOTEMS do
 			local totem = CreateFrame("StatusBar", nil, frame.totemBar)
 			totem:SetFrameLevel(1)
+			totem:SetMinMaxValues(0, 1)
+			totem:SetValue(0)
 			totem.id = MAX_TOTEMS == 1 and 1 or TOTEM_PRIORITIES[id]
 			
 			if( id > 1 ) then
