@@ -453,7 +453,7 @@ local function loadGeneralOptions()
 			if( type(key) == "number" ) then
 				key = string.format("[%s]", key)
 			-- Wrap the string with quotes if it has a space in it
-			elseif( string.match(key, " ") ) then
+			elseif( string.match(key, "[%p%s%c]") ) then
 				key = string.format("[\"%s\"]", key)
 			end
 			
@@ -465,7 +465,7 @@ local function loadGeneralOptions()
 				data = string.format("%s%s=%s;", data, key, tostring(value))
 			-- foo = "bar"
 			else
-				data = string.format("%s%s=\"%s\";", data, key, tostring(value))
+				data = string.format("%s%s=[[%s]];", data, key, tostring(value))
 			end
 		end
 		
