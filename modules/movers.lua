@@ -312,6 +312,7 @@ function Movers:Disable()
 	end
 	
 	ShadowUF.Units:CheckPlayerZone(true)
+	ShadowUF.Layout:Reload()
 	
 	if( self.infoFrame ) then
 		self.infoFrame:Hide()

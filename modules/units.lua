@@ -892,7 +892,6 @@ function Units:LoadZoneHeader(type)
 						self:SetAttribute("unitDisappeared", true)
 					end
 					
-					
 					if( value ) then
 						self:Show()
 					end
