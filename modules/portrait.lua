@@ -11,10 +11,12 @@ local function resetGUID(self)
 end
 
 function Portrait:OnEnable(frame)
-	frame:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", self, "Update")
+	frame:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", self, "UpdateFunc")
+	frame:RegisterUnitEvent("UNIT_MODEL_CHANGED", self, "Update")
+	
 	if( frame.unitRealType == "party" ) then
-		frame:RegisterNormalEvent("PARTY_MEMBER_ENABLE", self, "Update")
-		frame:RegisterNormalEvent("PARTY_MEMBER_DISABLE", self, "Update")
+	--	frame:RegisterNormalEvent("PARTY_MEMBER_ENABLE", self, "Update")
+	-- frame:RegisterNormalEvent("PARTY_MEMBER_DISABLE", self, "Update")
 	end
 	
 	frame:RegisterUpdateFunc(self, "UpdateFunc")
@@ -34,11 +36,8 @@ function Portrait:OnPreLayoutApply(frame, config)
 			frame.portraitModel:SetScript("OnHide", resetGUID)
 			frame.portraitModel.parent = frame
 		end
-		
-		frame.portraitTexture = frame.portraitTexture or frame:CreateTexture(nil, "ARTWORK")
-		
+				
 		frame.portrait = frame.portraitModel
-		frame.portrait.guid = nil
 		frame.portrait:Show()
 
 		ShadowUF.Layout:ToggleVisibility(frame.portraitTexture, false)
@@ -51,20 +50,11 @@ function Portrait:OnPreLayoutApply(frame, config)
 	end
 end
 
-function Portrait:OnLayoutWidgets(frame, config)
-	if( frame.visibility.portrait and config.portrait.type == "3D" ) then
-		frame.portraitTexture:ClearAllPoints()
-		frame.portraitTexture:SetPoint(frame.portrait:GetPoint())
-		frame.portraitTexture:SetHeight(frame.portrait:GetHeight())
-		frame.portraitTexture:SetWidth(frame.portrait:GetWidth())
-	end
-end
-
 function Portrait:UpdateFunc(frame)
 	-- Portrait models can't be updated unless the GUID changed or else you have the animation jumping around
 	if( ShadowUF.db.profile.units[frame.unitType].portrait.type == "3D" ) then
 		local guid = UnitGUID(frame.unitOwner)
-		if( frame.portraitTexture:IsVisible() or frame.portrait.guid ~= guid ) then
+		if( frame.portrait.guid ~= guid ) then
 			self:Update(frame)
 		end
 		
@@ -74,7 +64,7 @@ function Portrait:UpdateFunc(frame)
 	end
 end
 
-function Portrait:Update(frame)
+function Portrait:Update(frame, event)
 	local type = ShadowUF.db.profile.units[frame.unitType].portrait.type
 	
 	-- Use class thingy
@@ -90,19 +80,16 @@ function Portrait:Update(frame)
 	elseif( type == "2D" ) then
 		frame.portrait:SetTexCoord(0.10, 0.90, 0.10, 0.90)
 		SetPortraitTexture(frame.portrait, frame.unitOwner)
+	-- Using 3D portrait, but the players not in range so swap to 2D
+	elseif( not UnitIsVisible(frame.unitOwner) or not UnitIsConnected(frame.unitOwner) ) then
+		frame.portrait:SetModelScale(4.25)
+		frame.portrait:SetPosition(0, 0, -1.5)
+		frame.portrait:SetModel("Interface\\Buttons\\talktomequestionmark.mdx")
 	-- Use animated 3D portrait
-	elseif( UnitIsVisible(frame.unitOwner) and UnitIsConnected(frame.unitOwner) ) then
+	else
 		frame.portrait:SetUnit(frame.unitOwner)
 		frame.portrait:SetCamera(0)
 		frame.portrait:Show()
-		frame.portraitTexture:Hide()
-	-- Using 3D portrait, but the players not in range so swap to 2D
-	elseif( type == "3D" ) then
-		frame.portraitTexture:SetTexCoord(0.10, 0.90, 0.10, 0.90)
-		frame.portraitTexture:Show()
-		frame.portrait:Hide()
-		
-		SetPortraitTexture(frame.portraitTexture, frame.unitOwner)
 	end
 end
 
