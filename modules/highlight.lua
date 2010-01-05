@@ -1,6 +1,6 @@
 local Highlight = {}
 local goldColor, mouseColor = {r = 0.75, g = 0.75, b = 0.35}, {r = 0.75, g = 0.75, b = 0.50}
-ShadowUF:RegisterModule(Highlight, "highlight", ShadowUFLocals["Highlight"])
+ShadowUF:RegisterModule(Highlight, "highlight", ShadowUF.L["Highlight"])
 
 -- Might seem odd to hook my code in the core manually, but HookScript is ~40% slower due to it being a secure hook
 local function OnEnter(frame)

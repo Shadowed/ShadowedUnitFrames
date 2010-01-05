@@ -2,23 +2,24 @@
 	Shadowed Unit Frames, Shadow of Mal'Ganis (US) PvP
 ]]
 
-ShadowUF = {playerUnit = "player", raidPetUnits = {}, raidUnits = {}, partyUnits = {}, arenaUnits = {}, bossUnits = {}, modules = {}, moduleOrder = {},
-	unitList = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet"},
-	fakeUnits = {["targettarget"] = true, ["targettargettarget"] = true, ["pettarget"] = true, ["arenatarget"] = true, ["boss"] = true, ["focustarget"] = true, ["focustargettarget"] = true, ["partytarget"] = true, ["raidtarget"] = true, ["bosstarget"] = true}}
-
-local L = ShadowUFLocals
-local _G = getfenv(0)
+ShadowUF = select(2, ...)
+local L = ShadowUF.L
+ShadowUF.playerUnit = "player"
+ShadowUF.modules = {}
+ShadowUF.moduleOrder = {}
+ShadowUF.unitList = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet"}
+ShadowUF.fakeUnits = {["targettarget"] = true, ["targettargettarget"] = true, ["pettarget"] = true, ["arenatarget"] = true, ["boss"] = true, ["focustarget"] = true, ["focustargettarget"] = true, ["partytarget"] = true, ["raidtarget"] = true, ["bosstarget"] = true}
+L.units = {["PET"] = L["Pet"], ["VEHICLE"] = L["Vehicle"], ["arena"] = L["Arena"], ["arenapet"] = L["Arena Pet"], ["arenatarget"] = L["Arena Target"], ["boss"] = L["Boss"], ["bosstarget"] = L["Boss Target"], ["focus"] = L["Focus"], ["focustarget"] = L["Focus Target"], ["mainassist"] = L["Main Assist"], ["mainassisttarget"] = L["Main Assist Target"], ["maintank"] = L["Main Tank"], ["maintanktarget"] = L["Main Tank Target"], ["party"] = L["Party"], ["partypet"] = L["Party Pet"], ["partytarget"] = L["Party Target"], ["pet"] = L["Pet"], ["pettarget"] = L["Pet Target"], ["player"] = L["Player"],["raid"] = L["Raid"], ["target"] = L["Target"], ["targettarget"] = L["Target of Target"], ["targettargettarget"] = L["Target of Target of Target"]}
 
 -- Cache the units so we don't have to concat every time it updates
+ShadowUF.unitTarget = setmetatable({}, {__index = function(tbl, unit) rawset(tbl, unit, unit .. "target"); return unit .. "target" end})
+ShadowUF.partyUnits, ShadowUF.raidUnits, ShadowUF.raidPetUnits, ShadowUF.bossUnits, ShadowUF.arenaUnits = {}, {}, {}, {}, {}
+ShadowUF.maintankUnits, ShadowUF.mainassistUnits = ShadowUF.raidUnits, ShadowUF.raidUnits
 for i=1, MAX_PARTY_MEMBERS do ShadowUF.partyUnits[i] = "party" .. i end
 for i=1, MAX_RAID_MEMBERS do ShadowUF.raidUnits[i] = "raid" .. i end
 for i=1, MAX_RAID_MEMBERS do ShadowUF.raidPetUnits[i] = "raidpet" .. i end
-for i=1, MAX_BOSS_FRAMES do table.insert(ShadowUF.bossUnits, "boss" .. i) end
+for i=1, MAX_BOSS_FRAMES do ShadowUF.bossUnits[i] = "boss" .. i end
 for i=1, 5 do ShadowUF.arenaUnits[i] = "arena" .. i end
-
-ShadowUF.unitTarget = setmetatable({}, {__index = function(tbl, unit) rawset(tbl, unit, unit .. "target"); return unit .. "target" end})
-ShadowUF.maintankUnits = ShadowUF.raidUnits
-ShadowUF.mainassistUnits = ShadowUF.raidUnits
 
 function ShadowUF:OnInitialize()
 	self.defaults = {
@@ -555,12 +556,3 @@ frame:SetScript("OnEvent", function(self, event, addon)
 		self:UnregisterEvent("PLAYER_LOGIN")
 	end
 end)
-
---@debug@
-ShadowUFLocals = setmetatable(ShadowUFLocals, {
-	__index = function(tbl, value)
-		rawset(tbl, value, value)
-		return value
-	end,
-})
---@end-debug@

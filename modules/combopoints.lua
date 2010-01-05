@@ -1,5 +1,5 @@
 local Combo = {}
-ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUFLocals["Combo points"])
+ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUF.L["Combo points"])
 
 function Combo:OnEnable(frame)
 	frame.comboPoints = frame.comboPoints or CreateFrame("Frame", nil, frame)

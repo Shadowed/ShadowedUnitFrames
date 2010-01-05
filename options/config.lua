@@ -2,7 +2,7 @@ local Config = {}
 local AceDialog, AceRegistry, AceGUI, SML, registered, options
 local playerClass = select(2, UnitClass("player"))
 local modifyUnits, globalConfig = {}, {}
-local L = ShadowUFLocals
+local L = ShadowUF.L
 
 ShadowUF.Config = Config
 

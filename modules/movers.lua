@@ -1,5 +1,5 @@
 -- I am undecided if this is a brilliant idea or an insane one
-local L = ShadowUFLocals
+local L = ShadowUF.L
 local Movers = {}
 local originalEnvs = {}
 local unitConfig = {}

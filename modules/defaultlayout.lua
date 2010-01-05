@@ -1,4 +1,4 @@
-local L = ShadowUFLocals
+local L = ShadowUF.L
 local playerClass = select(2, UnitClass("player"))
 
 local function finalizeData(config, useMerge)

@@ -1,7 +1,7 @@
 local Indicators = {list = {"status", "pvp", "leader", "masterLoot", "raidTarget", "happiness", "ready", "role", "lfdRole"}}
 local leavingWorld
 
-ShadowUF:RegisterModule(Indicators, "indicators", ShadowUFLocals["Indicators"])
+ShadowUF:RegisterModule(Indicators, "indicators", ShadowUF.L["Indicators"])
 
 function Indicators:UpdateHappiness(frame)
 	if( not frame.indicators.happiness or not frame.indicators.happiness.enabled ) then return end

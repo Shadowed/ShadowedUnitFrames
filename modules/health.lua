@@ -1,5 +1,5 @@
 local Health = {}
-ShadowUF:RegisterModule(Health, "healthBar", ShadowUFLocals["Health bar"], true)
+ShadowUF:RegisterModule(Health, "healthBar", ShadowUF.L["Health bar"], true)
 
 local function getGradientColor(unit)
 	local percent = UnitHealth(unit) / UnitHealthMax(unit)

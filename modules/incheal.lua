@@ -4,7 +4,7 @@ if( not HealComm ) then return end
 local IncHeal = {}
 local frames = {}
 local playerEndTime, playerGUID
-ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUFLocals["Incoming heals"])
+ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUF.L["Incoming heals"])
 ShadowUF.Tags.customEvents["HEALCOMM"] = IncHeal
 	
 -- How far ahead to show heals at most

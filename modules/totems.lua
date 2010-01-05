@@ -5,9 +5,9 @@ local MAX_TOTEMS = MAX_TOTEMS
 -- Death Knights untalented ghouls are guardians and are considered totems........... so set it up for them
 if( select(2, UnitClass("player")) == "DEATHKNIGHT" ) then
 	MAX_TOTEMS = 1
-	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUFLocals["Guardian bar"], true, "DEATHKNIGHT")
+	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Guardian bar"], true, "DEATHKNIGHT")
 else
-	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUFLocals["Totem bar"], true, "SHAMAN")
+	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Totem bar"], true, "SHAMAN")
 end
 
 function Totems:OnEnable(frame)

@@ -1,6 +1,6 @@
 local Empty = {}
 local fallbackColor
-ShadowUF:RegisterModule(Empty, "emptyBar", ShadowUFLocals["Empty bar"], true)
+ShadowUF:RegisterModule(Empty, "emptyBar", ShadowUF.L["Empty bar"], true)
 
 function Empty:OnEnable(frame)
 	frame.emptyBar = frame.emptyBar or ShadowUF.Units:CreateBar(frame)

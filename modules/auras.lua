@@ -3,7 +3,7 @@ local stealableColor = {r = 1, g = 1, b = 1}
 local playerUnits = {player = true, vehicle = true, pet = true}
 local mainHand, offHand = {time = 0}, {time = 0}
 local tempEnchantScan
-ShadowUF:RegisterModule(Auras, "auras", ShadowUFLocals["Auras"])
+ShadowUF:RegisterModule(Auras, "auras", ShadowUF.L["Auras"])
 
 function Auras:OnEnable(frame)
 	frame.auras = frame.auras or {}

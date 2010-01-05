@@ -1,7 +1,7 @@
 local Runes = {}
 local RUNE_MAP = {[1] = 1, [2] = 2, [3] = 5, [4] = 6, [5] = 3, [6] = 4}
 local runeColors = {{r = 1, g = 0, b = 0.4}, {r = 0, g = 1, b = 0.4}, {r = 0, g = 0.4, b = 1}, {r = 0.7, g = 0.5, b = 1}}
-ShadowUF:RegisterModule(Runes, "runeBar", ShadowUFLocals["Rune bar"], true, "DEATHKNIGHT")
+ShadowUF:RegisterModule(Runes, "runeBar", ShadowUF.L["Rune bar"], true, "DEATHKNIGHT")
 
 function Runes:OnEnable(frame)
 	if( not frame.runeBar ) then

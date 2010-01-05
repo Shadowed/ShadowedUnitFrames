@@ -1,5 +1,5 @@
 local Power = {}
-ShadowUF:RegisterModule(Power, "powerBar", ShadowUFLocals["Power bar"], true)
+ShadowUF:RegisterModule(Power, "powerBar", ShadowUF.L["Power bar"], true)
 
 local function updatePower(self, elapsed)
 	local currentPower = UnitPower(self.parent.unit)

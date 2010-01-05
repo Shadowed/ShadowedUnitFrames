@@ -1,7 +1,7 @@
 -- Thanks to haste for the original tagging code, which I then mostly ripped apart and stole!
 local Tags = {afkStatus = {}, offlineStatus = {}, customEvents = {}}
 local tagPool, functionPool, temp, regFontStrings, frequentUpdates, frequencyCache = {}, {}, {}, {}, {}, {}
-local L = ShadowUFLocals
+local L = ShadowUF.L
 
 ShadowUF.Tags = Tags
 
@@ -290,19 +290,19 @@ Tags.defaultTags = {
 		
 		local Druid = ShadowUF.Druid
 		if( UnitAura(unit, Druid.CatForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["C"]
+			return ShadowUF.L["C"]
 		elseif( UnitAura(unit, Druid.TreeForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["T"]
+			return ShadowUF.L["T"]
 		elseif( UnitAura(unit, Druid.MoonkinForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["M"]
+			return ShadowUF.L["M"]
 		elseif( UnitAura(unit, Druid.DireBearForm, Druid.Shapeshift) or UnitAura(unit, Druid.BearForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["B"]
+			return ShadowUF.L["B"]
 		elseif( UnitAura(unit, Druid.SwiftFlightForm, Druid.Shapeshift) or UnitAura(unit, Druid.FlightForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["F"]
+			return ShadowUF.L["F"]
 		elseif( UnitAura(unit, Druid.TravelForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["T"]
+			return ShadowUF.L["T"]
 		elseif( UnitAura(unit, Druid.AquaticForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["A"]
+			return ShadowUF.L["A"]
 		end
 	end]],
 	["druidform"] = [[function(unit, unitOwner)
@@ -310,19 +310,19 @@ Tags.defaultTags = {
 		
 		local Druid = ShadowUF.Druid
 		if( UnitAura(unit, Druid.CatForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["Cat"]
+			return ShadowUF.L["Cat"]
 		elseif( UnitAura(unit, Druid.TreeForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["Tree"]
+			return ShadowUF.L["Tree"]
 		elseif( UnitAura(unit, Druid.MoonkinForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["Moonkin"]
+			return ShadowUF.L["Moonkin"]
 		elseif( UnitAura(unit, Druid.DireBearForm, Druid.Shapeshift) or UnitAura(unit, Druid.BearForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["Bear"]
+			return ShadowUF.L["Bear"]
 		elseif( UnitAura(unit, Druid.SwiftFlightForm, Druid.Shapeshift) or UnitAura(unit, Druid.FlightForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["Flight"]
+			return ShadowUF.L["Flight"]
 		elseif( UnitAura(unit, Druid.TravelForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["Travel"]
+			return ShadowUF.L["Travel"]
 		elseif( UnitAura(unit, Druid.AquaticForm, Druid.Shapeshift) ) then
-			return ShadowUFLocals["Aquatic"]
+			return ShadowUF.L["Aquatic"]
 		end
 	end]],
 	["guild"] = [[function(unit, unitOwner)
@@ -335,21 +335,21 @@ Tags.defaultTags = {
 	["unit:situation"] = [[function(unit, unitOwner)
 		local state = UnitThreatSituation(unit)
 		if( state == 3 ) then
-			return ShadowUFLocals["Aggro"]
+			return ShadowUF.L["Aggro"]
 		elseif( state == 2 ) then
-			return ShadowUFLocals["High"]
+			return ShadowUF.L["High"]
 		elseif( state == 1 ) then
-			return ShadowUFLocals["Medium"]
+			return ShadowUF.L["Medium"]
 		end
 	end]],
 	["situation"] = [[function(unit, unitOwner)
 		local state = UnitThreatSituation("player", "target")
 		if( state == 3 ) then
-			return ShadowUFLocals["Aggro"]
+			return ShadowUF.L["Aggro"]
 		elseif( state == 2 ) then
-			return ShadowUFLocals["High"]
+			return ShadowUF.L["High"]
 		elseif( state == 1 ) then
-			return ShadowUFLocals["Medium"]
+			return ShadowUF.L["Medium"]
 		end
 	end]],
 	["unit:color:sit"] = [[function(unit, unitOwner)
@@ -383,11 +383,11 @@ Tags.defaultTags = {
 	["general:sit"] = [[function(unit, unitOwner)
 		local state = UnitThreatSituation("player")
 		if( state == 3 ) then
-			return ShadowUFLocals["Aggro"]
+			return ShadowUF.L["Aggro"]
 		elseif( state == 2 ) then
-			return ShadowUFLocals["High"]
+			return ShadowUF.L["High"]
 		elseif( state == 1 ) then
-			return ShadowUFLocals["Medium"]
+			return ShadowUF.L["Medium"]
 		end
 	end]],
 	["color:gensit"] = [[function(unit, unitOwner)
@@ -399,7 +399,7 @@ Tags.defaultTags = {
 		local offlineStatus = ShadowUF.Tags.offlineStatus
 		if( not UnitIsConnected(unitOwner) ) then
 			offlineStatus[unitOwner] = offlineStatus[unitOwner] or GetTime()
-			return string.format(ShadowUFLocals["Off:%s"], ShadowUF:FormatShortTime(GetTime() - offlineStatus[unitOwner]))
+			return string.format(ShadowUF.L["Off:%s"], ShadowUF:FormatShortTime(GetTime() - offlineStatus[unitOwner]))
 		end
 		
 		offlineStatus[unitOwner] = nil
@@ -408,7 +408,7 @@ Tags.defaultTags = {
 		if( not UnitIsConnected(unitOwner) ) then return end
 		
 		local afkStatus = ShadowUF.Tags.afkStatus
-		local status = UnitIsAFK(unitOwner) and ShadowUFLocals["AFK:%s"] or UnitIsDND(unitOwner) and ShadowUFLocals["DND:%s"]
+		local status = UnitIsAFK(unitOwner) and ShadowUF.L["AFK:%s"] or UnitIsDND(unitOwner) and ShadowUF.L["DND:%s"]
 		if( status ) then
 			afkStatus[unitOwner] = afkStatus[unitOwner] or GetTime()
 			return string.format(status, ShadowUF:FormatShortTime(GetTime() - afkStatus[unitOwner]))
@@ -421,10 +421,10 @@ Tags.defaultTags = {
 			return nil
 		end
 		
-		return string.format(ShadowUFLocals["PVP:%s"], ShadowUF:FormatShortTime(GetPVPTimer() / 1000))
+		return string.format(ShadowUF.L["PVP:%s"], ShadowUF:FormatShortTime(GetPVPTimer() / 1000))
 	end]],
 	["afk"] = [[function(unit, unitOwner, fontString)
-		return UnitIsAFK(unitOwner) and ShadowUFLocals["AFK"] or UnitIsDND(unitOwner) and ShadowUFLocals["DND"]
+		return UnitIsAFK(unitOwner) and ShadowUF.L["AFK"] or UnitIsDND(unitOwner) and ShadowUF.L["DND"]
 	end]],
 	["close"] = [[function(unit, unitOwner) return "|r" end]],
 	["smartrace"] = [[function(unit, unitOwner)
@@ -458,11 +458,11 @@ Tags.defaultTags = {
 	["creature"] = [[function(unit, unitOwner) return UnitCreatureFamily(unit) or UnitCreatureType(unit) end]],
 	["curhp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
-			return ShadowUFLocals["Dead"]
+			return ShadowUF.L["Dead"]
 		elseif( UnitIsGhost(unit) ) then
-			return ShadowUFLocals["Ghost"]
+			return ShadowUF.L["Ghost"]
 		elseif( not UnitIsConnected(unit) ) then
-			return ShadowUFLocals["Offline"]
+			return ShadowUF.L["Offline"]
 		end
 
 		return ShadowUF:FormatLargeNumber(UnitHealth(unit))
@@ -487,44 +487,44 @@ Tags.defaultTags = {
 	end]],
 	["curmaxhp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
-			return ShadowUFLocals["Dead"]
+			return ShadowUF.L["Dead"]
 		elseif( UnitIsGhost(unit) ) then
-			return ShadowUFLocals["Ghost"]
+			return ShadowUF.L["Ghost"]
 		elseif( not UnitIsConnected(unit) ) then
-			return ShadowUFLocals["Offline"]
+			return ShadowUF.L["Offline"]
 		end
 		
 		return string.format("%s/%s", ShadowUF:FormatLargeNumber(UnitHealth(unit)), ShadowUF:FormatLargeNumber(UnitHealthMax(unit)))
 	end]],
 	["smart:curmaxhp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
-			return ShadowUFLocals["Dead"]
+			return ShadowUF.L["Dead"]
 		elseif( UnitIsGhost(unit) ) then
-			return ShadowUFLocals["Ghost"]
+			return ShadowUF.L["Ghost"]
 		elseif( not UnitIsConnected(unit) ) then
-			return ShadowUFLocals["Offline"]
+			return ShadowUF.L["Offline"]
 		end
 		
 		return string.format("%s/%s", ShadowUF:SmartFormatNumber(UnitHealth(unit)), ShadowUF:SmartFormatNumber(UnitHealthMax(unit)))
 	end]],
 	["absolutehp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
-			return ShadowUFLocals["Dead"]
+			return ShadowUF.L["Dead"]
 		elseif( UnitIsGhost(unit) ) then
-			return ShadowUFLocals["Ghost"]
+			return ShadowUF.L["Ghost"]
 		elseif( not UnitIsConnected(unit) ) then
-			return ShadowUFLocals["Offline"]
+			return ShadowUF.L["Offline"]
 		end
 		
 		return string.format("%s/%s", UnitHealth(unit), UnitHealthMax(unit))
 	end]],
 	["abscurhp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
-			return ShadowUFLocals["Dead"]
+			return ShadowUF.L["Dead"]
 		elseif( UnitIsGhost(unit) ) then
-			return ShadowUFLocals["Ghost"]
+			return ShadowUF.L["Ghost"]
 		elseif( not UnitIsConnected(unit) ) then
-			return ShadowUFLocals["Offline"]
+			return ShadowUF.L["Offline"]
 		end
 		
 		return UnitHealth(unit)
@@ -614,11 +614,11 @@ Tags.defaultTags = {
 	end]],
 	["missinghp"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
-			return ShadowUFLocals["Dead"]
+			return ShadowUF.L["Dead"]
 		elseif( UnitIsGhost(unit) ) then
-			return ShadowUFLocals["Ghost"]
+			return ShadowUF.L["Ghost"]
 		elseif( not UnitIsConnected(unit) ) then
-			return ShadowUFLocals["Offline"]
+			return ShadowUF.L["Offline"]
 		end
 
 		local missing = UnitHealthMax(unit) - UnitHealth(unit)
@@ -666,16 +666,16 @@ Tags.defaultTags = {
 	end]],
 	["plus"] = [[function(unit, unitOwner) local classif = UnitClassification(unit) return (classif == "elite" or classif == "rareelite") and "+" end]],
 	["race"] = [[function(unit, unitOwner) return UnitRace(unit) end]],
-	["rare"] = [[function(unit, unitOwner) local classif = UnitClassification(unit) return (classif == "rare" or classif == "rareelite") and ShadowUFLocals["Rare"] end]],
-	["sex"] = [[function(unit, unitOwner) local sex = UnitSex(unit) return sex == 2 and ShadowUFLocals["Male"] or sex == 3 and ShadowUFLocals["Female"] end]],
+	["rare"] = [[function(unit, unitOwner) local classif = UnitClassification(unit) return (classif == "rare" or classif == "rareelite") and ShadowUF.L["Rare"] end]],
+	["sex"] = [[function(unit, unitOwner) local sex = UnitSex(unit) return sex == 2 and ShadowUF.L["Male"] or sex == 3 and ShadowUF.L["Female"] end]],
 	["smartclass"] = [[function(unit, unitOwner) return UnitIsPlayer(unit) and ShadowUF.tagFunc.class(unit) or ShadowUF.tagFunc.creature(unit) end]],
 	["status"] = [[function(unit, unitOwner)
 		if( UnitIsDead(unit) ) then
-			return ShadowUFLocals["Dead"]
+			return ShadowUF.L["Dead"]
 		elseif( UnitIsGhost(unit) ) then
-			return ShadowUFLocals["Ghost"]
+			return ShadowUF.L["Ghost"]
 		elseif( not UnitIsConnected(unit) ) then
-			return ShadowUFLocals["Offline"]
+			return ShadowUF.L["Offline"]
 		end
 	end]],
 	["cpoints"] = [[function(unit, unitOwner)
@@ -689,7 +689,7 @@ Tags.defaultTags = {
 	["smartlevel"] = [[function(unit, unitOwner)
 		local classif = UnitClassification(unit)
 		if( classif == "worldboss" ) then
-			return ShadowUFLocals["Boss"]
+			return ShadowUF.L["Boss"]
 		else
 			local plus = ShadowUF.tagFunc.plus(unit)
 			local level = ShadowUF.tagFunc.level(unit)
@@ -704,13 +704,13 @@ Tags.defaultTags = {
 	["classification"] = [[function(unit, unitOwner)
 		local classif = UnitClassification(unit)
 		if( classif == "rare" ) then
-			return ShadowUFLocals["Rare"]
+			return ShadowUF.L["Rare"]
 		elseif( classif == "rareelite" ) then
-			return ShadowUFLocals["Rare Elite"]
+			return ShadowUF.L["Rare Elite"]
 		elseif( classif == "elite" ) then
-			return ShadowUFLocals["Elite"]
+			return ShadowUF.L["Elite"]
 		elseif( classif == "worldboss" ) then
-			return ShadowUFLocals["Boss"]
+			return ShadowUF.L["Boss"]
 		end
 		
 		return nil

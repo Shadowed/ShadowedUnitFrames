@@ -1,5 +1,5 @@
 local Combat = {}
-ShadowUF:RegisterModule(Combat, "combatText", ShadowUFLocals["Combat text"])
+ShadowUF:RegisterModule(Combat, "combatText", ShadowUF.L["Combat text"])
 
 function Combat:OnEnable(frame)
 	if( not frame.combatText ) then

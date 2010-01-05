@@ -1,5 +1,5 @@
 local Cast = {}
-local L = ShadowUFLocals
+local L = ShadowUF.L
 local FADE_TIME = 0.30
 local FAKE_UPDATE_TIME = 0.10
 

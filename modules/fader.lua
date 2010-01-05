@@ -1,5 +1,5 @@
 local Fader = {}
-ShadowUF:RegisterModule(Fader, "fader", ShadowUFLocals["Combat fader"])
+ShadowUF:RegisterModule(Fader, "fader", ShadowUF.L["Combat fader"])
 
 local function faderUpdate(self, elapsed)
 	self.timeElapsed = self.timeElapsed + elapsed

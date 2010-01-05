@@ -1,5 +1,5 @@
 local XP = {}
-local L = ShadowUFLocals
+local L = ShadowUF.L
 ShadowUF:RegisterModule(XP, "xpBar", L["XP/Rep bar"], true)
 
 local function OnEnter(self)
