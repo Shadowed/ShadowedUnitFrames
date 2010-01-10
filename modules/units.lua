@@ -643,6 +643,8 @@ function Units:SetHeaderAttributes(frame, type)
 	-- Split up raid frame groups
 	if( config.frameSplit and type == "raid" ) then
 		local anchorPoint, relativePoint, xMod, yMod = ShadowUF.Layout:GetSplitRelativeAnchor(config.attribPoint, config.attribAnchorPoint)
+		local columnPoint, xColMod, yColMod = ShadowUF.Layout:GetRelativeAnchor(config.attribPoint)
+		
 		local lastHeader = frame
 		for id=1, 8 do
 			local childHeader = headerFrames["raid" .. id]
@@ -662,8 +664,12 @@ function Units:SetHeaderAttributes(frame, type)
 					childHeader:SetAttribute("yOffset", frame:GetAttribute("yOffset"))
 					
 					childHeader:ClearAllPoints()
-					childHeader:SetPoint(anchorPoint, lastHeader, relativePoint, config.columnSpacing * xMod, config.columnSpacing * yMod)
-	
+					if( id % config.groupsPerRow == 1 ) then
+						childHeader:SetPoint(config.attribPoint, headerFrames["raid" .. id - config.groupsPerRow], columnPoint, config.groupSpacing * xColMod, config.groupSpacing * yColMod)
+					else
+						childHeader:SetPoint(anchorPoint, lastHeader, relativePoint, config.columnSpacing * xMod, config.columnSpacing * yMod)
+					end
+
 					lastHeader = childHeader
 				end
 			end	
