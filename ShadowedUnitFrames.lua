@@ -180,6 +180,10 @@ function ShadowUF:CheckUpgrade()
 	-- December 15th
 	self.db.profile.units.boss.castBar = nil
 	self.db.profile.units.boss.combatText = nil
+	
+	-- January 10th
+	self.db.profile.units.raid.groupsPerRow = self.db.profile.units.raid.groupsPerRow or 8
+	self.db.profile.units.raid.groupSpacing = self.db.profile.units.raid.groupSpacing or 0
 end
 	
 function ShadowUF:LoadUnits()

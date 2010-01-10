@@ -225,6 +225,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			unitsPerColumn = 8,
 			maxColumns = 8,
 			columnSpacing = 5,
+			groupsPerRow = 8,
+			groupSpacing = 0,
 			attribPoint = "TOP",
 			attribAnchorPoint = "LEFT",
 			healthBar = {reactionType = "none"},
