@@ -2656,7 +2656,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Sorting"],
-						hidden = function(info) return info[2] == "boss" or info[2] == "arena" or info[2] ~= "raid" or not ShadowUF.db.profile.advanced end,
+						hidden = function(info) return info[2] == "boss" or info[2] == "arena" or ( info[2] ~= "raid" and not ShadowUF.db.profile.advanced ) end,
 						args = {
 							sortMethod = {
 								order = 2,
