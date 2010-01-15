@@ -154,7 +154,6 @@ local function updateButton(id, group, config)
 		button.stack:SetHeight(1)
 		button.stack:SetWidth(1)
 		button.stack:SetAllPoints(button)
-		button.stack:SetJustifyH("RIGHT")
 		button.stack:SetJustifyV("BOTTOM")
 		button.stack:SetJustifyH("RIGHT")
 
