@@ -80,7 +80,7 @@ local function createConfigEnv()
 			return powerType, powerType == 0 and "MANA" or powerType == 1 and "RAGE" or powerType == 2 and "FOCUS" or powerType == 3 and "ENERGY" or powerType == 6 and "RUNIC_POWER"
 		end,
 		UnitAura = function(unit, id, filter)
-			if( id > 40 ) then return end
+			if( type(id) ~= "number" or id > 40 ) then return end
 			
 			local texture = filter == "HELPFUL" and "Interface\\Icons\\Spell_Nature_Rejuvenation" or "Interface\\Icons\\Ability_DualWield"
 			local mod = id % 5
