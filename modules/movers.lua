@@ -37,6 +37,8 @@ local function createConfigEnv()
 		UnitPowerMax = function(unit) return 50000 end,
 		UnitIsPartyLeader = function() return true end,
 		UnitIsPVP = function(unit) return true end,
+		UnitIsDND = function(unit) return false end,
+		UnitIsAFK = function(unit) return false end,
 		UnitFactionGroup = function(unit) return _G.UnitFactionGroup("player") end,
 		UnitAffectingCombat = function() return true end,
 		UnitThreatSituation = function() return 0 end,
@@ -186,28 +188,7 @@ end
 
 function Movers:Enable()
 	createConfigEnv()
-	
-	-- Setup the test env
-	if( not self.isEnabled ) then
-		for _, func in pairs(ShadowUF.tagFunc) do
-			if( type(func) == "function" ) then
-				originalEnvs[func] = getfenv(func)
-				setfenv(func, configEnv)
-			end
-		end
-
-		for _, module in pairs(ShadowUF.modules) do
-			if( module.moduleName ) then
-				for key, func in pairs(module) do
-					if( type(func) == "function" ) then
-						originalEnvs[module[key]] = getfenv(module[key])
-						setfenv(module[key], configEnv)
-					end
-				end
-			end
-		end
-	end
-	
+		
 	-- Force create zone headers
 	for type, zone in pairs(ShadowUF.Units.zoneUnits) do
 		if( ShadowUF.db.profile.units[type].enabled ) then
@@ -242,6 +223,27 @@ function Movers:Enable()
 		header.startingIndex = header:GetAttribute("startingIndex")
 		header:SetMovable(true)
 		prepareChildUnits(header, header:GetChildren())
+	end
+	
+	-- Setup the test env
+	if( not self.isEnabled ) then
+		for _, func in pairs(ShadowUF.tagFunc) do
+			if( type(func) == "function" ) then
+				originalEnvs[func] = getfenv(func)
+				setfenv(func, configEnv)
+			end
+		end
+
+		for _, module in pairs(ShadowUF.modules) do
+			if( module.moduleName ) then
+				for key, func in pairs(module) do
+					if( type(func) == "function" ) then
+						originalEnvs[module[key]] = getfenv(module[key])
+						setfenv(module[key], configEnv)
+					end
+				end
+			end
+		end
 	end
 	
 	-- Why is this called twice you ask? Child units are created on the OnAttributeChanged call
