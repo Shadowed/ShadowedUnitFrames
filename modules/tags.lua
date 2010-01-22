@@ -477,7 +477,7 @@ Tags.defaultTags = {
 		return string.format("%s%s|r", color, name)
 	end]],
 	["curpp"] = [[function(unit, unitOwner) 
-		if( UnitPowerMax(unit) <= 0 and not UnitIsPlayer(unit) ) then
+		if( UnitPowerMax(unit) <= 0 ) then
 			return nil
 		elseif( UnitIsDeadOrGhost(unit) ) then
 			return 0
@@ -531,7 +531,7 @@ Tags.defaultTags = {
 	end]],
 	["absmaxhp"] = [[function(unit, unitOwner) return UnitHealthMax(unit) end]],
 	["abscurpp"] = [[function(unit, unitOwner)
-		if( UnitPowerMax(unit) <= 0 and not UnitIsPlayer(unit) ) then
+		if( UnitPowerMax(unit) <= 0 ) then
 			return nil
 		elseif( UnitIsDeadOrGhost(unit) ) then
 			return 0
@@ -541,17 +541,14 @@ Tags.defaultTags = {
 	end]],
 	["absmaxpp"] = [[function(unit, unitOwner)
 		local power = UnitPowerMax(unit)
-		if( power <= 0 and not UnitIsPlayer(unit) ) then
-			return nil
-		end
-		return power
+		return power > 0 and power or nil
 	end]],
 	["absolutepp"] = [[function(unit, unitOwner)
 		local maxPower = UnitPowerMax(unit)
 		local power = UnitPower(unit)
 		if( UnitIsDeadOrGhost(unit) ) then
 			return string.format("0/%s", maxPower)
-		elseif( maxPower <= 0 and power <= 0 ) then
+		elseif( maxPower <= 0 ) then
 			return nil
 		end
 		
@@ -562,7 +559,7 @@ Tags.defaultTags = {
 		local power = UnitPower(unit)
 		if( UnitIsDeadOrGhost(unit) ) then
 			return string.format("0/%s", ShadowUF:FormatLargeNumber(maxPower))
-		elseif( maxPower <= 0 and power <= 0 ) then
+		elseif( maxPower <= 0 ) then
 			return nil
 		end
 		
@@ -573,7 +570,7 @@ Tags.defaultTags = {
 		local power = UnitPower(unit)
 		if( UnitIsDeadOrGhost(unit) ) then
 			return string.format("0/%s", maxPower)
-		elseif( maxPower <= 0 and power <= 0 ) then
+		elseif( maxPower <= 0 ) then
 			return nil
 		end
 		
@@ -604,7 +601,7 @@ Tags.defaultTags = {
 	["maxhp"] = [[function(unit, unitOwner) return ShadowUF:FormatLargeNumber(UnitHealthMax(unit)) end]],
 	["maxpp"] = [[function(unit, unitOwner)
 		local power = UnitPowerMax(unit)
-		if( power <= 0 and not UnitIsPlayer(unit) ) then
+		if( power <= 0 ) then
 			return nil
 		elseif( UnitIsDeadOrGhost(unit) ) then
 			return 0
@@ -627,7 +624,7 @@ Tags.defaultTags = {
 	end]],
 	["missingpp"] = [[function(unit, unitOwner)
 		local power = UnitPowerMax(unit)
-		if( power <= 0 and not UnitIsPlayer(unit) ) then
+		if( power <= 0 ) then
 			return nil
 		end
 
@@ -656,7 +653,7 @@ Tags.defaultTags = {
 	end]],
 	["perpp"] = [[function(unit, unitOwner)
 		local maxPower = UnitPowerMax(unit)
-		if( maxPower <= 0 and not UnitIsPlayer(unit) ) then
+		if( maxPower <= 0 or not UnitIsPlayer(unit) ) then
 			return nil
 		elseif( UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) ) then
 			return "0%"
@@ -1233,7 +1230,7 @@ end
 
 
 -- Checker function, makes sure tags are all happy
---[[
+--@debug@
 function Tags:Verify()
 	local fine = true
 	for tag, events in pairs(self.defaultEvents) do
@@ -1278,4 +1275,4 @@ function Tags:Verify()
 		print("Verified tags, everything is fine.")
 	end
 end
-]]
+--@end-debug@
