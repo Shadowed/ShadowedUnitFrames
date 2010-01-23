@@ -94,7 +94,7 @@ local function selectDialogGroup(group, key)
 	AceRegistry:NotifyChange("ShadowedUF")
 end
 
-local function selectTabGroup(gorup, subGroup, key)
+local function selectTabGroup(group, subGroup, key)
 	AceDialog.Status.ShadowedUF.children[group].status.groups.selected = subGroup
 	AceDialog.Status.ShadowedUF.children[group].children[subGroup].status.groups.selected = key
 	AceRegistry:NotifyChange("ShadowedUF")
