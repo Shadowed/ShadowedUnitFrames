@@ -6,6 +6,10 @@ local function faderUpdate(self, elapsed)
 	if( self.timeElapsed >= self.fadeTime ) then
 		self.parent:SetAlpha(self.alphaEnd)
 		self:Hide()
+		
+		if( self.fadeType == "in" ) then
+			self.parent:EnableRangeAlpha(true)
+		end
 		return
 	end
 	
@@ -18,6 +22,9 @@ end
 
 local function startFading(self, type, alpha, speedyFade)
 	if( self.fader.fadeType == type ) then return end
+	if( type == "out" ) then
+		self:EnableRangeAlpha(false)
+	end
 	
 	self.fader.fadeTime = speedyFade and 0.15 or type == "in" and 0.25 or type == "out" and 0.75
 	self.fader.fadeType = type
@@ -83,9 +90,9 @@ function Fader:CastStop(frame, event, unit, spellName, spellRank, id)
 	self:Update(frame)
 end
 
-function Fader:Update(frame)
+function Fader:Update(frame, event)
 	-- In combat, fade back in
-	if( InCombatLockdown() ) then
+	if( InCombatLockdown() or event == "PLAYER_REGEN_DISABLED" ) then
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha)
 	-- Player is casting, fade in
 	elseif( frame.fader.playerCasting ) then

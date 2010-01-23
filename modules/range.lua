@@ -14,15 +14,15 @@ local function checkRange(self, elapsed)
 	
 	-- We set a spell for them in our flags check, use that
 	if( self.spell ) then
-		self.parent:SetAlpha(IsSpellInRange(self.spell, self.parent.unit) == 1 and ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha or ShadowUF.db.profile.units[self.parent.unitType].range.oorAlpha)
+		self.parent:SetRangeAlpha(IsSpellInRange(self.spell, self.parent.unit) == 1 and ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha or ShadowUF.db.profile.units[self.parent.unitType].range.oorAlpha)
 	-- That didn't work, but they are grouped lets try the actual API for this, it's a bit flaky though and not that useful generally
 	elseif( self.grouped ) then
-		self.parent:SetAlpha(UnitInRange(self.parent.unit, "player") and ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha or ShadowUF.db.profile.units[self.parent.unitType].range.oorAlpha)
+		self.parent:SetRangeAlpha(UnitInRange(self.parent.unit, "player") and ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha or ShadowUF.db.profile.units[self.parent.unitType].range.oorAlpha)
 	-- Nope, fall back to interaction :(
 	elseif( self.isFriendly ) then
-		self.parent:SetAlpha(CheckInteractDistance(self.parent.unit, 4) and ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha or ShadowUF.db.profile.units[self.parent.unitType].range.oorAlpha)
+		self.parent:SetRangeAlpha(CheckInteractDistance(self.parent.unit, 4) and ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha or ShadowUF.db.profile.units[self.parent.unitType].range.oorAlpha)
 	else
-		self.parent:SetAlpha(ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha)
+		self.parent:SetRangeAlpha(ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha)
 	end
 end
 
@@ -60,7 +60,7 @@ function Range:OnDisable(frame)
 	
 	if( frame.range ) then
 		frame.range:Hide()
-		frame:SetAlpha(1.0)
+		frame:SetRangeAlpha(1.0)
 	end
 end
 
@@ -73,7 +73,7 @@ function Range:UpdateFlags(frame)
 	
 	-- No sense in updating range if we have no data
 	if( not UnitIsConnected(frame.unit) or ( not frame.range.spell and not frame.range.grouped and not frame.range.isFriendly ) ) then
-		frame:SetAlpha(ShadowUF.db.profile.units[frame.unitType].range.inAlpha)
+		frame:SetRangeAlpha(ShadowUF.db.profile.units[frame.unitType].range.inAlpha)
 		frame.range:Hide()
 	else
 		frame.range:Show()
