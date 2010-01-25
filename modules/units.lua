@@ -112,16 +112,16 @@ local function UnregisterAll(self, handler)
 end
 
 -- Handles setting alphas in a way so combat fader and range checker don't override each other
-local function EnableRangeAlpha(self, toggle)
-	self.enableRangeAlpha = toggle
+local function DisableRangeAlpha(self, toggle)
+	self.disableRangeAlpha = toggle
 	
-	if( toggle and self.rangeAlpha ) then
+	if( not toggle and self.rangeAlpha ) then
 		self:SetAlpha(self.rangeAlpha)
 	end
 end
 
 local function SetRangeAlpha(self, alpha)
-	if( self.enableRangeAlpha ) then
+	if( not self.disableRangeAlpha ) then
 		self:SetAlpha(alpha)
 	else
 		self.rangeAlpha = alpha
@@ -578,7 +578,7 @@ function Units:CreateUnit(...)
 	frame.UnregisterAll = UnregisterAll
 	frame.UnregisterSingleEvent = UnregisterEvent
 	frame.SetRangeAlpha = SetRangeAlpha
-	frame.EnableRangeAlpha = EnableRangeAlpha
+	frame.DisableRangeAlpha = DisableRangeAlpha
 	frame.UnregisterUpdateFunc = UnregisterUpdateFunc
 	frame.FullUpdate = FullUpdate
 	frame.SetVisibility = SetVisibility

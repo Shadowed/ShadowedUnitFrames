@@ -8,7 +8,7 @@ local function faderUpdate(self, elapsed)
 		self:Hide()
 		
 		if( self.fadeType == "in" ) then
-			self.parent:EnableRangeAlpha(true)
+			self.parent:DisableRangeAlpha(false)
 		end
 		return
 	end
@@ -23,7 +23,7 @@ end
 local function startFading(self, type, alpha, speedyFade)
 	if( self.fader.fadeType == type ) then return end
 	if( type == "out" ) then
-		self:EnableRangeAlpha(false)
+		self:DisableRangeAlpha(true)
 	end
 	
 	self.fader.fadeTime = speedyFade and 0.15 or type == "in" and 0.25 or type == "out" and 0.75
@@ -60,6 +60,7 @@ end
 function Fader:OnLayoutApplied(frame)
 	if( frame.visibility.fader ) then
 		frame.fader.fadeType = nil
+		frame:DisableRangeAlpha(false)
 	end
 end
 
