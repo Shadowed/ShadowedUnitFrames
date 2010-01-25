@@ -669,7 +669,7 @@ function Units:SetHeaderAttributes(frame, type)
 			local childHeader = headerFrames["raid" .. id]
 			if( childHeader and childHeader:IsVisible() ) then
 				childHeader:SetAttribute("minWidth", config.width)
-				childHeader:SetAttribute("minHeight", config.height)
+				childHeader:SetAttribute("minHeight", config.height * 5)
 				childHeader:SetAttribute("showRaid", ShadowUF.db.profile.locked and true)
 				
 				if( childHeader ~= frame ) then
@@ -684,7 +684,19 @@ function Units:SetHeaderAttributes(frame, type)
 					
 					childHeader:ClearAllPoints()
 					if( id % config.groupsPerRow == 1 ) then
-						childHeader:SetPoint(config.attribPoint, headerFrames["raid" .. id - config.groupsPerRow], columnPoint, config.groupSpacing * xColMod, config.groupSpacing * yColMod)
+						local x = config.groupSpacing * xColMod
+						local y = config.groupSpacing * yColMod
+						
+						-- When we're anchoring a new column to the bottom of naother one, the height will mess it up
+						-- if what we anchored to isn't full, by anchoring it to the top instead will get a consistent result
+						local point = columnPoint
+						if( point == "BOTTOM" ) then
+							point = config.attribPoint
+							x = x + (config.height * 5) * xColMod
+							y = y + (config.height * 5) * yColMod
+						end
+						
+						childHeader:SetPoint(config.attribPoint, headerFrames["raid" .. id - config.groupsPerRow], point, x, y)
 					else
 						childHeader:SetPoint(anchorPoint, lastHeader, relativePoint, config.columnSpacing * xMod, config.columnSpacing * yMod)
 					end
