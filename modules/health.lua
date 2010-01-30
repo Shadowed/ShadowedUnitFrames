@@ -28,6 +28,7 @@ Health.getGradientColor = getGradientColor
 local function updateTimer(self)
 	local currentHealth = UnitHealth(self.parent.unit)
 	if( currentHealth == self.currentHealth ) then return end
+	self.currentHealth = currentHealth
 	self:SetValue(currentHealth)
 		
 	-- As much as I would rather not have to do this in an OnUpdate, I don't have much choice large health changes in a single update will make them very clearly be lagging behind
