@@ -40,18 +40,24 @@ local positionData = setmetatable({}, {
 		data.xMod = (columnGrowth == "RIGHT" or auraGrowth == "RIGHT") and 1 or -1
 		data.yMod = (columnGrowth ~= "TOP" and auraGrowth ~= "TOP") and -1 or 1
 		
-		local auraX, colX, auraY, colY, xOffset, yOffset = 0, 0, 0, 0, "", ""
+		local auraX, colX, auraY, colY, xOffset, yOffset, initialXOffset, initialYOffset = 0, 0, 0, 0, "", "", "", ""
 		if( columnGrowth == "LEFT" or columnGrowth == "RIGHT" ) then
 			colX = 1
 			xOffset = " + offset"
+			initialXOffset = string.format(" + (%d * offset)", data.xMod)
 			auraY = 3
 			data.isSideGrowth = true
 		elseif( columnGrowth == "TOP" or columnGrowth == "BOTTOM" ) then
 			colY = 2
 			yOffset = " + offset"
+			initialYOffset = string.format(" + (%d * offset)", data.yMod)
 			auraX = 2
 		end
-		
+				
+		data.initialAnchor = load(string.format([[return function(button, offset)
+			button:ClearAllPoints()
+			button:SetPoint(button.point, button.anchorTo, button.relativePoint, button.xOffset%s, button.yOffset%s)
+		end]], initialXOffset, initialYOffset))
 		data.column = load(string.format([[return function(button, positionTo, offset)
 			button:ClearAllPoints()
 			button:SetPoint("%s", positionTo, "%s", %d * (%d%s), %d * (%d%s)) end
@@ -90,7 +96,80 @@ local function positionButton(id,  group, config)
 		end
 	else
 		button.isAuraAnchor = true
-		button:SetPoint(ShadowUF.Layout:GetPoint(config.anchorPoint), group.anchorTo, ShadowUF.Layout:GetRelative(config.anchorPoint), config.x + (position.xMod * ShadowUF.db.profile.backdrop.inset), config.y + (position.yMod * ShadowUF.db.profile.backdrop.inset))
+		button.point = ShadowUF.Layout:GetPoint(config.anchorPoint)
+		button.relativePoint = ShadowUF.Layout:GetRelative(config.anchorPoint)
+		button.xOffset = config.x + (position.xMod * ShadowUF.db.profile.backdrop.inset)
+		button.yOffset = config.y + (position.yMod * ShadowUF.db.profile.backdrop.inset)
+		button.anchorTo = group.anchorTo
+		
+		position.initialAnchor(button, 0)
+	end
+end
+
+local columnsHaveScale = {}
+local function positionAllButtons(group, config)
+	local position = positionData[group.forcedAnchorPoint or config.anchorPoint] 
+		
+	-- Figure out which columns have scaling so we can work out positioning
+	local columnID = 0
+	for id, button in pairs(group.buttons) do
+		if( id % config.perRow == 1 or config.perRow == 1 ) then
+			columnID = columnID + 1
+			columnsHaveScale[columnID] = nil
+		end
+		
+		if( not columnsHaveScale[columnID] and button.isSelfScaled ) then
+			local size = math.ceil(button:GetSize() * button:GetScale())
+			columnsHaveScale[columnID] = columnsHaveScale[columnID] and math.max(size, columnsHaveScale[columnID]) or size
+		end
+	end
+
+	local columnID = 1
+	for id, button in pairs(group.buttons) do
+		if( id > 1 ) then
+			if( id % config.perRow == 1 or config.perRow == 1 ) then
+				columnID = columnID + 1
+				
+				local anchorButton = group.buttons[id - config.perRow]
+				local previousScale, currentScale = columnsHaveScale[columnID - 1], columnsHaveScale[columnID]
+				local offset = 0
+				-- Previous column has a scaled aura, and the button we are anchoring to is not scaled
+				if( previousScale and not anchorButton.isSelfScaled ) then
+					offset = (previousScale / 4)
+				end
+
+				-- Current column has a scaled aura, and the button isn't scaled
+				if( currentScale and not button.isSelfScaled ) then
+					offset = offset + (currentScale / 4)
+				end
+
+				-- Current anchor is scaled, previous is not
+				if( button.isSelfScaled and not anchorButton.isSelfScaled ) then
+					offset = offset - (currentScale / 6)
+				end
+
+				-- At least one of them is scaled
+				if( ( not button.isSelfScaled or not anchorButton.isSelfScaled ) and offset > 0 ) then
+					offset = offset + 1
+				end
+
+				--print(columnID, math.ceil(offset))
+				position.column(button, anchorButton, math.ceil(offset))
+			else
+				position.aura(button, group.buttons[id - 1])
+			end
+		-- If the initial column is self scaled, but the initial anchor isn't, will have to reposition it
+		elseif( columnsHaveScale[columnID] ) then
+			local offset = math.ceil(columnsHaveScale[columnID] / 8)
+			if( button.isSelfScaled ) then
+				offset = -(offset / 2)
+			else
+				offset = offset + 2
+			end
+			
+			--print(1, offset)
+			position.initialAnchor(button, offset)
+		end
 	end
 end
 
@@ -395,10 +474,9 @@ end
 
 -- Scan for auras
 local function scan(parent, frame, type, config, filter)
-	if( frame.totalAuras >= frame.maxAuras ) then return end
-	
+	if( frame.totalAuras >= frame.maxAuras or not config.enabled ) then return end
+
 	local isFriendly = UnitIsFriend(frame.parent.unit, "player")
-	
 	local index = 0
 	while( true ) do
 		index = index + 1
@@ -463,6 +541,11 @@ local function scan(parent, frame, type, config, filter)
 	end
 
 	for i=frame.totalAuras + 1, #(frame.buttons) do frame.buttons[i]:Hide() end
+
+	-- The default 1.30 scale doesn't need special handling, after that it does
+	if( config.enlargeSelf ) then
+		positionAllButtons(frame, config)
+	end
 end
 
 Auras.scan = scan

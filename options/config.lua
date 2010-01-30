@@ -1815,6 +1815,14 @@ local function loadUnitOptions()
 				name = "",
 				width = "full",
 			},
+			selfTimers = {
+				order = 9.5,
+				type = "toggle",
+				name = L["Timers for self auras only"],
+				desc = L["Hides the cooldown ring for any auras that you did not cast."],
+				hidden = hideAdvancedOption,
+				arg = "auras.$parent.selfTimers",
+			},
 			enlargeSelf = {
 				order = 10,
 				type = "toggle",
@@ -1822,15 +1830,6 @@ local function loadUnitOptions()
 				desc = L["If you casted the aura, then the buff icon will be increased in size to make it more visible."],
 				arg = "auras.$parent.enlargeSelf",
 			},
-			selfTimers = {
-				order = 11,
-				type = "toggle",
-				name = L["Timers for self auras only"],
-				desc = L["Hides the cooldown ring for any auras that you did not cast."],
-				arg = "auras.$parent.selfTimers",
-				width = "double",
-			},
-			--[[
 			selfScale = {
 				order = 11,
 				type = "range",
@@ -1839,9 +1838,18 @@ local function loadUnitOptions()
 				min = 1, max = 3, step = 0.10,
 				isPercent = true,
 				disabled = function(info) return not getVariable(info[2], "auras", info[#(info) - 1], "enlargeSelf") end,
+				hidden = hideAdvancedOption,
 				arg = "auras.$parent.selfScale",
 			},
-			]]
+			selfTimersDouble = {
+				order = 11,
+				type = "toggle",
+				name = L["Timers for self auras only"],
+				desc = L["Hides the cooldown ring for any auras that you did not cast."],
+				hidden = hideBasicOption,
+				arg = "auras.$parent.selfTimers",
+				width = "double",
+			},
 			sep4 = {
 				order = 12,
 				type = "description",
