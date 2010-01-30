@@ -147,7 +147,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		channel = {r = 0.25, g = 0.25, b = 1.0},
 		cast = {r = 1.0, g = 0.70, b = 0.30},
 		interrupted = {r = 1, g = 0, b = 0},
-		uninterruptible = {r = 0.98, g = 1, b = 0},
+		uninterruptible = {r = 0.71, g = 0, b = 1},
 		finished = {r = 0.10, g = 1.0, b = 0.10},
 	}
 	config.xpColors = {
