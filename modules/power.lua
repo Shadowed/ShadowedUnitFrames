@@ -3,7 +3,8 @@ ShadowUF:RegisterModule(Power, "powerBar", ShadowUF.L["Power bar"], true)
 
 local function updatePower(self, elapsed)
 	local currentPower = UnitPower(self.parent.unit)
-	if( self.currentPower == currentPower ) then return end
+	if( currentPower == self.currentPower ) then return end
+	self.currentPower = currentPower
 
 	self:SetValue(currentPower)
 	for _, fontString in pairs(self.parent.fontStrings) do
