@@ -653,7 +653,7 @@ Tags.defaultTags = {
 	end]],
 	["perpp"] = [[function(unit, unitOwner)
 		local maxPower = UnitPowerMax(unit)
-		if( maxPower <= 0 or not UnitIsPlayer(unit) ) then
+		if( maxPower <= 0 ) then
 			return nil
 		elseif( UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) ) then
 			return "0%"
