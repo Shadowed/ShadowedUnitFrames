@@ -292,6 +292,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			},
 		},
 		boss = {
+			enabled = true,
 			width = 160,
 			height = 40,
 			scale = 1.0,
