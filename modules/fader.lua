@@ -91,6 +91,7 @@ function Fader:CastStop(frame, event, unit, spellName, spellRank, id)
 	self:Update(frame)
 end
 
+
 function Fader:Update(frame, event)
 	-- In combat, fade back in
 	if( InCombatLockdown() or event == "PLAYER_REGEN_DISABLED" ) then

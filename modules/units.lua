@@ -281,6 +281,7 @@ function Units:CheckVehicleStatus(frame, event, unit)
 	end
 
 	-- Keep track of the actual players unit so we can quickly see what unit to scan
+	--[[
 	if( frame.unitOwner == "player" and ShadowUF.playerUnit ~= frame.unit ) then
 		ShadowUF.playerUnit = frame.unit
 		
@@ -289,6 +290,7 @@ function Units:CheckVehicleStatus(frame, event, unit)
 			BuffFrame_Update() 
 		end
 	end
+	]]
 end
 
 -- Handles checking for GUID changes for doing a full update, this fixes frames sometimes showing the wrong unit when they change
