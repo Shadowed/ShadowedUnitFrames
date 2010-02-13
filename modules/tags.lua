@@ -372,10 +372,10 @@ Tags.defaultTags = {
 		
 		return state and state >= 3 and ShadowUF:Hex(GetThreatStatusColor(state))
 	end]],
-	["unit:scaled:threat"] = [[function(unit, unitOwner)
-		local scaled = select(3, UnitDetailedThreatSituation(unit))
-		return scaled and string.format("%d%%", scaled)
-	end]],
+	--["unit:scaled:threat"] = [[function(unit, unitOwner, fontString)
+	--	local scaled = select(3, UnitDetailedThreatSituation(unit))
+	--	return scaled and string.format("%d%%", scaled)
+	--end]],
 	["scaled:threat"] = [[function(unit, unitOwner)
 		local scaled = select(3, UnitDetailedThreatSituation("player", "target"))
 		return scaled and string.format("%d%%", scaled)
