@@ -531,6 +531,10 @@ function ShadowUF:HideBlizzardFrames()
 	end
 end
 
+function ShadowUF:Print(msg)
+	DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99Shadow UF|r: " .. msg)
+end
+
 CONFIGMODE_CALLBACKS = CONFIGMODE_CALLBACKS or {}
 CONFIGMODE_CALLBACKS["Shadowed Unit Frames"] = function(mode)
 	if( mode == "ON" ) then
@@ -548,6 +552,22 @@ SLASH_SHADOWEDUF2 = "/shadowuf"
 SLASH_SHADOWEDUF3 = "/shadoweduf"
 SLASH_SHADOWEDUF4 = "/shadowedunitframes"
 SlashCmdList["SHADOWEDUF"] = function(msg)
+	msg = msg and string.lower(msg)
+	if( msg and string.match(msg, "^profile (.+)") ) then
+		profile = string.match(msg, "^profile (.+)")
+		
+		for id, name in pairs(ShadowUF.db:GetProfiles()) do
+			if( string.lower(name) == profile ) then
+				ShadowUF.db:SetProfile(name)
+				ShadowUF:Print(string.format(L["Changed profile to %s."], name))
+				return
+			end
+		end
+		
+		ShadowUF:Print(string.format(L["Cannot find any profiles named \"%s\"."], profile))
+		return
+	end
+	
 	local loaded, reason = LoadAddOn("ShadowedUF_Options")
 	if( not ShadowUF.Config ) then
 		DEFAULT_CHAT_FRAME:AddMessage(string.format(L["Failed to load ShadowedUF_Options, cannot open configuration. Error returned: %s"], reason and _G["ADDON_" .. reason] or ""))
