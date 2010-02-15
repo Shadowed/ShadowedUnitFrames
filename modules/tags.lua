@@ -1140,6 +1140,7 @@ Tags.unitRestrictions = {
 local function loadAPIEvents()
 	if( Tags.APIEvents ) then return end
 	Tags.APIEvents = {
+		["InCombatLockdown"]		= "PLAYER_REGEN_ENABLED PLAYER_REGEN_DISABLED",
 		["UnitLevel"]				= "UNIT_LEVEL",
 		["UnitName"]				= "UNIT_NAME_UPDATE",
 		["UnitClassification"]		= "UNIT_CLASSIFICATION_CHANGED",
