@@ -1105,7 +1105,8 @@ function Units:CheckPlayerZone(force)
 		return
 	end
 	
-	local instance = select(2, IsInInstance())
+	-- CanHearthAndResurrectFromArea() returns true for world pvp areas, according to BattlefieldFrame.lua
+	local instance = CanHearthAndResurrectFromArea() and "pvp" or select(2, IsInInstance())
 	if( instance == instanceType and not force ) then return end
 	instanceType = instance
 	

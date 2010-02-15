@@ -188,7 +188,9 @@ function ShadowUF:CheckUpgrade()
 end
 	
 function ShadowUF:LoadUnits()
-	local instanceType = select(2, IsInInstance())
+	-- CanHearthAndResurrectFromArea() returns true for world pvp areas, according to BattlefieldFrame.lua
+	local instanceType = CanHearthAndResurrectFromArea() and "pvp" or select(2, IsInInstance())
+	
 	for _, type in pairs(self.unitList) do
 		local enabled = self.db.profile.units[type].enabled
 		if( ShadowUF.Units.zoneUnits[type] and enabled ) then
