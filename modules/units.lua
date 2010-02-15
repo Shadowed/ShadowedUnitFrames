@@ -647,6 +647,21 @@ function Units:PositionHeaderChildren(frame)
 	end
 end
 
+function Units:CheckGroupVisibility()
+	if( not ShadowUF.db.profile.locked ) then return end
+	local raid = headerFrames.raid and not ShadowUF.db.profile.units.raid.frameSplit and headerFrames.raid or headerFrames.raidParent
+	local party = headerFrames.party
+	if( party ) then
+		party:SetAttribute("showParty", ( not ShadowUF.db.profile.units.raid.showParty or not ShadowUF.enabledUnits.raid ) and true or false)
+		party:SetAttribute("showPlayer", ShadowUF.db.profile.units.party.showPlayer)
+	end
+
+	if( raid and party ) then
+		raid:SetAttribute("showParty", not party:GetAttribute("showParty"))
+		raid:SetAttribute("showPlayer", party:GetAttribute("showPlayer"))
+	end
+end
+
 function Units:SetHeaderAttributes(frame, type)
 	local config = ShadowUF.db.profile.units[type]
 	local xMod = config.attribPoint == "LEFT" and 1 or config.attribPoint == "RIGHT" and -1 or 0
@@ -747,11 +762,6 @@ function Units:SetHeaderAttributes(frame, type)
 	
 	-- Update party frames to not show anyone if they should be in raids
 	elseif( type == "party" ) then
-		if( ShadowUF.db.profile.locked ) then
-			frame:SetAttribute("showParty", ( not ShadowUF.db.profile.units.raid.showParty or not ShadowUF.db.profile.units.raid.enabled ) and true or false)
-			frame:SetAttribute("showPlayer", config.showPlayer)
-		end
-		
 		frame:SetAttribute("maxColumns", math.ceil((config.showPlayer and 5 or 4) / config.unitsPerColumn))
 		frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
 		frame:SetAttribute("columnSpacing", config.columnSpacing)
@@ -760,11 +770,7 @@ function Units:SetHeaderAttributes(frame, type)
 	
 	-- Update the raid frames to if they should be showing raid or party
 	if( type == "party" or type == "raid" ) then
-		local raid = headerFrames.raid and not ShadowUF.db.profile.units.raid.frameSplit and headerFrames.raid or headerFrames.raidParent
-		if( raid and headerFrames.party and ShadowUF.db.profile.locked ) then
-			raid:SetAttribute("showParty", not headerFrames.party:GetAttribute("showParty"))
-			raid:SetAttribute("showPlayer", headerFrames.party:GetAttribute("showPlayer"))
-		end
+		self:CheckGroupVisibility()
 		
 		-- Need to update our flags on the state monitor so it knows what to do
 		stateMonitor:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.party.hideSemiRaid)
@@ -842,6 +848,10 @@ function Units:LoadGroupHeader(type)
 		
 		if( type == "party" ) then
 			stateMonitor:SetAttribute("partyDisabled", nil)
+		end
+		
+		if( type == "party" or type == "raid" ) then
+			self:CheckGroupVisibility()
 		end
 		return
 	end
@@ -1009,10 +1019,11 @@ function Units:UninitializeFrame(type)
 	-- Disables showing party in raid automatically if raid frames are disabled
 	if( type == "party" ) then
 		stateMonitor:SetAttribute("partyDisabled", true)
-	elseif( type == "raid" and headerFrames.party and ShadowUF.db.profile.locked ) then
-		headerFrames.party:SetAttribute("showParty", true)
 	end
-	
+	if( type == "party" or type == "raid" ) then
+		self:CheckGroupVisibility()
+	end
+
 	-- Disable the parent and the children will follow
 	if( ShadowUF.db.profile.units[type].frameSplit ) then
 		for _, headerFrame in pairs(headerFrames) do

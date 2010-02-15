@@ -5,6 +5,7 @@
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
 ShadowUF.playerUnit = "player"
+ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
 ShadowUF.moduleOrder = {}
 ShadowUF.unitList = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet"}
@@ -199,6 +200,8 @@ function ShadowUF:LoadUnits()
 				enabled = true
 			end
 		end
+		
+		self.enabledUnits[type] = enabled
 		
 		if( enabled ) then
 			self.Units:InitializeFrame(type)
