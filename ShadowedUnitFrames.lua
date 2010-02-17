@@ -8,9 +8,9 @@ ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
 ShadowUF.moduleOrder = {}
-ShadowUF.unitList = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet"}
+ShadowUF.unitList = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "raidpet", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet"}
 ShadowUF.fakeUnits = {["targettarget"] = true, ["targettargettarget"] = true, ["pettarget"] = true, ["arenatarget"] = true, ["boss"] = true, ["focustarget"] = true, ["focustargettarget"] = true, ["partytarget"] = true, ["raidtarget"] = true, ["bosstarget"] = true}
-L.units = {["PET"] = L["Pet"], ["VEHICLE"] = L["Vehicle"], ["arena"] = L["Arena"], ["arenapet"] = L["Arena Pet"], ["arenatarget"] = L["Arena Target"], ["boss"] = L["Boss"], ["bosstarget"] = L["Boss Target"], ["focus"] = L["Focus"], ["focustarget"] = L["Focus Target"], ["mainassist"] = L["Main Assist"], ["mainassisttarget"] = L["Main Assist Target"], ["maintank"] = L["Main Tank"], ["maintanktarget"] = L["Main Tank Target"], ["party"] = L["Party"], ["partypet"] = L["Party Pet"], ["partytarget"] = L["Party Target"], ["pet"] = L["Pet"], ["pettarget"] = L["Pet Target"], ["player"] = L["Player"],["raid"] = L["Raid"], ["target"] = L["Target"], ["targettarget"] = L["Target of Target"], ["targettargettarget"] = L["Target of Target of Target"]}
+L.units = {["raidpet"] = L["Raid pet"], ["PET"] = L["Pet"], ["VEHICLE"] = L["Vehicle"], ["arena"] = L["Arena"], ["arenapet"] = L["Arena Pet"], ["arenatarget"] = L["Arena Target"], ["boss"] = L["Boss"], ["bosstarget"] = L["Boss Target"], ["focus"] = L["Focus"], ["focustarget"] = L["Focus Target"], ["mainassist"] = L["Main Assist"], ["mainassisttarget"] = L["Main Assist Target"], ["maintank"] = L["Main Tank"], ["maintanktarget"] = L["Main Tank Target"], ["party"] = L["Party"], ["partypet"] = L["Party Pet"], ["partytarget"] = L["Party Target"], ["pet"] = L["Pet"], ["pettarget"] = L["Pet Target"], ["player"] = L["Player"],["raid"] = L["Raid"], ["target"] = L["Target"], ["targettarget"] = L["Target of Target"], ["targettargettarget"] = L["Target of Target of Target"]}
 
 -- Cache the units so we don't have to concat every time it updates
 ShadowUF.unitTarget = setmetatable({}, {__index = function(tbl, unit) rawset(tbl, unit, unit .. "target"); return unit .. "target" end})
@@ -79,112 +79,10 @@ function ShadowUF:OnInitialize()
 end
 
 function ShadowUF:CheckUpgrade()
-	-- December 1th, 2009
-	if( not self.db.profile.units.player.indicators.lfdRole.anchorPoint and not self.db.profile.units.party.indicators.lfdRole.anchorPoint ) then
-		self.db.profile.units.player.indicators.lfdRole = {enabled = true, size = 16, x = 6, y = 14, anchorPoint = "BR", anchorTo = "$parent"}
-		self.db.profile.units.party.indicators.lfdRole = {enabled = true, size = 16, x = 6, y = 14, anchorPoint = "BR", anchorTo = "$parent"}
+	-- February 16th
+	if( not self.db.profile.units.raidpet.enabled and self.db.profile.units.raidpet.height == 0 and self.db.profile.units.raidpet.width == 0 and self.db.profile.positions.raidpet.anchorPoint == "" and self.db.profile.positions.raidpet.point == "" ) then
+		ShadowUF:LoadDefaultLayout(true)
 	end
-	
-	if( not self.db.profile.units.target.indicators.lfdRole.anchorPoint and not self.db.profile.units.focus.indicators.lfdRole.anchorPoint ) then
-		self.db.profile.units.target.indicators.lfdRole = {enabled = false, anchorPoint = "BR", size = 16, x = 6, y = 14, anchorTo = "$parent"}
-		self.db.profile.units.focus.indicators.lfdRole = {enabled = false, anchorPoint = "BR", size = 16, x = 6, y = 14, anchorTo = "$parent"}
-	end
-	
-	-- Put the units into a state where the next loop will force them all to reset
-	if( self.db.profile.positions.arenatarget.anchorTo ~= "$parent" or self.db.profile.positions.arenapet.anchorTo ~= "$parent" ) then
-		for _, unit in pairs({"arena", "arenapet", "arenatarget"}) do
-			self.db.profile.units[unit].enabled = nil
-			self.db.profile.units[unit].width = 0
-			self.db.profile.units[unit].height = 0
-			self.db.profile.positions[unit].anchorPoint = ""
-			self.db.profile.positions[unit].relativePoint = ""
-			self.db.profile.positions[unit].point = ""
-			self.db.profile.positions[unit].x = 0
-			self.db.profile.positions[unit].y = 0
-		end
-	end
-
-	for _, unit in pairs(self.unitList) do
-		if( not self.db.profile.units[unit].enabled and self.db.profile.units[unit].height == 0 and self.db.profile.units[unit].width == 0 and self.db.profile.positions[unit].anchorPoint == "" and self.db.profile.positions[unit].point == "" ) then
-			ShadowUF:LoadDefaultLayout(true)
-			break
-		end
-	end
-		
-	if( not ShadowUF.Config and select(6, GetAddOnInfo("ShadowedUF_Options")) ) then
-		SlashCmdList["SUF"] = function()
-			DEFAULT_CHAT_FRAME:AddMessage(L["[WARNING!] Configuration in SUF has been split into a separate addon, you will need to restart your game before you can open the configuration."])
-		end
-	end
-	
-	if( not ShadowUF.db.profile.healthColors.offline ) then
-		ShadowUF.db.profile.healthColors.offline = {r = 0.50, g = 0.50, b = 0.50}
-	end
-	
-	-- December 21st
-	self.db.profile.units.party.sortMethod = self.db.profile.units.party.sortMethod or "INDEX"
-	self.db.profile.units.party.sortOrder = self.db.profile.units.party.sortOrder or "ASC"
-	self.db.profile.units.party.attribPoint = self.db.profile.units.party.attribPoint or "TOP"
-	self.db.profile.units.party.attribAnchorPoint = self.db.profile.units.party.attribAnchorPoint or "LEFT"
-	self.db.profile.units.party.offset = self.db.profile.units.party.offset or 0
-	self.db.profile.units.party.columnSpacing = self.db.profile.units.party.columnSpacing or 0
-	self.db.profile.units.party.unitsPerColumn = self.db.profile.units.party.unitsPerColumn or 5
-
-	local castName = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}
-	local castTime = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}
-	
-	for unit, config in pairs(self.db.profile.units) do
-		-- December 9th
-		if( not config.healthBar.colorType or config.healthBar.reaction ~= nil ) then
-			config.healthBar.colorType = config.healthBar.colorType or "percent"
-			if( config.healthBar.reaction ) then
-				config.healthBar.reactionType = unit == "pet" and "happiness" or "npc"
-			else
-				config.healthBar.reactionType = "none"
-			end
-			
-			config.healthBar.reaction = nil
-		end
-		
-		if( config.emptyBar.reaction ~= nil ) then
-			config.emptyBar.reactionType = config.emptyBar.reaction and "npc" or "none"
-			config.emptyBar.reaction = nil
-		end
-		
-		config.emptyBar.reactionType = config.emptyBar.reactionType or "none"
-		config.healthBar.reactionType = config.healthBar.reactionType or "none"
-		config.highlight.alpha = config.highlight.alpha or 1.0
-		config.highlight.size = config.highlight.size or 30
-		
-		-- December 21st
-		config.castBar = config.castBar or {}
-		config.castBar.icon = config.castBar.icon or "HIDE"
-		config.castBar.height = config.castBar.height or 0.60
-		config.castBar.order = config.castBar.order or 40
-	
-		config.castBar.name = config.castBar.name or {}
-		config.castBar.time = config.castBar.time or {}
-		
-		for key, value in pairs(castName) do
-			if( config.castBar.name[key] == nil ) then
-				config.castBar.name[key] = value
-			end
-		end
-		
-		for key, value in pairs(castTime) do
-			if( config.castBar.time[key] == nil ) then
-				config.castBar.time[key] = value
-			end
-		end
-	end
-	
-	-- December 15th
-	self.db.profile.units.boss.castBar = nil
-	self.db.profile.units.boss.combatText = nil
-	
-	-- January 10th
-	self.db.profile.units.raid.groupsPerRow = self.db.profile.units.raid.groupsPerRow or 8
-	self.db.profile.units.raid.groupSpacing = self.db.profile.units.raid.groupSpacing or 0
 end
 	
 function ShadowUF:LoadUnits()
@@ -328,6 +226,16 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.raid.filters = {[1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [8] = true}
 	self.defaults.profile.units.raid.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.raid.combatText.enabled = false
+	-- RAID PET
+	self.defaults.profile.units.raidpet.groupBy = "GROUP"
+	self.defaults.profile.units.raidpet.sortOrder = "ASC"
+	self.defaults.profile.units.raidpet.sortMethod = "INDEX"
+	self.defaults.profile.units.raidpet.attribPoint = "TOP"
+	self.defaults.profile.units.raidpet.attribAnchorPoint = "RIGHT"
+	self.defaults.profile.units.raidpet.offset = 0
+	self.defaults.profile.units.raidpet.filters = {[1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [8] = true}
+	self.defaults.profile.units.raidpet.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
+	self.defaults.profile.units.raidpet.combatText.enabled = false
 	-- MAINTANK
 	self.defaults.profile.units.maintank.groupFilter = "MAINTANK"
 	self.defaults.profile.units.maintank.groupBy = "GROUP"
@@ -559,7 +467,7 @@ SLASH_SHADOWEDUF4 = "/shadowedunitframes"
 SlashCmdList["SHADOWEDUF"] = function(msg)
 	msg = msg and string.lower(msg)
 	if( msg and string.match(msg, "^profile (.+)") ) then
-		profile = string.match(msg, "^profile (.+)")
+		local profile = string.match(msg, "^profile (.+)")
 		
 		for id, name in pairs(ShadowUF.db:GetProfiles()) do
 			if( string.lower(name) == profile ) then
