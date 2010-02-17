@@ -18,7 +18,7 @@ local unitCategories = {
 	player = {"player", "pet"},
 	general = {"target", "targettarget", "targettargettarget", "focus", "focustarget", "pettarget"},
 	party = {"party", "partypet", "partytarget"},
-	raid = {"raid", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget"},
+	raid = {"raid", "raidpet", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget"},
 	arena = {"arena", "arenapet", "arenatarget"}}
 
 local UNIT_DESC = {
@@ -59,7 +59,7 @@ local function getPageDescription(info)
 end
 
 local function getFrameName(unit)
-	if( unit == "raid" or unit == "party" or unit == "maintank" or unit == "mainassist" or unit == "boss" or unit == "arena" ) then
+	if( unit == "raidpet" or unit == "raid" or unit == "party" or unit == "maintank" or unit == "mainassist" or unit == "boss" or unit == "arena" ) then
 		return string.format("#SUFHeader%s", unit)
 	end
 	
@@ -1335,11 +1335,11 @@ local function loadUnitOptions()
 	local function hideRaidOrAdvancedOption(info)
 		if( info[2] == "party" and ShadowUF.db.profile.advanced ) then return false end
 		
-		return info[2] ~= "raid" and info[2] ~= "maintank" and info[2] ~= "mainassist"
+		return info[2] ~= "raid" and info[2] ~= "raidpet" and info[2] ~= "maintank" and info[2] ~= "mainassist"
 	end
 	
 	local function hideRaidOption(info)
-		return info[2] ~= "raid" and info[2] ~= "maintank" and info[2] ~= "mainassist"
+		return info[2] ~= "raid" and info[2] ~= "raidpet" and info[2] ~= "maintank" and info[2] ~= "mainassist"
 	end
 	
 	local function hideSplitOrRaidOption(info)
@@ -1368,7 +1368,7 @@ local function loadUnitOptions()
 		ShadowUF.db.profile.positions[info[2]][info[#(info)]] = value
 		fixPositions(info)
 		
-		if( info[2] == "raid" or info[2] == "maintank" or info[2] == "mainassist" or info[2] == "party" or info[2] == "boss" or info[2] == "arena" ) then
+		if( info[2] == "raid" or info[2] == "raidpet" or info[2] == "maintank" or info[2] == "mainassist" or info[2] == "party" or info[2] == "boss" or info[2] == "arena" ) then
 			ShadowUF.Units:ReloadHeader(info[2])
 		else
 			ShadowUF.Layout:Reload(info[2])
@@ -2440,7 +2440,7 @@ local function loadUnitOptions()
 				name = function(info) return L.units[info[#(info) - 1]] end,
 				hidden = function(info)
 					local unit = info[#(info) - 1]
-					return unit ~= "raid" and unit ~= "party" and unit ~= "mainassist" and unit ~= "maintank" and unit ~= "boss" and unit ~= "arena"
+					return unit ~= "raid" and unit ~= "raidpet" and unit ~= "party" and unit ~= "mainassist" and unit ~= "maintank" and unit ~= "boss" and unit ~= "arena"
 				end,
 				set = function(info, value)
 					setUnit(info, value)
@@ -2725,13 +2725,13 @@ local function loadUnitOptions()
 									tbl[key] = value
 									
 									setVariable(info[2], "filters", nil, tbl)
-									ShadowUF.Units:ReloadHeader("raid")
+									ShadowUF.Units:ReloadHeader(info[2])
 									ShadowUF.modules.movers:Update()
 								end,
 								get = function(info, key)
 									return getVariable(info[2], nil, nil, "filters")[key]
 								end,
-								hidden = function(info) return info[2] ~= "raid" end,
+								hidden = function(info) return info[2] ~= "raid" and info[2] ~= "raidpet" end,
 							},
 						},
 					},

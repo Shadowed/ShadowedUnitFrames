@@ -724,7 +724,7 @@ function Units:SetHeaderAttributes(frame, type)
 		end
 		
 	-- Normal raid, ma or mt
-	elseif( type == "raid" or type == "mainassist" or type == "maintank" ) then
+	elseif( type == "raidpet" or type == "raid" or type == "mainassist" or type == "maintank" ) then
 		local filter
 		if( config.filters ) then
 			for id, enabled in pairs(config.filters) do
@@ -856,7 +856,7 @@ function Units:LoadGroupHeader(type)
 		return
 	end
 	
-	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent, "SecureGroupHeaderTemplate")
+	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent, type == "raidpet" and "SecureGroupPetHeaderTemplate" or "SecureGroupHeaderTemplate")
 	headerFrames[type] = headerFrame
 
 	self:SetHeaderAttributes(headerFrame, type)
@@ -999,7 +999,7 @@ end
 function Units:InitializeFrame(type)
 	if( type == "raid" and ShadowUF.db.profile.units[type].frameSplit ) then
 		self:LoadSplitGroupHeader(type)
-	elseif( type == "party" or type == "raid" or type == "maintank" or type == "mainassist" ) then
+	elseif( type == "party" or type == "raid" or type == "maintank" or type == "mainassist" or type == "raidpet" ) then
 		self:LoadGroupHeader(type)
 	elseif( self.zoneUnits[type] ) then
 		self:LoadZoneHeader(type)
