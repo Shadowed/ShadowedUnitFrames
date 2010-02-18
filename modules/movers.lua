@@ -393,7 +393,10 @@ OnDragStop = function(self)
 	end
 	
 	-- Notify the configuration it can update itself now
-	LibStub("AceConfigRegistry-3.0"):NotifyChange("ShadowedUF")
+	local ACR = LibStub("AceConfigRegistry-3.0", true)
+	if( ACR ) then
+		ACR:NotifyChange("ShadowedUF")
+	end
 end
 
 function Movers:Update()
