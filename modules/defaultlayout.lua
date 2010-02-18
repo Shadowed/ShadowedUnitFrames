@@ -182,7 +182,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 	
 	-- Parent unit options that all the children will inherit unless they override it
 	config.parentUnit = {
-		portrait = {enabled = false, alignment = "LEFT", width = 0.22, order = 15},
+		portrait = {enabled = false, type = "3D", alignment = "LEFT", width = 0.22, height = 0.50, order = 15, fullBefore = 0, fullAfter = 100},
 		auras = {
 			buffs = {enabled = false, anchorPoint = "BL", size = 16, perRow = 10, x = 0, y = 0},
 			debuffs = {enabled = false, anchorPoint = "BL", size = 16, perRow = 10, x = 0, y = 0},

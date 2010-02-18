@@ -83,6 +83,38 @@ function ShadowUF:CheckUpgrade()
 	if( not self.db.profile.units.raidpet.enabled and self.db.profile.units.raidpet.height == 0 and self.db.profile.units.raidpet.width == 0 and self.db.profile.positions.raidpet.anchorPoint == "" and self.db.profile.positions.raidpet.point == "" ) then
 		ShadowUF:LoadDefaultLayout(true)
 	end
+	
+	local castName = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}
+	local castTime = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}
+	
+	for unit, config in pairs(self.db.profile.units) do
+		config.portrait = config.portrait or {}
+		config.portrait.type = config.portrait.type or "3D"
+		config.portrait.fullBefore = config.portrait.fullBefore or 0
+		config.portrait.fullAfter = config.portrait.fullAfter or 0
+		config.portrait.order = config.portrait.order or 40
+		config.portrait.height = config.portrait.height or 0.50
+
+		config.castBar = config.castBar or {}
+		config.castBar.icon = config.castBar.icon or "HIDE"
+		config.castBar.height = config.castBar.height or 0.60
+		config.castBar.order = config.castBar.order or 40
+	
+		config.castBar.name = config.castBar.name or {}
+		config.castBar.time = config.castBar.time or {}
+		
+		for key, value in pairs(castName) do
+			if( config.castBar.name[key] == nil ) then
+				config.castBar.name[key] = value
+			end
+		end
+		
+		for key, value in pairs(castTime) do
+			if( config.castBar.time[key] == nil ) then
+				config.castBar.time[key] = value
+			end
+		end
+	end
 end
 	
 function ShadowUF:LoadUnits()
@@ -122,8 +154,8 @@ function ShadowUF:LoadUnitDefaults()
 			healthBar = {enabled = true},
 			powerBar = {enabled = true},
 			emptyBar = {enabled = false},
-			portrait = {enabled = false, type = "3D", fullBefore = 0, fullAfter = 100, order = 40, height = 0.50},
-			castBar = {enabled = false},
+			portrait = {enabled = false},
+			castBar = {enabled = false, name = {}, time = {}},
 			text = {
 				{enabled = true, name = L["Left text"], text = "[name]", anchorPoint = "C", anchorTo = "$healthBar", size = 0},
 				{enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorPoint = "C", anchorTo = "$healthBar", size = 0},
