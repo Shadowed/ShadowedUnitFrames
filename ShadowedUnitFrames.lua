@@ -123,7 +123,7 @@ function ShadowUF:LoadUnitDefaults()
 			powerBar = {enabled = true},
 			emptyBar = {enabled = false},
 			portrait = {enabled = false, type = "3D", fullBefore = 0, fullAfter = 100, order = 40, height = 0.50},
-			castbar = {enabled = false},
+			castBar = {enabled = false},
 			text = {
 				{enabled = true, name = L["Left text"], text = "[name]", anchorPoint = "C", anchorTo = "$healthBar", size = 0},
 				{enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorPoint = "C", anchorTo = "$healthBar", size = 0},
