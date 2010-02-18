@@ -91,7 +91,7 @@ function ShadowUF:CheckUpgrade()
 		config.portrait = config.portrait or {}
 		config.portrait.type = config.portrait.type or "3D"
 		config.portrait.fullBefore = config.portrait.fullBefore or 0
-		config.portrait.fullAfter = config.portrait.fullAfter or 0
+		config.portrait.fullAfter = config.portrait.fullAfter or 100
 		config.portrait.order = config.portrait.order or 40
 		config.portrait.height = config.portrait.height or 0.50
 
