@@ -85,6 +85,7 @@ function ShadowUF:CheckUpgrade()
 	end
 	
 	self.db.profile.units.party.unitsPerColumn = self.db.profile.units.party.unitsPerColumn or 5
+	self.db.profile.units.raid.groupsPerRow = self.db.profile.units.raid.groupsPerRow or 8
 	
 	local castName = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}
 	local castTime = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}
