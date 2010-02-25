@@ -206,6 +206,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			status = {anchorTo = "$parent", anchorPoint = "LB", size = 16, x = 12, y = -2},
 			lfdRole = {enabled = true, anchorPoint = "BR", size = 14, x = 3, y = 14, anchorTo = "$parent"}
 		},
+		highlight = {size = 10},
 		combatText = {anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0},
 		emptyBar = {background = true, height = 1, reactionType = "none", order = 0},
 		healthBar = {background = true, colorType = "class", reactionType = "npc", height = 1.20, order = 10},
@@ -233,7 +234,6 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			healthBar = {reactionType = "none"},
 			powerBar = {height = 0.30},
 			incHeal = {cap = 1},
-			highlight = {size = 10},
 			indicators = {
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
 				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -2, y = -10},
@@ -262,7 +262,6 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			healthBar = {reactionType = "none"},
 			powerBar = {height = 0.30},
 			incHeal = {cap = 1},
-			highlight = {size = 10},
 			indicators = {
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
 				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -2, y = -10},

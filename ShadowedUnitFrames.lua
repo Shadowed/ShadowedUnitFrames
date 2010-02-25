@@ -97,6 +97,8 @@ function ShadowUF:CheckUpgrade()
 		config.portrait.order = config.portrait.order or 40
 		config.portrait.height = config.portrait.height or 0.50
 
+		config.highlight.size = config.highlight.size or 10
+		
 		config.castBar = config.castBar or {}
 		config.castBar.icon = config.castBar.icon or "HIDE"
 		config.castBar.height = config.castBar.height or 0.60

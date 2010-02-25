@@ -483,7 +483,7 @@ function Movers:CreateInfoFrame()
 	frame.unlink.tooltipText = L["WARNING: This will unlink all frames from each other so you can move them without another frame moving with it."]
 	frame.unlink:SetScript("OnClick", function()
 		for frame in pairs(ShadowUF.Units.frameList) do
-			if( not ShadowUF.Units.childUnits[frame.unitType] ) then
+			if( not ShadowUF.Units.childUnits[frame.unitType] and frame:GetScript("OnDragStart") and frame:GetScript("OnDragStop") ) then
 				frame:GetScript("OnDragStart")(frame)
 				frame:GetScript("OnDragStop")(frame)
 			end
