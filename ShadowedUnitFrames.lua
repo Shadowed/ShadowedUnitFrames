@@ -84,7 +84,7 @@ function ShadowUF:CheckUpgrade()
 		self:LoadDefaultLayout(true)
 	end
 	
-	self.db.profile.units.party.unitsPerColumn = self.db.profile.unis.party.unitsPerColumn or 5
+	self.db.profile.units.party.unitsPerColumn = self.db.profile.units.party.unitsPerColumn or 5
 	
 	local castName = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}
 	local castTime = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}
