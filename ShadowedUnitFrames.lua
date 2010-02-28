@@ -81,8 +81,11 @@ end
 function ShadowUF:CheckUpgrade()
 	-- February 16th
 	if( not self.db.profile.units.raidpet.enabled and self.db.profile.units.raidpet.height == 0 and self.db.profile.units.raidpet.width == 0 and self.db.profile.positions.raidpet.anchorPoint == "" and self.db.profile.positions.raidpet.point == "" ) then
-		ShadowUF:LoadDefaultLayout(true)
+		self:LoadDefaultLayout(true)
 	end
+	
+	self.db.profile.units.party.unitsPerColumn = self.db.profile.units.party.unitsPerColumn or 5
+	self.db.profile.units.raid.groupsPerRow = self.db.profile.units.raid.groupsPerRow or 8
 	
 	local castName = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}
 	local castTime = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}

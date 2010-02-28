@@ -45,16 +45,13 @@ function Fader:OnEnable(frame)
 		
 	frame:RegisterNormalEvent("PLAYER_REGEN_ENABLED", self, "Update")
 	frame:RegisterNormalEvent("PLAYER_REGEN_DISABLED", self, "Update")
-	frame:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "Update")
-	frame:RegisterNormalEvent("UNIT_SPELLCAST_CHANNEL_START", self, "CastStart")
-	frame:RegisterNormalEvent("UNIT_SPELLCAST_CHANNEL_STOP", self, "CastStop")
-	frame:RegisterNormalEvent("UNIT_SPELLCAST_START", self, "CastStart")
-	frame:RegisterNormalEvent("UNIT_SPELLCAST_STOP", self, "CastStop")
-	frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MANA", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MAXMANA", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
+	
+	if( InCombatLockdown() ) then
+		Fader:PLAYER_REGEN_DISABLED(frame, "PLAYER_REGEN_DISABLED")
+	else
+		Fader:PLAYER_REGEN_ENABLED(frame, "PLAYER_REGEN_ENABLED")
+	end
 end
 
 function Fader:OnLayoutApplied(frame)
@@ -73,6 +70,34 @@ function Fader:OnDisable(frame)
 		frame.fader:Hide()
 	end
 end
+
+-- While we're in combat, we don't care about the other events so we might as well unregister them
+function Fader:PLAYER_REGEN_ENABLED(frame, event)
+	self:Update(frame, event)
+	frame:RegisterNormalEvent("PLAYER_TARGET_CHANGED", self, "Update")
+	frame:RegisterNormalEvent("UNIT_SPELLCAST_CHANNEL_START", self, "CastStart")
+	frame:RegisterNormalEvent("UNIT_SPELLCAST_CHANNEL_STOP", self, "CastStop")
+	frame:RegisterNormalEvent("UNIT_SPELLCAST_START", self, "CastStart")
+	frame:RegisterNormalEvent("UNIT_SPELLCAST_STOP", self, "CastStop")
+	frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
+	frame:RegisterUnitEvent("UNIT_MANA", self, "Update")
+	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
+	frame:RegisterUnitEvent("UNIT_MAXMANA", self, "Update")	
+end
+
+function Fader:PLAYER_REGEN_DISABLED(frame, event)
+	self:Update(frame, event)
+	frame:UnregisterNormalEvent("PLAYER_TARGET_CHANGED", self, "Update")
+	frame:UnregisterNormalEvent("UNIT_SPELLCAST_CHANNEL_START", self, "CastStart")
+	frame:UnregisterNormalEvent("UNIT_SPELLCAST_CHANNEL_STOP", self, "CastStop")
+	frame:UnregisterNormalEvent("UNIT_SPELLCAST_START", self, "CastStart")
+	frame:UnregisterNormalEvent("UNIT_SPELLCAST_STOP", self, "CastStop")
+	frame:UnregisterUnitEvent("UNIT_HEALTH", self, "Update")
+	frame:UnregisterUnitEvent("UNIT_MANA", self, "Update")
+	frame:UnregisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
+	frame:UnregisterUnitEvent("UNIT_MAXMANA", self, "Update")
+end
+
 
 local activeCastID
 function Fader:CastStart(frame, event, unit, spellName, spellRank, id)

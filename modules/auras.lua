@@ -322,7 +322,7 @@ function Auras:OnLayoutApplied(frame, config)
 			for _, button in pairs(frame.auras.buffs.buttons) do
 				button:Hide() 
 			end 
-			end
+		end
 		if( frame.auras.debuffs ) then
 			for _, button in pairs(frame.auras.debuffs.buttons) do
 				button:Hide()
@@ -354,7 +354,7 @@ function Auras:OnLayoutApplied(frame, config)
 		
 	-- Check if either auras are anchored to each other
 	if( config.auras.buffs.anchorPoint == config.auras.debuffs.anchorPoint and config.auras.buffs.enabled and config.auras.debuffs.enabled and not config.auras.buffs.anchorOn and not config.auras.debuffs.anchorOn ) then
-		frame.auras.anchor = frame.auras[config.auras.buffs.enabled and "buffs" or "debuffs"]
+		frame.auras.anchor = frame.auras[config.auras.buffs.prioritize and "buffs" or "debuffs"]
 		frame.auras.primary = config.auras.buffs.prioritize and "buffs" or "debuffs"
 		frame.auras.secondary = frame.auras.primary == "buffs" and "debuffs" or "buffs"
 	else
