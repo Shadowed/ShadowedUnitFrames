@@ -455,7 +455,7 @@ function Movers:CreateInfoFrame()
 	frame.title:SetText("Shadowed Unit Frames")
 
 	frame.text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-	frame.text:SetText(L["The unit frames you see are examples, they are not perfect and do not show all the data they normally would.\n\nYou can hide them by locking them through /shadowuf or clicking the button below."])
+	frame.text:SetText(L["The unit frames you see are examples, they are not perfect and do not show all the data they normally would.|n|nYou can hide them by locking them through /shadowuf or clicking the button below."])
 	frame.text:SetPoint("TOPLEFT", 12, -22)
 	frame.text:SetWidth(frame:GetWidth() - 20)
 	frame.text:SetJustifyH("LEFT")

@@ -500,7 +500,7 @@ local function loadGeneralOptions()
 										return L["Your active layout is the profile used for import backup, this cannot be overwritten by an import. Change your profiles to something else and try again."]
 									end
 								
-									return layoutData.error or L["You can import another Shadowed Unit Frame users configuration by entering the export code they gave you below. This will backup your old layout to \"Import Backup\".\n\nIt will take 30-60 seconds for it to load your layout when you paste it in, please by patient."]
+									return layoutData.error or L["You can import another Shadowed Unit Frame users configuration by entering the export code they gave you below. This will backup your old layout to \"Import Backup\".|n|nIt will take 30-60 seconds for it to load your layout when you paste it in, please by patient."]
 								end
 							},
 						},
@@ -541,7 +541,7 @@ local function loadGeneralOptions()
 						set = function(info, import)
 							local layout, err = loadstring("return " .. import)
 							if( err ) then
-								layoutData.error = string.format(L["Failed to import layout, error:\n\n%s"], err)
+								layoutData.error = string.format(L["Failed to import layout, error:|n|n%s"], err)
 								return
 							end
 							
@@ -899,7 +899,7 @@ local function loadGeneralOptions()
 								order = 0,
 								type = "input",
 								name = L["Friendly spell"],
-								desc = L["Name of a friendly spell to check range on friendlies.\n\nThis is automatically set for your current class only."],
+								desc = L["Name of a friendly spell to check range on friendlies.|n|nThis is automatically set for your current class only."],
 								validate = validateSpell,
 								set = setRange,
 								get = getRange,
@@ -908,7 +908,7 @@ local function loadGeneralOptions()
 								order = 1,
 								type = "input",
 								name = L["Hostile spell"],
-								desc = L["Name of a hostile spell to check range on enemies.\n\nThis is automatically set for your current class only."],
+								desc = L["Name of a hostile spell to check range on enemies.|n|nThis is automatically set for your current class only."],
 								validate = validateSpell,
 								set = setRange,
 								get = getRange,
@@ -1149,7 +1149,7 @@ local function loadGeneralOptions()
 							help = {
 								order = 0,
 								type = "description",
-								name = L["You can add additional text with tags enabled using this configuration, note that any additional text added (or removed) effects all units, removing text will reset their settings as well.\n\nKeep in mind, you cannot delete the default text included with the units."],
+								name = L["You can add additional text with tags enabled using this configuration, note that any additional text added (or removed) effects all units, removing text will reset their settings as well.|n|nKeep in mind, you cannot delete the default text included with the units."],
 							},
 						},
 					},
@@ -1278,7 +1278,7 @@ local function loadHideOptions()
 				args = {
 					description = {
 						type = "description",
-						name = L["You will need to do a /console reloadui before a hidden frame becomes visible again.\nPlayer and other unit frames are automatically hidden depending on if you enable the unit in Shadowed Unit Frames."],
+						name = L["You will need to do a /console reloadui before a hidden frame becomes visible again.|nPlayer and other unit frames are automatically hidden depending on if you enable the unit in Shadowed Unit Frames."],
 						width = "full",
 					},
 				},
@@ -1765,7 +1765,7 @@ local function loadUnitOptions()
 				order = 2,
 				type = "toggle",
 				name = function(info) return info[#(info) - 1] == "buffs" and L["Anchor to debuffs"] or L["Anchor to buffs"] end,
-				desc = L["Allows you to anchor the aura group to another, you can then choose where it will be anchored using the position.\n\nUse this if you want to duplicate the default ui style where buffs and debuffs are separate groups."],
+				desc = L["Allows you to anchor the aura group to another, you can then choose where it will be anchored using the position.|n|nUse this if you want to duplicate the default ui style where buffs and debuffs are separate groups."],
 				set = function(info, value)
 					setVariable(info[2], "auras", info[#(info) - 1] == "buffs" and "debuffs" or "buffs", "anchorOn", false)
 					setUnit(info, value)
@@ -2501,7 +2501,7 @@ local function loadUnitOptions()
 								order = 3,
 								type = "toggle",
 								name = L["Separate raid frames"],
-								desc = L["Splits raid frames into individual frames for each raid group instead of one single frame.\nNOTE! You cannot drag each group frame individualy, but how they grow is set through the column and row growth options."],
+								desc = L["Splits raid frames into individual frames for each raid group instead of one single frame.|nNOTE! You cannot drag each group frame individualy, but how they grow is set through the column and row growth options."],
 								hidden = function(info) return info[2] ~= "raid" end,	
 								arg = "frameSplit",
 							},
@@ -3293,7 +3293,7 @@ local function loadUnitOptions()
 							help = {
 								order = 0,
 								type = "description",
-								name = L["Bars with an order higher or lower than the full size options will use the entire unit frame width.\n\nBar orders between those two numbers are shown next to the portrait."],
+								name = L["Bars with an order higher or lower than the full size options will use the entire unit frame width.|n|nBar orders between those two numbers are shown next to the portrait."],
 							},
 						},
 					},
@@ -3463,7 +3463,7 @@ local function loadUnitOptions()
 					help = {
 						order = 0,
 						type = "description",
-						name = L["Wondering what all of the tabs for the unit configuration mean? Here's some information:\n\n|cfffed000General:|r Portrait, range checker, combat fader, border highlighting\n|cfffed000Frame:|r Unit positioning and frame anchoring\n|cfffed000Bars:|r Health, power, empty and cast bar, and combo point configuration\n|cfffed000Widget size:|r All bar and portrait sizing and ordering options\n|cfffed000Auras:|r All aura configuration for enabling/disabling/enlarging self/etc\n|cfffed000Indicators:|r All indicator configuration\n|cfffed000Text/Tags:|r Tag management as well as text positioning and width settings.\n\n\n*** Frequently looked for options ***\n\n|cfffed000Raid frames by group|r - Unit configuration -> Raid -> Raid -> Separate raid frames\n|cfffed000Class coloring:|r Bars -> Color health by\n|cfffed000Timers on auras:|r You need OmniCC for that\n|cfffed000Showing/Hiding default buff frames:|r Hide Blizzard -> Hide buff frames\n|cfffed000Percentage HP/MP text:|r Tags/Text tab, use the [percenthp] or [percentpp] tags\n|cfffed000Hiding party based on raid|r - Unit configuration -> Party -> Party -> Hide in 6-man raid/Hide in any raid"],
+						name = L["Wondering what all of the tabs for the unit configuration mean? Here's some information:|n|n|cfffed000General:|r Portrait, range checker, combat fader, border highlighting|n|cfffed000Frame:|r Unit positioning and frame anchoring|n|cfffed000Bars:|r Health, power, empty and cast bar, and combo point configuration|n|cfffed000Widget size:|r All bar and portrait sizing and ordering options|n|cfffed000Auras:|r All aura configuration for enabling/disabling/enlarging self/etc|n|cfffed000Indicators:|r All indicator configuration|n|cfffed000Text/Tags:|r Tag management as well as text positioning and width settings.|n|n|n*** Frequently looked for options ***|n|n|cfffed000Raid frames by group|r - Unit configuration -> Raid -> Raid -> Separate raid frames|n|cfffed000Class coloring:|r Bars -> Color health by|n|cfffed000Timers on auras:|r You need OmniCC for that|n|cfffed000Showing/Hiding default buff frames:|r Hide Blizzard -> Hide buff frames|n|cfffed000Percentage HP/MP text:|r Tags/Text tab, use the [percenthp] or [percentpp] tags|n|cfffed000Hiding party based on raid|r - Unit configuration -> Party -> Party -> Hide in 6-man raid/Hide in any raid"],
 						fontSize = "medium",
 					},
 				},
@@ -3518,7 +3518,7 @@ local function loadUnitOptions()
 									help = {
 										order = 0,
 										type = "description",
-										name = L["Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.\n\nShift click a unit to select all/unselect all."],
+										name = L["Select the units that you want to modify, any settings changed will change every unit you selected. If you want to anchor or change raid/party unit specific settings you will need to do that through their options.|n|nShift click a unit to select all/unselect all."],
 									},
 								},
 							},
@@ -4103,7 +4103,7 @@ local function loadFilterOptions()
 								args = {
 									help = {
 										type = "description",
-										name = L["Whitelists will hide any aura not in the filter group.\nBlacklists will hide auras that are in the filter group."],
+										name = L["Whitelists will hide any aura not in the filter group.|nBlacklists will hide auras that are in the filter group."],
 										width = "full",
 									}
 								},
@@ -4439,7 +4439,7 @@ local function loadTagOptions()
 							help = {
 								order = 0,
 								type = "description",
-								name = L["You can find more information on creating your own custom tags in the \"Help\" tab above.\nSUF will attempt to automatically detect what events your tag will need, so you do not generally need to fill out the events field."],
+								name = L["You can find more information on creating your own custom tags in the \"Help\" tab above.|nSUF will attempt to automatically detect what events your tag will need, so you do not generally need to fill out the events field."],
 							},
 						},
 					},
@@ -4486,7 +4486,7 @@ local function loadTagOptions()
 								order = 1.20,
 								type = "input",
 								name = L["Update interval"],
-								desc = L["How many seconds between updates.\n[WARNING] By setting the frequency to 0 it will update every single frame redraw, if you want to disable frequent updating uncheck it don't set this to 0."],
+								desc = L["How many seconds between updates.|n[WARNING] By setting the frequency to 0 it will update every single frame redraw, if you want to disable frequent updating uncheck it don't set this to 0."],
 								disabled = function(info) return get(info) == "" end,
 								validate = function(info, value)
 									value = tonumber(value)
@@ -4572,7 +4572,7 @@ local function loadTagOptions()
 								type = "input",
 								multiline = true,
 								name = L["Code"],
-								desc = L["Your code must be wrapped in a function, for example, if you were to make a tag to return the units name you would do:\n\nfunction(unit, unitOwner)\nreturn UnitName(unitOwner)\nend"],
+								desc = L["Your code must be wrapped in a function, for example, if you were to make a tag to return the units name you would do:|n|nfunction(unit, unitOwner)|nreturn UnitName(unitOwner)|nend"],
 								width = "full",
 								validate = function(info, text)
 									if( ShadowUF.Tags.defaultTags[tagData.name] ) then
@@ -4584,7 +4584,7 @@ local function loadTagOptions()
 										tagData.error = L["You must wrap your code in a function."]
 										tagData.funcError = text
 									elseif( not funct and msg ) then
-										tagData.error = string.format(L["Failed to save tag, error:\n %s"], msg)
+										tagData.error = string.format(L["Failed to save tag, error:|n %s"], msg)
 										tagData.funcError = text
 									else
 										tagData.error = nil
