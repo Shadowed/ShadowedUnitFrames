@@ -87,15 +87,15 @@ end
 
 function Fader:PLAYER_REGEN_DISABLED(frame, event)
 	self:Update(frame, event)
-	frame:UnregisterNormalEvent("PLAYER_TARGET_CHANGED", self, "Update")
-	frame:UnregisterNormalEvent("UNIT_SPELLCAST_CHANNEL_START", self, "CastStart")
-	frame:UnregisterNormalEvent("UNIT_SPELLCAST_CHANNEL_STOP", self, "CastStop")
-	frame:UnregisterNormalEvent("UNIT_SPELLCAST_START", self, "CastStart")
-	frame:UnregisterNormalEvent("UNIT_SPELLCAST_STOP", self, "CastStop")
-	frame:UnregisterUnitEvent("UNIT_HEALTH", self, "Update")
-	frame:UnregisterUnitEvent("UNIT_MANA", self, "Update")
-	frame:UnregisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
-	frame:UnregisterUnitEvent("UNIT_MAXMANA", self, "Update")
+	frame:UnregisterEvent("PLAYER_TARGET_CHANGED")
+	frame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START")
+	frame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
+	frame:UnregisterEvent("UNIT_SPELLCAST_START")
+	frame:UnregisterEvent("UNIT_SPELLCAST_STOP")
+	frame:UnregisterEvent("UNIT_HEALTH")
+	frame:UnregisterEvent("UNIT_MANA")
+	frame:UnregisterEvent("UNIT_MAXHEALTH")
+	frame:UnregisterEvent("UNIT_MAXMANA")
 end
 
 
