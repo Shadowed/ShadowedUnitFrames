@@ -11,7 +11,7 @@ function Runes:OnEnable(frame)
 		frame.runeBar.runes = {}
 		
 		for id=1, 6 do
-			local rune = CreateFrame("StatusBar", nil, frame.runeBar)
+			local rune = ShadowUF.Units:CreateBar(frame)
 			rune:SetFrameLevel(1)
 			
 			if( id > 1 ) then
@@ -39,6 +39,13 @@ function Runes:OnLayoutApplied(frame)
 		local barWidth = (frame.runeBar:GetWidth() - 5) / 6
 		
 		for id, rune in pairs(frame.runeBar.runes) do
+			if( ShadowUF.db.profile.units[frame.unitType].runeBar.background ) then
+				rune.background:Show()
+			else
+				rune.background:Hide()
+			end
+			
+			rune.background:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
 			rune:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 			rune:SetHeight(frame.runeBar:GetHeight())
 			rune:SetWidth(barWidth)
@@ -87,6 +94,9 @@ function Runes:UpdateColors(frame)
 		local color = runeColors[GetRuneType(id)]
 		if( color ) then
 			rune:SetStatusBarColor(color.r, color.g, color.b)
+
+			color = ShadowUF.db.profile.bars.backgroundColor or ShadowUF.db.profile.units[frame.unitType].runeBar.backgroundColor or color
+			rune.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
 		end
 	end
 end
@@ -96,5 +106,8 @@ function Runes:Update(frame, event, id)
 	if( id ) then
 		local color = runeColors[GetRuneType(id)]
 		frame.runeBar.runes[id]:SetStatusBarColor(color.r, color.g, color.b)
+
+		color = ShadowUF.db.profile.bars.backgroundColor or ShadowUF.db.profile.units[frame.unitType].runeBar.backgroundColor or color
+		frame.runeBar.runes[id].background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
 	end
 end

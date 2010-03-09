@@ -841,7 +841,7 @@ local function loadGeneralOptions()
 						order = 4,
 						type = "group",
 						inline = true,
-						name = L["Bar background"],
+						name = L["Bars"],
 						hidden = hideAdvancedOption,
 						args = {
 							override = {
@@ -878,8 +878,18 @@ local function loadGeneralOptions()
 								disabled = function(info) return not ShadowUF.db.profile.bars.backgroundColor end,
 								arg = "bars.backgroundColor",
 							},
+							sep = { order = 2, type = "description", name = "", width = "full"},
+							barAlpha = {
+								order = 3,
+								type = "range",
+								name = L["Bar alpha"],
+								desc = L["Alpha to use for bar."],
+								arg = "bars.alpha",
+								min = 0, max = 1, step = 0.05,
+								isPercent = true
+							},
 							backgroundAlpha = {
-								order = 2,
+								order = 4,
 								type = "range",
 								name = L["Background alpha"],
 								desc = L["Alpha to use for bar backgrounds."],
@@ -1980,12 +1990,24 @@ local function loadUnitOptions()
 				width = "full",
 			},
 			background = {
-				order = 2,
+				order = 1.5,
 				type = "toggle",
 				name = L["Show background"],
 				desc = L["Show a background behind the bars with the same texture/color but faded out."],
 				hidden = hideBarOption,
 				arg = "$parent.background",
+			},
+			sep2 = {order = 1.75, type = "description", name = "", hidden = function(info)
+				local moduleKey = info[#(info) - 1]
+				return ( moduleKey ~= "healthBar" and moduleKey ~= "powerBar" and module ~= "druidBar" ) or not ShadowUF.db.profile.advanced
+			end},
+			invert = {
+				order = 2,
+				type = "toggle",
+				name = L["Invert colors"],
+				desc = L["Flips coloring so the bar color is shown as the background color and the background as the bar"],
+				hidden = function(info) return ( info[#(info) - 1] ~= "healthBar"  and info[#(info) - 1] ~= "powerBar" and info[#(info) - 1] ~= "druidBar" ) or not ShadowUF.db.profile.advanced end,
+				arg = "$parent.invert",
 			},
 			order = {
 				order = 4,
