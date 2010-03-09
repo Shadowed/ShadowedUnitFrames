@@ -45,7 +45,7 @@ local function updateTimer(self)
 	
 	-- The target is not offline, and we have a health percentage so update the gradient
 	if( not self.parent.healthBar.wasOffline and self.parent.healthBar.hasPercent ) then
-		Health:SetBarColor(self.parent.healthBar, ShadowUF.db.profile.units[frame.unitType].healthBar.invert, getGradientColor(self.parent.unit))
+		Health:SetBarColor(self.parent.healthBar, ShadowUF.db.profile.units[self.parent.unitType].healthBar.invert, getGradientColor(self.parent.unit))
 	end
 end
 
