@@ -45,7 +45,7 @@ local function updateTimer(self)
 	
 	-- The target is not offline, and we have a health percentage so update the gradient
 	if( not self.parent.healthBar.wasOffline and self.parent.healthBar.hasPercent ) then
-		Health:SetBarColor(self.parent.healthBar, getGradientColor(self.parent.unit))
+		Health:SetBarColor(self.parent.healthBar, ShadowUF.db.profile.units[self.parent.unitType].healthBar.invert, getGradientColor(self.parent.unit))
 	end
 end
 
@@ -82,10 +82,19 @@ function Health:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 
-function Health:SetBarColor(bar, r, g, b)
-	bar:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.alpha)
-	if( not bar.background.overrideColor ) then
+function Health:SetBarColor(bar, invert, r, g, b)
+	if( not invert ) then
+		bar:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.alpha)
+		if( not bar.background.overrideColor ) then
+			bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.backgroundAlpha)
+		end
+	else
 		bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.backgroundAlpha)
+		if( not bar.background.overrideColor ) then
+			bar:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.alpha)
+		else
+			bar:SetStatusBarColor(bar.background.overrideColor.r, bar.background.overrideColor.g, bar.background.overrideColor.b, ShadowUF.db.profile.bars.alpha)
+		end
 	end
 end
 
@@ -99,10 +108,10 @@ function Health:UpdateColor(frame)
 	local reactionType = ShadowUF.db.profile.units[frame.unitType].healthBar.reactionType
 	if( not UnitIsConnected(unit) ) then
 		frame.healthBar.wasOffline = true
-		self:SetBarColor(frame.healthBar, ShadowUF.db.profile.healthColors.offline.r, ShadowUF.db.profile.healthColors.offline.g, ShadowUF.db.profile.healthColors.offline.b)
+		self:SetBarColor(frame.healthBar, ShadowUF.db.profile.units[frame.unitType].healthBar.invert, ShadowUF.db.profile.healthColors.offline.r, ShadowUF.db.profile.healthColors.offline.g, ShadowUF.db.profile.healthColors.offline.b)
 		return
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorAggro and UnitThreatSituation(frame.unit) == 3 ) then
-		self:SetBarColor(frame.healthBar, ShadowUF.db.profile.healthColors.hostile.r, ShadowUF.db.profile.healthColors.hostile.g, ShadowUF.db.profile.healthColors.hostile.b)
+		self:SetBarColor(frame.healthBar, ShadowUF.db.profile.units[frame.unitType].healthBar.invert, ShadowUF.db.profile.healthColors.hostile.r, ShadowUF.db.profile.healthColors.hostile.g, ShadowUF.db.profile.healthColors.hostile.b)
 		return
 	elseif( frame.inVehicle ) then
 		color = ShadowUF.db.profile.classColors.VEHICLE
@@ -142,10 +151,10 @@ function Health:UpdateColor(frame)
 	end
 	
 	if( color ) then
-		self:SetBarColor(frame.healthBar, color.r, color.g, color.b)
+		self:SetBarColor(frame.healthBar, ShadowUF.db.profile.units[frame.unitType].healthBar.invert, color.r, color.g, color.b)
 	else
 		frame.healthBar.hasPercent = true
-		self:SetBarColor(frame.healthBar, getGradientColor(unit))
+		self:SetBarColor(frame.healthBar, ShadowUF.db.profile.units[frame.unitType].healthBar.invert, getGradientColor(unit))
 	end
 end
 
@@ -160,13 +169,13 @@ function Health:Update(frame)
 	if( isOffline ) then
 		frame.healthBar.wasOffline = true
 		frame.unitIsOnline = nil
-		self:SetBarColor(frame.healthBar, ShadowUF.db.profile.healthColors.offline.r, ShadowUF.db.profile.healthColors.offline.g, ShadowUF.db.profile.healthColors.offline.b)
+		self:SetBarColor(frame.healthBar, ShadowUF.db.profile.units[frame.unitType].healthBar.invert, ShadowUF.db.profile.healthColors.offline.r, ShadowUF.db.profile.healthColors.offline.g, ShadowUF.db.profile.healthColors.offline.b)
 	-- The unit was offline, but they no longer are so we need to do a forced color update
 	elseif( frame.healthBar.wasOffline ) then
 		frame.healthBar.wasOffline = nil
 		self:UpdateColor(frame)
 	-- Color health by percentage
 	elseif( frame.healthBar.hasPercent ) then
-		self:SetBarColor(frame.healthBar, getGradientColor(frame.unit))
+		self:SetBarColor(frame.healthBar, ShadowUF.db.profile.units[frame.unitType].healthBar.invert, getGradientColor(frame.unit))
 	end
 end

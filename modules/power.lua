@@ -51,9 +51,16 @@ end
 function Power:UpdateColor(frame)
 	local color = ShadowUF.db.profile.powerColors[select(2, UnitPowerType(frame.unit))] or ShadowUF.db.profile.powerColors.MANA
 	
-	frame.powerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
+	if( not ShadowUF.db.profile.units[frame.unitType].powerBar.invert ) then
+		frame.powerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
 		if( not frame.powerBar.background.overrideColor ) then
+			frame.powerBar.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
+		end
+	else
 		frame.powerBar.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
+
+		color = frame.powerBar.background.overrideColor or color
+		frame.powerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
 	end
 end
 

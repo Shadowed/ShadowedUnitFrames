@@ -16,7 +16,7 @@ function Totems:OnEnable(frame)
 		frame.totemBar.totems = {}
 		
 		for id=1, MAX_TOTEMS do
-			local totem = CreateFrame("StatusBar", nil, frame.totemBar)
+			local totem = ShadowUF.Units:CreateBar(frame)
 			totem:SetFrameLevel(1)
 			totem:SetMinMaxValues(0, 1)
 			totem:SetValue(0)
@@ -54,10 +54,19 @@ function Totems:OnLayoutApplied(frame)
 		local barWidth = (frame.totemBar:GetWidth() - (MAX_TOTEMS - 1)) / MAX_TOTEMS
 		
 		for _, totem in pairs(frame.totemBar.totems) do
-			totem:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
-			totem:SetStatusBarColor(totemColors[totem.id].r, totemColors[totem.id].g, totemColors[totem.id].b, ShadowUF.db.profile.bars.alpha)
+			if( ShadowUF.db.profile.units[frame.unitType].totemBar.background ) then
+				local color = ShadowUF.db.profile.bars.backgroundColor or ShadowUF.db.profile.units[frame.unitType].totemBar.backgroundColor or totemColors[totem.id]
+				totem.background:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
+				totem.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
+				totem.background:Show()
+			else
+				totem.background:Hide()
+			end
+			
 			totem:SetHeight(frame.totemBar:GetHeight())
 			totem:SetWidth(barWidth)
+			totem:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
+			totem:SetStatusBarColor(totemColors[totem.id].r, totemColors[totem.id].g, totemColors[totem.id].b, ShadowUF.db.profile.bars.alpha)
 		end
 	end
 end
@@ -90,11 +99,12 @@ function Totems:Update(frame)
 			indicator.have = nil
 			indicator:SetScript("OnUpdate", nil)
 			indicator:SetMinMaxValues(0, 1)
-			indicator:SetValue(1)
-			indicator:SetAlpha(0.30)
+			indicator:SetValue(0)
 		end
 	end
 	
 	-- Only guardian timers should auto hide, nothing else
-	ShadowUF.Layout:SetBarVisibility(frame, "totemBar", (totalActive > 0 or MAX_TOTEMS > 1) and true or false)
+	if( MAX_TOTEMS == 1 ) then
+		ShadowUF.Layout:SetBarVisibility(frame, "totemBar", totalActive > 0)
+	end
 end
