@@ -510,7 +510,7 @@ local function scan(parent, frame, type, config, filter)
 			end
 			
 			-- Enlarge our own auras
-			if( config.enlargeSelf and caster == ShadowUF.playerUnit ) then
+			if( config.enlargeSelf and playerUnits[caster] ) then
 				button.isSelfScaled = true
 				button:SetScale(config.selfScale)
 			else
