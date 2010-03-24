@@ -1999,7 +1999,7 @@ local function loadUnitOptions()
 			},
 			sep2 = {order = 1.75, type = "description", name = "", hidden = function(info)
 				local moduleKey = info[#(info) - 1]
-				return ( moduleKey ~= "healthBar" and moduleKey ~= "powerBar" and module ~= "druidBar" ) or not ShadowUF.db.profile.advanced
+				return ( moduleKey ~= "healthBar" and moduleKey ~= "powerBar" and moduleKey ~= "druidBar" ) or not ShadowUF.db.profile.advanced
 			end},
 			invert = {
 				order = 2,
