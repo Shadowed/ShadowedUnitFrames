@@ -335,11 +335,13 @@ function Layout:SetupBars(frame, config)
 			
 			if( widget:IsShown() and widget.SetStatusBarTexture ) then
 				widget:SetStatusBarTexture(mediaPath.statusbar)
+				widget:GetStatusBarTexture():SetHorizTile(false)
 			end
 
 			if( widget.background ) then
 				if( config[key].background ) then
 					widget.background:SetTexture(mediaPath.statusbar)
+					widget.background:SetHorizTile(false)
 					widget.background:Show()
 
 					widget.background.overrideColor = ShadowUF.db.profile.bars.backgroundColor or config[key].backgroundColor
