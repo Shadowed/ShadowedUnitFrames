@@ -46,7 +46,9 @@ function Runes:OnLayoutApplied(frame)
 			end
 			
 			rune.background:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
+			rune.background:SetHorizTile(false)
 			rune:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
+			rune:GetStatusBarTexture():SetHorizTile(false)
 			rune:SetHeight(frame.runeBar:GetHeight())
 			rune:SetWidth(barWidth)
 		end

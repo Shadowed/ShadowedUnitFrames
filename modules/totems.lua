@@ -67,6 +67,7 @@ function Totems:OnLayoutApplied(frame)
 			totem:SetWidth(barWidth)
 			totem:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 			totem:SetStatusBarColor(totemColors[totem.id].r, totemColors[totem.id].g, totemColors[totem.id].b, ShadowUF.db.profile.bars.alpha)
+			totem:GetStatusBarTexture():SetHorizTile(false)
 		end
 	end
 end
