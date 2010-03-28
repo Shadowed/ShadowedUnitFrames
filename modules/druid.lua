@@ -26,10 +26,10 @@ function Druid:OnLayoutApplied(frame)
 				frame.druidBar.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
 			end
 		else
-			frame.druidBar.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
+			frame.druidBar.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
 
 			color = frame.druidBar.background.overrideColor or color
-			frame.druidBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
+			frame.druidBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
 		end
 	end
 end
