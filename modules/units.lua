@@ -21,7 +21,7 @@ end
 -- Register an event that should always call the frame
 local function RegisterNormalEvent(self, event, handler, func, isUnit)
 	if( unitEvents[event] == nil ) then
-		unitEvents[event] = unit and 1 or 0
+		unitEvents[event] = isUnit and 1 or 0
 	end
 	
 	-- Make sure the handler/func exists
