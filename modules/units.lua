@@ -19,11 +19,7 @@ local function FullUpdate(self)
 end
 
 -- Register an event that should always call the frame
-local function RegisterNormalEvent(self, event, handler, func, isUnit)
-	if( unitEvents[event] == nil ) then
-		unitEvents[event] = isUnit and 1 or 0
-	end
-	
+local function RegisterNormalEvent(self, event, handler, func)
 	-- Make sure the handler/func exists
 	if( not handler[func] ) then
 		error(string.format("Invalid handler/function passed for %s on event %s, the function %s does not exist.", self:GetName() or tostring(self), tostring(event), tostring(func)), 3)
@@ -60,7 +56,8 @@ end
 
 -- Register an event thats only called if it's for the actual unit
 local function RegisterUnitEvent(self, event, handler, func)
-	RegisterNormalEvent(self, event, handler, func, true)
+	unitEvents[event] = true
+	RegisterNormalEvent(self, event, handler, func)
 end
 
 -- Register a function to be called in an OnUpdate if it's an invalid unit (targettarget/etc)
@@ -133,7 +130,7 @@ end
 
 -- Event handling
 local function OnEvent(self, event, unit, ...)
-	if( unitEvents[event] == 0 or self.unit == unit ) then
+	if( not unitEvents[event] or self.unit == unit ) then
 		for handler, func in pairs(self.registeredEvents[event]) do
 			handler[func](handler, self, event, unit, ...)
 		end
