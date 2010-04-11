@@ -91,9 +91,9 @@ function Health:SetBarColor(bar, invert, r, g, b)
 	else
 		bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.alpha)
 		if( not bar.background.overrideColor ) then
-			bar:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.backgroundAlpha)
+			bar:SetStatusBarColor(0, 0, 0, 1 - ShadowUF.db.profile.bars.backgroundAlpha)
 		else
-			bar:SetStatusBarColor(bar.background.overrideColor.r, bar.background.overrideColor.g, bar.background.overrideColor.b, ShadowUF.db.profile.bars.backgroundAlpha)
+			bar:SetStatusBarColor(bar.background.overrideColor.r, bar.background.overrideColor.g, bar.background.overrideColor.b, 1 - ShadowUF.db.profile.bars.backgroundAlpha)
 		end
 	end
 end

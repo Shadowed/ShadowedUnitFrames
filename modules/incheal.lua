@@ -13,7 +13,7 @@ local INCOMING_SECONDS = 3
 function IncHeal:OnEnable(frame)
 	frames[frame] = true
 	frame.incHeal = frame.incHeal or ShadowUF.Units:CreateBar(frame)
-	frame.incHeal:SetFrameLevel(frame.topFrameLevel - 2)
+	frame.incHeal:SetFrameLevel(frame.topFrameLevel)
 	
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
 	frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
@@ -34,13 +34,32 @@ end
 
 function IncHeal:OnLayoutApplied(frame)
 	if( frame.visibility.incHeal and frame.visibility.healthBar ) then
-		frame.incHeal:SetWidth(frame.healthBar:GetWidth() * ShadowUF.db.profile.units[frame.unitType].incHeal.cap)
 		frame.incHeal:SetHeight(frame.healthBar:GetHeight())
 		frame.incHeal:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 		frame.incHeal:SetStatusBarColor(ShadowUF.db.profile.healthColors.inc.r, ShadowUF.db.profile.healthColors.inc.g, ShadowUF.db.profile.healthColors.inc.b, ShadowUF.db.profile.bars.alpha)
-		frame.incHeal:SetPoint("TOPLEFT", frame.healthBar)
-		frame.incHeal:SetPoint("BOTTOMLEFT", frame.healthBar)
 		frame.incHeal:Hide()
+		
+		if( ( ShadowUF.db.profile.units[frame.unitType].healthBar.invert and ShadowUF.db.profile.bars.backgroundAlpha == 0 ) or ( not ShadowUF.db.profile.units[frame.unitType].healthBar.invert and ShadowUF.db.profile.bars.alpha == 1 ) ) then
+			frame.incHeal.simple = true
+			frame.incHeal:SetWidth(frame.healthBar:GetWidth() * ShadowUF.db.profile.units[frame.unitType].incHeal.cap)
+
+			frame.incHeal:ClearAllPoints()
+			frame.incHeal:SetPoint("TOPLEFT", frame.healthBar)
+			frame.incHeal:SetPoint("BOTTOMLEFT", frame.healthBar)
+		else
+			frame.incHeal.simple = nil
+			frame.incHeal:SetWidth(1)
+			frame.incHeal:SetMinMaxValues(0, 1)
+			frame.incHeal:SetValue(1)
+
+			local x, y = select(4, frame.healthBar:GetPoint())
+			frame.incHeal:ClearAllPoints()
+			frame.incHeal.healthX = x
+			frame.incHeal.healthY = y
+			frame.incHeal.healthWidth = frame.healthBar:GetWidth()
+			frame.incHeal.maxWidth = frame.incHeal.healthWidth * ShadowUF.db.profile.units[frame.unitType].incHeal.cap
+			frame.incHeal.cappedWidth = frame.incHeal.healthWidth * (ShadowUF.db.profile.units[frame.unitType].incHeal.cap - 1)
+		end
 	end
 end
 
@@ -111,11 +130,25 @@ local function updateHealthBar(frame, interrupted)
 	-- Bar is also supposed to be enabled, lets update that too
 	if( frame.visibility.incHeal ) then
 		if( healed > 0 ) then
-			frame.incHeal.total = UnitHealth(frame.unit) + healed
 			frame.incHeal.healed = healed
-			frame.incHeal:SetMinMaxValues(0, UnitHealthMax(frame.unit) * ShadowUF.db.profile.units[frame.unitType].incHeal.cap)
-			frame.incHeal:SetValue(frame.incHeal.total)
 			frame.incHeal:Show()
+			
+			-- When the primary bar has an alpha of 100%, we can cheat and do incoming heals easily. Otherwise we need to do it a more complex way to keep it looking good
+			if( frame.incHeal.simple ) then
+				frame.incHeal.total = UnitHealth(frame.unit) + healed
+				frame.incHeal:SetMinMaxValues(0, UnitHealthMax(frame.unit) * ShadowUF.db.profile.units[frame.unitType].incHeal.cap)
+				frame.incHeal:SetValue(frame.incHeal.total)
+			else
+				local health, maxHealth = UnitHealth(frame.unit), UnitHealthMax(frame.unit)
+				local healthWidth = frame.incHeal.healthWidth * (health / maxHealth)
+				local incWidth = frame.healthBar:GetWidth() * (healed / health)
+				if( (healthWidth + incWidth) > frame.incHeal.maxWidth ) then
+					incWidth = frame.incHeal.cappedWidth
+				end
+				
+				frame.incHeal:SetWidth(incWidth)
+				frame.incHeal:SetPoint("TOPLEFT", SUFUnitplayer, "TOPLEFT", frame.incHeal.healthX + healthWidth, frame.incHeal.healthY)
+			end
 		else
 			frame.incHeal.total = nil
 			frame.incHeal.healed = nil

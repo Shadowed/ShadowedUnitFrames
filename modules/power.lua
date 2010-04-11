@@ -59,8 +59,12 @@ function Power:UpdateColor(frame)
 	else
 		frame.powerBar.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
 
-		color = frame.powerBar.background.overrideColor or color
-		frame.powerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
+		color = frame.powerBar.background.overrideColor
+		if( not color ) then
+			frame.powerBar:SetStatusBarColor(0, 0, 0, 1 - ShadowUF.db.profile.bars.backgroundAlpha)
+		else
+			frame.powerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
+		end
 	end
 end
 
