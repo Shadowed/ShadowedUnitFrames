@@ -13,7 +13,6 @@ local INCOMING_SECONDS = 3
 function IncHeal:OnEnable(frame)
 	frames[frame] = true
 	frame.incHeal = frame.incHeal or ShadowUF.Units:CreateBar(frame)
-	frame.incHeal:SetFrameLevel(frame.topFrameLevel)
 	
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
 	frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
@@ -39,15 +38,19 @@ function IncHeal:OnLayoutApplied(frame)
 		frame.incHeal:SetStatusBarColor(ShadowUF.db.profile.healthColors.inc.r, ShadowUF.db.profile.healthColors.inc.g, ShadowUF.db.profile.healthColors.inc.b, ShadowUF.db.profile.bars.alpha)
 		frame.incHeal:Hide()
 		
+		-- When we can cheat and put the incoming bar right behind the health bar, we can efficiently show the incoming heal bar
+		-- if the main bar has a transparency set, then we need a more complicated method to stop the health bar from being darker with incoming heals up
 		if( ( ShadowUF.db.profile.units[frame.unitType].healthBar.invert and ShadowUF.db.profile.bars.backgroundAlpha == 0 ) or ( not ShadowUF.db.profile.units[frame.unitType].healthBar.invert and ShadowUF.db.profile.bars.alpha == 1 ) ) then
 			frame.incHeal.simple = true
 			frame.incHeal:SetWidth(frame.healthBar:GetWidth() * ShadowUF.db.profile.units[frame.unitType].incHeal.cap)
+			frame.incHeal:SetFrameLevel(frame.topFrameLevel - 3)
 
 			frame.incHeal:ClearAllPoints()
 			frame.incHeal:SetPoint("TOPLEFT", frame.healthBar)
 			frame.incHeal:SetPoint("BOTTOMLEFT", frame.healthBar)
 		else
 			frame.incHeal.simple = nil
+			frame.incHeal:SetFrameLevel(frame.topFrameLevel)
 			frame.incHeal:SetWidth(1)
 			frame.incHeal:SetMinMaxValues(0, 1)
 			frame.incHeal:SetValue(1)
