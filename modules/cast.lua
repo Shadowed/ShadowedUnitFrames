@@ -107,7 +107,7 @@ function Cast:OnLayoutApplied(frame, config)
 	-- Set textures
 	frame.castBar.bar:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 	frame.castBar.bar:SetStatusBarColor(0, 0, 0, 0)
-	frame.castBar.bar:SetHorizTile(false)
+	frame.castBar.bar:GetStatusBarTexture():SetHorizTile(false)
 	frame.castBar.background:SetVertexColor(0, 0, 0, 0)
 	frame.castBar.background:SetHorizTile(false)
 	
