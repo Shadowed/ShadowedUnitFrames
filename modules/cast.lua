@@ -107,9 +107,11 @@ function Cast:OnLayoutApplied(frame, config)
 	-- Set textures
 	frame.castBar.bar:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 	frame.castBar.bar:SetStatusBarColor(0, 0, 0, 0)
+	frame.castBar.bar:SetHorizTile(false)
 	frame.castBar.background:SetVertexColor(0, 0, 0, 0)
-
-		-- Setup the main bar + icon
+	frame.castBar.background:SetHorizTile(false)
+	
+	-- Setup the main bar + icon
 	frame.castBar.bar:ClearAllPoints()
 	frame.castBar.bar:SetHeight(frame.castBar:GetHeight())
 	frame.castBar.bar:SetValue(0)

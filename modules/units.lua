@@ -1093,6 +1093,7 @@ function Units:CreateBar(parent)
 	bar.background:SetHeight(1)
 	bar.background:SetWidth(1)
 	bar.background:SetAllPoints(bar)
+	bar.background:SetHorizTile(false)
 
 	return bar
 end

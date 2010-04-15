@@ -36,6 +36,7 @@ function IncHeal:OnLayoutApplied(frame)
 		frame.incHeal:SetHeight(frame.healthBar:GetHeight())
 		frame.incHeal:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 		frame.incHeal:SetStatusBarColor(ShadowUF.db.profile.healthColors.inc.r, ShadowUF.db.profile.healthColors.inc.g, ShadowUF.db.profile.healthColors.inc.b, ShadowUF.db.profile.bars.alpha)
+		frame.incHeal:GetStatusBarTexture():SetHorizTile(false)
 		frame.incHeal:Hide()
 		
 		-- When we can cheat and put the incoming bar right behind the health bar, we can efficiently show the incoming heal bar
