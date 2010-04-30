@@ -1743,6 +1743,10 @@ local function loadUnitOptions()
 			return true
 		end
 		
+		if( ( info[#(info)] == "x" or info[#(info)] == "y" ) and ( info[#(info) - 1] == "buffs" and buffs.anchorOn or info[#(info) - 1] == "debuffs" and debuffs.anchorOn ) ) then
+			return true
+		end
+		
 		if( anchor == info[#(info) - 1] or buffs.anchorOn or debuffs.anchorOn ) then
 			return false
 		end	

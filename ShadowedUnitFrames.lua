@@ -88,8 +88,6 @@ function ShadowUF:CheckUpgrade()
 				self.db.profile.filters.zoneblack[unit] = filter
 			end
 		end
-		
-		self.db.profile.filters.zones = nil
 	end
 	
 	-- February 16th

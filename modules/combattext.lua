@@ -34,8 +34,11 @@ function Combat:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 
-function Combat:Update(frame, event, unit, ...)
-	CombatFeedback_OnCombatEvent(frame.combatText, ...)
+function Combat:Update(frame, event, unit, type, ...)
+	CombatFeedback_OnCombatEvent(frame.combatText, type, ...)
+	if( type == "IMMUNE" ) then
+		frame.combatText.feedbackText:SetTextHeight(frame.combatText.feedbackFontHeight * 0.75)
+	end
 	
 	-- Increasing the font size will make the text look pixelated, however scaling it up will make it look smooth and awesome
 	frame.combatText:SetScale(frame.combatText.feedbackText:GetStringHeight() / ShadowUF.db.profile.font.size)
