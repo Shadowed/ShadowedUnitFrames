@@ -3757,9 +3757,10 @@ local function loadFilterOptions()
 							ShadowUF.db.profile.filters[filterType][filter] = nil
 							
 							-- Delete anything that used this filter too
-							for id, filterUsed in pairs(ShadowUF.db.profile.filters.zones) do
+							local filterList = filterType == "whitelist" and ShadowUF.db.profile.filters.zonewhite or filterType == "blacklist" and ShadowUF.db.profile.filters.zoneblack
+							for id, filterUsed in pairs(filterList) do
 								if( filterUsed == filter ) then
-									ShadowUF.db.profile.filters.zones[id] = nil
+									filterList[id] = nil
 								end
 							end
 							
@@ -3880,23 +3881,24 @@ local function loadFilterOptions()
 			local filter = filterMap[info[#(info)]]
 			local zone = info[#(info) - 1]
 			local unit = info[#(info) - 2]
+			local filterKey = ShadowUF.db.profile.filters.whitelists[filter] and "zonewhite" or "zoneblack"
 			
 			for _, zoneConfig in pairs(zoneList) do
 				if( zone == "global" or zoneConfig == zone ) then
 					if( unit == "global" ) then
-						globalSettings[zoneConfig] = value and filter or false
+						globalSettings[zoneConfig .. filterKey] = value and filter or false
 						
 						for _, unit in pairs(ShadowUF.unitList) do
-							ShadowUF.db.profile.filters.zones[zoneConfig .. unit] = value and filter or nil
+							ShadowUF.db.profile.filters[filterKey][zoneConfig .. unit] = value and filter or nil
 						end
 					else
-						ShadowUF.db.profile.filters.zones[zoneConfig .. unit] = value and filter or nil
+						ShadowUF.db.profile.filters[filterKey][zoneConfig .. unit] = value and filter or nil
 					end
 				end
 			end
 			
 			if( zone == "global" ) then
-				globalSettings[zone .. unit] = value and filter or false
+				globalSettings[zone .. unit .. filterKey] = value and filter or false
 			end
 			
 			reloadUnitAuras()
@@ -3908,18 +3910,20 @@ local function loadFilterOptions()
 			
 			if( unit == "global" or zone == "global" ) then 
 				local id = zone == "global" and zone .. unit or zone
+				local filterKey = ShadowUF.db.profile.filters.whitelists[filter] and "zonewhite" or "zoneblack"
+				
 				if( info[#(info)] == "nofilter" ) then
-					return globalSettings[id] == false
+					return globalSettings[id .. "zonewhite"] == false and globalSettings[id .. "zoneblack"] == false
 				end
 
-				return globalSettings[id] == filter
+				return globalSettings[id .. filterKey] == filter
 			end
 			
-			if( info[#(info)] == "nofilter" and not ShadowUF.db.profile.filters.zones[zone .. unit] ) then
-				return true
+			if( info[#(info)] == "nofilter" ) then
+				return not ShadowUF.db.profile.filters.zonewhite[zone .. unit] and not ShadowUF.db.profile.filters.zoneblack[zone .. unit]
 			end
 			
-			return ShadowUF.db.profile.filters.zones[zone .. unit] == filter
+			return ShadowUF.db.profile.filters.zonewhite[zone .. unit] == filter or ShadowUF.db.profile.filters.zoneblack[zone .. unit] == filter
 		end,
 		args = {
 			nofilter = {
@@ -3927,6 +3931,35 @@ local function loadFilterOptions()
 				type = "toggle",
 				name = L["Don't use a filter"],
 				hidden = false,
+				set = function(info, value)
+					local filter = filterMap[info[#(info)]]
+					local zone = info[#(info) - 1]
+					local unit = info[#(info) - 2]
+				
+					for _, zoneConfig in pairs(zoneList) do
+						if( zone == "global" or zoneConfig == zone ) then
+							if( unit == "global" ) then
+								globalSettings[zoneConfig .. "zonewhite"] = false
+								globalSettings[zoneConfig .. "zoneblack"] = false
+								
+								for _, unit in pairs(ShadowUF.unitList) do
+									ShadowUF.db.profile.filters.zonewhite[zoneConfig .. unit] = nil
+									ShadowUF.db.profile.filters.zoneblack[zoneConfig .. unit] = nil
+								end
+							else
+								ShadowUF.db.profile.filters.zonewhite[zoneConfig .. unit] = nil
+								ShadowUF.db.profile.filters.zoneblack[zoneConfig .. unit] = nil
+							end
+						end
+					end
+
+					if( zone == "global" ) then
+						globalSettings[zone .. unit .. "zonewhite"] = false
+						globalSettings[zone .. unit .. "zoneblack"] = false
+					end
+
+					reloadUnitAuras()
+				end,
 			},
 			white = {
 				order = 1,

@@ -467,9 +467,10 @@ function Auras:UpdateFilter(frame)
 	local zone = select(2, IsInInstance())
 	local id = zone .. frame.unitType
 	
-	local filter = ShadowUF.db.profile.filters.zones[zone .. frame.unitType]
-	frame.auras.whitelist = filter and ShadowUF.db.profile.filters.whitelists[filter] or filterDefault
-	frame.auras.blacklist = filter and ShadowUF.db.profile.filters.blacklists[filter] or filterDefault
+	local white = ShadowUF.db.profile.filters.zonewhite[zone .. frame.unitType]
+	local black = ShadowUF.db.profile.filters.zoneblack[zone .. frame.unitType]
+	frame.auras.whitelist = white and ShadowUF.db.profile.filters.whitelists[white] or filterDefault
+	frame.auras.blacklist = black and ShadowUF.db.profile.filters.blacklists[black] or filterDefault
 end
 
 -- Scan for auras

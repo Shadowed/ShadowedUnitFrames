@@ -32,7 +32,7 @@ function ShadowUF:OnInitialize()
 			units = {},
 			positions = {},
 			range = {},
-			filters = {zones = {}, whitelists = {}, blacklists = {}},
+			filters = {zonewhite = {}, zoneblack = {}, whitelists = {}, blacklists = {}},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
 			hidden = {cast = false, runes = true, buffs = true, party = true, player = true, pet = true, target = true, focus = true, boss = true, arena = true},
 		},
@@ -79,6 +79,19 @@ function ShadowUF:OnInitialize()
 end
 
 function ShadowUF:CheckUpgrade()
+	-- April 29th
+	if( self.db.profile.filters.zones ) then
+		for unit, filter in pairs(self.db.profile.filters.zones) do
+			if( self.db.profile.filters.whitelists[filter] ) then
+				self.db.profile.filters.zonewhite[unit] = filter
+			else
+				self.db.profile.filters.zoneblack[unit] = filter
+			end
+		end
+		
+		self.db.profile.filters.zones = nil
+	end
+	
 	-- February 16th
 	if( not self.db.profile.units.raidpet.enabled and self.db.profile.units.raidpet.height == 0 and self.db.profile.units.raidpet.width == 0 and self.db.profile.positions.raidpet.anchorPoint == "" and self.db.profile.positions.raidpet.point == "" ) then
 		self:LoadDefaultLayout(true)
