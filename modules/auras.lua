@@ -244,12 +244,12 @@ local function updateButton(id, group, config)
 		button.icon:SetTexCoord(0.07, 0.93, 0.07, 0.93)
 	end
 		
-	if( ShadowUF.db.profile.auras.borderType == "blizzard" ) then
+	if( ShadowUF.db.profile.auras.borderType == "" ) then
+		button.border:Hide()
+	elseif( ShadowUF.db.profile.auras.borderType == "blizzard" ) then
 		button.border:SetTexture("Interface\\Buttons\\UI-Debuff-Overlays")
 		button.border:SetTexCoord(0.296875, 0.5703125, 0, 0.515625)
 		button.border:Show()
-	elseif( ShadowUF.db.profile.auras.borderType == "" ) then
-		button.border:Hide()
 	else
 		button.border:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\border-" .. ShadowUF.db.profile.auras.borderType)
 		button.border:SetTexCoord(0, 1, 0, 1)
@@ -257,6 +257,7 @@ local function updateButton(id, group, config)
 	end
 	
 	-- Set the button sizing
+	button.cooldown.noCooldownCount = ShadowUF.db.profile.omnicc
 	button:SetHeight(config.size)
 	button:SetWidth(config.size)
 	button.border:SetHeight(config.size + 1)

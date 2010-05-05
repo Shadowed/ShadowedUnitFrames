@@ -28,6 +28,7 @@ function ShadowUF:OnInitialize()
 			locked = false,
 			advanced = false,
 			tooltipCombat = false,
+			omnicc = false,
 			tags = {},
 			units = {},
 			positions = {},

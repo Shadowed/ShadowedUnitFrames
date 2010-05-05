@@ -50,7 +50,7 @@ local positionList = {["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["
 
 local unitOrder = {}
 for order, unit in pairs(ShadowUF.unitList) do unitOrder[unit] = order end
-local fullReload = {["bars"] = true, ["auras"] = true, ["backdrop"] = true, ["font"] = true, ["classColors"] = true, ["powerColors"] = true, ["healthColors"] = true, ["xpColors"] = true}
+local fullReload = {["bars"] = true, ["auras"] = true, ["backdrop"] = true, ["font"] = true, ["classColors"] = true, ["powerColors"] = true, ["healthColors"] = true, ["xpColors"] = true, ["omnicc"] = true}
 local quickIDMap = {}
 
 -- Helper functions
@@ -445,7 +445,6 @@ local function loadGeneralOptions()
 	
 	local function writeTable(tbl)
 		local data = ""
-
 		for key, value in pairs(tbl) do
 			local valueType = type(value)
 			
@@ -454,7 +453,7 @@ local function loadGeneralOptions()
 				key = string.format("[%s]", key)
 			-- Wrap the string with quotes if it has a space in it
 			elseif( string.match(key, "[%p%s%c]") ) then
-				key = string.format("[\"%s\"]", key)
+				key = string.format("['%s']", string.gsub(key, "'", "\\'"))
 			end
 			
 			-- foo = {bar = 5}
@@ -465,7 +464,7 @@ local function loadGeneralOptions()
 				data = string.format("%s%s=%s;", data, key, tostring(value))
 			-- foo = "bar"
 			else
-				data = string.format("%s%s=[[%s]];", data, key, tostring(value))
+				data = string.format("%s%s='%s';", data, key, string.gsub(tostring(value), "'", "\\'"))
 			end
 		end
 		
@@ -539,7 +538,7 @@ local function loadGeneralOptions()
 						get = false,
 						disabled = function() return ShadowUF.db:GetCurrentProfile() == "Import Backup" end,
 						set = function(info, import)
-							local layout, err = loadstring("return " .. import)
+							local layout, err = loadstring(string.format([[return %s]], import))
 							if( err ) then
 								layoutData.error = string.format(L["Failed to import layout, error:|n|n%s"], err)
 								return
@@ -674,12 +673,27 @@ local function loadGeneralOptions()
 								end,
 								arg = "locked",
 							},
+							sep = {
+								order = 1.5,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = hideAdvancedSetting,
+							},
 							advanced = {
 								order = 2,
 								type = "toggle",
 								name = L["Advanced"],
 								desc = L["Enabling advanced settings will give you access to more configuration options. This is meant for people who want to tweak every single thing, and should not be enabled by default as it increases the options."],
+								hidden = hideAdvancedSetting,
 								arg = "advanced",
+							},
+							omnicc = {
+								order = 2.5,
+								type = "toggle",
+								name = L["Disable OmniCC"],
+								desc = L["Disables showing OmniCC timers in all Shadowed Unit Frame auras."],
+								arg = "omnicc",
 							},
 							hideCombat = {
 								order = 3,
