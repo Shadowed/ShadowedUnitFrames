@@ -559,7 +559,8 @@ local function anchorGroupToGroup(frame, config, group, childConfig, childGroup)
 	-- Group we want to anchor to has nothing in it, takeover the postion
 	if( group.totalAuras == 0 ) then
 		local position = positionData[config.anchorPoint]
-		childGroup.buttons[1]:SetPoint(ShadowUF.Layout:GetPoint(config.anchorPoint), group.anchorTo, ShadowUF.Layout:GetRelative(config.anchorPoint), config.x + (position.xMod * ShadowUF.db.profile.backdrop.inset), config.y + (position.yMod * ShadowUF.db.profile.backdrop.inset))
+		childGroup.buttons[1]:ClearAllPoints()
+		childGroup.buttons[1]:SetPoint(ShadowUF.Layout:GetPoint(config.anchorPoint), group.anchorTo, ShadowUF.Layout:GetRelative(config.anchorPoint), config.x + (position.xMod * ShadowUF.db.profile.backdrop.inset), config.y + (position.yMod * -ShadowUF.db.profile.backdrop.inset))
 		return
 	end
 	
