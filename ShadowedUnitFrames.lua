@@ -91,6 +91,21 @@ function ShadowUF:CheckUpgrade()
 		end
 	end
 	
+	-- May 11th
+	if( not self.db.profile.advanced ) then
+		for unit, config in pairs(self.db.profile.units) do
+			if( config.auras ) then
+				if( config.auras.buffs.y == 0 ) then
+					config.auras.buffs.y = 3
+				end
+
+				if( config.auras.debuffs.y == 0 ) then
+					config.auras.debuffs.y = 3
+				end
+			end
+		end
+	end
+	
 	-- February 16th
 	if( not self.db.profile.units.raidpet.enabled and self.db.profile.units.raidpet.height == 0 and self.db.profile.units.raidpet.width == 0 and self.db.profile.positions.raidpet.anchorPoint == "" and self.db.profile.positions.raidpet.point == "" ) then
 		self:LoadDefaultLayout(true)
