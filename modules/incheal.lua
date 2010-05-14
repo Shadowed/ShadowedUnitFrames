@@ -132,7 +132,7 @@ local function updateHealthBar(frame, interrupted)
 	IncHeal:UpdateTags(frame, healed)
 	
 	-- Bar is also supposed to be enabled, lets update that too
-	if( frame.visibility.incHeal ) then
+	if( frame.visibility.incHeal and frame.visibility.healthBar ) then
 		if( healed > 0 ) then
 			frame.incHeal.healed = healed
 			frame.incHeal:Show()
