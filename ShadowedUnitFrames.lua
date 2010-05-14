@@ -4,6 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
+ShadowUF.dbRevision = 1
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -72,6 +73,7 @@ function ShadowUF:OnInitialize()
 		self:CheckUpgrade()
 	end
 	
+	self.db.profile.revision = self.dbRevision
 	self:FireModuleEvent("OnInitialize")
 	self:HideBlizzardFrames()
 	self.Layout:LoadSML()
@@ -92,7 +94,7 @@ function ShadowUF:CheckUpgrade()
 	end
 	
 	-- May 11th
-	if( not self.db.profile.advanced ) then
+	if( not self.db.profile.advanced and not self.db.profile.revision ) then
 		for unit, config in pairs(self.db.profile.units) do
 			if( config.auras ) then
 				if( config.auras.buffs.y == 0 ) then
