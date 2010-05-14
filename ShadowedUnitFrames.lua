@@ -94,16 +94,11 @@ function ShadowUF:CheckUpgrade()
 	end
 	
 	-- May 11th
-	if( not self.db.profile.advanced and not self.db.profile.revision ) then
+	if( not self.db.profile.revision ) then
 		for unit, config in pairs(self.db.profile.units) do
 			if( config.auras ) then
-				if( config.auras.buffs.y == 0 ) then
-					config.auras.buffs.y = 3
-				end
-
-				if( config.auras.debuffs.y == 0 ) then
-					config.auras.debuffs.y = 3
-				end
+				config.auras.buffs.y = config.auras.buffs.y + 3
+				config.auras.debuffs.x = config.auras.debuffs.x + 3
 			end
 		end
 	end
