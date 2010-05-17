@@ -678,14 +678,13 @@ local function loadGeneralOptions()
 								type = "description",
 								name = "",
 								width = "full",
-								hidden = hideAdvancedSetting,
+								hidden = hideAdvancedOption,
 							},
 							advanced = {
 								order = 2,
 								type = "toggle",
 								name = L["Advanced"],
 								desc = L["Enabling advanced settings will give you access to more configuration options. This is meant for people who want to tweak every single thing, and should not be enabled by default as it increases the options."],
-								hidden = hideAdvancedSetting,
 								arg = "advanced",
 							},
 							omnicc = {
@@ -694,6 +693,7 @@ local function loadGeneralOptions()
 								name = L["Disable OmniCC"],
 								desc = L["Disables showing OmniCC timers in all Shadowed Unit Frame auras."],
 								arg = "omnicc",
+								hidden = hideAdvancedOption,
 							},
 							hideCombat = {
 								order = 3,
