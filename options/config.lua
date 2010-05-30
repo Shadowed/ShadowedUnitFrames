@@ -1896,7 +1896,7 @@ local function loadUnitOptions()
 					return L["Per row"]
 				end,
 				desc = L["How many auras to show in a single row."],
-				min = 1, max = 50, step = 1,
+				min = 1, max = 100, step = 1, softMin = 1, softMax = 50,
 				disabled = disableSameAnchor,
 				arg = "auras.$parent.perRow",
 			},
@@ -1905,7 +1905,7 @@ local function loadUnitOptions()
 				type = "range",
 				name = L["Max rows"],
 				desc = L["How many rows total should be used, rows will be however long the per row value is set at."],
-				min = 1, max = 5, step = 1,
+				min = 1, max = 10, step = 1, softMin = 1, softMax = 5,
 				disabled = disableSameAnchor,
 				hidden = function(info)
 					local anchorPoint = getVariable(info[2], "auras", info[#(info) - 1], "anchorPoint")
@@ -1922,7 +1922,7 @@ local function loadUnitOptions()
 				type = "range",
 				name = L["Max columns"],
 				desc = L["How many auras per a column for example, entering two her will create two rows that are filled up to whatever per row is set as."],
-				min = 1, max = 50, step = 1,
+				min = 1, max = 100, step = 1, softMin = 1, softMax = 50,
 				hidden = function(info)
 					local anchorPoint = getVariable(info[2], "auras", info[#(info) - 1], "anchorPoint")
 					if( ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "LEFT" or ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "RIGHT" ) then

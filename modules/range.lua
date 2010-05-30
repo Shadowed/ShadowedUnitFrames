@@ -1,6 +1,7 @@
 local Range = {
 	friendly = {["PRIEST"] = GetSpellInfo(2050), ["DRUID"] = GetSpellInfo(48378), ["PALADIN"] = GetSpellInfo(48782), ["SHAMAN"] = GetSpellInfo(49273)},
 	hostile = {["PRIEST"] = GetSpellInfo(48127), ["DRUID"] = GetSpellInfo(48461), ["PALADIN"] = GetSpellInfo(62124), ["HUNTER"] = GetSpellInfo(75), ["WARLOCK"] = GetSpellInfo(686), ["SHAMAN"] = GetSpellInfo(529), ["MAGE"] = GetSpellInfo(133), ["DEATHKNIGHT"] = GetSpellInfo(49576)},
+	resurrect = {["PALADIN"] = GetSpellInfo(48950), ["PRIEST"] = GetSpellInfo(25435), ["SHAMAN"] = GetSpellInfo(2008), ["DRUID"] = GetSpellInfo(48477)}
 }
 ShadowUF:RegisterModule(Range, "range", ShadowUF.L["Range indicator"])
 
@@ -69,10 +70,10 @@ function Range:UpdateFlags(frame)
 	frame.range.canAttack = UnitCanAttack("player", frame.unit)
 	frame.range.isFriendly = UnitIsFriend("player", frame.unit)
 	frame.range.grouped = UnitInRaid(frame.unit) or UnitInParty(frame.unit)
-	frame.range.spell = frame.range.canAttack and frame.range.hostileSpell or frame.range.isFriendly and frame.range.friendlySpell or nil
+	frame.range.spell = UnitIsDead(frame.unit) and self.ressurect[playerClass] or frame.range.canAttack and frame.range.hostileSpell or frame.range.isFriendly and frame.range.friendlySpell or nil
 	
 	-- No sense in updating range if we have no data
-	if( not UnitIsConnected(frame.unit) or ( not frame.range.spell and not frame.range.grouped and not frame.range.isFriendly ) ) then
+	if( UnitIsGhost(frame.unit) or not UnitIsConnected(frame.unit) or ( not frame.range.spell and not frame.range.grouped and not frame.range.isFriendly ) ) then
 		frame:SetRangeAlpha(ShadowUF.db.profile.units[frame.unitType].range.inAlpha)
 		frame.range:Hide()
 	else

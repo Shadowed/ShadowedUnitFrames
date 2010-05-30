@@ -494,9 +494,9 @@ local function scan(parent, frame, type, config, filter)
 				
 			-- Show debuff border, or a special colored border if it's stealable
 			local button = frame.buttons[frame.totalAuras]
-			if( isStealable and not isFriendly ) then
+			if( isStealable and not isFriendly and not ShadowUF.db.profile.auras.disableColor ) then
 				button.border:SetVertexColor(stealableColor.r, stealableColor.g, stealableColor.b)
-			elseif( not isFriendly or type == "debuffs" ) then
+			elseif( ( not isFriendly or type == "debuffs" ) and not ShadowUF.db.profile.auras.disableColor ) then
 				local color = auraType and DebuffTypeColor[auraType] or DebuffTypeColor.none
 				button.border:SetVertexColor(color.r, color.g, color.b)
 			else
