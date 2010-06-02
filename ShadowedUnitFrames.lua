@@ -2,7 +2,7 @@
 	Shadowed Unit Frames, Shadow of Mal'Ganis (US) PvP
 ]]
 
-IS_BUILD335 = tonumber(select(2, GetBuildInfo())) >= 12045
+IS_BUILD335 = tonumber((select(2, GetBuildInfo()))) >= 12045
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
