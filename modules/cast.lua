@@ -380,7 +380,7 @@ function Cast:EventUninterruptible(frame)
 end
 
 function Cast:UpdateDelay(frame, spell, rank, displayName, icon, startTime, endTime)
-	if( not spell ) then return end
+	if( not spell or not cast.startTime ) then return end
 	local cast = frame.castBar.bar
 	startTime = startTime / 1000
 	endTime = endTime / 1000
