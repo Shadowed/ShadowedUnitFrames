@@ -184,8 +184,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 	config.parentUnit = {
 		portrait = {enabled = false, type = "3D", alignment = "LEFT", width = 0.22, height = 0.50, order = 15, fullBefore = 0, fullAfter = 100},
 		auras = {
-			buffs = {enabled = false, anchorPoint = "BL", size = 16, perRow = 10, x = 0, y = 3},
-			debuffs = {enabled = false, anchorPoint = "BL", size = 16, perRow = 10, x = 0, y = 3},
+			buffs = {enabled = false, anchorPoint = "BL", size = 16, perRow = 10, x = 0, y = 0},
+			debuffs = {enabled = false, anchorPoint = "BL", size = 16, perRow = 10, x = 0, y = 0},
 		},
 		text = {
 			{width = 0.50, name = L["Left text"], anchorTo = "$healthBar", anchorPoint = "CLI", x = 3, y = 0, size = 0},

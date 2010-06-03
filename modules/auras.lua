@@ -99,12 +99,13 @@ local function positionButton(id,  group, config)
 		button.point = ShadowUF.Layout:GetPoint(config.anchorPoint)
 		button.relativePoint = ShadowUF.Layout:GetRelative(config.anchorPoint)
 		button.xOffset = config.x + (position.xMod * ShadowUF.db.profile.backdrop.inset)
-		button.yOffset = position.yMod * (config.y - ShadowUF.db.profile.backdrop.inset)
+		button.yOffset = config.y + (position.yMod * ShadowUF.db.profile.backdrop.inset)
 		button.anchorTo = group.anchorTo
 		
 		position.initialAnchor(button, 0)
 	end
 end
+
 
 local columnsHaveScale = {}
 local function positionAllButtons(group, config)
