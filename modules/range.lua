@@ -47,6 +47,11 @@ function Range:OnEnable(frame)
 
 	frame:RegisterUpdateFunc(self, "UpdateFlags")
 	frame:RegisterUpdateFunc(self, "ForceUpdate")
+
+	-- RRU and PMC don't fire when a target is dead and comes back up, check health for a state change.
+	if( self.resurrect[playerClass] ) then
+		frame:RegisterUnitEvent("UNIT_HEALTH", self, "CheckHealth")
+	end
 end
 
 function Range:OnLayoutApplied(frame)
@@ -65,12 +70,22 @@ function Range:OnDisable(frame)
 	end
 end
 
+function Range:CheckHealth(frame)
+	local isDead = UnitIsDead(frame.unit)
+	if( isDead and not frame.range.isDead or not isDead and frame.range.isDead ) then
+		frame.range.isDead = isDead
+		
+		self:UpdateFlags(frame)
+		self:ForceUpdate(frame)
+	end
+end
+
 -- I'd rather store the flags here, they rarely change and we can do that based off events, no sense in doing it eveyr 0.50s
 function Range:UpdateFlags(frame)
 	frame.range.canAttack = UnitCanAttack("player", frame.unit)
-	frame.range.isFriendly = UnitIsFriend("player", frame.unit)
+	frame.range.isFriendly = UnitIsFriend("player", frame.unit) and UnitCanAssist("player", frame.unit)
 	frame.range.grouped = UnitInRaid(frame.unit) or UnitInParty(frame.unit)
-	frame.range.spell = UnitIsDead(frame.unit) and self.resurrect[playerClass] or frame.range.canAttack and frame.range.hostileSpell or frame.range.isFriendly and frame.range.friendlySpell or nil
+	frame.range.spell = UnitIsDead(frame.unit) and frame.range.isFriendly and self.resurrect[playerClass] or frame.range.canAttack and frame.range.hostileSpell or frame.range.isFriendly and frame.range.friendlySpell or nil
 	
 	-- No sense in updating range if we have no data
 	if( UnitIsGhost(frame.unit) or not UnitIsConnected(frame.unit) or ( not frame.range.spell and not frame.range.grouped and not frame.range.isFriendly ) ) then
