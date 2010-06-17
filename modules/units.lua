@@ -150,7 +150,9 @@ local function OnHide(self)
 	self:SetScript("OnEvent", nil)
 	
 	-- If it's a volatile such as target or focus, next time it's shown it has to do an update
-	if( self.isUnitVolatile ) then
+	-- OR if the unit is still shown, but it's been hidden because our parent (Basically UIParent)
+	-- we want to flag it as having changed so it can be updated
+	if( self.isUnitVolatile or self:IsShown() ) then
 		self.unitGUID = nil
 	end
 end
@@ -668,6 +670,8 @@ function Units:SetHeaderAttributes(frame, type)
 	local config = ShadowUF.db.profile.units[type]
 	local xMod = config.attribPoint == "LEFT" and 1 or config.attribPoint == "RIGHT" and -1 or 0
 	local yMod = config.attribPoint == "TOP" and -1 or config.attribPoint == "BOTTOM" and 1 or 0
+	local widthMod = (config.attribPoint == "LEFT" or config.attribPoint == "RIGHT") and MEMBERS_PER_RAID_GROUP or 1
+	local heightMod = (config.attribPoint == "TOP" or config.attribPoint == "BOTTOM") and MEMBERS_PER_RAID_GROUP or 1
 	
 	frame:SetAttribute("point", config.attribPoint)
 	frame:SetAttribute("sortMethod", config.sortMethod)
@@ -687,9 +691,10 @@ function Units:SetHeaderAttributes(frame, type)
 		for id=1, 8 do
 			local childHeader = headerFrames["raid" .. id]
 			if( childHeader and childHeader:IsVisible() ) then
-				childHeader:SetAttribute("minWidth", config.width)
-				childHeader:SetAttribute("minHeight", config.height * 5)
 				childHeader:SetAttribute("showRaid", ShadowUF.db.profile.locked and true)
+				
+				childHeader:SetAttribute("minWidth", config.width * widthMod)
+				childHeader:SetAttribute("minHeight", config.height * heightMod)
 				
 				if( childHeader ~= frame ) then
 					childHeader:SetAttribute("point", config.attribPoint)
@@ -815,6 +820,10 @@ function Units:LoadSplitGroupHeader(type)
 				frame.unitType = type
 				frame.splitParent = type
 				frame.groupID = id
+				--frame:SetBackdrop({bgFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1})
+				--frame:SetBackdropBorderColor(1, 0, 0, 1)
+				--frame:SetBackdropColor(0, 0, 0, 0)
+				
 				headerFrames["raid" .. id] = frame
 			end
 			

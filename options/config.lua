@@ -36,13 +36,13 @@ local PAGE_DESC = {
 	["tags"] = L["Advanced tag management, allows you to add your own custom tags."],
 	["filter"] = L["Simple aura filtering by whitelists and blacklists."],
 }
-local INDICATOR_NAMES = {["happiness"] = L["Happiness"], ["leader"] = L["Leader"], ["lfdRole"] = L["Dungeon role"], ["masterLoot"] = L["Master looter"], ["pvp"] = L["PvP Flag"],["raidTarget"] = L["Raid target"], ["ready"] = L["Ready status"], ["role"] = L["Raid role"], ["status"] = L["Combat status"],}
+local INDICATOR_NAMES = {["happiness"] = L["Happiness"], ["leader"] = L["Leader"], ["lfdRole"] = L["Dungeon role"], ["masterLoot"] = L["Master looter"], ["pvp"] = L["PvP Flag"],["raidTarget"] = L["Raid target"], ["ready"] = L["Ready status"], ["role"] = L["Raid role"], ["status"] = L["Combat status"], ["class"] = L["Class icon"]}
 local AREA_NAMES = {["arena"] = L["Arenas"],["none"] = L["Everywhere else"], ["party"] = L["Party instances"], ["pvp"] = L["Battlegrounds"], ["raid"] = L["Raid instances"],}
 local INDICATOR_DESC = {["happiness"] = L["Indicator for your pet's happiness, only applies to Hunters."],
 		["leader"] = L["Crown indicator for group leaders."], ["lfdRole"] = L["Role the unit is playing in dungeons formed through the Looking For Dungeon system."],
 		["masterLoot"] = L["Bag indicator for master looters."], ["pvp"] = L["PVP flag indicator, Horde for Horde flagged pvpers and Alliance for Alliance flagged pvpers."],
 		["raidTarget"] = L["Raid target indicator."], ["ready"] = L["Ready status of group members."],
-		["role"] = L["Raid role indicator, adds a shield indicator for main tanks and a sword icon for main assists."], ["status"] = L["Status indicator, shows if the unit is currently in combat. For the plyer it will also show if you are rested."],}
+		["role"] = L["Raid role indicator, adds a shield indicator for main tanks and a sword icon for main assists."], ["status"] = L["Status indicator, shows if the unit is currently in combat. For the player it will also show if you are rested."], ["class"] = L["Class icon for players."]}
 local TAG_GROUPS = {["classification"] = L["Classifications"], ["health"] = L["Health"], ["misc"] = L["Miscellaneous"], ["playerthreat"] = L["Player threat"], ["power"] = L["Power"], ["status"] = L["Status"], ["threat"] = L["Threat"], ["raid"] = L["Raid"],}
 
 local pointPositions = {["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["CENTER"] = L["Center"]}
@@ -826,8 +826,20 @@ local function loadGeneralOptions()
 						inline = true,
 						name = L["Font"],
 						args = {
-							font = {
+							color = {
 								order = 1,
+								type = "color",
+								name = L["Default color"],
+								desc = L["Default font color, any color tags inside individual tag texts will override this."],
+								hasAlpha = true,
+								set = setColor,
+								get = getColor,
+								arg = "font.color",
+								hidden = hideAdvancedOption,
+							},
+							sep = {order = 1.25, type = "description", name = "", hidden = hideAdvancedOption},
+							font = {
+								order = 1.5,
 								type = "select",
 								name = L["Font"],
 								dialogControl = "LSM30_Font",

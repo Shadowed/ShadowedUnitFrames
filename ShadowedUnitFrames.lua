@@ -88,6 +88,20 @@ function ShadowUF:OnInitialize()
 end
 
 function ShadowUF:CheckUpgrade()
+	-- June 19th
+	if( not ShadowUF.db.profile.font.color ) then
+		ShadowUF.db.profile.font.color = {r = 1, g = 1, b = 1, a = 1}
+		for unit, config in pairs(self.db.profile.units) do
+			local indicators = ShadowUF.db.profile.units[unit].indicators
+			if( indicators and indicators.class ) then
+				indicators.class.anchorTo = "$parent"
+				indicators.class.anchorPoint = "BL"
+				indicators.class.x = 0
+				indicators.class.y = 0
+			end
+		end
+	end
+	
 	-- April 29th
 	if( self.db.profile.filters.zones ) then
 		for unit, filter in pairs(self.db.profile.filters.zones) do
@@ -206,6 +220,10 @@ function ShadowUF:LoadUnitDefaults()
 		
 		if( unit ~= "player" ) then
 			self.defaults.profile.units[unit].range = {enabled = false, oorAlpha = 0.80, inAlpha = 1.0}
+
+			if( not string.match(unit, "pet") ) then
+				self.defaults.profile.units[unit].indicators.class = {enabled = false, size = 19}
+			end
 		end
 			
 		-- Want pvp/leader/ML enabled for these units

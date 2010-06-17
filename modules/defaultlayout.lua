@@ -94,7 +94,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		name = "Myriad Condensed Web",
 		size = 11,
 		extra = "",
-		shadowColor = {r = 0, g = 0, b = 0, a = 1.0},
+		shadowColor = {r = 0, g = 0, b = 0, a = 1},
+		color = {r = 1, g = 1, b = 1, a = 1},
 		shadowX = 0.80,
 		shadowY = -0.80,
 	}
@@ -198,6 +199,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		},
 		indicators = {
 			raidTarget = {anchorTo = "$parent", anchorPoint = "C", size = 20, x = 0, y = 0},
+			class = {anchorTo = "$parent", anchorPoint = "BL", size = 16, x = 0, y = 0},
 			masterLoot = {anchorTo = "$parent", anchorPoint = "TL", size = 12, x = 16, y = -10},
 			leader = {anchorTo = "$parent", anchorPoint = "TL", size = 14, x = 2, y = -12},
 			pvp = {anchorTo = "$parent", anchorPoint = "TR", size = 22, x = 11, y = -21},

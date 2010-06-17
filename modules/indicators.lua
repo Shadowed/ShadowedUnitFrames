@@ -1,7 +1,21 @@
-local Indicators = {list = {"status", "pvp", "leader", "masterLoot", "raidTarget", "happiness", "ready", "role", "lfdRole"}}
+local Indicators = {list = {"status", "pvp", "leader", "masterLoot", "raidTarget", "happiness", "ready", "role", "lfdRole", "class"}}
 local leavingWorld
 
 ShadowUF:RegisterModule(Indicators, "indicators", ShadowUF.L["Indicators"])
+
+function Indicators:UpdateClass(frame)
+	if( not frame.indicators.class or not frame.indicators.class.enabled ) then return end
+	
+	local class = select(2, UnitClass(frame.unit))
+	if( UnitIsPlayer(frame.unit) and class ) then
+		local coords = CLASS_BUTTONS[class]
+		frame.indicators.class:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
+		frame.indicators.class:SetTexCoord(coords[1], coords[2], coords[3], coords[4])
+		frame.indicators.class:Show()
+	else
+		frame.indicators.class:Hide()
+	end
+end
 
 function Indicators:UpdateHappiness(frame)
 	if( not frame.indicators.happiness or not frame.indicators.happiness.enabled ) then return end
@@ -252,6 +266,11 @@ function Indicators:OnEnable(frame)
 		frame:RegisterUpdateFunc(self, "UpdatePVPFlag")
 
 		frame.indicators.pvp = frame.indicators.pvp or frame.indicators:CreateTexture(nil, "OVERLAY")
+	end
+
+	if( config.indicators.class and config.indicators.class.enabled ) then
+		frame:RegisterUpdateFunc(self, "UpdateClass")
+		frame.indicators.class = frame.indicators.class or frame.indicators:CreateTexture(nil, "OVERLAY")
 	end
 	
 	if( config.indicators.leader and config.indicators.leader.enabled ) then
