@@ -489,10 +489,8 @@ OnAttributeChanged = function(self, name, unit)
 	
 	-- Update boss
 	elseif( self.unitType == "boss" ) then
-		if( not IS_BUILD335 ) then
-			self.timeElapsed = 0
-			self:SetScript("OnUpdate", TargetUnitUpdate)
-		end
+		self.timeElapsed = 0
+		self:SetScript("OnUpdate", TargetUnitUpdate)
 		self:RegisterNormalEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", self, "FullUpdate")
 		
 	-- Check for a unit guid to do a full update
