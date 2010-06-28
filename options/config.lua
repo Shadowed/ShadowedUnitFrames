@@ -3472,6 +3472,19 @@ local function loadUnitOptions()
 		Config.unitTable.args.indicators.args[indicator] = Config.indicatorTable
 	end
 	
+	-- Check for unit conflicts
+	local function hideZoneConflict()
+		for _, zone in pairs(ShadowUF.db.profile.visibility) do
+			for unit, status in pairs(zone) do
+				if( L.units[unit] and ( not status and ShadowUF.db.profile.units[unit].enabled or status and not ShadowUF.db.profile.units[unit].enabled ) ) then
+					return nil
+				end
+			end
+		end
+	
+		return true
+	end
+	
 	options.args.enableUnits = {
 		type = "group",
 		name = L["Enabled units"],
@@ -3482,12 +3495,65 @@ local function loadUnitOptions()
 				type = "group",
 				inline = true,
 				name = L["Help"],
-				hidden = hideBasicOption,
+				hidden = function()
+					if( not hideZoneConflict() or hideBasicOption() ) then
+						return true
+					end
+					
+					return nil
+				end,
 				args = {
 					help = {
 						order = 0,
 						type = "description",
 						name = L["The check boxes below will allow you to enable or disable units."],
+					},
+				},
+			},
+			zoneenabled = {
+				order = 1.5,
+				type = "group",
+				inline = true,
+				name = L["Zone configuration units"],
+				hidden = hideZoneConflict,
+				args = {
+					help = {
+						order = 1,
+						type = "description",
+						name = L["|cffff2020Warning!|r Some units have overrides set in zone configuration, and may show (or not show up) in certain zone. Regardless of the settings below."]
+					},
+					sep = {
+						order = 2,
+						type = "header",
+						name = "",
+					},
+					units = {
+						order = 3,
+						type = "description",
+						name = function()
+							local text = {}
+						
+							for zoneType, zone in pairs(ShadowUF.db.profile.visibility) do
+								local errors = {}
+								for unit, status in pairs(zone) do
+									if( L.units[unit] ) then
+										if ( not status and ShadowUF.db.profile.units[unit].enabled ) then
+											table.insert(errors, string.format(L["|cffff2020%s|r units disabled"], L.units[unit]))
+										elseif( status and not ShadowUF.db.profile.units[unit].enabled ) then
+											table.insert(errors, string.format(L["|cff20ff20%s|r units enabled"], L.units[unit]))
+										end
+									end
+								end
+								
+								if( #(errors) > 1 ) then
+									table.insert(text, string.format("|cfffed000%s|r have the following overrides: %s", AREA_NAMES[zoneType], table.concat(errors, ", ")))
+								elseif( #(errors) == 1 ) then
+									table.insert(text, string.format("|cfffed000%s|r has the override: %s", AREA_NAMES[zoneType], errors[1]))
+								end
+							end
+							
+							return #(text) > 0 and table.concat(text, "|n") or ""
+						end,
 					},
 				},
 			},
