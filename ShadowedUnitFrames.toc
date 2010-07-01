@@ -1,4 +1,4 @@
-## Interface: 30300
+## Interface: 40000
 ## Title: Shadowed Unit Frames
 ## Notes: An apple a day keeps the raptor away, or so they say
 ## Author: Shadowed
@@ -11,7 +11,8 @@ libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0\CallbackHandler-1.0.xml
 libs\LibSharedMedia-3.0\lib.xml
 libs\LibHealComm-4.0\LibHealComm-4.0.xml
-libs\AceDB-3.0\AceDB-3.0.xml#@end-no-lib-strip@
+libs\AceDB-3.0\AceDB-3.0.xml
+#@end-no-lib-strip@
 
 localization\enUS.lua
 localization\deDE.lua
