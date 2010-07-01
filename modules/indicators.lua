@@ -21,14 +21,18 @@ function Indicators:UpdateHappiness(frame)
 	if( not frame.indicators.happiness or not frame.indicators.happiness.enabled ) then return end
 
 	local happiness = GetPetHappiness()
+	-- No pet
 	if( not happiness ) then
 		frame.indicators.happiness:Hide()
+	-- Happy!
 	elseif( happiness == 3 ) then
 		frame.indicators.happiness:SetTexCoord(0, 0.1875, 0, 0.359375)
 		frame.indicators.happiness:Show()
+	-- Content :|
 	elseif( happiness == 2 ) then
 		frame.indicators.happiness:SetTexCoord(0.1875, 0.375, 0, 0.359375)
 		frame.indicators.happiness:Show()
+	-- Unhappy :(
 	elseif( happiness == 1 ) then
 		frame.indicators.happiness:SetTexCoord(0.375, 0.5625, 0, 0.359375)
 		frame.indicators.happiness:Show()
