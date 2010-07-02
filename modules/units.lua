@@ -128,6 +128,23 @@ local function SetRangeAlpha(self, alpha)
 	end
 end
 
+local function SetBarColor(self, key, invert, r, g, b)
+	local bar = self[key]
+	if( not invert ) then
+		bar:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.alpha)
+		if( not bar.background.overrideColor ) then
+			bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.backgroundAlpha)
+		end
+	else
+		bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.alpha)
+		if( not bar.background.overrideColor ) then
+			bar:SetStatusBarColor(0, 0, 0, 1 - ShadowUF.db.profile.bars.backgroundAlpha)
+		else
+			bar:SetStatusBarColor(bar.background.overrideColor.r, bar.background.overrideColor.g, bar.background.overrideColor.b, 1 - ShadowUF.db.profile.bars.backgroundAlpha)
+		end
+	end
+end
+
 -- Event handling
 local function OnEvent(self, event, unit, ...)
 	if( not unitEvents[event] or self.unit == unit ) then
@@ -584,6 +601,7 @@ function Units:CreateUnit(...)
 	frame.SetRangeAlpha = SetRangeAlpha
 	frame.DisableRangeAlpha = DisableRangeAlpha
 	frame.UnregisterUpdateFunc = UnregisterUpdateFunc
+	frame.SetBarColor = SetBarColor
 	frame.FullUpdate = FullUpdate
 	frame.SetVisibility = SetVisibility
 	frame.topFrameLevel = 5

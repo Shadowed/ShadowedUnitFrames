@@ -17,16 +17,8 @@ end
 function Power:OnEnable(frame)
 	frame.powerBar = frame.powerBar or ShadowUF.Units:CreateBar(frame)
 		
-	frame:RegisterUnitEvent("UNIT_MANA", self, "Update")
-	frame:RegisterUnitEvent("UNIT_RAGE", self, "Update")
-	frame:RegisterUnitEvent("UNIT_ENERGY", self, "Update")
-	frame:RegisterUnitEvent("UNIT_FOCUS", self, "Update")
-	frame:RegisterUnitEvent("UNIT_RUNIC_POWER", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MAXMANA", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MAXRAGE", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MAXENERGY", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MAXFOCUS", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MAXRUNIC_POWER", self, "Update")
+	frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
+	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdateColor")
 
 	frame:RegisterUpdateFunc(self, "UpdateColor")
