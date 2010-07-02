@@ -299,7 +299,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			portrait = {enabled = true, fullAfter = 50},
 			castBar = {order = 60},
 			xpBar = {order = 55},
-			fader = {combatAlpha = 1.0, inactiveAlpha = 0.6}
+			fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.6},
 			runeBar = {enabled = true, background = false, height = 0.40, order = 70},
 			totemBar = {enabled = true, background = false, height = 0.40, order = 70},
 			druidBar = {enabled = true, background = true, height = 0.40, order = 70},
