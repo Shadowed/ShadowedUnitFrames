@@ -42,7 +42,7 @@ function ShadowUF:OnInitialize()
 	}
 	
 	self:LoadUnitDefaults()
-	
+		
 	-- Initialize DB
 	self.db = LibStub:GetLibrary("AceDB-3.0"):New("ShadowedUFDB", self.defaults, true)
 	self.db.RegisterCallback(self, "OnProfileChanged", "ProfilesChanged")
