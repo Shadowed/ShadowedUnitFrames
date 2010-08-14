@@ -4603,7 +4603,12 @@ local function loadTagOptions()
 							error = {
 								order = 0,
 								type = "description",
-								name = function() return tagData.error or "" end,
+								name = function()
+									if( tagData.error ) then
+										return "|cffff0000" .. tagData.error .. "|r"
+									end
+									return ""
+								end,
 								hidden = function() return not tagData.error end,
 							},
 							errorHeader = {
