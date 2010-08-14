@@ -14,10 +14,10 @@ local function checkRange(self, elapsed)
 	if( self.timeElapsed <= 0.50 ) then return end
 	self.timeElapsed = 0
 	
-	if( self.isFriendly and resurrectSpell and UnitIsDead(self.parent.unit) ) then
-		self.parent:SetRangeAlpha(IsSpellInRange(resurrectSpell, self.parent.unit) == 1 and ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha or ShadowUF.db.profile.units[self.parent.unitType].range.oorAlpha)
+	--if( self.isFriendly and resurrectSpell and UnitIsDead(self.parent.unit) ) then
+	--	self.parent:SetRangeAlpha(IsSpellInRange(resurrectSpell, self.parent.unit) == 1 and ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha or ShadowUF.db.profile.units[self.parent.unitType].range.oorAlpha)
 	-- We set a spell for them in our flags check, use that
-	elseif( self.spell ) then
+	if( self.spell ) then
 		self.parent:SetRangeAlpha(IsSpellInRange(self.spell, self.parent.unit) == 1 and ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha or ShadowUF.db.profile.units[self.parent.unitType].range.oorAlpha)
 	-- That didn't work, but they are grouped lets try the actual API for this, it's a bit flaky though and not that useful generally
 	elseif( self.grouped ) then
