@@ -1090,7 +1090,7 @@ local function loadGeneralOptions()
 								order = 7,
 								type = "color",
 								name = L["Eclipse (Moon)"],
-								desc = L["Bar coloring for the moon portion of the eclipse bar."]
+								desc = L["Bar coloring for the moon portion of the eclipse bar."],
 								hidden = function(info) return select(2, UnitClass("player")) ~= "DRUID" end,
 								hasAlpha = true,
 								arg = "powerColors.ECLIPSE_MOON",
@@ -1099,7 +1099,7 @@ local function loadGeneralOptions()
 								order = 8,
 								type = "color",
 								name = L["Eclipse (Sun)"],
-								desc = L["Bar coloring for the moon portion of the eclipse bar."]
+								desc = L["Bar coloring for the moon portion of the eclipse bar."],
 								hidden = function(info) return select(2, UnitClass("player")) ~= "DRUID" end,
 								hasAlpha = true,
 								arg = "powerColors.ECLIPSE_SUN",

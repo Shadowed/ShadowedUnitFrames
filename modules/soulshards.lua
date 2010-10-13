@@ -1,5 +1,5 @@
 local Souls = {}
-ShadowUF:RegisterModule(Combo, "soulShards", ShadowUF.L["Soul shards"], nil, "WARLOCK")
+ShadowUF:RegisterModule(Souls, "soulShards", ShadowUF.L["Soul shards"], nil, "WARLOCK")
 local soulsConfig = {max = SHARD_BAR_NUM_SHARDS, key = "soulShards", icon = ""}
 
 function Souls:OnEnable(frame)

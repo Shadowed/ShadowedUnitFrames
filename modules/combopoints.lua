@@ -5,14 +5,16 @@ local cpConfig = {max = MAX_COMBO_POINTS, key = "comboPoints", icon = "Interface
 function Combo:OnEnable(frame)
 	frame.comboPoints = frame.comboPoints or CreateFrame("Frame", nil, frame)
 	frame.comboPoints.config = cpConfig
-	frame.comboPointType = cpvisualConfig.key
+	frame.comboPointType = cpConfig.key
 	frame:RegisterNormalEvent("UNIT_COMBO_POINTS", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
 function Combo:OnLayoutApplied(frame, config)
-	local key = frame.comboPointType
+	local key = frame.comboPointType  
 	local pointsFrame = frame[key]
+  if not pointsFrame then return end
+  
 	local pointsConfig = pointsFrame.config
 	config = config[key]
 	-- Not a bar so set the containers frame configuration

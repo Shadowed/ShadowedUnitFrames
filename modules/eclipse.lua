@@ -2,7 +2,7 @@
 -- Cast Arcane -> Move to Sun (Buff Nature)
 -- Cast Nature -> Move to Moon (Buff Arcane)
 local Eclipse = {types = {"sun", "moon"}}
-ShadowUF:RegisterModule(Druid, "eclipseBar", ShadowUF.L["Eclipse bar"], true, "DRUID")
+ShadowUF:RegisterModule(Eclipse, "eclipseBar", ShadowUF.L["Eclipse bar"], true, "DRUID")
 
 local function updatePower(self)
 	local power = UnitPower(self.parent.unit, ECLIPSE_BAR_POWER_INDEX)
