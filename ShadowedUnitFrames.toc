@@ -1,6 +1,6 @@
 ## Interface: 40000
 ## Title: Shadowed Unit Frames
-## Notes: An apple a day keeps the raptor away, or so they say
+## Notes: An apple a day keeps the raptor away, or so they say.
 ## Author: Shadowed
 ## Version: @project-version@
 ## SavedVariables: ShadowedUFDB
