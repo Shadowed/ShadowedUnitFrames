@@ -15,12 +15,14 @@ function Totems:OnEnable(frame)
 		frame.totemBar = CreateFrame("Frame", nil, frame)
 		frame.totemBar.totems = {}
 		
+		local priorities = (select(2, UnitClass("player")) == "SHAMAN") and SHAMAN_TOTEM_PRIORITIES or STANDARD_TOTEM_PRIORITIES
+		
 		for id=1, MAX_TOTEMS do
 			local totem = ShadowUF.Units:CreateBar(frame)
 			totem:SetFrameLevel(1)
 			totem:SetMinMaxValues(0, 1)
 			totem:SetValue(0)
-			totem.id = MAX_TOTEMS == 1 and 1 or TOTEM_PRIORITIES[id]
+			totem.id = MAX_TOTEMS == 1 and 1 or priorities[id]
 			
 			if( id > 1 ) then
 				totem:SetPoint("TOPLEFT", frame.totemBar.totems[id - 1], "TOPRIGHT", 1, 0)
