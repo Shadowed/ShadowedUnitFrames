@@ -85,7 +85,7 @@ end
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or 1
 	-- July 1st
-	if( revision ) then
+	if( revision <= 1 ) then
 		self.db.profile.units.player.fader.combatAlpha = self.db.profile.units.player.fader.combatAlpha or 1.0
 		self.db.profile.units.player.fader.inactiveAlpha = self.db.profile.units.player.fader.inactiveAlpha or 0.6
 		self.db.profile.units.target.comboPoints.height = self.db.profile.units.target.comboPoints.height or 0.40
