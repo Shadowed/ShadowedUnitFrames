@@ -1,55 +1,64 @@
 local Combo = {}
 ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUF.L["Combo points"])
+local cpConfig = {max = MAX_COMBO_POINTS, key = "comboPoints", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
 
 function Combo:OnEnable(frame)
 	frame.comboPoints = frame.comboPoints or CreateFrame("Frame", nil, frame)
+	frame.comboPoints.config = cpConfig
+	frame.comboPointType = cpConfig.key
 	frame:RegisterNormalEvent("UNIT_COMBO_POINTS", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
 function Combo:OnLayoutApplied(frame, config)
+	local key = frame.comboPointType  
+	local pointsFrame = frame[key]
+  if not pointsFrame then return end
+  
+	local pointsConfig = pointsFrame.config
+	config = config[key]
 	-- Not a bar so set the containers frame configuration
-	if( config.comboPoints and not config.comboPoints.isBar ) then
-		ShadowUF.Layout:ToggleVisibility(frame.comboPoints, frame.visibility.comboPoints)
+	if( config and not config.isBar ) then
+		ShadowUF.Layout:ToggleVisibility(pointsFrame, frame.visibility[key])
 	end
 	
-	if( not frame.visibility.comboPoints ) then	return end
+	if( not frame.visibility[key] ) then return end
 	
 	-- Hide the active combo points
-	if( frame.comboPoints.points ) then
-		for _, texture in pairs(frame.comboPoints.points) do
+	if( pointsFrame.points ) then
+		for _, texture in pairs(pointsFrame.points) do
 			texture:Hide()
 		end
 	end
 	
 	-- Setup for bar display!
-	if( config.comboPoints.isBar ) then
-		frame.comboPoints.blocks = frame.comboPoints.blocks or {}
-		frame.comboPoints.points = frame.comboPoints.blocks
+	if( config.isBar ) then
+		pointsFrame.blocks = pointsFrame.blocks or {}
+		pointsFrame.points = pointsFrame.blocks
 	
 		-- Position bars, the 5 accounts for borders
-		local blockWidth = (frame.comboPoints:GetWidth() - 4 ) / MAX_COMBO_POINTS
-		for id=1, MAX_COMBO_POINTS do
-			frame.comboPoints.blocks[id] = frame.comboPoints.blocks[id] or frame.comboPoints:CreateTexture(nil, "OVERLAY")
-			local texture = frame.comboPoints.blocks[id]
+		local blockWidth = (pointsFrame:GetWidth() - 4 ) / pointsConfig.max
+		for id=1, pointsConfig.max do
+			pointsFrame.blocks[id] = pointsFrame.blocks[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
+			local texture = pointsFrame.blocks[id]
 			texture:SetVertexColor(1, 0.80, 0)
 			texture:SetHorizTile(false)
 			texture:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
-			texture:SetHeight(frame.comboPoints:GetHeight())
+			texture:SetHeight(pointsFrame:GetHeight())
 			texture:SetWidth(blockWidth)
 			texture:ClearAllPoints()
 			
-			if( config.comboPoints.growth == "LEFT" ) then
+			if( config.growth == "LEFT" ) then
 				if( id > 1 ) then
-					texture:SetPoint("TOPRIGHT", frame.comboPoints.blocks[id - 1], "TOPLEFT", -1, 0)
+					texture:SetPoint("TOPRIGHT", pointsFrame.blocks[id - 1], "TOPLEFT", -1, 0)
 				else
-					texture:SetPoint("TOPRIGHT", frame.comboPoints, "TOPRIGHT", 0, 0)
+					texture:SetPoint("TOPRIGHT", pointsFrame, "TOPRIGHT", 0, 0)
 				end
 			else
 				if( id > 1 ) then
-					texture:SetPoint("TOPLEFT", frame.comboPoints.blocks[id - 1], "TOPRIGHT", 1, 0)
+					texture:SetPoint("TOPLEFT", pointsFrame.blocks[id - 1], "TOPRIGHT", 1, 0)
 				else
-					texture:SetPoint("TOPLEFT", frame.comboPoints, "TOPLEFT", 0, 0)
+					texture:SetPoint("TOPLEFT", pointsFrame, "TOPLEFT", 0, 0)
 				end
 			end
 		end
@@ -59,45 +68,43 @@ function Combo:OnLayoutApplied(frame, config)
 		local point, relativePoint
 		local x, y = 0, 0
 		
-		if( config.comboPoints.growth == "LEFT" ) then
+		if( config.growth == "LEFT" ) then
 			point, relativePoint = "BOTTOMRIGHT", "BOTTOMLEFT"
-			x = config.comboPoints.spacing
-		elseif( config.comboPoints.growth == "RIGHT" ) then
+			x = config.spacing
+		elseif( config.growth == "RIGHT" ) then
 			point, relativePoint = "BOTTOMLEFT", "BOTTOMRIGHT"
-			x = config.comboPoints.spacing
-		elseif( config.comboPoints.growth == "UP" ) then
+			x = config.spacing
+		elseif( config.growth == "UP" ) then
 			point, relativePoint = "BOTTOMLEFT", "TOPLEFT"
-			y = config.comboPoints.spacing
-		elseif( config.comboPoints.growth == "DOWN" ) then
+			y = config.spacing
+		elseif( config.growth == "DOWN" ) then
 			point, relativePoint = "TOPLEFT", "BOTTOMLEFT"
-			y = config.comboPoints.spacing
+			y = config.spacing
 		end
 		
 
-		frame.comboPoints.icons = frame.comboPoints.icons or {}
-		frame.comboPoints.points = frame.comboPoints.icons
+		pointsFrame.icons = pointsFrame.icons or {}
+		pointsFrame.points = pointsFrame.icons
 		
-		for id=1, MAX_COMBO_POINTS do
-			frame.comboPoints.icons[id] = frame.comboPoints.icons[id] or frame.comboPoints:CreateTexture(nil, "OVERLAY")
+		for id=1, pointsConfig.max do
+			pointsFrame.icons[id] = pointsFrame.icons[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 			local texture = frame.comboPoints.icons[id]
-			texture:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo")
-			texture:SetHeight(config.comboPoints.size)
-			texture:SetWidth(config.comboPoints.size)
+			texture:SetTexture(pointsConfig.icon)
+			texture:SetSize(config.size, config.size)
 			
 			if( id > 1 ) then
 				texture:ClearAllPoints()
-				texture:SetPoint(point, frame.comboPoints.icons[id - 1], relativePoint, x, y)
+				texture:SetPoint(point, pointsFrame.icons[id - 1], relativePoint, x, y)
 			else
 				texture:ClearAllPoints()
-				texture:SetPoint("CENTER", frame.comboPoints, "CENTER", 0, 0)
+				texture:SetPoint("CENTER", pointsFrame, "CENTER", 0, 0)
 			end
 		end
 		
 		-- Position the main frame
-		frame.comboPoints:SetHeight(0.1)
-		frame.comboPoints:SetWidth(0.1)
-
-		ShadowUF.Layout:AnchorFrame(frame, frame.comboPoints, config.comboPoints)
+		pointsFrame:Setsize(0.1, 0.1)
+		
+		ShadowUF.Layout:AnchorFrame(frame, pointsFrame, config)
 	end
 end
 

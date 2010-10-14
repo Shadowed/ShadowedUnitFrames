@@ -4,8 +4,6 @@ ShadowUF:RegisterModule(Druid, "druidBar", ShadowUF.L["Druid mana bar"], true, "
 function Druid:OnEnable(frame)
 	frame.druidBar = frame.druidBar or ShadowUF.Units:CreateBar(frame)
 
-	frame:RegisterUnitEvent("UNIT_MAXMANA", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MANA", self, "Update")
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "PowerChanged")
 	
 	frame:RegisterUpdateFunc(self, "PowerChanged")
@@ -34,13 +32,21 @@ function Druid:OnLayoutApplied(frame)
 	end
 end
 
--- While power type is mana, show the bar once it is mana hide it.
 function Druid:PowerChanged(frame)
 	local powerType = UnitPowerType(frame.unit)
-	ShadowUF.Layout:SetBarVisibility(frame, "druidBar", powerType == 1 or powerType == 3)
+	if( powerType == SPELL_POWER_FOCUS or powerType == SPELL_POWER_RAGE ) then
+		frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
+		frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")
+		ShadowUF.Layout:SetBarVisibility(frame, "druidBar", true)
+	else
+		frame:UnregisterEvent("UNIT_POWER", self)
+		frame:UnregisterEvent("UNIT_MAXPOWER", self)
+		ShadowUF.Layout:SetBarVisibility(frame, "druidBar", nil)
+	end
 end
 
-function Druid:Update(frame)
-	frame.druidBar:SetMinMaxValues(0, UnitPowerMax(frame.unit, 0))
-	frame.druidBar:SetValue(UnitIsDeadOrGhost(frame.unit) and 0 or not UnitIsConnected(frame.unit) and 0 or UnitPower(frame.unit, 0))
+function Druid:Update(frame, event, unit, powerType)
+	if( powerType ~= "MANA" ) then return end
+	frame.druidBar:SetMinMaxValues(0, UnitPowerMax(frame.unit, SPELL_POWER_MANA))
+	frame.druidBar:SetValue(UnitIsDeadOrGhost(frame.unit) and 0 or not UnitIsConnected(frame.unit) and 0 or UnitPower(frame.unit, SPELL_POWER_MANA))
 end

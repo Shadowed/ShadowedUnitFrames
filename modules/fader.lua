@@ -1,4 +1,5 @@
 local Fader = {}
+local powerDepletes = {[SPELL_POWER_MANA] = true, [SPELL_POWER_ENERGY] = true, [SPELL_POWER_FOCUS] = true}
 ShadowUF:RegisterModule(Fader, "fader", ShadowUF.L["Combat fader"])
 
 local function faderUpdate(self, elapsed)
@@ -80,22 +81,22 @@ function Fader:PLAYER_REGEN_ENABLED(frame, event)
 	frame:RegisterNormalEvent("UNIT_SPELLCAST_START", self, "CastStart")
 	frame:RegisterNormalEvent("UNIT_SPELLCAST_STOP", self, "CastStop")
 	frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MANA", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MAXMANA", self, "Update")	
+	frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
+	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")	
 end
 
 function Fader:PLAYER_REGEN_DISABLED(frame, event)
 	self:Update(frame, event)
-	frame:UnregisterEvent("PLAYER_TARGET_CHANGED")
-	frame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START")
-	frame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP")
-	frame:UnregisterEvent("UNIT_SPELLCAST_START")
-	frame:UnregisterEvent("UNIT_SPELLCAST_STOP")
-	frame:UnregisterEvent("UNIT_HEALTH")
-	frame:UnregisterEvent("UNIT_MANA")
-	frame:UnregisterEvent("UNIT_MAXHEALTH")
-	frame:UnregisterEvent("UNIT_MAXMANA")
+	frame:UnregisterEvent("PLAYER_TARGET_CHANGED", self)
+	frame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START", self)
+	frame:UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP", self)
+	frame:UnregisterEvent("UNIT_SPELLCAST_START", self)
+	frame:UnregisterEvent("UNIT_SPELLCAST_STOP", self)
+	frame:UnregisterEvent("UNIT_HEALTH", self)
+	frame:UnregisterEvent("UNIT_POWER", self)
+	frame:UnregisterEvent("UNIT_MAXHEALTH", self)
+	frame:UnregisterEvent("UNIT_MAXPOWER", self)
 end
 
 
@@ -125,7 +126,7 @@ function Fader:Update(frame, event)
 	elseif( frame.fader.playerCasting ) then
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha, true)
 	-- Ether mana or energy is not at 100%, fade in
-	elseif( ( UnitPowerType(frame.unit) == 0 or UnitPowerType(frame.unit) == 3 ) and UnitPower(frame.unit) ~= UnitPowerMax(frame.unit) ) then
+	elseif( powerDepletes[UnitPowerType(frame.unit)] and UnitPower(frame.unit) ~= UnitPowerMax(frame.unit) ) then
 		startFading(frame, "in", ShadowUF.db.profile.units[frame.unitType].fader.combatAlpha)
 	-- Health is not at max, fade in
 	elseif( UnitHealth(frame.unit) ~= UnitHealthMax(frame.unit) ) then

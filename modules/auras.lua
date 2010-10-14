@@ -200,16 +200,6 @@ local function hideTooltip(self)
 	GameTooltip:Hide()
 end
 
-local function cancelBuff(self)
-	if( not ShadowUF.db.profile.locked ) then return end
-	
-	if( self.filter == "TEMP" ) then
-		CancelItemTempEnchantment(self.auraID - 15)
-	else
-		CancelUnitBuff(self.unit, self.auraID, self.filter)
-	end
-end
-
 local function updateButton(id, group, config)
 	local button = group.buttons[id]
 	if( not button ) then
@@ -218,14 +208,13 @@ local function updateButton(id, group, config)
 		button = group.buttons[id]
 		button:SetScript("OnEnter", showTooltip)
 		button:SetScript("OnLeave", hideTooltip)
-		button:SetScript("OnClick", cancelBuff)
 		button:RegisterForClicks("RightButtonUp")
 		
 		button.cooldown = CreateFrame("Cooldown", nil, button)
 		button.cooldown:SetAllPoints(button)
 		button.cooldown:SetReverse(true)
 		button.cooldown:SetFrameLevel(7)
-		button.cooldown:Hide()			
+		button.cooldown:Hide()
 		
 		button.stack = button:CreateFontString(nil, "OVERLAY")
 		button.stack:SetFont("Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf", 10, "OUTLINE")
@@ -238,7 +227,7 @@ local function updateButton(id, group, config)
 		button.stack:SetJustifyH("RIGHT")
 
 		button.border = button:CreateTexture(nil, "OVERLAY")
-		button.border:SetPoint("CENTER", button)		
+		button.border:SetPoint("CENTER", button)
 		
 		button.icon = button:CreateTexture(nil, "BACKGROUND")
 		button.icon:SetAllPoints(button)

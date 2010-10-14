@@ -43,7 +43,7 @@ local function finalizeData(config, useMerge)
 				mergeToChild(config.parentUnit, child)
 				-- Strip any invalid tables
 				verifyTable(child, self.defaults.profile.units[unit])
-				-- Merge it in
+				-- Merge the new child table into the actual units
 				mergeToChild(child, self.db.profile.units[unit], true)
 				
 				-- Merge position in too
@@ -62,6 +62,20 @@ local function finalizeData(config, useMerge)
 		
 		for key, data in pairs(config) do
 			self.db.profile[key] = data
+		end
+	else
+		for key, data in pairs(config) do
+			if( key ~= "parentUnit" and key ~= "units" and key ~= "positions" and key ~= "hidden" ) then
+				if( self.db.profile[key] == nil ) then
+					self.db.profile[key] = data
+				else
+					for subKey, subValue in pairs(data) do
+						if( self.db.profile[key][subKey] == nil ) then
+							self.db.profile[key][subKey] = subValue
+						end
+					end
+				end
+			end
 		end
 	end
 end
@@ -128,6 +142,9 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		HAPPINESS = {r = 0.50, g = 0.90, b = 0.70},
 		RUNES = {r = 0.50, g = 0.50, b = 0.50}, 
 		RUNIC_POWER = {b = 0.60, g = 0.45, r = 0.35},
+		ECLIPSE_SUN = {r = 0.2, g = 0.80, b = 1.0},
+		ECLIPSE_MOON = {r = 0.2, g = 0.80, b = 1.0},
+		ECLIPSE_FULL = {r = 0, g = 0.32, b = 0.43},
 		AMMOSLOT = {r = 0.85, g = 0.60, b = 0.55},
 		FUEL = {r = 0.85, g = 0.47, b = 0.36},
 	}
@@ -213,11 +230,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		emptyBar = {background = true, height = 1, reactionType = "none", order = 0},
 		healthBar = {background = true, colorType = "class", reactionType = "npc", height = 1.20, order = 10},
 		powerBar = {background = true, height = 1.0, order = 20},
-		druidBar = {background = true, height = 0.40, order = 25},
 		xpBar = {background = true, height = 0.25, order = 55},
 		castBar = {background = true, height = 0.60, order = 40, icon = "HIDE", name = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}, time = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}},
-		runeBar = {background = false, height = 0.40, order = 70},
-		totemBar = {background = false, height = 0.40, order = 70},
 	}
 	
 	-- Units configuration
@@ -278,16 +292,19 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[name]"},
 			},
 		},
-		
-	player = {
+		player = {
 			width = 190,
 			height = 45,
 			scale = 1.0,
 			portrait = {enabled = true, fullAfter = 50},
 			castBar = {order = 60},
 			xpBar = {order = 55},
-			runeBar = {enabled = true, order = 70},
-			totemBar = {enabled = true, order = 70},
+			fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.6},
+			runeBar = {enabled = true, background = false, height = 0.40, order = 70},
+			totemBar = {enabled = true, background = false, height = 0.40, order = 70},
+			druidBar = {enabled = true, background = true, height = 0.40, order = 70},
+			eclipseBar = {enabled = true, background = true, height = 0.40, order = 70},
+		 	soulShards = {anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true},
 			auras = {
 				buffs = {enabled = false, maxRows = 1, temporary = playerClass == "ROGUE" or playerClass == "SHAMAN"},
 				debuffs = {enabled = false, maxRows = 1},
@@ -524,7 +541,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			scale = 1.0,
 			portrait = {enabled = true, alignment = "RIGHT", fullAfter = 50},
 			castBar = {order = 60},
-			comboPoints = {anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true},
+			comboPoints = {enabled = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true, height = 0.40},
 			indicators = {
 				lfdRole = {enabled = false}
 			},

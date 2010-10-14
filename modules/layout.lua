@@ -96,7 +96,16 @@ function Layout:Reload(unit)
 			frame:FullUpdate()
 		end
 	end
-	
+
+	for header in pairs(ShadowUF.Units.headerFrames) do
+		if( header.unitType and ( not unit or header.unitType == unit ) ) then
+			local config = ShadowUF.db.profile.units[header.unitType]
+			header:SetAttribute("style-height", config.height)
+			header:SetAttribute("style-width", config.width)
+			header:SetAttribute("style-scale", config.scale)
+		end
+	end
+
 	ShadowUF:FireModuleEvent("OnLayoutReload", unit)
 end
 

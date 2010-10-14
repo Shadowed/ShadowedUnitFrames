@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 1
+ShadowUF.dbRevision = 2
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -83,11 +83,24 @@ function ShadowUF:OnInitialize()
 end
 
 function ShadowUF:CheckUpgrade()
+	local revision = self.db.profile.revision or 1
+	-- July 1st
+	if( revision <= 1 ) then
+		self.db.profile.units.player.fader.combatAlpha = self.db.profile.units.player.fader.combatAlpha or 1.0
+		self.db.profile.units.player.fader.inactiveAlpha = self.db.profile.units.player.fader.inactiveAlpha or 0.6
+		self.db.profile.units.target.comboPoints.height = self.db.profile.units.target.comboPoints.height or 0.40
+		self.db.profile.units.player.eclipseBar = {enabled = true, background = true, height = 0.40, order = 70}
+	 	self.db.profile.units.player.soulShards = {anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true}
+		
+		self:LoadDefaultLayout(true)
+	end
+	
+	
 	-- June 19th
-	if( not ShadowUF.db.profile.font.color ) then
-		ShadowUF.db.profile.font.color = {r = 1, g = 1, b = 1, a = 1}
+	if( not self.db.profile.font.color ) then
+		self.db.profile.font.color = {r = 1, g = 1, b = 1, a = 1}
 		for unit, config in pairs(self.db.profile.units) do
-			local indicators = ShadowUF.db.profile.units[unit].indicators
+			local indicators = self.db.profile.units[unit].indicators
 			if( indicators and indicators.class ) then
 				indicators.class.anchorTo = "$parent"
 				indicators.class.anchorPoint = "BL"
@@ -244,7 +257,9 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.totemBar = {enabled = false}
 	self.defaults.profile.units.player.druidBar = {enabled = false}
 	self.defaults.profile.units.player.xpBar = {enabled = false}
-	self.defaults.profile.units.player.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
+	self.defaults.profile.units.player.fader = {enabled = false}
+	self.defaults.profile.units.player.soulShards = {enabled = false}
+	self.defaults.profile.units.player.eclipseBar = {enabled = false}
 	self.defaults.profile.units.player.indicators.lfdRole = {enabled = true, size = 0, x = 0, y = 0}
 	-- PET
 	self.defaults.profile.units.pet.enabled = true
@@ -260,7 +275,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.focustarget.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	-- TARGET
 	self.defaults.profile.units.target.enabled = true
-	self.defaults.profile.units.target.comboPoints = {enabled = true, isBar = false, height = 0.40, order = 30, anchorTo = "$parent", anchorPoint = "BR", x = 0, y = 0}
+	self.defaults.profile.units.target.comboPoints = {}
 	self.defaults.profile.units.target.indicators.lfdRole = {enabled = false, size = 0, x = 0, y = 0}
 	-- TARGETTARGET/TARGETTARGETTARGET
 	self.defaults.profile.units.targettarget.enabled = true
@@ -449,6 +464,10 @@ function ShadowUF:HideBlizzardFrames()
 
 		PlayerFrameHealthBar:UnregisterAllEvents()
 		PlayerFrameManaBar:UnregisterAllEvents()
+		PlayerFrameAlternateManaBar:UnregisterAllEvents()
+		EclipseBarFrame:UnregisterAllEvents()
+		RuneFrame:UnregisterAllEvents()
+		ShardBarFrame:UnregisterAllEvents()
 	end
 	
 	if( ShadowUF.db.profile.hidden.pet ) then

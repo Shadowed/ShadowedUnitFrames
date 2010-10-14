@@ -128,6 +128,23 @@ local function SetRangeAlpha(self, alpha)
 	end
 end
 
+local function SetBarColor(self, key, invert, r, g, b)
+	local bar = self[key]
+	if( not invert ) then
+		bar:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.alpha)
+		if( not bar.background.overrideColor ) then
+			bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.backgroundAlpha)
+		end
+	else
+		bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.alpha)
+		if( not bar.background.overrideColor ) then
+			bar:SetStatusBarColor(0, 0, 0, 1 - ShadowUF.db.profile.bars.backgroundAlpha)
+		else
+			bar:SetStatusBarColor(bar.background.overrideColor.r, bar.background.overrideColor.g, bar.background.overrideColor.b, 1 - ShadowUF.db.profile.bars.backgroundAlpha)
+		end
+	end
+end
+
 -- Event handling
 local function OnEvent(self, event, unit, ...)
 	if( not unitEvents[event] or self.unit == unit ) then
@@ -429,8 +446,10 @@ OnAttributeChanged = function(self, name, unit)
 	self.unitInitialized = true
 
 	-- Add to Clique
-	ClickCastFrames = ClickCastFrames or {}
-	ClickCastFrames[self] = true
+	if( not self:GetAttribute("isHeaderDriven") ) then
+		ClickCastFrames = ClickCastFrames or {}
+		ClickCastFrames[self] = true
+	end
 	
 	-- Handles switching the internal unit variable to that of their vehicle
 	if( self.unit == "player" or self.unitRealType == "party" or self.unitRealType == "raid" ) then
@@ -534,19 +553,40 @@ end
 
 Units.OnAttributeChanged = OnAttributeChanged
 
--- Header unit initialized
-local function initializeUnit(self)
-	local unitType = self:GetParent().unitType
-	local config = ShadowUF.db.profile.units[unitType]
+local secureInitializeUnit = [[
+	local header = self:GetParent()
 
-	self.ignoreAnchor = true
-	self.unitType = unitType
-	self:SetAttribute("initial-height", config.height)
-	self:SetAttribute("initial-width", config.width)
-	self:SetAttribute("initial-scale", config.scale)
+	self:SetHeight(header:GetAttribute("style-height"))
+	self:SetWidth(header:GetAttribute("style-width"))
+	self:SetScale(header:GetAttribute("style-scale"))
+
 	self:SetAttribute("toggleForVehicle", true)
+
+	self:SetAttribute("*type1", "target")
+	self:SetAttribute("*type2", "menu")
+
+	self:SetAttribute("isHeaderDriven", true)
 	
-	Units:CreateUnit(self)
+	-- Clique integration
+	local clickHeader = header:GetFrameRef("clickcast_header")
+	if clickHeader then
+		clickHeader:SetAttribute("clickcast_button", self)
+		clickHeader:RunAttribute("clickcast_register")
+	end
+
+	header:CallMethod("initialConfigFunction", self:GetName())
+]]
+
+local unitButtonTemplate = ClickCastHeader and "ClickCastUnitTemplate,SecureUnitButtonTemplate" or "SecureUnitButtonTemplate"
+
+-- Header unit initialized
+local function initializeUnit(header, frameName)
+	local frame = _G[frameName]
+
+	frame.ignoreAnchor = true
+	frame.unitType = header.unitType
+
+	Units:CreateUnit(frame)
 end
 
 -- Show tooltip
@@ -584,6 +624,7 @@ function Units:CreateUnit(...)
 	frame.SetRangeAlpha = SetRangeAlpha
 	frame.DisableRangeAlpha = DisableRangeAlpha
 	frame.UnregisterUpdateFunc = UnregisterUpdateFunc
+	frame.SetBarColor = SetBarColor
 	frame.FullUpdate = FullUpdate
 	frame.SetVisibility = SetVisibility
 	frame.topFrameLevel = 5
@@ -602,8 +643,11 @@ function Units:CreateUnit(...)
 	frame:SetScript("PostClick", PostClick)
 
 	frame:RegisterForClicks("AnyUp")	
-	frame:SetAttribute("*type1", "target")
-	frame:SetAttribute("*type2", "menu")
+	-- non-header frames don't set those, so we need to do it
+	if( not InCombatLockdown() ) then
+		frame:SetAttribute("*type1", "target")
+		frame:SetAttribute("*type2", "menu")
+	end
 	
 	return frame
 end
@@ -803,16 +847,18 @@ function Units:LoadSplitGroupHeader(type)
 	if( headerFrames.raid ) then headerFrames.raid:Hide() end
 	headerFrames.raidParent = nil
 
+	local config = ShadowUF.db.profile.units[unitType]
 	for id, enabled in pairs(ShadowUF.db.profile.units[type].filters) do
 		local frame = headerFrames["raid" .. id]
 		if( enabled ) then
 			if( not frame ) then
 				frame = CreateFrame("Frame", "SUFHeader" .. type .. id, UIParent, "SecureGroupHeaderTemplate")
-				frame:SetAttribute("template", "SecureUnitButtonTemplate")
+				frame:SetAttribute("template", unitButtonTemplate)
 				frame:SetAttribute("initial-unitWatch", true)
 				frame:SetAttribute("showRaid", true)
 				frame:SetAttribute("groupFilter", id)
 				frame:UnregisterEvent("UNIT_NAME_UPDATE")
+				frame:SetAttribute("initialConfigFunction", secureInitializeUnit)
 				frame.initialConfigFunction = initializeUnit
 				frame.isHeaderFrame = true
 				frame.unitType = type
@@ -821,6 +867,16 @@ function Units:LoadSplitGroupHeader(type)
 				--frame:SetBackdrop({bgFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1})
 				--frame:SetBackdropBorderColor(1, 0, 0, 1)
 				--frame:SetBackdropColor(0, 0, 0, 0)
+				
+				frame:SetAttribute("style-height", config.height)
+				frame:SetAttribute("style-width", config.width)
+				frame:SetAttribute("style-scale", config.scale)
+				
+				if ClickCastHeader then
+					-- the OnLoad adds the functions like SetFrameRef to the header
+					SecureHandler_OnLoad(frame)
+					frame:SetFrameRef("clickcast_header", ClickCastHeader)
+				end
 				
 				headerFrames["raid" .. id] = frame
 			end
@@ -869,14 +925,26 @@ function Units:LoadGroupHeader(type)
 	headerFrames[type] = headerFrame
 
 	self:SetHeaderAttributes(headerFrame, type)
-	
-	headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
+
+	headerFrame:SetAttribute("template", unitButtonTemplate)
 	headerFrame:SetAttribute("initial-unitWatch", true)
+	headerFrame:SetAttribute("initialConfigFunction", secureInitializeUnit)
 	headerFrame.initialConfigFunction = initializeUnit
 	headerFrame.isHeaderFrame = true
 	headerFrame.unitType = type
 	headerFrame:UnregisterEvent("UNIT_NAME_UPDATE")
-	
+	-- set style
+	local config = ShadowUF.db.profile.units[type]
+	headerFrame:SetAttribute("style-height", config.height)
+	headerFrame:SetAttribute("style-width", config.width)
+	headerFrame:SetAttribute("style-scale", config.scale)
+
+	if ClickCastHeader then
+		-- the OnLoad adds the functions like SetFrameRef to the header
+		SecureHandler_OnLoad(headerFrame)
+		headerFrame:SetFrameRef("clickcast_header", ClickCastHeader)
+	end
+
 	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, ShadowUF.db.profile.positions[type])
 	
 	-- We have to do party hiding based off raid as a state driver so that we can smoothly hide the party frames based off of combat and such
