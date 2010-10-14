@@ -446,8 +446,10 @@ OnAttributeChanged = function(self, name, unit)
 	self.unitInitialized = true
 
 	-- Add to Clique
-	ClickCastFrames = ClickCastFrames or {}
-	ClickCastFrames[self] = true
+	if( not self:GetAttribute("isHeaderDriven") ) then
+		ClickCastFrames = ClickCastFrames or {}
+		ClickCastFrames[self] = true
+	end
 	
 	-- Handles switching the internal unit variable to that of their vehicle
 	if( self.unit == "player" or self.unitRealType == "party" or self.unitRealType == "raid" ) then
@@ -562,9 +564,20 @@ local secureInitializeUnit = [[
 
 	self:SetAttribute("*type1", "target")
 	self:SetAttribute("*type2", "menu")
+
+	self:SetAttribute("isHeaderDriven", true)
 	
+	-- Clique integration
+	local clickHeader = header:GetFrameRef("clickcast_header")
+	if clickHeader then
+		clickHeader:SetAttribute("clickcast_button", self)
+		clickHeader:RunAttribute("clickcast_register")
+	end
+
 	header:CallMethod("initialConfigFunction", self:GetName())
 ]]
+
+local unitButtonTemplate = ClickCastHeader and "ClickCastUnitTemplate,SecureUnitButtonTemplate" or "SecureUnitButtonTemplate"
 
 -- Header unit initialized
 local function initializeUnit(header, frameName)
@@ -840,7 +853,7 @@ function Units:LoadSplitGroupHeader(type)
 		if( enabled ) then
 			if( not frame ) then
 				frame = CreateFrame("Frame", "SUFHeader" .. type .. id, UIParent, "SecureGroupHeaderTemplate")
-				frame:SetAttribute("template", "SecureUnitButtonTemplate")
+				frame:SetAttribute("template", unitButtonTemplate)
 				frame:SetAttribute("initial-unitWatch", true)
 				frame:SetAttribute("showRaid", true)
 				frame:SetAttribute("groupFilter", id)
@@ -858,6 +871,12 @@ function Units:LoadSplitGroupHeader(type)
 				frame:SetAttribute("style-height", config.height)
 				frame:SetAttribute("style-width", config.width)
 				frame:SetAttribute("style-scale", config.scale)
+				
+				if ClickCastHeader then
+					-- the OnLoad adds the functions like SetFrameRef to the header
+					SecureHandler_OnLoad(frame)
+					frame:SetFrameRef("clickcast_header", ClickCastHeader)
+				end
 				
 				headerFrames["raid" .. id] = frame
 			end
@@ -906,8 +925,8 @@ function Units:LoadGroupHeader(type)
 	headerFrames[type] = headerFrame
 
 	self:SetHeaderAttributes(headerFrame, type)
-	
-	headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
+
+	headerFrame:SetAttribute("template", unitButtonTemplate)
 	headerFrame:SetAttribute("initial-unitWatch", true)
 	headerFrame:SetAttribute("initialConfigFunction", secureInitializeUnit)
 	headerFrame.initialConfigFunction = initializeUnit
@@ -919,7 +938,13 @@ function Units:LoadGroupHeader(type)
 	headerFrame:SetAttribute("style-height", config.height)
 	headerFrame:SetAttribute("style-width", config.width)
 	headerFrame:SetAttribute("style-scale", config.scale)
-	
+
+	if ClickCastHeader then
+		-- the OnLoad adds the functions like SetFrameRef to the header
+		SecureHandler_OnLoad(headerFrame)
+		headerFrame:SetFrameRef("clickcast_header", ClickCastHeader)
+	end
+
 	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, ShadowUF.db.profile.positions[type])
 	
 	-- We have to do party hiding based off raid as a state driver so that we can smoothly hide the party frames based off of combat and such

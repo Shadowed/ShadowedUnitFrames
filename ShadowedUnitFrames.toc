@@ -4,7 +4,7 @@
 ## Author: Shadowed
 ## Version: @project-version@
 ## SavedVariables: ShadowedUFDB
-## OptionalDeps: Ace3, LibSharedMedia-3.0, LibHealComm-4.0, AceGUI-3.0-SharedMediaWidgets
+## OptionalDeps: Ace3, LibSharedMedia-3.0, LibHealComm-4.0, AceGUI-3.0-SharedMediaWidgets, Clique
 
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
