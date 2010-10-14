@@ -847,7 +847,7 @@ function Units:LoadSplitGroupHeader(type)
 	if( headerFrames.raid ) then headerFrames.raid:Hide() end
 	headerFrames.raidParent = nil
 
-	local config = ShadowUF.db.profile.units[unitType]
+	local config = ShadowUF.db.profile.units[type]
 	for id, enabled in pairs(ShadowUF.db.profile.units[type].filters) do
 		local frame = headerFrames["raid" .. id]
 		if( enabled ) then
