@@ -551,19 +551,29 @@ end
 
 Units.OnAttributeChanged = OnAttributeChanged
 
--- Header unit initialized
-local function initializeUnit(self)
-	local unitType = self:GetParent().unitType
-	local config = ShadowUF.db.profile.units[unitType]
+local secureInitializeUnit = [[
+	local header = self:GetParent()
 
-	self.ignoreAnchor = true
-	self.unitType = unitType
-	self:SetAttribute("initial-height", config.height)
-	self:SetAttribute("initial-width", config.width)
-	self:SetAttribute("initial-scale", config.scale)
+	self:SetHeight(header:GetAttribute("style-height"))
+	self:SetWidth(header:GetAttribute("style-width"))
+	self:SetScale(header:GetAttribute("style-scale"))
+
 	self:SetAttribute("toggleForVehicle", true)
+
+	self:SetAttribute("*type1", "target")
+	self:SetAttribute("*type2", "menu")
 	
-	Units:CreateUnit(self)
+	header:CallMethod("initialConfigFunction", self:GetName())
+]]
+
+-- Header unit initialized
+local function initializeUnit(header, frameName)
+	local frame = _G[frameName]
+
+	frame.ignoreAnchor = true
+	frame.unitType = header.unitType
+
+	Units:CreateUnit(frame)
 end
 
 -- Show tooltip
@@ -620,8 +630,11 @@ function Units:CreateUnit(...)
 	frame:SetScript("PostClick", PostClick)
 
 	frame:RegisterForClicks("AnyUp")	
-	frame:SetAttribute("*type1", "target")
-	frame:SetAttribute("*type2", "menu")
+	-- non-header frames don't set those, so we need to do it
+	if( not InCombatLockdown() ) then
+		frame:SetAttribute("*type1", "target")
+		frame:SetAttribute("*type2", "menu")
+	end
 	
 	return frame
 end
@@ -821,6 +834,7 @@ function Units:LoadSplitGroupHeader(type)
 	if( headerFrames.raid ) then headerFrames.raid:Hide() end
 	headerFrames.raidParent = nil
 
+	local config = ShadowUF.db.profile.units[unitType]
 	for id, enabled in pairs(ShadowUF.db.profile.units[type].filters) do
 		local frame = headerFrames["raid" .. id]
 		if( enabled ) then
@@ -831,6 +845,7 @@ function Units:LoadSplitGroupHeader(type)
 				frame:SetAttribute("showRaid", true)
 				frame:SetAttribute("groupFilter", id)
 				frame:UnregisterEvent("UNIT_NAME_UPDATE")
+				frame:SetAttribute("initialConfigFunction", secureInitializeUnit)
 				frame.initialConfigFunction = initializeUnit
 				frame.isHeaderFrame = true
 				frame.unitType = type
@@ -839,6 +854,10 @@ function Units:LoadSplitGroupHeader(type)
 				--frame:SetBackdrop({bgFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1})
 				--frame:SetBackdropBorderColor(1, 0, 0, 1)
 				--frame:SetBackdropColor(0, 0, 0, 0)
+				
+				frame:SetAttribute("style-height", config.height)
+				frame:SetAttribute("style-width", config.width)
+				frame:SetAttribute("style-scale", config.scale)
 				
 				headerFrames["raid" .. id] = frame
 			end
@@ -890,10 +909,16 @@ function Units:LoadGroupHeader(type)
 	
 	headerFrame:SetAttribute("template", "SecureUnitButtonTemplate")
 	headerFrame:SetAttribute("initial-unitWatch", true)
+	headerFrame:SetAttribute("initialConfigFunction", secureInitializeUnit)
 	headerFrame.initialConfigFunction = initializeUnit
 	headerFrame.isHeaderFrame = true
 	headerFrame.unitType = type
 	headerFrame:UnregisterEvent("UNIT_NAME_UPDATE")
+	-- set style
+	local config = ShadowUF.db.profile.units[type]
+	headerFrame:SetAttribute("style-height", config.height)
+	headerFrame:SetAttribute("style-width", config.width)
+	headerFrame:SetAttribute("style-scale", config.scale)
 	
 	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, ShadowUF.db.profile.positions[type])
 	
