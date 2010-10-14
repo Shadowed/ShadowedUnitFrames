@@ -71,6 +71,6 @@ function Eclipse:OnLayoutApplied(frame)
 	frame.eclipseBar.sun:SetPoint("BOTTOMRIGHT", frame.eclipseBar.bar, "BOTTOMLEFT", 0, 0)
 end
 
-function Eclipse:UpdateVisibility()
+function Eclipse:UpdateVisibility(frame)
 	ShadowUF.Layout:SetBarVisibility(frame, "eclipseBar", GetShapeshiftFormID() == MOONKIN_FORM and GetMasteryIndex(GetActiveTalentGroup()) == 1)
 end

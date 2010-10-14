@@ -18,7 +18,7 @@ function Combo:OnLayoutApplied(frame, config)
 	local pointsConfig = pointsFrame.config
 	config = config[key]
 	-- Not a bar so set the containers frame configuration
-	if( config and not visualConfig.isBar ) then
+	if( config and not config.isBar ) then
 		ShadowUF.Layout:ToggleVisibility(pointsFrame, frame.visibility[key])
 	end
 	
@@ -32,7 +32,7 @@ function Combo:OnLayoutApplied(frame, config)
 	end
 	
 	-- Setup for bar display!
-	if( visualConfig.isBar ) then
+	if( config.isBar ) then
 		pointsFrame.blocks = pointsFrame.blocks or {}
 		pointsFrame.points = pointsFrame.blocks
 	
@@ -48,7 +48,7 @@ function Combo:OnLayoutApplied(frame, config)
 			texture:SetWidth(blockWidth)
 			texture:ClearAllPoints()
 			
-			if( visualConfig.growth == "LEFT" ) then
+			if( config.growth == "LEFT" ) then
 				if( id > 1 ) then
 					texture:SetPoint("TOPRIGHT", pointsFrame.blocks[id - 1], "TOPLEFT", -1, 0)
 				else
@@ -68,18 +68,18 @@ function Combo:OnLayoutApplied(frame, config)
 		local point, relativePoint
 		local x, y = 0, 0
 		
-		if( visualConfig.growth == "LEFT" ) then
+		if( config.growth == "LEFT" ) then
 			point, relativePoint = "BOTTOMRIGHT", "BOTTOMLEFT"
-			x = visualConfig.spacing
-		elseif( visualConfig.growth == "RIGHT" ) then
+			x = config.spacing
+		elseif( config.growth == "RIGHT" ) then
 			point, relativePoint = "BOTTOMLEFT", "BOTTOMRIGHT"
-			x = visualConfig.spacing
-		elseif( visualConfig.growth == "UP" ) then
+			x = config.spacing
+		elseif( config.growth == "UP" ) then
 			point, relativePoint = "BOTTOMLEFT", "TOPLEFT"
-			y = visualConfig.spacing
-		elseif( visualConfig.growth == "DOWN" ) then
+			y = config.spacing
+		elseif( config.growth == "DOWN" ) then
 			point, relativePoint = "TOPLEFT", "BOTTOMLEFT"
-			y = visualConfig.spacing
+			y = config.spacing
 		end
 		
 
@@ -90,7 +90,7 @@ function Combo:OnLayoutApplied(frame, config)
 			pointsFrame.icons[id] = pointsFrame.icons[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 			local texture = frame.comboPoints.icons[id]
 			texture:SetTexture(pointsConfig.icon)
-			texture:SetSize(visualConfig.size, visualConfig.size)
+			texture:SetSize(config.size, config.size)
 			
 			if( id > 1 ) then
 				texture:ClearAllPoints()
@@ -104,7 +104,7 @@ function Combo:OnLayoutApplied(frame, config)
 		-- Position the main frame
 		pointsFrame:Setsize(0.1, 0.1)
 		
-		ShadowUF.Layout:AnchorFrame(frame, pointsFrame, visualConfig)
+		ShadowUF.Layout:AnchorFrame(frame, pointsFrame, config)
 	end
 end
 
