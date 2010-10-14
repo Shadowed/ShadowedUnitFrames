@@ -149,7 +149,7 @@ for line in io.lines(TOC_FILE) do
 		ignore = nil
 	end
 		
-	if( not ignore and string.match(line, "%.lua") ) then
+	if( not ignore and string.match(line, "%.lua") and not string.match(line, "^%s*#")) then
 		-- Make sure it's a valid file
 		local blacklist
 		for _, check in pairs(FILE_BLACKLIST) do
