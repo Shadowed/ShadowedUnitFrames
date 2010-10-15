@@ -906,21 +906,21 @@ function Units:LoadGroupHeader(type)
 			headerFrame:Hide()
 		end
 	end
-	
+
+	-- if we're creating a party, make sure to enable it
+	if( type == "party" ) then
+		stateMonitor:SetAttribute("partyDisabled", nil)
+	end
+
 	-- Already created, so just reshow and we out
 	if( headerFrames[type] ) then
 		headerFrames[type]:Show()
-		
-		if( type == "party" ) then
-			stateMonitor:SetAttribute("partyDisabled", nil)
-		end
-		
 		if( type == "party" or type == "raid" ) then
 			self:CheckGroupVisibility()
 		end
 		return
 	end
-	
+
 	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent, type == "raidpet" and "SecureGroupPetHeaderTemplate" or "SecureGroupHeaderTemplate")
 	headerFrames[type] = headerFrame
 
