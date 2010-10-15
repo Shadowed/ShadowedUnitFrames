@@ -39,8 +39,8 @@ function Druid:PowerChanged(frame)
 		frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")
 		ShadowUF.Layout:SetBarVisibility(frame, "druidBar", true)
 	else
-		frame:UnregisterEvent("UNIT_POWER", self)
-		frame:UnregisterEvent("UNIT_MAXPOWER", self)
+		frame:UnregisterSingleEvent("UNIT_POWER", self)
+		frame:UnregisterSingleEvent("UNIT_MAXPOWER", self)
 		ShadowUF.Layout:SetBarVisibility(frame, "druidBar", nil)
 	end
 end
