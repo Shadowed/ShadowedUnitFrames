@@ -270,8 +270,9 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.druidBar = {enabled = false}
 	self.defaults.profile.units.player.xpBar = {enabled = false}
 	self.defaults.profile.units.player.fader = {enabled = false}
-	self.defaults.profile.units.player.soulShards = {enabled = false}
-	self.defaults.profile.units.player.eclipseBar = {enabled = false}
+	self.defaults.profile.units.player.soulShards = {enabled = false, isBar = true}
+	self.defaults.profile.units.player.eclipseBar = {enabled = false, isBar = true}
+	self.defaults.profile.units.player.holyPower = {enabled = false, isBar = true}
 	self.defaults.profile.units.player.indicators.lfdRole = {enabled = true, size = 0, x = 0, y = 0}
 	-- PET
 	self.defaults.profile.units.pet.enabled = true
@@ -287,7 +288,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.focustarget.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	-- TARGET
 	self.defaults.profile.units.target.enabled = true
-	self.defaults.profile.units.target.comboPoints = {}
+	self.defaults.profile.units.target.comboPoints = {enabled = true, isBar = true}
 	self.defaults.profile.units.target.indicators.lfdRole = {enabled = false, size = 0, x = 0, y = 0}
 	-- TARGETTARGET/TARGETTARGETTARGET
 	self.defaults.profile.units.targettarget.enabled = true
