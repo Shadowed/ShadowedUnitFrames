@@ -94,6 +94,8 @@ function ShadowUF:CheckUpgrade()
 			self.db.profile.units.player.soulShards.enabled = true
 		end
 		self.db.profile.units.player.holyPower = {enabled = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 6, size = 14, height = 0.40, spacing = -4, growth = "LEFT", isBar = true}
+
+		self:LoadDefaultLayout(true)
 	end
 
 	-- July 1st

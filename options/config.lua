@@ -2357,7 +2357,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Soul Shards"],
-						hidden = function(info) return hideRestrictedOption(info) or not getVariable(info[2], "soulShards", nil, "isBar") or not getVariable(info[2], nil, nil, "soulShards") end,
+						hidden = function(info) return playerClass ~= "WARLOCK" or not getVariable(info[2], "soulShards", nil, "isBar") or not getVariable(info[2], nil, nil, "soulShards") end,
 						args = {
 							enabled = {
 								order = 1,
@@ -2460,7 +2460,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Holy Power"],
-						hidden = function(info) return hideRestrictedOption(info) or not getVariable(info[2], "holyPower", nil, "isBar") or not getVariable(info[2], nil, nil, "holyPower") end,
+						hidden = function(info) return playerClass ~= "PALADIN" or not getVariable(info[2], "soulShards", nil, "isBar") or not getVariable(info[2], nil, nil, "soulShards") end,
 						args = {
 							enabled = {
 								order = 1,
