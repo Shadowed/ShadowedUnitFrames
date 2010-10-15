@@ -270,9 +270,9 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.druidBar = {enabled = false}
 	self.defaults.profile.units.player.xpBar = {enabled = false}
 	self.defaults.profile.units.player.fader = {enabled = false}
-	self.defaults.profile.units.player.soulShards = {enabled = false, isBar = true}
-	self.defaults.profile.units.player.eclipseBar = {enabled = false}
-	self.defaults.profile.units.player.holyPower = {enabled = false, isBar = true}
+	self.defaults.profile.units.player.soulShards = {enabled = true, isBar = true}
+	self.defaults.profile.units.player.eclipseBar = {enabled = true}
+	self.defaults.profile.units.player.holyPower = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.indicators.lfdRole = {enabled = true, size = 0, x = 0, y = 0}
 	-- PET
 	self.defaults.profile.units.pet.enabled = true
