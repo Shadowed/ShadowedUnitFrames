@@ -93,6 +93,7 @@ function ShadowUF:CheckUpgrade()
 			self.db.profile.units.player.soulShards.height = self.db.profile.units.player.soulShards.height or 0.40
 			self.db.profile.units.player.soulShards.enabled = true
 		end
+		self.db.profile.units.player.holyPower = {enabled = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, height = 0.40, spacing = -4, growth = "LEFT", isBar = true}
 	end
 
 	-- July 1st
