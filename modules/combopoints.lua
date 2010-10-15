@@ -103,7 +103,7 @@ function Combo:OnLayoutApplied(frame, config)
 		end
 		
 		-- Position the main frame
-		pointsFrame:Setsize(0.1, 0.1)
+		pointsFrame:SetSize(0.1, 0.1)
 		
 		ShadowUF.Layout:AnchorFrame(frame, pointsFrame, config)
 	end
