@@ -1,5 +1,6 @@
 local Combo = {}
 ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUF.L["Combo points"])
+ShadowUF.ComboPoints = Combo
 local cpConfig = {max = MAX_COMBO_POINTS, key = "comboPoints", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
 
 function Combo:OnEnable(frame)
@@ -13,8 +14,8 @@ end
 function Combo:OnLayoutApplied(frame, config)
 	local key = frame.comboPointType  
 	local pointsFrame = frame[key]
-  if not pointsFrame then return end
-  
+	if not pointsFrame then return end
+
 	local pointsConfig = pointsFrame.config
 	config = config[key]
 	-- Not a bar so set the containers frame configuration
@@ -88,7 +89,7 @@ function Combo:OnLayoutApplied(frame, config)
 		
 		for id=1, pointsConfig.max do
 			pointsFrame.icons[id] = pointsFrame.icons[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
-			local texture = frame.comboPoints.icons[id]
+			local texture = pointsFrame.icons[id]
 			texture:SetTexture(pointsConfig.icon)
 			texture:SetSize(config.size, config.size)
 			

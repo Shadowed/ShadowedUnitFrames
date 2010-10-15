@@ -2357,7 +2357,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Soul Shards"],
-						hidden = function(info) return not getVariable(info[2], "soulShards", nil, "isBar") or not getVariable(info[2], nil, nil, "comboPoints") end,
+						hidden = function(info) return not getVariable(info[2], "soulShards", nil, "isBar") or not getVariable(info[2], nil, nil, "soulShards") end,
 						args = {
 							enabled = {
 								order = 1,

@@ -89,6 +89,10 @@ function ShadowUF:CheckUpgrade()
 	if( revision <= 2 ) then
 		self.db.profile.powerColors.ECLIPSE_SUN = {r = 1.0, g = 1.0, b = 0.00}
 		self.db.profile.powerColors.ECLIPSE_MOON = {r = 0.30, g = 0.52, b = 0.90}
+		if self.db.profile.units.player.soulShards then
+			self.db.profile.units.player.soulShards.height = self.db.profile.units.player.soulShards.height or 0.40
+			self.db.profile.units.player.soulShards.enabled = true
+		end
 	end
 
 	-- July 1st
@@ -97,7 +101,7 @@ function ShadowUF:CheckUpgrade()
 		self.db.profile.units.player.fader.inactiveAlpha = self.db.profile.units.player.fader.inactiveAlpha or 0.6
 		self.db.profile.units.target.comboPoints.height = self.db.profile.units.target.comboPoints.height or 0.40
 		self.db.profile.units.player.eclipseBar = {enabled = true, background = true, height = 0.40, order = 70}
-	 	self.db.profile.units.player.soulShards = {anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true}
+		self.db.profile.units.player.soulShards = {enabled = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, height = 0.40, spacing = -4, growth = "LEFT", isBar = true}
 		
 		self:LoadDefaultLayout(true)
 	end
