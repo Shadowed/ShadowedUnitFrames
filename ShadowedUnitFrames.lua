@@ -85,31 +85,61 @@ end
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or 1
 
-	-- October 15th
-	if( revision <= 2 ) then
-		self.db.profile.powerColors.ECLIPSE_SUN = {r = 1.0, g = 1.0, b = 0.00}
-		self.db.profile.powerColors.ECLIPSE_MOON = {r = 0.30, g = 0.52, b = 0.90}
-		if self.db.profile.units.player.soulShards then
-			self.db.profile.units.player.soulShards.height = self.db.profile.units.player.soulShards.height or 0.40
-			self.db.profile.units.player.soulShards.enabled = true
+	local loadDefault = false
+
+	-- February 16th
+	if( not self.db.profile.units.raidpet.enabled and self.db.profile.units.raidpet.height == 0 and self.db.profile.units.raidpet.width == 0 and self.db.profile.positions.raidpet.anchorPoint == "" and self.db.profile.positions.raidpet.point == "" ) then
+		loadDefault = true
+	end
+
+	self.db.profile.units.party.unitsPerColumn = self.db.profile.units.party.unitsPerColumn or 5
+	self.db.profile.units.raid.groupsPerRow = self.db.profile.units.raid.groupsPerRow or 8
+
+	local castName = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}
+	local castTime = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}
+
+	for unit, config in pairs(self.db.profile.units) do
+		config.portrait = config.portrait or {}
+		config.portrait.type = config.portrait.type or "3D"
+		config.portrait.fullBefore = config.portrait.fullBefore or 0
+		config.portrait.fullAfter = config.portrait.fullAfter or 100
+		config.portrait.order = config.portrait.order or 40
+		config.portrait.height = config.portrait.height or 0.50
+
+		config.highlight.size = config.highlight.size or 10
+
+		config.castBar = config.castBar or {}
+		config.castBar.icon = config.castBar.icon or "HIDE"
+		config.castBar.height = config.castBar.height or 0.60
+		config.castBar.order = config.castBar.order or 40
+
+		config.castBar.name = config.castBar.name or {}
+		config.castBar.time = config.castBar.time or {}
+
+		for key, value in pairs(castName) do
+			if( config.castBar.name[key] == nil ) then
+				config.castBar.name[key] = value
+			end
 		end
-		self.db.profile.units.player.holyPower = {enabled = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 6, size = 14, height = 0.40, spacing = -4, growth = "LEFT", isBar = true}
 
-		self:LoadDefaultLayout(true)
+		for key, value in pairs(castTime) do
+			if( config.castBar.time[key] == nil ) then
+				config.castBar.time[key] = value
+			end
+		end
 	end
 
-	-- July 1st
-	if( revision <= 1 ) then
-		self.db.profile.units.player.fader.combatAlpha = self.db.profile.units.player.fader.combatAlpha or 1.0
-		self.db.profile.units.player.fader.inactiveAlpha = self.db.profile.units.player.fader.inactiveAlpha or 0.6
-		self.db.profile.units.target.comboPoints.height = self.db.profile.units.target.comboPoints.height or 0.40
-		self.db.profile.units.player.eclipseBar = {enabled = true, background = true, height = 0.40, order = 70}
-		self.db.profile.units.player.soulShards = {enabled = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 6, size = 14, height = 0.40, spacing = -4, growth = "LEFT", isBar = true}
-		
-		self:LoadDefaultLayout(true)
+	-- April 29th
+	if( self.db.profile.filters.zones ) then
+		for unit, filter in pairs(self.db.profile.filters.zones) do
+			if( self.db.profile.filters.whitelists[filter] ) then
+				self.db.profile.filters.zonewhite[unit] = filter
+			else
+				self.db.profile.filters.zoneblack[unit] = filter
+			end
+		end
 	end
-	
-	
+
 	-- June 19th
 	if( not self.db.profile.font.color ) then
 		self.db.profile.font.color = {r = 1, g = 1, b = 1, a = 1}
@@ -123,61 +153,38 @@ function ShadowUF:CheckUpgrade()
 			end
 		end
 	end
-	
-	-- April 29th
-	if( self.db.profile.filters.zones ) then
-		for unit, filter in pairs(self.db.profile.filters.zones) do
-			if( self.db.profile.filters.whitelists[filter] ) then
-				self.db.profile.filters.zonewhite[unit] = filter
-			else
-				self.db.profile.filters.zoneblack[unit] = filter
-			end
-		end
+
+	-- July 1st
+	if( revision <= 1 ) then
+		self.db.profile.units.player.fader.combatAlpha = self.db.profile.units.player.fader.combatAlpha or 1.0
+		self.db.profile.units.player.fader.inactiveAlpha = self.db.profile.units.player.fader.inactiveAlpha or 0.6
+		self.db.profile.units.target.comboPoints.height = self.db.profile.units.target.comboPoints.height or 0.40
+		self.db.profile.units.player.eclipseBar = {enabled = true, background = true, height = 0.40, order = 70}
+		self.db.profile.units.player.soulShards = {enabled = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 6, size = 14, height = 0.40, spacing = -4, growth = "LEFT", isBar = true}
+
+		loadDefault = true
 	end
-		
-	-- February 16th
-	if( not self.db.profile.units.raidpet.enabled and self.db.profile.units.raidpet.height == 0 and self.db.profile.units.raidpet.width == 0 and self.db.profile.positions.raidpet.anchorPoint == "" and self.db.profile.positions.raidpet.point == "" ) then
+
+	-- October 15th
+	if( revision <= 2 ) then
+		self.db.profile.powerColors.ECLIPSE_SUN = {r = 1.0, g = 1.0, b = 0.00}
+		self.db.profile.powerColors.ECLIPSE_MOON = {r = 0.30, g = 0.52, b = 0.90}
+		if self.db.profile.units.player.soulShards then
+			self.db.profile.units.player.soulShards.height = self.db.profile.units.player.soulShards.height or 0.40
+			self.db.profile.units.player.soulShards.enabled = true
+		end
+		self.db.profile.units.player.holyPower = {enabled = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 6, size = 14, height = 0.40, spacing = -4, growth = "LEFT", isBar = true}
+
+		loadDefault = true
+	end
+
+	self.db.profile.units.target.comboPoints.order = self.db.profile.units.target.comboPoints.order or 60
+
+	if loadDefault then
 		self:LoadDefaultLayout(true)
 	end
-	
-	self.db.profile.units.party.unitsPerColumn = self.db.profile.units.party.unitsPerColumn or 5
-	self.db.profile.units.raid.groupsPerRow = self.db.profile.units.raid.groupsPerRow or 8
-	
-	local castName = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}
-	local castTime = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}
-	
-	for unit, config in pairs(self.db.profile.units) do
-		config.portrait = config.portrait or {}
-		config.portrait.type = config.portrait.type or "3D"
-		config.portrait.fullBefore = config.portrait.fullBefore or 0
-		config.portrait.fullAfter = config.portrait.fullAfter or 100
-		config.portrait.order = config.portrait.order or 40
-		config.portrait.height = config.portrait.height or 0.50
-
-		config.highlight.size = config.highlight.size or 10
-		
-		config.castBar = config.castBar or {}
-		config.castBar.icon = config.castBar.icon or "HIDE"
-		config.castBar.height = config.castBar.height or 0.60
-		config.castBar.order = config.castBar.order or 40
-	
-		config.castBar.name = config.castBar.name or {}
-		config.castBar.time = config.castBar.time or {}
-		
-		for key, value in pairs(castName) do
-			if( config.castBar.name[key] == nil ) then
-				config.castBar.name[key] = value
-			end
-		end
-		
-		for key, value in pairs(castTime) do
-			if( config.castBar.time[key] == nil ) then
-				config.castBar.time[key] = value
-			end
-		end
-	end
 end
-	
+
 function ShadowUF:LoadUnits()
 	-- CanHearthAndResurrectFromArea() returns true for world pvp areas, according to BattlefieldFrame.lua
 	local instanceType = CanHearthAndResurrectFromArea() and "pvp" or select(2, IsInInstance())
