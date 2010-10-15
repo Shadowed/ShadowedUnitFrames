@@ -1,11 +1,11 @@
 local HolyPower = setmetatable({}, {__index = ShadowUF.ComboPoints})
 ShadowUF:RegisterModule(HolyPower, "holyPower", ShadowUF.L["Holy Power"], nil, "PALADIN")
-local soulsConfig = {max = MAX_HOLY_POWER, key = "holyPower", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
+local holyConfig = {max = MAX_HOLY_POWER, key = "holyPower", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
 
 function HolyPower:OnEnable(frame)
 	frame.holyPower = frame.holyPower or CreateFrame("Frame", nil, frame)
-	frame.holyPower.config = soulsConfig
-	frame.comboPointType = soulsConfig.key
+	frame.holyPower.config = holyConfig
+	frame.comboPointType = holyConfig.key
 
 	frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "Update")
