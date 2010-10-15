@@ -142,9 +142,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		HAPPINESS = {r = 0.50, g = 0.90, b = 0.70},
 		RUNES = {r = 0.50, g = 0.50, b = 0.50}, 
 		RUNIC_POWER = {b = 0.60, g = 0.45, r = 0.35},
-		ECLIPSE_SUN = {r = 0.2, g = 0.80, b = 1.0},
-		ECLIPSE_MOON = {r = 0.2, g = 0.80, b = 1.0},
-		ECLIPSE_FULL = {r = 0, g = 0.32, b = 0.43},
+		ECLIPSE_SUN = {r = 1.0, g = 1.0, b = 0.0},
+		ECLIPSE_MOON = {r = 0.30, g = 0.52, b = 0.90},
 		AMMOSLOT = {r = 0.85, g = 0.60, b = 0.55},
 		FUEL = {r = 0.85, g = 0.47, b = 0.36},
 	}

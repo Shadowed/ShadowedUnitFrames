@@ -84,6 +84,13 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or 1
+
+	-- October 15th
+	if( revision <= 2 ) then
+		self.db.profile.powerColors.ECLIPSE_SUN = {r = 1.0, g = 1.0, b = 0.00}
+		self.db.profile.powerColors.ECLIPSE_MOON = {r = 0.30, g = 0.52, b = 0.90}
+	end
+
 	-- July 1st
 	if( revision <= 1 ) then
 		self.db.profile.units.player.fader.combatAlpha = self.db.profile.units.player.fader.combatAlpha or 1.0
