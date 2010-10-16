@@ -667,8 +667,8 @@ function Units:ReloadHeader(type)
 	
 	elseif( headerFrames[type] ) then
 		self:SetHeaderAttributes(headerFrames[type], type)
-		ShadowUF:FireModuleEvent("OnLayoutReload", type)
 		ShadowUF.Layout:AnchorFrame(UIParent, headerFrames[type], ShadowUF.db.profile.positions[type])
+		ShadowUF:FireModuleEvent("OnLayoutReload", type)
 	end
 end
 
@@ -824,6 +824,10 @@ function Units:SetHeaderAttributes(frame, type)
 		-- Need to update our flags on the state monitor so it knows what to do
 		stateMonitor:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.party.hideSemiRaid)
 		stateMonitor:SetAttribute("hideAnyRaid", ShadowUF.db.profile.units.party.hideAnyRaid)
+	end
+	-- calling :Show basically resets the header
+	if frame:IsShown() then
+		frame:Show()
 	end
 end
 
