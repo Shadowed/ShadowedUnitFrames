@@ -2375,6 +2375,13 @@ local function loadUnitOptions()
 								hidden = false,
 								arg = "soulShards.growth",
 							},
+							showAlways = {
+								order = 3,
+								type = "toggle",
+								name = L["Don't hide when empty"],
+								hidden = false,
+								arg = "soulShards.showAlways",
+							},
 						},
 					},
 					soulShards = {
@@ -2477,6 +2484,13 @@ local function loadUnitOptions()
 								values = {["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
 								hidden = false,
 								arg = "holyPower.growth",
+							},
+							showAlways = {
+								order = 3,
+								type = "toggle",
+								name = L["Don't hide when empty"],
+								hidden = false,
+								arg = "holyPower.showAlways",
 							},
 						},
 					},

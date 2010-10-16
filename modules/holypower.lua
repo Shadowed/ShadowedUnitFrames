@@ -22,7 +22,7 @@ function HolyPower:Update(frame, event, unit, powerType)
 	local points = UnitPower("player", SPELL_POWER_HOLY_POWER)
 	-- Bar display, hide it if we don't have any combo points
 	if( ShadowUF.db.profile.units[frame.unitType].holyPower.isBar ) then
-		ShadowUF.Layout:SetBarVisibility(frame, "holyPower", points and points > 0)
+		ShadowUF.Layout:SetBarVisibility(frame, "holyPower", ShadowUF.db.profile.units[frame.unitType].holyPower.showAlways or (points and points > 0))
 	end
 	
 	for id, pointTexture in pairs(frame.holyPower.points) do

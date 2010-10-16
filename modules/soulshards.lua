@@ -22,7 +22,7 @@ function Souls:Update(frame, event, unit, powerType)
 	local points = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
 	-- Bar display, hide it if we don't have any combo points
 	if( ShadowUF.db.profile.units[frame.unitType].soulShards.isBar ) then
-		ShadowUF.Layout:SetBarVisibility(frame, "soulShards", points and points > 0)
+		ShadowUF.Layout:SetBarVisibility(frame, "soulShards", ShadowUF.db.profile.units[frame.unitType].soulShards.showAlways or (points and points > 0))
 	end
 	
 	for id, pointTexture in pairs(frame.soulShards.points) do
