@@ -465,6 +465,16 @@ function ShadowUF:HideBlizzardFrames()
 			_G[name .. "HealthBar"]:UnregisterAllEvents()
 			_G[name .. "ManaBar"]:UnregisterAllEvents()
 		end
+		
+		CompactPartyFrame:UnregisterAllEvents()
+		CompactPartyFrame.Show = self.noop
+		CompactPartyFrame:Hide()
+		
+		for i=1, MEMBERS_PER_RAID_GROUP do
+			local name = "CompactPartyFrameMember" .. i
+			local frame = _G[name]
+			frame:UnregisterAllEvents()
+		end
 	end
 
 	if( ShadowUF.db.profile.hidden.buffs ) then
