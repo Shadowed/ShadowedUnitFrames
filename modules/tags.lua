@@ -1105,11 +1105,8 @@ Tags.defaultNames = {
 
 -- List of event types
 Tags.eventType = {
-	["UNIT_ENERGY"] = "power",
-	["UNIT_FOCUS"] = "power",
-	["UNIT_MANA"] = "power",
-	["UNIT_RAGE"] = "power",
-	["UNIT_RUNIC_POWER"] = "power",
+	["UNIT_POWER"] = "power",
+	["UNIT_MAXPOWER"] = "power",
 	["UNIT_HEALTH"] = "health",
 	["UNIT_MAXHEALTH"] = "health",
 	["RAID_ROSTER_UPDATE"] = "unitless",
