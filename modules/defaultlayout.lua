@@ -302,9 +302,9 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			runeBar = {enabled = true, background = false, height = 0.40, order = 70},
 			totemBar = {enabled = true, background = false, height = 0.40, order = 70},
 			druidBar = {enabled = true, background = true, height = 0.40, order = 70},
-			eclipseBar = {enabled = true, background = true, height = 0.40, order = 70},
-			soulShards = {anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true},
-			holyPower = {anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true},
+			eclipseBar = {enabled = true, background = true, order = 70, height = 0.40},
+			soulShards = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true},
+			holyPower = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true},
 			auras = {
 				buffs = {enabled = false, maxRows = 1, temporary = playerClass == "ROGUE" or playerClass == "SHAMAN"},
 				debuffs = {enabled = false, maxRows = 1},

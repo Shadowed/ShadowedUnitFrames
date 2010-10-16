@@ -180,6 +180,9 @@ function ShadowUF:CheckUpgrade()
 
 	self.db.profile.units.target.comboPoints.order = self.db.profile.units.target.comboPoints.order or 60
 
+	self.db.profile.units.target.soulShards.height = self.db.profile.units.target.soulShards.height or 0.40
+	self.db.profile.units.target.holyPower.height = self.db.profile.units.target.holyPower.height or 0.40
+
 	if loadDefault then
 		self:LoadDefaultLayout(true)
 	end
