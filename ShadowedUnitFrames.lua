@@ -37,7 +37,7 @@ function ShadowUF:OnInitialize()
 			range = {},
 			filters = {zonewhite = {}, zoneblack = {}, whitelists = {}, blacklists = {}},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
-			hidden = {cast = false, runes = true, buffs = true, party = true, player = true, pet = true, target = true, focus = true, boss = true, arena = true},
+			hidden = {cast = false, runes = true, buffs = false, party = true, raid = false, player = true, pet = true, target = true, focus = true, boss = true, arena = true},
 		},
 	}
 	
@@ -477,6 +477,26 @@ function ShadowUF:HideBlizzardFrames()
 		end
 	end
 
+	-- this doesn't really belong here, but oh well!
+	if CompactRaidFrameManager then
+		CompactRaidFrameManager:SetFrameStrata("DIALOG")
+	end
+
+	if( ShadowUF.db.profile.hidden.raid ) then
+		if CompactRaidFrameContainer then
+			CompactRaidFrameContainer:Hide()
+			CompactRaidFrameContainer.Show = self.noop
+			CompactRaidFrameContainer:UnregisterAllEvents()
+
+			CompactRaidFrameManagerContainerResizeFrame:Hide()
+			CompactRaidFrameManagerContainerResizeFrame.Show = self.noop
+
+			CompactRaidFrameManager:Hide()
+			CompactRaidFrameManager.Show = self.noop
+			CompactRaidFrameManager:UnregisterAllEvents()
+		end
+	end
+
 	if( ShadowUF.db.profile.hidden.buffs ) then
 		BuffFrame:UnregisterAllEvents()
 		BuffFrame.Show = self.noop
@@ -616,9 +636,12 @@ end
 
 local frame = CreateFrame("Frame")
 frame:RegisterEvent("PLAYER_LOGIN")
+frame:RegisterEvent("ADDON_LOADED")
 frame:SetScript("OnEvent", function(self, event, addon)
 	if( event == "PLAYER_LOGIN" ) then
 		ShadowUF:OnInitialize()
 		self:UnregisterEvent("PLAYER_LOGIN")
+	elseif event == "ADDON_LOADED" and addon == "Blizzard_CompactRaidFrames" then
+		ShadowUF:HideBlizzardFrames()
 	end
 end)
