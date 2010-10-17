@@ -4,13 +4,12 @@
 ## Author: Shadowed
 ## Version: @project-version@
 ## SavedVariables: ShadowedUFDB
-## OptionalDeps: Ace3, LibSharedMedia-3.0, LibHealComm-4.0, AceGUI-3.0-SharedMediaWidgets, Clique
+## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, Clique
 
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
 libs\CallbackHandler-1.0\CallbackHandler-1.0\CallbackHandler-1.0.xml
 libs\LibSharedMedia-3.0\lib.xml
-#libs\LibHealComm-4.0\LibHealComm-4.0.xml
 libs\AceDB-3.0\AceDB-3.0.xml
 #@end-no-lib-strip@
 
@@ -43,7 +42,7 @@ modules\totems.lua
 modules\runes.lua
 modules\fader.lua
 modules\combopoints.lua
-#modules\incheal.lua
+modules\incheal.lua
 modules\range.lua
 modules\empty.lua
 modules\druid.lua
