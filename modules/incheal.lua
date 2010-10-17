@@ -85,7 +85,7 @@ function IncHeal:UpdateTags(frame, amount)
 	end
 end
 
-local function updateHealthBar(frame, interrupted)
+function IncHeal:UpdateFrame(frame)
 	-- This makes sure that when a heal like Tranquility is cast, it won't show the entire cast but cap it at 4 seconds into the future
 	local healed = UnitGetIncomingHeals(frame.unit) or 0
 	
@@ -120,8 +120,4 @@ local function updateHealthBar(frame, interrupted)
 			frame.incHeal:Hide()
 		end
 	end
-end
-
-function IncHeal:UpdateFrame(frame)
-	updateHealthBar(frame, true)
 end
