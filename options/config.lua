@@ -2595,6 +2595,13 @@ local function loadUnitOptions()
 								hidden = false,
 								arg = "comboPoints.growth",
 							},
+							showAlways = {
+								order = 3,
+								type = "toggle",
+								name = L["Don't hide when empty"],
+								hidden = false,
+								arg = "comboPoints.showAlways",
+							},
 						},
 					},
 					comboPoints = {
