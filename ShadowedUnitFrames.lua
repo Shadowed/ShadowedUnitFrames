@@ -488,9 +488,6 @@ function ShadowUF:HideBlizzardFrames()
 			CompactRaidFrameContainer.Show = self.noop
 			CompactRaidFrameContainer:UnregisterAllEvents()
 
-			CompactRaidFrameManagerContainerResizeFrame:Hide()
-			CompactRaidFrameManagerContainerResizeFrame.Show = self.noop
-
 			CompactRaidFrameManager:Hide()
 			CompactRaidFrameManager.Show = self.noop
 			CompactRaidFrameManager:UnregisterAllEvents()
