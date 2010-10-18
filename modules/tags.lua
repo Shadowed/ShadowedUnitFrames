@@ -1172,7 +1172,7 @@ local function loadAPIEvents()
 		["GetNumPartyMembers"]		= "PARTY_MEMBERS_CHANGED",
 		["GetNumRaidMembers"]		= "RAID_ROSTER_UPDATE",
 		["GetRaidRosterInfo"]		= "RAID_ROSTER_UPDATE",
-		["GetPetHappiness"]			= "UNIT_HAPPINESS",
+		["GetPetHappiness"]			= "UNIT_POWER",
 		["GetReadyCheckStatus"]		= "READY_CHECK READY_CHECK_CONFIRM READY_CHECK_FINISHED",
 		["GetLootMethod"]			= "PARTY_LOOT_METHOD_CHANGED",
 		["GetThreatStatusColor"]	= "UNIT_THREAT_SITUATION_UPDATE",

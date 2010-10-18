@@ -17,8 +17,8 @@ function Indicators:UpdateClass(frame)
 	end
 end
 
-function Indicators:UpdateHappiness(frame)
-	if( not frame.indicators.happiness or not frame.indicators.happiness.enabled ) then return end
+function Indicators:UpdateHappiness(frame, event, unit, power)
+	if( power ~= "HAPPINESS" or not frame.indicators.happiness or not frame.indicators.happiness.enabled ) then return end
 
 	local happiness = GetPetHappiness()
 	-- No pet
@@ -339,7 +339,7 @@ function Indicators:OnEnable(frame)
 	end
 	
 	if( config.indicators.happiness and config.indicators.happiness.enabled ) then
-		frame:RegisterUnitEvent("UNIT_HAPPINESS", self, "UpdateHappiness")
+		frame:RegisterUnitEvent("UNIT_POWER", self, "UpdateHappiness")
 		frame:RegisterUpdateFunc(self, "UpdateHappiness")
 		
 		frame.indicators.happiness = frame.indicators.happiness or frame.indicators:CreateTexture(nil, "OVERLAY")

@@ -57,10 +57,10 @@ function Health:OnEnable(frame)
 	frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
 	frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdateColor")
-	frame:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", self, "UpdateColor")	
+	frame:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", self, "UpdateColor")
 	
 	if( frame.unit == "pet" ) then
-		frame:RegisterUnitEvent("UNIT_HAPPINESS", self, "UpdateColor")
+		frame:RegisterUnitEvent("UNIT_POWER", self, "UpdateColor")
 	end
 	
 	frame:RegisterUpdateFunc(self, "UpdateColor")
