@@ -73,7 +73,7 @@ local function createConfigEnv()
 		end,
 		UnitGroupRolesAssigned = function(unit)
 			local role = getValue("UnitGroupRolesAssigned", unit, math.random(1, 3))
-			return role == 1, role == 2, role == 3
+			return role == 1 and "TANK" or (role == 2 and "HEALER" or (role == 3 and "DAMAGER"))
 		end,
 		UnitPowerType = function(unit)
 			local powerType = math.random(0, 4)
