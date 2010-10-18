@@ -911,17 +911,14 @@ function Units:LoadGroupHeader(type)
 		end
 	end
 
-	-- if we're creating a party, make sure to enable it
-	if( type == "party" ) then
-		stateMonitor:SetAttribute("partyDisabled", nil)
-	end
-
 	-- Already created, so just reshow and we out
 	if( headerFrames[type] ) then
-		-- party takes care of its own visibility
-		if( type ~= "party" ) then
-			headerFrames[type]:Show()
+		headerFrames[type]:Show()
+
+		if( type == "party" ) then
+			stateMonitor:SetAttribute("partyDisabled", nil)
 		end
+
 		if( type == "party" or type == "raid" ) then
 			self:CheckGroupVisibility()
 		end
@@ -958,6 +955,7 @@ function Units:LoadGroupHeader(type)
 	-- technically this isn't the cleanest solution because party frames will still have unit watches active
 	-- but this isn't as big of a deal, because SUF automatically will unregister the OnEvent for party frames while hidden
 	if( type == "party" ) then
+		stateMonitor:SetAttribute("partyDisabled", nil)
 		stateMonitor:SetFrameRef("partyHeader", headerFrame)
 		stateMonitor:WrapScript(stateMonitor, "OnAttributeChanged", [[
 			if( name ~= "state-raidmonitor" and name ~= "partydisabled" and name ~= "hideanyraid" and name ~= "hidesemiraid" ) then return end
