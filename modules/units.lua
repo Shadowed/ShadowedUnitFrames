@@ -918,7 +918,10 @@ function Units:LoadGroupHeader(type)
 
 	-- Already created, so just reshow and we out
 	if( headerFrames[type] ) then
-		headerFrames[type]:Show()
+		-- party takes care of its own visibility
+		if( type ~= "party" ) then
+			headerFrames[type]:Show()
+		end
 		if( type == "party" or type == "raid" ) then
 			self:CheckGroupVisibility()
 		end
