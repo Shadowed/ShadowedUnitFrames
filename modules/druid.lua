@@ -4,7 +4,7 @@ ShadowUF:RegisterModule(Druid, "druidBar", ShadowUF.L["Druid mana bar"], true, "
 function Druid:OnEnable(frame)
 	frame.druidBar = frame.druidBar or ShadowUF.Units:CreateBar(frame)
 
-	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "PowerChanged")
+	frame:RegisterNormalEvent("UPDATE_SHAPESHIFT_FORM", self, "PowerChanged")
 	
 	frame:RegisterUpdateFunc(self, "PowerChanged")
 	frame:RegisterUpdateFunc(self, "Update")
@@ -33,8 +33,8 @@ function Druid:OnLayoutApplied(frame)
 end
 
 function Druid:PowerChanged(frame)
-	local powerType = UnitPowerType(frame.unit)
-	if( powerType == SPELL_POWER_ENERGY or powerType == SPELL_POWER_RAGE ) then
+	local form = GetShapeshiftFormID()
+	if( form == CAT_FORM or form == BEAR_FORM ) then
 		frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
 		frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")
 		ShadowUF.Layout:SetBarVisibility(frame, "druidBar", true)
