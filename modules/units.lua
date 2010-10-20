@@ -749,7 +749,7 @@ function Units:SetHeaderAttributes(frame, type)
 					childHeader:SetAttribute("yOffset", frame:GetAttribute("yOffset"))
 					
 					childHeader:ClearAllPoints()
-					if( id % config.groupsPerRow == 1 ) then
+					if( (id - 1) % config.groupsPerRow == 0 ) then
 						local x = config.groupSpacing * xColMod
 						local y = config.groupSpacing * yColMod
 						
