@@ -34,7 +34,7 @@ end
 
 function Druid:PowerChanged(frame)
 	local powerType = UnitPowerType(frame.unit)
-	if( powerType == SPELL_POWER_FOCUS or powerType == SPELL_POWER_RAGE ) then
+	if( powerType == SPELL_POWER_ENERGY or powerType == SPELL_POWER_RAGE ) then
 		frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
 		frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")
 		ShadowUF.Layout:SetBarVisibility(frame, "druidBar", true)
