@@ -40,7 +40,7 @@ function Combo:OnLayoutApplied(frame, config)
 		pointsFrame.points = pointsFrame.blocks
 	
 		-- Position bars, the 5 accounts for borders
-		local blockWidth = (pointsFrame:GetWidth() - 4 ) / pointsConfig.max
+		local blockWidth = (pointsFrame:GetWidth() - (pointsConfig.max - 1)) / pointsConfig.max
 		for id=1, pointsConfig.max do
 			pointsFrame.blocks[id] = pointsFrame.blocks[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 			local texture = pointsFrame.blocks[id]
