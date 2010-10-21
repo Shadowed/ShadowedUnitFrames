@@ -78,7 +78,7 @@ function Runes:UpdateUsable(frame, event, id, usable)
 	local rune = frame.runeBar.runes[id]
 	local startTime, cooldown, cooled = GetRuneCooldown(id)
 	if( not cooled ) then
-		rune.endTime = GetTime() + cooldown
+		rune.endTime = startTime + cooldown
 		rune:SetMinMaxValues(startTime, rune.endTime)
 		rune:SetValue(GetTime())
 		rune:SetAlpha(0.40)
