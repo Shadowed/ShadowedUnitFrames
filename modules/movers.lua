@@ -32,7 +32,12 @@ local function createConfigEnv()
 		UnitIsPlayer = function(unit) return unit ~= "boss" and unit ~= "pet" and not string.match(unit, "(%w+)pet") end,
 		UnitHealth = function(unit) return getValue("UnitHealth", unit, math.random(20000, 50000)) end,
 		UnitHealthMax = function(unit) return 50000 end,
-		UnitPower = function(unit) return getValue("UnitPower", unit, math.random(20000, 50000)) end,
+		UnitPower = function(unit, powerType)
+			if powerType == SPELL_POWER_HOLY_POWER or powerType == SPELL_POWER_SOUL_SHARDS then
+				return 3
+			end
+			return getValue("UnitPower", unit, math.random(20000, 50000))
+		end,
 		UnitExists = function(unit) return true end,
 		UnitPowerMax = function(unit) return 50000 end,
 		UnitIsPartyLeader = function() return true end,
