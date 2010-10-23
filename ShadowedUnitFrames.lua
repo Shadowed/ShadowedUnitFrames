@@ -577,6 +577,16 @@ function ShadowUF:HideBlizzardFrames()
 		Arena_LoadUI = self.noop
 	end
 
+	-- fix LFD Cooldown Frame
+	-- this is technically not our problem, but due to having the frames on the same strata, it looks like this to the users
+	-- and the fix is simple enough
+	hooksecurefunc(LFDQueueFrameCooldownFrame, "SetFrameLevel", function(frame, value)
+		local parentLevel = LFDParentFrame:GetFrameLevel() + 5
+		if value < parentLevel then
+			frame:SetFrameLevel(parentLevel + 10)
+		end
+	end)
+
 	-- Don't modify the raid menu because that will taint the MA/MT stuff and it'll break and that's bad
 	for key, list in pairs(UnitPopupMenus) do
 		if( key ~= "RAID" ) then
