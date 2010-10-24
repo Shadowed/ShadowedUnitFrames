@@ -591,6 +591,18 @@ end
 
 -- Show tooltip
 local function OnEnter(self)
+	if self.OnEnter then
+		self:OnEnter()
+	end
+end
+
+local function OnLeave(self)
+	if self.OnLeave then
+		self:OnLeave()
+	end
+end
+
+local function SUF_OnEnter(self)
 	if( not ShadowUF.db.profile.tooltipCombat or not InCombatLockdown() ) then
 		UnitFrame_OnEnter(self)
 	end
@@ -636,13 +648,16 @@ function Units:CreateUnit(...)
 	
 	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
 	frame:SetScript("OnEvent", OnEvent)
-	frame:SetScript("OnEnter", OnEnter)
-	frame:SetScript("OnLeave", UnitFrame_OnLeave)
+	frame:HookScript("OnEnter", OnEnter)
+	frame:HookScript("OnLeave", OnLeave)
 	frame:SetScript("OnShow", OnShow)
 	frame:SetScript("OnHide", OnHide)
 	frame:SetScript("PostClick", PostClick)
+	
+	frame.OnEnter = SUF_OnEnter
+	frame.OnLeave = UnitFrame_OnLeave
 
-	frame:RegisterForClicks("AnyUp")	
+	frame:RegisterForClicks("AnyUp")
 	-- non-header frames don't set those, so we need to do it
 	if( not InCombatLockdown() ) then
 		frame:SetAttribute("*type1", "target")

@@ -154,14 +154,14 @@ local function setupUnits(childrenOnly)
 			end
 		elseif( not frame.configMode and ShadowUF.db.profile.units[frame.unitType].enabled ) then
 			frame.originalUnit = frame:GetAttribute("unit")
-			frame.originalOnEnter = frame:GetScript("OnEnter")
-			frame.originalOnLeave = frame:GetScript("OnLeave")
+			frame.originalOnEnter = frame.OnEnter
+			frame.originalOnLeave = frame.OnLeave
 			frame.originalOnUpdate = frame:GetScript("OnUpdate")
 			frame:SetMovable(not ShadowUF.Units.childUnits[frame.unitType])
 			frame:SetScript("OnDragStop", OnDragStop)
 			frame:SetScript("OnDragStart", OnDragStart)
-			frame:SetScript("OnEnter", OnEnter)
-			frame:SetScript("OnLeave", OnLeave)
+			frame.OnEnter = OnEnter
+			frame.OnLeave = OnLeave
 			frame:SetScript("OnEvent", nil)
 			frame:SetScript("OnUpdate", nil)
 			frame:RegisterForDrag("LeftButton")
@@ -293,8 +293,8 @@ function Movers:Disable()
 			frame:SetScript("OnDragStart", nil)
 			frame:SetScript("OnEvent", frame:IsVisible() and ShadowUF.Units.OnEvent)
 			frame:SetScript("OnUpdate", frame.originalOnUpdate)
-			frame:SetScript("OnEnter", frame.originalOnEnter)
-			frame:SetScript("OnLeave", frame.originalOnLeave)
+			frame.OnEnter = frame.originalOnEnter
+			frame.OnLeave = frame.originalOnLeave
 			frame:SetMovable(false)
 			frame:RegisterForDrag()
 			

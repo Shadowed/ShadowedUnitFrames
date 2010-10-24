@@ -89,11 +89,11 @@ function Highlight:OnEnable(frame)
 	end
 	
 	if( ShadowUF.db.profile.units[frame.unitType].highlight.mouseover and not frame.highlight.OnEnter ) then
-		frame.highlight.OnEnter = frame:GetScript("OnEnter")
-		frame.highlight.OnLeave = frame:GetScript("OnLeave")
+		frame.highlight.OnEnter = frame.OnEnter
+		frame.highlight.OnLeave = frame.OnLeave
 		
-		frame:SetScript("OnEnter", OnEnter)
-		frame:SetScript("OnLeave", OnLeave)
+		frame.OnEnter = OnEnter
+		frame.OnLeave = OnLeave
 	end
 end
 
@@ -113,6 +113,14 @@ function Highlight:OnDisable(frame)
 	frame.highlight.hasMouseover = nil
 
 	frame.highlight:Hide()
+
+	if frame.highlight.OnEnter then
+		frame.OnEnter = frame.highlight.OnEnter
+		frame.OnLeave = frame.highlight.OnLeave
+
+		frame.highlight.OnEnter = nil
+		frame.highlight.OnLeave = nil
+	end
 end
 
 function Highlight:Update(frame)
