@@ -958,6 +958,10 @@ function Units:LoadGroupHeader(type)
 	headerFrame:SetAttribute("style-width", config.width)
 	headerFrame:SetAttribute("style-scale", config.scale)
 
+	if type == "raidpet" then
+		headerFrame:SetAttribute("filterOnPet", true)
+	end
+
 	if ClickCastHeader then
 		-- the OnLoad adds the functions like SetFrameRef to the header
 		SecureHandler_OnLoad(headerFrame)
