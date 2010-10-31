@@ -1,7 +1,7 @@
 local Combo = {}
 ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUF.L["Combo points"])
 ShadowUF.ComboPoints = Combo
-local cpConfig = {max = MAX_COMBO_POINTS, key = "comboPoints", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
+local cpConfig = {max = MAX_COMBO_POINTS, key = "comboPoints", colorKey = "COMBOPOINTS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
 
 function Combo:OnEnable(frame)
 	frame.comboPoints = frame.comboPoints or CreateFrame("Frame", nil, frame)
@@ -44,7 +44,8 @@ function Combo:OnLayoutApplied(frame, config)
 		for id=1, pointsConfig.max do
 			pointsFrame.blocks[id] = pointsFrame.blocks[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 			local texture = pointsFrame.blocks[id]
-			texture:SetVertexColor(1, 0.80, 0)
+			local color = ShadowUF.db.profile.powerColors[pointsConfig.colorKey or "COMBOPOINTS"]
+			texture:SetVertexColor(color.r, color.g, color.b)
 			texture:SetHorizTile(false)
 			texture:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
 			texture:SetHeight(pointsFrame:GetHeight())

@@ -146,6 +146,9 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		ECLIPSE_MOON = {r = 0.30, g = 0.52, b = 0.90},
 		AMMOSLOT = {r = 0.85, g = 0.60, b = 0.55},
 		FUEL = {r = 0.85, g = 0.47, b = 0.36},
+		COMBOPOINTS = {r = 1.0, g = 0.80, b = 0.0},
+		HOLYPOWER = {r = 0.96, g = 0.55, b = 0.73},
+		SOULSHARDS = {r = 0.58, g = 0.51, b = 0.79},
 	}
 	config.healthColors = {
 		tapped = {r = 0.5, g = 0.5, b = 0.5},

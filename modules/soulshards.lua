@@ -1,6 +1,6 @@
 local Souls = setmetatable({}, {__index = ShadowUF.ComboPoints})
 ShadowUF:RegisterModule(Souls, "soulShards", ShadowUF.L["Soul Shards"], nil, "WARLOCK")
-local soulsConfig = {max = SHARD_BAR_NUM_SHARDS, key = "soulShards", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\shard"}
+local soulsConfig = {max = SHARD_BAR_NUM_SHARDS, key = "soulShards", colorKey = "SOULSHARDS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\shard"}
 
 function Souls:OnEnable(frame)
 	frame.soulShards = frame.soulShards or CreateFrame("Frame", nil, frame)

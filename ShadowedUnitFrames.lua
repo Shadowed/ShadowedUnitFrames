@@ -185,6 +185,8 @@ function ShadowUF:CheckUpgrade()
 
 		self.db.profile.units.player.soulShards.height = self.db.profile.units.player.soulShards.height or 0.40
 		self.db.profile.units.player.holyPower.height = self.db.profile.units.player.holyPower.height or 0.40
+
+		loadDefault = true
 	end
 
 	if loadDefault then
