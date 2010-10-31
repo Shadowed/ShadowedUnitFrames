@@ -160,7 +160,7 @@ function ShadowUF:CheckUpgrade()
 		self.db.profile.units.player.fader.inactiveAlpha = self.db.profile.units.player.fader.inactiveAlpha or 0.6
 		self.db.profile.units.target.comboPoints.height = self.db.profile.units.target.comboPoints.height or 0.40
 		self.db.profile.units.player.eclipseBar = {enabled = true, background = true, height = 0.40, order = 70}
-		self.db.profile.units.player.soulShards = {enabled = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 6, size = 14, height = 0.40, spacing = -4, growth = "LEFT", isBar = true}
+		self.db.profile.units.player.soulShards = {enabled = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -8, y = 2, size = 12, height = 0.40, spacing = -2, growth = "LEFT", isBar = true}
 
 		loadDefault = true
 	end

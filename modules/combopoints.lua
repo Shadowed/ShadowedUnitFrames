@@ -16,8 +16,8 @@ function Combo:OnLayoutApplied(frame, config)
 	local pointsFrame = frame[key]
 	if not pointsFrame then return end
 
-	pointsFrame:SetFrameLevel(frame:GetFrameLevel() + 5)
-
+	pointsFrame:SetFrameLevel(frame.topFrameLevel + 1)
+	
 	local pointsConfig = pointsFrame.config
 	config = config[key]
 	-- Not a bar so set the containers frame configuration

@@ -1,6 +1,6 @@
 local Souls = setmetatable({}, {__index = ShadowUF.ComboPoints})
 ShadowUF:RegisterModule(Souls, "soulShards", ShadowUF.L["Soul Shards"], nil, "WARLOCK")
-local soulsConfig = {max = SHARD_BAR_NUM_SHARDS, key = "soulShards", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
+local soulsConfig = {max = SHARD_BAR_NUM_SHARDS, key = "soulShards", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\shard"}
 
 function Souls:OnEnable(frame)
 	frame.soulShards = frame.soulShards or CreateFrame("Frame", nil, frame)
@@ -20,7 +20,7 @@ function Souls:Update(frame, event, unit, powerType)
 	if( event == "UNIT_POWER" and powerType ~= "SOUL_SHARDS" ) then return end
 	
 	local points = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
-	-- Bar display, hide it if we don't have any combo points
+	-- Bar display, hide it if we don't have any soul shards
 	if( ShadowUF.db.profile.units[frame.unitType].soulShards.isBar ) then
 		ShadowUF.Layout:SetBarVisibility(frame, "soulShards", ShadowUF.db.profile.units[frame.unitType].soulShards.showAlways or (points and points > 0))
 	end
