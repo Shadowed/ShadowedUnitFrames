@@ -137,7 +137,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 	config.powerColors = {
 		MANA = {r = 0.30, g = 0.50, b = 0.85}, 
 		RAGE = {r = 0.90, g = 0.20, b = 0.30},
-		FOCUS = {r = 1.0, g = 0.85, b = 0}, 
+		FOCUS = {r = 1.0, g = 0.50, b = 0.25},
 		ENERGY = {r = 1.0, g = 0.85, b = 0.10}, 
 		HAPPINESS = {r = 0.50, g = 0.90, b = 0.70},
 		RUNES = {r = 0.50, g = 0.50, b = 0.50}, 
