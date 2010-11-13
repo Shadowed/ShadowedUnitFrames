@@ -275,7 +275,6 @@ Druid.MoonkinForm = GetSpellInfo(24858)
 Druid.TravelForm = GetSpellInfo(783)
 Druid.BearForm = GetSpellInfo(5487)
 Druid.TreeForm = GetSpellInfo(33891)
-Druid.DireBearForm = GetSpellInfo(9634)
 Druid.AquaticForm = GetSpellInfo(1066)
 Druid.SwiftFlightForm = GetSpellInfo(40120)
 Druid.FlightForm = GetSpellInfo(33943)
@@ -295,7 +294,7 @@ Tags.defaultTags = {
 			return ShadowUF.L["T"]
 		elseif( UnitAura(unit, Druid.MoonkinForm, Druid.Shapeshift) ) then
 			return ShadowUF.L["M"]
-		elseif( UnitAura(unit, Druid.DireBearForm, Druid.Shapeshift) or UnitAura(unit, Druid.BearForm, Druid.Shapeshift) ) then
+		elseif( UnitAura(unit, Druid.BearForm, Druid.Shapeshift) ) then
 			return ShadowUF.L["B"]
 		elseif( UnitAura(unit, Druid.SwiftFlightForm, Druid.Shapeshift) or UnitAura(unit, Druid.FlightForm, Druid.Shapeshift) ) then
 			return ShadowUF.L["F"]
@@ -315,7 +314,7 @@ Tags.defaultTags = {
 			return ShadowUF.L["Tree"]
 		elseif( UnitAura(unit, Druid.MoonkinForm, Druid.Shapeshift) ) then
 			return ShadowUF.L["Moonkin"]
-		elseif( UnitAura(unit, Druid.DireBearForm, Druid.Shapeshift) or UnitAura(unit, Druid.BearForm, Druid.Shapeshift) ) then
+		elseif( UnitAura(unit, Druid.BearForm, Druid.Shapeshift) ) then
 			return ShadowUF.L["Bear"]
 		elseif( UnitAura(unit, Druid.SwiftFlightForm, Druid.Shapeshift) or UnitAura(unit, Druid.FlightForm, Druid.Shapeshift) ) then
 			return ShadowUF.L["Flight"]
