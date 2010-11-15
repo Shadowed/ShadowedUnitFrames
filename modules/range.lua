@@ -45,6 +45,7 @@ function Range:OnEnable(frame)
 	
 	-- I want to say UNIT_FACTION is the function thats called when a unit is MCed, but not 100% sure
 	frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdateFlags")
+	frame:RegisterUnitEvent("UNIT_CONNECTION", self, "UpdateFlags")
 	frame:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", self, "UpdateFlags")
 	frame:RegisterNormalEvent("RAID_ROSTER_UPDATE", self, "UpdateFlags")
 
