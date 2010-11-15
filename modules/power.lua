@@ -19,6 +19,7 @@ function Power:OnEnable(frame)
 		
 	frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")
+	frame:RegisterUnitEvent("UNIT_CONNECTION", self, "Update")
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdateColor")
 
 	frame:RegisterUpdateFunc(self, "UpdateColor")
