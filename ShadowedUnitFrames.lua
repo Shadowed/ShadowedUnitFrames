@@ -452,11 +452,15 @@ end
 -- Stolen from haste
 ShadowUF.noop = function() end
 function ShadowUF:HideBlizzardFrames()
-	if( ShadowUF.db.profile.hidden.runes ) then
+	local _, class = UnitClass("player")
+	if( ShadowUF.db.profile.hidden.runes or class ~= "DEATHKNIGHT" ) then
 		RuneFrame.Show = self.noop
 		RuneFrame:Hide()
+		RuneFrame:UnregisterAllEvents()
+	elseif( class == "DEATHKNIGHT" ) then
+		RuneFrame:Show()
 	end
-	
+
 	if( ShadowUF.db.profile.hidden.cast ) then
 		CastingBarFrame:UnregisterAllEvents()
 		PetCastingBarFrame:UnregisterAllEvents()
@@ -527,7 +531,6 @@ function ShadowUF:HideBlizzardFrames()
 		PlayerFrameManaBar:UnregisterAllEvents()
 		PlayerFrameAlternateManaBar:UnregisterAllEvents()
 		EclipseBarFrame:UnregisterAllEvents()
-		RuneFrame:UnregisterAllEvents()
 		ShardBarFrame:UnregisterAllEvents()
 	end
 	
