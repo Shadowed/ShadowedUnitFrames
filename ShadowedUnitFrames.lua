@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 3
+ShadowUF.dbRevision = 4
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -178,13 +178,15 @@ function ShadowUF:CheckUpgrade()
 		loadDefault = true
 	end
 
-	-- Ongoing fixes
+	-- November 16th
 	if( revision <= 3 ) then
 		self.db.profile.units.target.comboPoints.order = self.db.profile.units.target.comboPoints.order or 60
 		self.db.profile.units.target.comboPoints.anchorTo = self.db.profile.units.target.comboPoints.anchorTo or "$parent"
 
 		self.db.profile.units.player.soulShards.height = self.db.profile.units.player.soulShards.height or 0.40
 		self.db.profile.units.player.holyPower.height = self.db.profile.units.player.holyPower.height or 0.40
+
+		self.db.profile.units.raid.indicators.lfdRole = {enabled = true, anchorPoint = "BR", size = 14, x = 3, y = 14, anchorTo = "$parent"}
 
 		loadDefault = true
 	end
@@ -342,6 +344,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.raid.filters = {[1] = true, [2] = true, [3] = true, [4] = true, [5] = true, [6] = true, [7] = true, [8] = true}
 	self.defaults.profile.units.raid.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.raid.combatText.enabled = false
+	self.defaults.profile.units.raid.indicators.lfdRole = {enabled = true, size = 0, x = 0, y = 0}
 	-- RAID PET
 	self.defaults.profile.units.raidpet.groupBy = "GROUP"
 	self.defaults.profile.units.raidpet.sortOrder = "ASC"
