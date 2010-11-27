@@ -566,15 +566,16 @@ local secureInitializeUnit = [[
 	self:SetAttribute("*type2", "menu")
 
 	self:SetAttribute("isHeaderDriven", true)
-	
+
+	-- initialize frame
+	header:CallMethod("initialConfigFunction", self:GetName())
+
 	-- Clique integration
 	local clickHeader = header:GetFrameRef("clickcast_header")
 	if clickHeader then
 		clickHeader:SetAttribute("clickcast_button", self)
 		clickHeader:RunAttribute("clickcast_register")
 	end
-
-	header:CallMethod("initialConfigFunction", self:GetName())
 ]]
 
 local unitButtonTemplate = ClickCastHeader and "ClickCastUnitTemplate,SecureUnitButtonTemplate" or "SecureUnitButtonTemplate"
