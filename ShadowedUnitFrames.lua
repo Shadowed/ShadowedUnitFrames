@@ -37,7 +37,7 @@ function ShadowUF:OnInitialize()
 			range = {},
 			filters = {zonewhite = {}, zoneblack = {}, whitelists = {}, blacklists = {}},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
-			hidden = {cast = false, runes = true, buffs = false, party = true, raid = false, player = true, pet = true, target = true, focus = true, boss = true, arena = true},
+			hidden = {cast = false, runes = true, buffs = false, party = true, raid = false, player = true, pet = true, target = true, focus = true, boss = true, arena = true, playerAltPower = false},
 		},
 	}
 	
@@ -591,9 +591,16 @@ function ShadowUF:HideBlizzardFrames()
 			_G[name .. "ManaBar"]:UnregisterAllEvents()
 		end
 	end
-	
+
 	if( ShadowUF.db.profile.hidden.arena ) then
 		Arena_LoadUI = self.noop
+	end
+
+	if( ShadowUF.db.profile.hidden.playerAltPower ) then
+		PlayerPowerBarAlt:UnregisterEvent("UNIT_POWER_BAR_SHOW")
+		PlayerPowerBarAlt:UnregisterEvent("UNIT_POWER_BAR_HIDE")
+		PlayerPowerBarAlt:UnregisterEvent("PLAYER_ENTERING_WORLD")
+		PlayerPowerBarAlt:Hide()
 	end
 
 	-- fix LFD Cooldown Frame
