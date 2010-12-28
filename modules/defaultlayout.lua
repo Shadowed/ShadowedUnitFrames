@@ -149,6 +149,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		COMBOPOINTS = {r = 1.0, g = 0.80, b = 0.0},
 		HOLYPOWER = {r = 0.96, g = 0.55, b = 0.73},
 		SOULSHARDS = {r = 0.58, g = 0.51, b = 0.79},
+		ALTERNATE = {r = 0.71, g = 0.0, b = 1.0},
 	}
 	config.healthColors = {
 		tapped = {r = 0.5, g = 0.5, b = 0.5},
@@ -234,6 +235,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		powerBar = {background = true, height = 1.0, order = 20},
 		xpBar = {background = true, height = 0.25, order = 55},
 		castBar = {background = true, height = 0.60, order = 40, icon = "HIDE", name = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}, time = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}},
+		altPowerBar = {background = true, height = 0.40, order = 100},
 	}
 	
 	-- Units configuration

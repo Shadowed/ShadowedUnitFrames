@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 4
+ShadowUF.dbRevision = 5
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -191,6 +191,14 @@ function ShadowUF:CheckUpgrade()
 		loadDefault = true
 	end
 
+	if( revision <= 4 ) then
+		self.db.profile.powerColors.ALTERNATE = {r = 0.71, g = 0.0, b = 1.0}
+		for unit, config in pairs(self.db.profile.units) do
+			config.altPowerBar = {enabled = false, background = true, height = 0.40, order = 100}
+		end
+		self.db.profile.units.boss.altPowerBar.enabled = true
+	end
+
 	if loadDefault then
 		self:LoadDefaultLayout(true)
 	end
@@ -278,6 +286,8 @@ function ShadowUF:LoadUnitDefaults()
 				self.defaults.profile.units[unit].indicators.ready = {enabled = true, size = 0}
 			end
 		end
+
+		self.defaults.profile.units[unit].altPowerBar = {enabled = false}
 	end
 		
 	-- PLAYER
@@ -334,6 +344,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.boss.auras.debuffs.maxRows = 1
 	self.defaults.profile.units.boss.auras.buffs.maxRows = 1
 	self.defaults.profile.units.boss.offset = 0
+	self.defaults.profile.units.boss.altPowerBar.enabled = true
 	-- RAID
 	self.defaults.profile.units.raid.groupBy = "GROUP"
 	self.defaults.profile.units.raid.sortOrder = "ASC"
