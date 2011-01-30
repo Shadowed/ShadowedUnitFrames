@@ -589,7 +589,7 @@ Tags.defaultTags = {
 			
 			return color .. (level > 0 and level or "??") .. "|r"
 		else
-			return level
+			return level > 0 and level or "??"
 		end
 	end]],
 	["faction"] = [[function(unit, unitOwner) return UnitFactionGroup(unitOwner) end]],
