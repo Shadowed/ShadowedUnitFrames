@@ -211,7 +211,11 @@ function ShadowUF:LoadUnits()
 	for _, type in pairs(self.unitList) do
 		local enabled = self.db.profile.units[type].enabled
 		if( ShadowUF.Units.zoneUnits[type] and enabled ) then
-			enabled = ShadowUF.Units.zoneUnits[type] == instanceType
+			if( type == "boss" ) then
+				enabled = (instanceType == "raid" or instanceType == "party")
+			else
+				enabled = ShadowUF.Units.zoneUnits[type] == instanceType
+			end
 		elseif( instanceType ~= "none" ) then
 			if( self.db.profile.visibility[instanceType][type] == false ) then
 				enabled = false
