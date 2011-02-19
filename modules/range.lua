@@ -1,5 +1,5 @@
 local Range = {
-	friendly = {["PRIEST"] = GetSpellInfo(2061), ["DRUID"] = GetSpellInfo(5185), ["PALADIN"] = GetSpellInfo(635), ["SHAMAN"] = GetSpellInfo(331)},
+	friendly = {["PRIEST"] = GetSpellInfo(2061), ["DRUID"] = GetSpellInfo(774), ["PALADIN"] = GetSpellInfo(635), ["SHAMAN"] = GetSpellInfo(331)},
 	hostile = {["PRIEST"] = GetSpellInfo(585), ["DRUID"] = GetSpellInfo(5176), ["PALADIN"] = GetSpellInfo(62124), ["HUNTER"] = GetSpellInfo(75), ["WARLOCK"] = GetSpellInfo(686), ["SHAMAN"] = GetSpellInfo(403), ["MAGE"] = GetSpellInfo(133), ["DEATHKNIGHT"] = GetSpellInfo(49576)},
 }
 ShadowUF:RegisterModule(Range, "range", ShadowUF.L["Range indicator"])
