@@ -466,7 +466,7 @@ end
 
 local function hideCompactParty()
 	CompactPartyFrame:UnregisterAllEvents()
-	CompactPartyFrame.Show = self.noop
+	CompactPartyFrame.Show = ShadowUF.noop
 	CompactPartyFrame:Hide()
 
 	for i=1, MEMBERS_PER_RAID_GROUP do
