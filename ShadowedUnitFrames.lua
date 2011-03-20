@@ -464,6 +464,18 @@ function ShadowUF:ProfilesChanged()
 	self.modules.movers:Update()
 end
 
+local function hideCompactParty()
+	CompactPartyFrame:UnregisterAllEvents()
+	CompactPartyFrame.Show = self.noop
+	CompactPartyFrame:Hide()
+
+	for i=1, MEMBERS_PER_RAID_GROUP do
+		local name = "CompactPartyFrameMember" .. i
+		local frame = _G[name]
+		frame:UnregisterAllEvents()
+	end
+end
+
 -- Stolen from haste
 ShadowUF.noop = function() end
 function ShadowUF:HideBlizzardFrames()
@@ -494,14 +506,10 @@ function ShadowUF:HideBlizzardFrames()
 			_G[name .. "ManaBar"]:UnregisterAllEvents()
 		end
 		
-		CompactPartyFrame:UnregisterAllEvents()
-		CompactPartyFrame.Show = self.noop
-		CompactPartyFrame:Hide()
-		
-		for i=1, MEMBERS_PER_RAID_GROUP do
-			local name = "CompactPartyFrameMember" .. i
-			local frame = _G[name]
-			frame:UnregisterAllEvents()
+		if CompactPartyFrame then
+			hideCompactParty()
+		elseif CompactPartyFrame_Generate then -- 4.1
+			hooksecurefunc("CompactPartyFrame_Generate", hideCompactParty)
 		end
 	end
 
