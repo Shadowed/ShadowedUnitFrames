@@ -102,15 +102,6 @@ function Health:UpdateColor(frame)
 		color = ShadowUF.db.profile.classColors.VEHICLE
 	elseif( not UnitIsTappedByPlayer(unit) and UnitIsTapped(unit) and UnitCanAttack("player", unit) ) then
 		color = ShadowUF.db.profile.healthColors.tapped
-	elseif( unit == "pet" and reactionType == "happiness" and GetPetHappiness() ) then
-		local happiness = GetPetHappiness()
-		if( happiness == 3 ) then
-			color = ShadowUF.db.profile.healthColors.friendly
-		elseif( happiness == 2 ) then
-			color = ShadowUF.db.profile.healthColors.neutral
-		elseif( happiness == 1 ) then
-			color = ShadowUF.db.profile.healthColors.hostile
-		end
 	elseif( not UnitPlayerOrPetInRaid(unit) and not UnitPlayerOrPetInParty(unit) and ( ( ( reactionType == "player" or reactionType == "both" ) and UnitIsPlayer(unit) and not UnitIsFriend(unit, "player") ) or ( ( reactionType == "npc" or reactionType == "both" )  and not UnitIsPlayer(unit) ) ) ) then
 		if( not UnitIsFriend(unit, "player") and UnitPlayerControlled(unit) ) then
 			if( UnitCanAttack("player", unit) ) then

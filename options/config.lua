@@ -36,9 +36,9 @@ local PAGE_DESC = {
 	["tags"] = L["Advanced tag management, allows you to add your own custom tags."],
 	["filter"] = L["Simple aura filtering by whitelists and blacklists."],
 }
-local INDICATOR_NAMES = {["happiness"] = L["Happiness"], ["leader"] = L["Leader"], ["lfdRole"] = L["Dungeon role"], ["masterLoot"] = L["Master looter"], ["pvp"] = L["PvP Flag"],["raidTarget"] = L["Raid target"], ["ready"] = L["Ready status"], ["role"] = L["Raid role"], ["status"] = L["Combat status"], ["class"] = L["Class icon"]}
+local INDICATOR_NAMES = {["leader"] = L["Leader"], ["lfdRole"] = L["Dungeon role"], ["masterLoot"] = L["Master looter"], ["pvp"] = L["PvP Flag"],["raidTarget"] = L["Raid target"], ["ready"] = L["Ready status"], ["role"] = L["Raid role"], ["status"] = L["Combat status"], ["class"] = L["Class icon"]}
 local AREA_NAMES = {["arena"] = L["Arenas"],["none"] = L["Everywhere else"], ["party"] = L["Party instances"], ["pvp"] = L["Battlegrounds"], ["raid"] = L["Raid instances"],}
-local INDICATOR_DESC = {["happiness"] = L["Indicator for your pet's happiness, only applies to Hunters."],
+local INDICATOR_DESC = {
 		["leader"] = L["Crown indicator for group leaders."], ["lfdRole"] = L["Role the unit is playing in dungeons formed through the Looking For Dungeon system."],
 		["masterLoot"] = L["Bag indicator for master looters."], ["pvp"] = L["PVP flag indicator, Horde for Horde flagged pvpers and Alliance for Alliance flagged pvpers."],
 		["raidTarget"] = L["Raid target indicator."], ["ready"] = L["Ready status of group members."],
@@ -1071,13 +1071,6 @@ local function loadGeneralOptions()
 								hasAlpha = true,
 								arg = "powerColors.ENERGY",
 								width = "half",
-							},
-							HAPPINESS = {
-								order = 5,
-								type = "color",
-								name = L["Happiness"],
-								hasAlpha = true,
-								arg = "powerColors.HAPPINESS",
 							},
 							RUNIC_POWER = {
 								order = 6,
@@ -3344,16 +3337,6 @@ local function loadUnitOptions()
 								desc = L["Primary means of coloring the health bar, color on aggro and color by reaction will override this if necessary."],
 								values = {["class"] = L["Class"], ["static"] = L["Static"], ["percent"] = L["Health percent"]},
 								arg = "healthBar.colorType",
-							},
-							reactionPet = {
-								order = 5,
-								type = "toggle",
-								name = L["Color by happiness"],
-								desc = L["Colors the health bar by how happy your pet is."],
-								arg = "healthBar.reactionType",
-								set = function(info, value) setVariable(info[2], "healthBar", nil, "reactionType", value and "happiness" or "none") end,
-								get = function(info) return getVariable(info[2], "healthBar", nil, "reactionType") == "happiness" and true or false end,
-								hidden = function(info) return info[2] ~= "pet" end,
 							},
 							reaction = {
 								order = 5,

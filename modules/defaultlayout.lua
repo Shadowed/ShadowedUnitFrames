@@ -139,7 +139,6 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		RAGE = {r = 0.90, g = 0.20, b = 0.30},
 		FOCUS = {r = 1.0, g = 0.50, b = 0.25},
 		ENERGY = {r = 1.0, g = 0.85, b = 0.10}, 
-		HAPPINESS = {r = 0.50, g = 0.90, b = 0.70},
 		RUNES = {r = 0.50, g = 0.50, b = 0.50}, 
 		RUNIC_POWER = {b = 0.60, g = 0.45, r = 0.35},
 		ECLIPSE_SUN = {r = 1.0, g = 1.0, b = 0.0},
@@ -571,7 +570,6 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			portrait = {enabled = false, fullAfter = 50},
 			castBar = {order = 60},
 			indicators = {
-				happiness = {enabled = false, anchorTo = "$parent", anchorPoint = "BR", size = 14, x = 3, y = 13},
 			},
 			text = {
 				{text = "[name]"},

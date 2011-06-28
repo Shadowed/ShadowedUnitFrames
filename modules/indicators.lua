@@ -1,4 +1,4 @@
-local Indicators = {list = {"status", "pvp", "leader", "masterLoot", "raidTarget", "happiness", "ready", "role", "lfdRole", "class"}}
+local Indicators = {list = {"status", "pvp", "leader", "masterLoot", "raidTarget", "ready", "role", "lfdRole", "class"}}
 local leavingWorld
 
 ShadowUF:RegisterModule(Indicators, "indicators", ShadowUF.L["Indicators"])
@@ -14,28 +14,6 @@ function Indicators:UpdateClass(frame)
 		frame.indicators.class:Show()
 	else
 		frame.indicators.class:Hide()
-	end
-end
-
-function Indicators:UpdateHappiness(frame, event, unit, power)
-	if( power ~= "HAPPINESS" or not frame.indicators.happiness or not frame.indicators.happiness.enabled ) then return end
-
-	local happiness = GetPetHappiness()
-	-- No pet
-	if( not happiness ) then
-		frame.indicators.happiness:Hide()
-	-- Happy!
-	elseif( happiness == 3 ) then
-		frame.indicators.happiness:SetTexCoord(0, 0.1875, 0, 0.359375)
-		frame.indicators.happiness:Show()
-	-- Content :|
-	elseif( happiness == 2 ) then
-		frame.indicators.happiness:SetTexCoord(0.1875, 0.375, 0, 0.359375)
-		frame.indicators.happiness:Show()
-	-- Unhappy :(
-	elseif( happiness == 1 ) then
-		frame.indicators.happiness:SetTexCoord(0.375, 0.5625, 0, 0.359375)
-		frame.indicators.happiness:Show()
 	end
 end
 
@@ -337,15 +315,7 @@ function Indicators:OnEnable(frame)
 		
 		frame.indicators.ready = frame.indicators.ready or frame.indicators:CreateTexture(nil, "OVERLAY")
 	end
-	
-	if( config.indicators.happiness and config.indicators.happiness.enabled ) then
-		frame:RegisterUnitEvent("UNIT_POWER", self, "UpdateHappiness")
-		frame:RegisterUpdateFunc(self, "UpdateHappiness")
 		
-		frame.indicators.happiness = frame.indicators.happiness or frame.indicators:CreateTexture(nil, "OVERLAY")
-		frame.indicators.happiness:SetTexture("Interface\\PetPaperDollFrame\\UI-PetHappiness")
-	end
-	
 	if( config.indicators.lfdRole and config.indicators.lfdRole.enabled ) then
 		if( frame.unit == "player" ) then
 			frame:RegisterNormalEvent("PLAYER_ROLES_ASSIGNED", self, "UpdateLFDRole")
