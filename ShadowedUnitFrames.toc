@@ -1,6 +1,6 @@
-## Interface: 40100
+## Interface: 40200
 ## Title: Shadowed Unit Frames
-## Notes: An apple a day keeps the raptor away, or so they say.
+## Notes: If an apple a day keeps the raptor away, what does an orange prevent?
 ## Author: Shadowed
 ## Version: @project-version@
 ## SavedVariables: ShadowedUFDB
