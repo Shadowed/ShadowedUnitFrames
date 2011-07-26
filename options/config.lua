@@ -1363,7 +1363,7 @@ local function loadHideOptions()
 					cast = Config.hideTable,
 					runes = Config.hideTable,
 					party = Config.hideTable,
-					raid = Config.hideTable,
+                    -- raid = Config.hideTable,
 					player = Config.hideTable,
 					pet = Config.hideTable,
 					target = Config.hideTable,

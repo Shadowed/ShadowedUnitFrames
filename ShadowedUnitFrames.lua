@@ -520,11 +520,11 @@ function ShadowUF:HideBlizzardFrames()
 	if( ShadowUF.db.profile.hidden.raid ) then
 		if CompactRaidFrameContainer then
 			CompactRaidFrameContainer:Hide()
-			CompactRaidFrameContainer.Show = self.noop
+			-- CompactRaidFrameContainer.Show = self.noop
 			CompactRaidFrameContainer:UnregisterAllEvents()
 
 			CompactRaidFrameManager:Hide()
-			CompactRaidFrameManager.Show = self.noop
+            -- CompactRaidFrameManager.Show = self.noop
 			CompactRaidFrameManager:UnregisterAllEvents()
 		end
 	end
