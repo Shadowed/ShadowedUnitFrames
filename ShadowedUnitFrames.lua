@@ -404,12 +404,12 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	if( ShadowUF.db.profile.hidden.raid ) then
-        function hide_raid()
+        local function hide_raid()
             CompactRaidFrameManager:UnregisterEvent("RAID_ROSTER_UPDATE")
             CompactRaidFrameManager:UnregisterEvent("PLAYER_ENTERING_WORLD")
             CompactRaidFrameManager:Hide()
         
-            shown = CompactRaidFrameManager_GetSetting("IsShown")
+            local shown = CompactRaidFrameManager_GetSetting("IsShown")
             if( shown and shown ~= "0" ) then
                 CompactRaidFrameManager_SetSetting("IsShown", "0")
             end
