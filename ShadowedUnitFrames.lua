@@ -399,20 +399,29 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	-- this doesn't really belong here, but oh well!
-	if CompactRaidFrameManager then
+	if( CompactRaidFrameManager ) then
 		CompactRaidFrameManager:SetFrameStrata("DIALOG")
 	end
 
 	if( ShadowUF.db.profile.hidden.raid ) then
-		if CompactRaidFrameContainer then
-			CompactRaidFrameContainer:Hide()
-			-- CompactRaidFrameContainer.Show = self.noop
-			CompactRaidFrameContainer:UnregisterAllEvents()
+        function hide_raid()
+            CompactRaidFrameManager:UnregisterEvent("RAID_ROSTER_UPDATE")
+            CompactRaidFrameManager:UnregisterEvent("PLAYER_ENTERING_WORLD")
+            CompactRaidFrameManager:Hide()
+        
+            shown = CompactRaidFrameManager_GetSetting("IsShown")
+            if( shown and shown ~= "0" ) then
+                CompactRaidFrameManager_SetSetting("IsShown", "0")
+            end
+        end
 
-			CompactRaidFrameManager:Hide()
-            -- CompactRaidFrameManager.Show = self.noop
-			CompactRaidFrameManager:UnregisterAllEvents()
-		end
+        hooksecurefunc("CompactRaidFrameManager_UpdateShown", function()
+            if( ShadowUF.db.profile.hidden.raid ) then
+                hide_raid();
+            end
+        end)
+        
+        hide_raid();
 	end
 
 	if( ShadowUF.db.profile.hidden.buffs ) then
