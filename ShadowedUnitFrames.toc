@@ -1,6 +1,6 @@
 ## Interface: 40200
 ## Title: Shadowed Unit Frames
-## Notes: If an apple a day keeps the raptor away, what does an orange prevent?
+## Notes: This update sponsored by The Book of the New Sun.
 ## Author: Shadowed
 ## Version: @project-version@
 ## SavedVariables: ShadowedUFDB
