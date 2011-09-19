@@ -6,6 +6,9 @@ local MAX_TOTEMS = MAX_TOTEMS
 if( select(2, UnitClass("player")) == "DEATHKNIGHT" ) then
 	MAX_TOTEMS = 1
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Guardian bar"], true, "DEATHKNIGHT")
+elseif( select(2, UnitClass("player")) == "DRUID" ) then
+	MAX_TOTEMS = 3
+	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Mushroom bar"], true, "DRUID")
 else
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Totem bar"], true, "SHAMAN")
 end
