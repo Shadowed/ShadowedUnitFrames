@@ -430,10 +430,10 @@ function ShadowUF:HideBlizzardFrames()
 		PlayerFrame.Show = self.noop
 		PlayerFrame:Hide()
 
-		PlayerFrame:RegisterEvent('UNIT_ENTERING_VEHICLE')
-		PlayerFrame:RegisterEvent('UNIT_ENTERED_VEHICLE')
-		PlayerFrame:RegisterEvent('UNIT_EXITING_VEHICLE')
-		PlayerFrame:RegisterEvent('UNIT_EXITED_VEHICLE')
+		PlayerFrame:RegisterEvent("UNIT_ENTERING_VEHICLE")
+		PlayerFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
+		PlayerFrame:RegisterEvent("UNIT_EXITING_VEHICLE")
+		PlayerFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
 
 		PlayerFrameHealthBar:UnregisterAllEvents()
 		PlayerFrameManaBar:UnregisterAllEvents()
