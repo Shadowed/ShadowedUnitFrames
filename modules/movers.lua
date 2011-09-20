@@ -37,6 +37,7 @@ local function createConfigEnv()
 			end
 			return getValue("UnitPower", unit, math.random(20000, 50000))
 		end,
+		UnitHasIncomingResurrection = function(unit) return true end,
 		UnitExists = function(unit) return true end,
 		UnitPowerMax = function(unit) return 50000 end,
 		UnitIsPartyLeader = function() return true end,

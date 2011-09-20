@@ -1,4 +1,4 @@
-local Indicators = {list = {"status", "pvp", "leader", "masterLoot", "raidTarget", "ready", "role", "lfdRole", "class"}}
+local Indicators = {list = {"status", "pvp", "leader", "resurrect", "masterLoot", "raidTarget", "ready", "role", "lfdRole", "class"}}
 local leavingWorld
 
 ShadowUF:RegisterModule(Indicators, "indicators", ShadowUF.L["Indicators"])
@@ -15,6 +15,16 @@ function Indicators:UpdateClass(frame)
 	else
 		frame.indicators.class:Hide()
 	end
+end
+
+function Indicators:UpdateResurrect(frame)
+    if( not frame.indicators.resurrect or not frame.indicators.resurrect.enabled ) then return end
+    
+    if( UnitHasIncomingResurrection(frame.unit) ) then
+        frame.indicators.resurrect:Show()
+    else
+        frame.indicators.resurrect:Hide()
+    end
 end
 
 function Indicators:UpdateMasterLoot(frame)
@@ -241,7 +251,15 @@ function Indicators:OnEnable(frame)
 	elseif( frame.indicators.status ) then
 		frame.indicators:SetScript("OnUpdate", nil)
 	end
-		
+	
+	if( config.indicators.resurrect and config.indicators.resurrect.enabled ) then
+	    frame:RegisterNormalEvent("INCOMING_RESURRECT_CHANGED", self, "UpdateResurrect")
+	    frame:RegisterUpdateFunc(self, "UpdateResurrect")
+	    
+	    frame.indicators.resurrect = frame.indicators.resurrect or frame.indicators:CreateTexture(nil, "OVERLAY")
+	    frame.indicators.resurrect:SetTexture("Interface\\RaidFrame\\Raid-Icon-Rez")
+	end
+	
 	if( config.indicators.pvp and config.indicators.pvp.enabled ) then
 		frame:RegisterUnitEvent("PLAYER_FLAGS_CHANGED", self, "UpdatePVPFlag")
 		frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdatePVPFlag")
@@ -349,7 +367,7 @@ function Indicators:OnLayoutApplied(frame, config)
 		
 		for _, key in pairs(self.list) do
 			local indicator = frame.indicators[key]
-			if( indicator and config.indicators[key].enabled and config.indicators[key].size ) then
+			if( indicator and config.indicators[key] and config.indicators[key].enabled and config.indicators[key].size ) then
 				indicator.enabled = true
 				indicator:SetHeight(config.indicators[key].size)
 				indicator:SetWidth(config.indicators[key].size)

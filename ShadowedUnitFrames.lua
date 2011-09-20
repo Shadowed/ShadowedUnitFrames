@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 5
+ShadowUF.dbRevision = 6
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -83,11 +83,15 @@ function ShadowUF:OnInitialize()
 end
 
 function ShadowUF:CheckUpgrade()
-    -- local revision = self.db.profile.revision or 1
-    -- local loadDefault = false
-    -- if loadDefault then
-    --  self:LoadDefaultLayout(true)
-    -- end
+    local revision = self.db.profile.revision or 1
+    if( revision <= 5 ) then
+        for _, unit in pairs({"player", "focus", "target", "raid", "party", "mainassist", "maintank"}) do
+            local db = self.db.profile.units[unit]
+            if( not db.indicators.resurrect ) then
+                db.indicators.resurrect = {enabled = true, anchorPoint = "BR", size = 14, x = 3, y = -14, anchorTo = "$parent"}
+            end
+        end
+    end
 end
 
 function ShadowUF:LoadUnits()
