@@ -391,10 +391,10 @@ function ShadowUF:HideBlizzardFrames()
 			_G[name .. "ManaBar"]:UnregisterAllEvents()
 		end
 		
-		if CompactPartyFrame then
+		if( CompactPartyFrame ) then
 			hideCompactParty()
-		elseif CompactPartyFrame_Generate then -- 4.1
-			hooksecurefunc("CompactPartyFrame_Generate", hideCompactParty)
+		elseif( CompactPartyFrame_Generate ) then
+		    hooksecurefunc("CompactPartyFrame_Generate", hideCompactParty)
 		end
 	end
 

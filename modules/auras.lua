@@ -78,7 +78,7 @@ local function positionButton(id,  group, config)
 	button.isAuraAnchor = nil
 	
 	-- Alright, in order to find out where an aura group is going to be anchored to certain buttons need
-	-- to be flagged as suitable anchors visually, this speeds it up bcause this data is cached and doesn't
+	-- to be flagged as suitable anchors visually, this speeds it up because this data is cached and doesn't
 	-- have to be recalculated unless auras are specifically changed
 	if( id > 1 ) then
 		if( position.isSideGrowth and id <= config.perRow ) then
@@ -154,7 +154,6 @@ local function positionAllButtons(group, config)
 					offset = offset + 1
 				end
 
-				--print(columnID, math.ceil(offset))
 				position.column(button, anchorButton, math.ceil(offset))
 			else
 				position.aura(button, group.buttons[id - 1])
@@ -168,7 +167,6 @@ local function positionAllButtons(group, config)
 				offset = offset + 2
 			end
 			
-			--print(1, offset)
 			position.initialAnchor(button, offset)
 		end
 	end

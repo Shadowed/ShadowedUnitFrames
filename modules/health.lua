@@ -24,31 +24,6 @@ end
 
 Health.getGradientColor = getGradientColor
 
--- Not doing full health update, because other checks can lag behind without much issue
-local function updateTimer(self)
-	local currentHealth = UnitHealth(self.parent.unit)
-	if( currentHealth == self.currentHealth ) then return end
-	self.currentHealth = currentHealth
-	self:SetValue(currentHealth)
-		
-	-- As much as I would rather not have to do this in an OnUpdate, I don't have much choice large health changes in a single update will make them very clearly be lagging behind
-	for _, fontString in pairs(self.parent.fontStrings) do
-		if( fontString.fastHealth ) then
-			fontString:UpdateTags()
-		end
-	end
-
-	-- Update incoming heal number
-	if( self.parent.incHeal and self.parent.incHeal.healed ) then
-		self.parent.incHeal:SetValue(currentHealth + self.parent.incHeal.healed)
-	end
-	
-	-- The target is not offline, and we have a health percentage so update the gradient
-	if( not self.parent.healthBar.wasOffline and self.parent.healthBar.hasPercent ) then
-		self.parent:SetBarColor("healthBar", ShadowUF.db.profile.units[self.parent.unitType].healthBar.invert, getGradientColor(self.parent.unit))
-	end
-end
-
 function Health:OnEnable(frame)
 	if( not frame.healthBar ) then
 		frame.healthBar = ShadowUF.Units:CreateBar(frame)
@@ -72,10 +47,9 @@ function Health:OnLayoutApplied(frame)
 	if( not frame.visibility.healthBar ) then return end
 
 	if( ShadowUF.db.profile.units[frame.unitType].healthBar.predicted ) then
-		frame.healthBar:SetScript("OnUpdate", updateTimer)
-		frame.healthBar.parent = frame
+	    frame:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", self, "UpdateFrequent")
 	else
-		frame.healthBar:SetScript("OnUpdate", nil)
+		frame:UnregisterEvent("UNIT_HEALTH_FREQUENT", self)
 	end
 end
 
@@ -131,6 +105,28 @@ function Health:UpdateColor(frame)
 	else
 		frame.healthBar.hasPercent = true
 		frame:SetBarColor("healthBar", ShadowUF.db.profile.units[frame.unitType].healthBar.invert, getGradientColor(unit))
+	end
+end
+
+function Health:UpdateFrequent(frame)
+	frame.healthBar.currentHealth = UnitHealth(frame.unit)
+	frame.healthBar:SetValue(frame.healthBar.currentHealth)
+
+	-- As much as I would rather not have to do this in an OnUpdate, I don't have much choice large health changes in a single update will make them very clearly be lagging behind
+	for _, fontString in pairs(frame.fontStrings) do
+		if( fontString.fastHealth ) then
+			fontString:UpdateTags()
+		end
+	end
+		
+	-- Update incoming heal number
+	if( frame.incHeal and frame.incHeal.healed ) then
+		frame.incHeal:SetValue(frame.healthBar.currentHealth + self.parent.incHeal.healed)
+	end
+	
+	-- The target is not offline, and we have a health percentage so update the gradient
+	if( not frame.healthBar.wasOffline and frame.healthBar.hasPercent ) then
+		frame:SetBarColor("healthBar", ShadowUF.db.profile.units[frame.unitType].healthBar.invert, getGradientColor(frame.unit))
 	end
 end
 
