@@ -216,12 +216,13 @@ body = string.format("%s--%s\r\n", body, boundary)
 
 http.request({
 	method = "POST",
-	url = string.format("http://www.%s.com/addons/%s/localization/import/?api-key=%s", SITE_LOCATION, ADDON_SLUG, CURSE_API_KEY),
+	url = string.format("http://www.%s.com/addons/%s/localization/import/?api-key=", SITE_LOCATION, ADDON_SLUG, CURSE_API_KEY),
 	sink = ltn12.sink.table(source),
 	source = ltn12.source.string(body),
 	headers = {
 		["Content-Type"] = string.format("multipart/form-data; boundary=\"%s\"", boundary),
 		["Content-Length"] = string.len(body),
+		["Referer"] = string.format("http://www.%s.com/addons/%s/localization/import/", SITE_LOCATION, ADDON_SLUG)
 	},
 })
 
