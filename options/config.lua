@@ -857,7 +857,7 @@ local function loadGeneralOptions()
 								order = 3,
 								type = "select",
 								name = L["Outline"],
-								values = {["MONOCHROME"] = L["Monochrome"], ["OUTLINE"] = L["Thin outline"], ["THICKOUTLINE"] = L["Thick outline"], [""] = L["None"]},
+								values = {["OUTLINE"] = L["Thin outline"], ["THICKOUTLINE"] = L["Thick outline"], ["MONOCHROME"] = L["Monochrome"], [""] = L["None"]},
 								arg = "font.extra",
 								hidden = hideAdvancedOption,
 							},
