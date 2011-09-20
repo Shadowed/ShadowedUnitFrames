@@ -121,7 +121,7 @@ function Health:UpdateFrequent(frame)
 		
 	-- Update incoming heal number
 	if( frame.incHeal and frame.incHeal.healed ) then
-		frame.incHeal:SetValue(frame.healthBar.currentHealth + self.parent.incHeal.healed)
+		frame.incHeal:SetValue(frame.healthBar.currentHealth + frame.incHeal.healed)
 	end
 	
 	-- The target is not offline, and we have a health percentage so update the gradient
