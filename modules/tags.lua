@@ -765,13 +765,16 @@ Tags.defaultTags = {
 		return UnitPower(unit, 0)
 	end]],
 	["abs:incheal"] = [[function(unit, unitOwner, fontString)
-		return fontString.incoming and string.format("%d", fontString.incoming)
+	    local heal = UnitGetIncomingHeals(unit)
+		return heal and string.format("%d", heal)
 	end]],
 	["incheal"] = [[function(unit, unitOwner, fontString)
-		return fontString.incoming and ShadowUF:FormatLargeNumber(fontString.incoming) or nil
+	    local heal = UnitGetIncomingHeals(unit)
+		return heal and ShadowUF:FormatLargeNumber(heal)
 	end]],
 	["incheal:name"] = [[function(unit, unitOwner, fontString)
-		return fontString.incoming and string.format("+%d", fontString.incoming) or ShadowUF.tagFunc.name(unit, unitOwner)
+	    local heal = UnitGetIncomingHeals(unit)
+		return heal and string.format("+%d", heal) or ShadowUF.tagFunc.name(unit, unitOwner)
 	end]],
 	["unit:raid:targeting"] = [[function(unit, unitOwner, fontString)
 		if( GetNumRaidMembers() == 0 ) then return nil end
