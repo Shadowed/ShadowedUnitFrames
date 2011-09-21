@@ -52,6 +52,11 @@ end
 
 function Totems:OnDisable(frame)
 	frame:UnregisterAll(self)
+	frame:UnregisterUpdateFunc(self, "Update")
+	
+	for _, totem in pairs(frame.totemBar.totems) do
+	    totem:Hide()
+    end
 end
 
 function Totems:OnLayoutApplied(frame)
