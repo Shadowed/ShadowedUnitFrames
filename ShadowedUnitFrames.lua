@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 6
+ShadowUF.dbRevision = 7
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -84,11 +84,15 @@ end
 
 function ShadowUF:CheckUpgrade()
     local revision = self.db.profile.revision or 1
-    if( revision <= 5 ) then
+    if( revision <= 6 ) then
         for _, unit in pairs({"player", "focus", "target", "raid", "party", "mainassist", "maintank"}) do
             local db = self.db.profile.units[unit]
             if( not db.indicators.resurrect ) then
-                db.indicators.resurrect = {enabled = true, anchorPoint = "BR", size = 14, x = 3, y = -14, anchorTo = "$parent"}
+                db.indicators.resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"}
+            end
+            
+            if( not db.indicators.phase ) then
+               db.indicators.phase = {enabled = true, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
             end
         end
     end

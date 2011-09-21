@@ -258,7 +258,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -2, y = -10},
 				role = {enabled = false, anchorTo = "$parent", anchorPoint = "BR", size = 14, x = 0, y = 14},
 				ready = {anchorTo = "$parent", anchorPoint = "LC", size = 24, x = 25, y = 0},
-				resurrect = {enabled = true, anchorPoint = "BR", size = 14, x = 3, y = -14, anchorTo = "$parent"}
+				resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
+                phase = {enabled = true, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
 			},
 			text = {
 				{text = "[(()afk() )][name]"},
@@ -311,7 +312,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			soulShards = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -8, y = 6, size = 12, spacing = -2, growth = "LEFT", isBar = true, showAlways = true},
 			holyPower = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true},
 			indicators = {
-                resurrect = {enabled = true, anchorPoint = "BR", size = 14, x = 3, y = -14, anchorTo = "$parent"}
+                resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
+                phase = {enabled = true, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
 			},
 			auras = {
 				buffs = {enabled = false, maxRows = 1, temporary = playerClass == "ROGUE" or playerClass == "SHAMAN"},
@@ -337,7 +339,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			castBar = {order = 60},
 			offset = 23,
 			indicators = {
-                resurrect = {enabled = true, anchorPoint = "BR", size = 14, x = 3, y = -14, anchorTo = "$parent"}
+                resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
+                phase = {enabled = true, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
 			},
 			auras = {
 				buffs = {enabled = true, maxRows = 1},
@@ -449,7 +452,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			portrait = {enabled = false, fullAfter = 50},
 			castBar = {order = 60},
 			indicators = {
-                resurrect = {enabled = true, anchorPoint = "BR", size = 14, x = 3, y = -14, anchorTo = "$parent"}
+                resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
+                phase = {enabled = true, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
 			},
 			auras = {
 				buffs = {enabled = false},
@@ -493,7 +497,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			portrait = {enabled = false, fullAfter = 50},
 			castBar = {order = 60},
 			indicators = {
-                resurrect = {enabled = true, anchorPoint = "BR", size = 14, x = 3, y = -14, anchorTo = "$parent"}
+                resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
+                phase = {enabled = true, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
 			},
 			auras = {
 				buffs = {enabled = false},
@@ -561,7 +566,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			comboPoints = {enabled = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true, height = 0.40},
 			indicators = {
 				lfdRole = {enabled = false},
-                resurrect = {enabled = true, anchorPoint = "BR", size = 14, x = 3, y = -14, anchorTo = "$parent"}
+                resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
+                phase = {enabled = true, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
 			},
 			auras = {
 				buffs = {enabled = true},
@@ -615,7 +621,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			castBar = {order = 60},
 			indicators = {
 				lfdRole = {enabled = false},
-                resurrect = {enabled = true, anchorPoint = "BR", size = 14, x = 3, y = -14, anchorTo = "$parent"}
+                resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
+                phase = {enabled = true, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
 			},
 			text = {
 				{text = "[(()afk() )][name]"},

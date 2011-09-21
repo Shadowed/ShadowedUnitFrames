@@ -1,5 +1,6 @@
 local Highlight = {}
 local goldColor, mouseColor = {r = 0.75, g = 0.75, b = 0.35}, {r = 0.75, g = 0.75, b = 0.50}
+local canCure = ShadowUF.Units.canCure
 ShadowUF:RegisterModule(Highlight, "highlight", ShadowUF.L["Highlight"])
 
 -- Might seem odd to hook my code in the core manually, but HookScript is ~40% slower due to it being a secure hook
@@ -157,7 +158,20 @@ function Highlight:UpdateAttention(frame)
 end
 
 function Highlight:UpdateAura(frame)
-	-- In theory, we don't need aura scanning because the first debuff returned is always one we can cure... in theory
-	frame.highlight.hasDebuff = UnitIsFriend(frame.unit, "player") and select(5, UnitDebuff(frame.unit, 1, "RAID")) or nil
+	frame.highlight.hasDebuff = nil
+	if( UnitIsFriend(frame.unit, "player") ) then
+		local id = 0
+		while( true ) do
+			id = id + 1
+			local name, _, _, _, auraType = UnitDebuff(frame.unit, id)
+			if( not name ) then break end
+			
+			if( canCure[auraType] ) then
+				frame.highlight.hasDebuff = auraType
+				break
+			end
+		end
+	end
+
 	self:Update(frame)
 end

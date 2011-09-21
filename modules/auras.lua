@@ -1,8 +1,8 @@
 local Auras = {}
 local stealableColor = {r = 1, g = 1, b = 1}
 local playerUnits = {player = true, vehicle = true, pet = true}
-local mainHand, offHand = {time = 0}, {time = 0}
-local tempEnchantScan
+local mainHand, offHand, tempEnchantScan = {time = 0}, {time = 0}
+local canCure = ShadowUF.Units.canCure
 ShadowUF:RegisterModule(Auras, "auras", ShadowUF.L["Auras"])
 
 function Auras:OnEnable(frame)
@@ -295,8 +295,8 @@ local function updateGroup(self, type, config, reverseConfig)
 
 	-- This is a bit of an odd filter, when used with a HELPFUL filter, it will only return buffs you can cast on group members
 	-- When used with HARMFUL it will only return debuffs you can cure
-	if( config.raid ) then
-		group.filter = group.filter .. "|RAID"
+	if( config.raid and group.type == "buffs" ) then
+        group.filter = group.filter .. "|RAID"
 	end
 	
 	for id, button in pairs(group.buttons) do
@@ -465,7 +465,9 @@ end
 -- Scan for auras
 local function scan(parent, frame, type, config, filter)
 	if( frame.totalAuras >= frame.maxAuras or not config.enabled ) then return end
-
+	
+	local curable = (type == "debuffs" and config.raid)
+	
 	local isFriendly = UnitIsFriend(frame.parent.unit, "player")
 	local index = 0
 	while( true ) do
@@ -473,7 +475,7 @@ local function scan(parent, frame, type, config, filter)
 		local name, rank, texture, count, auraType, duration, endTime, caster, isStealable = UnitAura(frame.parent.unit, index, filter)
 		if( not name ) then break end
 		
-		if( ( not config.player or playerUnits[caster] ) and ( not parent.whitelist[type] and not parent.blacklist[type] or parent.whitelist[type] and parent.whitelist[name] or parent.blacklist[type] and not parent.blacklist[name] ) ) then
+		if( ( not config.player or playerUnits[caster] ) and ( not parent.whitelist[type] and not parent.blacklist[type] or parent.whitelist[type] and parent.whitelist[name] or parent.blacklist[type] and not parent.blacklist[name] ) and ( not curable or canCure[auraType] ) ) then
 			-- Create any buttons we need
 			frame.totalAuras = frame.totalAuras + 1
 			if( #(frame.buttons) < frame.totalAuras ) then
@@ -500,7 +502,7 @@ local function scan(parent, frame, type, config, filter)
 			end
 			
 			-- Enlarge our own auras
-			if( config.enlargeSelf and playerUnits[caster] ) then
+			if( config.enlargeSelf and playerUnits[caster] or ( isStealable and not isFriendly and config.enlargeStealable ) ) then
 				button.isSelfScaled = true
 				button:SetScale(config.selfScale)
 			else

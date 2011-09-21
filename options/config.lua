@@ -36,7 +36,7 @@ local PAGE_DESC = {
 	["tags"] = L["Advanced tag management, allows you to add your own custom tags."],
 	["filter"] = L["Simple aura filtering by whitelists and blacklists."],
 }
-local INDICATOR_NAMES = {["leader"] = L["Leader"], ["lfdRole"] = L["Dungeon role"], ["masterLoot"] = L["Master looter"], ["pvp"] = L["PvP Flag"],["raidTarget"] = L["Raid target"], ["ready"] = L["Ready status"], ["role"] = L["Raid role"], ["status"] = L["Combat status"], ["class"] = L["Class icon"], ["resurrect"] = L["Ressurect status"]}
+local INDICATOR_NAMES = {["leader"] = L["Leader"], ["lfdRole"] = L["Dungeon role"], ["masterLoot"] = L["Master looter"], ["pvp"] = L["PvP Flag"],["raidTarget"] = L["Raid target"], ["ready"] = L["Ready status"], ["role"] = L["Raid role"], ["status"] = L["Combat status"], ["class"] = L["Class icon"], ["resurrect"] = L["Resurrect status"], ["phase"] = L["Phase status"]}
 local AREA_NAMES = {["arena"] = L["Arenas"],["none"] = L["Everywhere else"], ["party"] = L["Party instances"], ["pvp"] = L["Battlegrounds"], ["raid"] = L["Raid instances"],}
 local INDICATOR_DESC = {
 		["leader"] = L["Crown indicator for group leaders."], ["lfdRole"] = L["Role the unit is playing in dungeons formed through the Looking For Dungeon system."],
@@ -1822,6 +1822,13 @@ local function loadUnitOptions()
 		return ShadowUF.db.profile.advanced and advancedAuraList or defaultAuraList
 	end
 	
+	local function hideStealable(info)
+		if( not ShadowUF.db.profile.advanced ) then return true end
+		if( info[2] == "player" or info[2] == "pet" or info[#(info) - 1] == "debuffs" ) then return true end
+		
+		return false
+	end
+	
 	Config.auraTable = {
 		type = "group",
 		inline = true,
@@ -1870,6 +1877,14 @@ local function loadUnitOptions()
 				name = "",
 				width = "full",
 			},
+			enlargeStealable = {
+				order = 6.5,
+				type = "toggle",
+				name = L["Enlarge stealable auras"],
+				desc = L["If you can Spellsteal an aura, then it will be shown scaled using the scaled aura size option."],
+				arg = "auras.$parent.enlargeStealable",
+				hidden = hideStealable,
+			},
 			player = {
 				order = 7,
 				type = "toggle",
@@ -1884,6 +1899,15 @@ local function loadUnitOptions()
 				desc = function(info) return info[#(info) - 1] == "buffs" and L["Filter out any auras that you cannot cast on another player, or yourself."] or L["Filter out any aura that you cannot cure."] end,
 				width = "double",
 				arg = "auras.$parent.raid",
+				hidden = function(info) return not hideStealable(info) end,
+			},
+			raid2 = {
+				order = 8,
+				type = "toggle",
+				name = function(info) return info[#(info) - 1] == "buffs" and L["Show castable on other auras only"] or L["Show curable only"] end,
+				desc = function(info) return info[#(info) - 1] == "buffs" and L["Filter out any auras that you cannot cast on another player, or yourself."] or L["Filter out any aura that you cannot cure."] end,
+				arg = "auras.$parent.raid",
+				hidden = hideStealable,
 			},
 			sep3 = {
 				order = 9,
@@ -1909,8 +1933,8 @@ local function loadUnitOptions()
 			selfScale = {
 				order = 11,
 				type = "range",
-				name = L["Self aura size"],
-				desc = L["Scale for auras that you casted, any number above 100% is bigger tahn default, any number below 100% is smaller than default."],
+				name = L["Scaled aura size"],
+				desc = L["Scale for auras that you casted or can Spellsteal, any number above 100% is bigger than default, any number below 100% is smaller than default."],
 				min = 1, max = 3, step = 0.10,
 				isPercent = true,
 				disabled = function(info) return not getVariable(info[2], "auras", info[#(info) - 1], "enlargeSelf") end,
