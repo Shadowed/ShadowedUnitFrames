@@ -466,9 +466,8 @@ end
 local function scan(parent, frame, type, config, filter)
 	if( frame.totalAuras >= frame.maxAuras or not config.enabled ) then return end
 	
-	local curable = (type == "debuffs" and config.raid)
-	
 	local isFriendly = UnitIsFriend(frame.parent.unit, "player")
+	local curable = (isFriendly and type == "debuffs" and config.raid)
 	local index = 0
 	while( true ) do
 		index = index + 1
