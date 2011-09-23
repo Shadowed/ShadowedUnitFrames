@@ -409,7 +409,7 @@ local function loadGeneralOptions()
 			if( not getVariable("player", "text", nil, id) ) then return true end
 			return getVariable("player", "text", id, "anchorTo") ~= info[#(info) - 1]
 		end,
-		disabled = function(info) return tonumber(info[#(info)]) <= 6 end,
+		disabled = function(info) return tonumber(info[#(info)]) <= 5 end,
 		confirmText = L["Are you sure you want to delete this text? All settings for it will be deleted."],
 		confirm = true,
 		func = function(info)
