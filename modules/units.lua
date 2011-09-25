@@ -844,8 +844,14 @@ function Units:SetHeaderAttributes(frame, type)
 		self:CheckGroupVisibility()
 		
 		-- Need to update our flags on the state monitor so it knows what to do
-		stateMonitor:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.party.hideSemiRaid)
-		stateMonitor:SetAttribute("hideAnyRaid", ShadowUF.db.profile.units.party.hideAnyRaid)
+		if( stateMonitor.party ) then
+			stateMonitor.party:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.party.hideSemiRaid)
+			stateMonitor.party:SetAttribute("hideAnyRaid", ShadowUF.db.profile.units.party.hideAnyRaid)
+		end
+		
+		if( stateMonitor.raid ) then
+			stateMonitor.raid:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.raid.hideSemiRaid)
+		end
 	end
 	-- calling :Show basically resets the header
 	if frame:IsShown() then
@@ -937,8 +943,12 @@ function Units:LoadGroupHeader(type)
 	if( headerFrames[type] ) then
 		headerFrames[type]:Show()
 
-		if( type == "party" ) then
+		if( type == "party" and stateMonitor.party ) then
 			stateMonitor:SetAttribute("partyDisabled", nil)
+		end
+		
+		if( type == "raid" and stateMonitor.raid ) then
+			stateMonitor.raid:SetAttribute("raidDisabled", nil)
 		end
 
 		if( type == "party" or type == "raid" ) then
@@ -981,9 +991,10 @@ function Units:LoadGroupHeader(type)
 	-- technically this isn't the cleanest solution because party frames will still have unit watches active
 	-- but this isn't as big of a deal, because SUF automatically will unregister the OnEvent for party frames while hidden
 	if( type == "party" ) then
-		stateMonitor:SetAttribute("partyDisabled", nil)
-		stateMonitor:SetFrameRef("partyHeader", headerFrame)
-		stateMonitor:WrapScript(stateMonitor, "OnAttributeChanged", [[
+		stateMonitor.party = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
+		stateMonitor.party:SetAttribute("partyDisabled", nil)
+		stateMonitor.party:SetFrameRef("partyHeader", headerFrame)
+		stateMonitor.party:WrapScript(stateMonitor.party, "OnAttributeChanged", [[
 			if( name ~= "state-raidmonitor" and name ~= "partydisabled" and name ~= "hideanyraid" and name ~= "hidesemiraid" ) then return end
 			if( self:GetAttribute("partyDisabled") ) then return end
 			
@@ -995,7 +1006,23 @@ function Units:LoadGroupHeader(type)
 				self:GetFrameRef("partyHeader"):Show()
 			end
 		]])
-		RegisterStateDriver(stateMonitor, "raidmonitor", "[target=raid6, exists] raid6; [target=raid1, exists] raid1; none")
+		RegisterStateDriver(stateMonitor.party, "raidmonitor", "[target=raid6, exists] raid6; [target=raid1, exists] raid1; none")
+	elseif( type == "raid" ) then
+		stateMonitor.raid = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
+		stateMonitor.raid:SetAttribute("raidDisabled", nil)
+		stateMonitor.raid:SetFrameRef("raidHeader", headerFrame)
+		stateMonitor.raid:WrapScript(stateMonitor.raid, "OnAttributeChanged", [[
+			if( name ~= "state-raidmonitor" and name ~= "raiddisabled" and name ~= "hidesemiraid" ) then return end
+			if( self:GetAttribute("partyDisabled") ) then return end
+			
+			if( self:GetAttribute("hideSemiRaid") and self:GetAttribute("state-raidmonitor") ~= "raid6" ) then
+				self:GetFrameRef("raidHeader"):Hide()
+			else
+				self:GetFrameRef("raidHeader"):Show()
+			end
+		]])
+		
+		RegisterStateDriver(stateMonitor.raid, "raidmonitor", "[target=raid6, exists] raid6; [target=raid1, exists] raid1; none")
 	else
 		headerFrame:Show()
 	end
@@ -1125,8 +1152,11 @@ end
 -- Uninitialize units
 function Units:UninitializeFrame(type)
 	-- Disables showing party in raid automatically if raid frames are disabled
-	if( type == "party" ) then
-		stateMonitor:SetAttribute("partyDisabled", true)
+	if( type == "party" and stateMonitor.party ) then
+		stateMonitor.party:SetAttribute("partyDisabled", true)
+	end
+	if( type == "raid" and stateMonitor.raid ) then
+		stateMonitor.raid:SetAttribute("raidDisabled", true)
 	end
 	if( type == "party" or type == "raid" ) then
 		self:CheckGroupVisibility()

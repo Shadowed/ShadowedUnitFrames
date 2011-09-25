@@ -2804,10 +2804,10 @@ local function loadUnitOptions()
 								hidden = function(info) return info[2] ~= "party" end,
 								arg = "showPlayer",
 							},
-							hideSemiRaid = {
+							hideSemiRaidParty = {
 								order = 1,
 								type = "toggle",
-								name = L["Hide in 6-man raid"],
+								name = L["Hide in >5-man raids"],
 								desc = L["Party frames are hidden while in a raid group with more than 5 people inside."],
 								hidden = function(info) return info[2] ~= "party" end,
 								set = function(info, value)
@@ -2843,6 +2843,18 @@ local function loadUnitOptions()
 								desc = L["Splits raid frames into individual frames for each raid group instead of one single frame.|nNOTE! You cannot drag each group frame individualy, but how they grow is set through the column and row growth options."],
 								hidden = function(info) return info[2] ~= "raid" end,	
 								arg = "frameSplit",
+							},
+							hideSemiRaidRaid = {
+								order = 3.5,
+								type = "toggle",
+								name = L["Hide in <=5-man raids"],
+								desc = L["Raid frames are hidden while in a raid group with 5 or less people inside."],
+								hidden = function(info) return info[2] ~= "raid" end,
+								set = function(info, value)
+									setVariable(info[2], nil, nil, "hideSemiRaid", value)
+									ShadowUF.Units:ReloadHeader(info[#(info) - 3])
+								end,
+								arg = "hideSemiRaid"
 							},
 							showInRaid = {
 								order = 4,
