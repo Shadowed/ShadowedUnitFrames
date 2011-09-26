@@ -944,7 +944,7 @@ function Units:LoadGroupHeader(type)
 		headerFrames[type]:Show()
 
 		if( type == "party" and stateMonitor.party ) then
-			stateMonitor:SetAttribute("partyDisabled", nil)
+			stateMonitor.party:SetAttribute("partyDisabled", nil)
 		end
 		
 		if( type == "raid" and stateMonitor.raid ) then
