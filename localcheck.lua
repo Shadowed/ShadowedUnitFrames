@@ -201,6 +201,8 @@ local addonData = {
 	["text"] = localization,
 }
 
+print(localization)
+
 -- Send it off
 local boundary = string.format("-------%s", os.time())
 local source = {}

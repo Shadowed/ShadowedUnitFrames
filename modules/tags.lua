@@ -674,6 +674,14 @@ Tags.defaultTags = {
 			return ShadowUF.L["Offline"]
 		end
 	end]],
+	["sshards"] = [[function(unit, unitOwner)
+		local points = UnitPower(ShadowUF.playerUnit, SPELL_POWER_SOUL_SHARDS)
+		return points and points > 0 and points
+	end]],
+	["hpower"] = [[function(unit, unitOwner)
+		local points = UnitPower(ShadowUF.playerUnit, SPELL_POWER_HOLY_POWER)
+		return points and points > 0 and points
+	end]],
 	["cpoints"] = [[function(unit, unitOwner)
 		local points = GetComboPoints(ShadowUF.playerUnit)
 		if( points == 0 ) then
@@ -829,10 +837,12 @@ Tags.defaultEvents = {
 	["curmaxpp"]			= "UNIT_POWER UNIT_DISPLAYPOWER UNIT_MAXPOWER",
 	["absolutepp"]			= "UNIT_POWER UNIT_DISPLAYPOWER UNIT_MAXPOWER",
 	["smart:curmaxpp"]		= "UNIT_POWER UNIT_DISPLAYPOWER UNIT_MAXPOWER",
-	["druid:curpp"]  	    = "UNIT_POWER UNIT_DISPLAYPOWER",
-	["druid:abscurpp"]      = "UNIT_POWER UNIT_DISPLAYPOWER",
-	["druid:curmaxpp"]		= "UNIT_POWER UNIT_MAXPOWER UNIT_DISPLAYPOWER",
-	["druid:absolutepp"]	= "UNIT_POWER UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["druid:curpp"]  	    = "UNIT_POWER:MANA UNIT_DISPLAYPOWER",
+	["druid:abscurpp"]      = "UNIT_POWER:MANA UNIT_DISPLAYPOWER",
+	["druid:curmaxpp"]		= "UNIT_POWER:MANA UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["druid:absolutepp"]	= "UNIT_POWER:MANA UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["sshards"]				= "UNIT_POWER",
+	["hpower"]				= "UNIT_POWER",
 	["level"]               = "UNIT_LEVEL PLAYER_LEVEL_UP",
 	["levelcolor"]			= "UNIT_LEVEL PLAYER_LEVEL_UP",
 	["maxhp"]               = "UNIT_MAXHEALTH",
@@ -942,6 +952,8 @@ Tags.defaultCategories = {
 	["druid:abscurpp"]      = "power",
 	["druid:curmaxpp"]		= "power",
 	["druid:absolutepp"]	= "power",
+	["sshards"]				= "misc",
+	["hpower"]				= "misc",
 	["situation"]			= "playerthreat",
 	["color:sit"]			= "playerthreat",
 	["scaled:threat"]		= "playerthreat",
@@ -972,6 +984,8 @@ Tags.defaultHelp = {
 	["status:time"]			= L["Shows how long an unit has been offline."],
 	["afk"]					= L["Shows AFK, DND or nothing depending on the units away status."],
 	["cpoints"]				= L["Total number of combo points you have on your target."],
+	["hpower"]				= L["Total number of active holy power."],
+	["sshards"]				= L["Total number of active soul shards."],
 	["smartlevel"]			= L["Smart level, returns Boss for bosses, +50 for a level 50 elite mob, or just 80 for a level 80."],
 	["classification"]		= L["Units classification, Rare, Rare Elite, Elite, Boss, nothing is shown if they aren't any of those."],
 	["shortclassification"]	= L["Short classifications, R for Rare, R+ for Rare Elite, + for Elite, B for boss, nothing is shown if they aren't any of those."],
@@ -1050,6 +1064,8 @@ Tags.defaultNames = {
 	["status:time"]			= L["Offline timer"],
 	["afk"]					= L["AFK status"],
 	["cpoints"]				= L["Combo points"],
+	["hpower"]				= L["Holy power"],
+	["sshards"]				= L["Soul shards"],
 	["smartlevel"]			= L["Smart level"],
 	["classification"]		= L["Classificaiton"],
 	["shortclassification"]	= L["Short classification"],
