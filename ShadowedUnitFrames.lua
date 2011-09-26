@@ -522,7 +522,7 @@ function ShadowUF:HideBlizzardFrames()
 	-- and the fix is simple enough
 	hooksecurefunc(LFDQueueFrameCooldownFrame, "SetFrameLevel", function(frame, value)
 		local parentLevel = LFDParentFrame:GetFrameLevel() + 5
-		if value < parentLevel then
+		if( value < parentLevel ) then
 			frame:SetFrameLevel(parentLevel + 10)
 		end
 	end)

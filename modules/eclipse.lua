@@ -62,15 +62,15 @@ end
 
 function Eclipse:UpdateDirection(frame)
 	local direction = GetEclipseDirection()
-	if direction then
+	if( direction ) then
 		frame.eclipseBar.marker.texture:SetTexCoord(unpack(ECLIPSE_MARKER_COORDS[direction]))
 	end
 end
 
 function Eclipse:Update(frame, event, unit, id)
-	if (id == "ECLIPSE") then
+	if( id == "ECLIPSE" ) then
 		local power = UnitPower("player", SPELL_POWER_ECLIPSE)
-		local xpos = (frame.eclipseBar:GetWidth()/2) * (power/100)
+		local xpos = (frame.eclipseBar:GetWidth() / 2) * (power / 100)
 		frame.eclipseBar.marker:SetPoint("CENTER", frame.eclipseBar, "CENTER", xpos, 0)
 	end
 end
