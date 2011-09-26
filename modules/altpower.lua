@@ -1,8 +1,6 @@
 local AltPower = {}
 ShadowUF:RegisterModule(AltPower, "altPowerBar", ShadowUF.L["Alt. Power bar"], true)
 
-local ALTERNATE_POWER_INDEX = ALTERNATE_POWER_INDEX
-
 function AltPower:OnEnable(frame)
 	frame.altPowerBar = frame.altPowerBar or ShadowUF.Units:CreateBar(frame)
 
@@ -27,17 +25,14 @@ end
 
 function AltPower:UpdateVisibility(frame)
 	local barType, minPower, _, _, _, hideFromOthers = UnitAlternatePowerInfo(frame.unit)
-	local visible = barType and (frame.unit == "player" or not hideFromOthers)
+	local visible = barType and ( frame.unit == "player" or not hideFromOthers )
 	ShadowUF.Layout:SetBarVisibility(frame, "altPowerBar", visible)
 	AltPower:Update(frame, nil, nil, "ALTERNATE")
 end
 
 function AltPower:Update(frame, event, unit, type)
 	if( type ~= "ALTERNATE" ) then return end
-	local cur = UnitPower(frame.unit, ALTERNATE_POWER_INDEX)
-	local max = UnitPowerMax(frame.unit, ALTERNATE_POWER_INDEX)
-	local barType, min = UnitAlternatePowerInfo(frame.unit)
-	frame.altPowerBar.currentPower = cur
-	frame.altPowerBar:SetMinMaxValues(min or 0, max or 0)
-	frame.altPowerBar:SetValue(cur or 0)
+
+	frame.altPowerBar:SetMinMaxValues(select(2, UnitAlternatePowerInfo(frame.unit)) or 0, UnitPowerMax(frame.unit, ALTERNATE_POWER_INDEX) or 0)
+	frame.altPowerBar:SetValue(UnitPower(frame.unit, ALTERNATE_POWER_INDEX) or 0)
 end
