@@ -837,18 +837,17 @@ function Units:SetHeaderAttributes(frame, type)
 		frame:SetAttribute("unitsPerColumn", config.unitsPerColumn)
 		frame:SetAttribute("columnSpacing", config.columnSpacing)
 		frame:SetAttribute("columnAnchorPoint", config.attribAnchorPoint)
-	end
-	
-	-- Update the raid frames to if they should be showing raid or party
-	if( type == "party" or type == "raid" ) then
+
 		self:CheckGroupVisibility()
-		
-		-- Need to update our flags on the state monitor so it knows what to do
 		if( stateMonitor.party ) then
 			stateMonitor.party:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.party.hideSemiRaid)
 			stateMonitor.party:SetAttribute("hideAnyRaid", ShadowUF.db.profile.units.party.hideAnyRaid)
 		end
-		
+	end
+	
+	if( type == "raid" ) then
+		self:CheckGroupVisibility()
+
 		if( stateMonitor.raid ) then
 			stateMonitor.raid:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.raid.hideSemiRaid)
 		end
@@ -994,6 +993,8 @@ function Units:LoadGroupHeader(type)
 		stateMonitor.party = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 		stateMonitor.party:SetAttribute("partyDisabled", nil)
 		stateMonitor.party:SetFrameRef("partyHeader", headerFrame)
+		stateMonitor.party:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.party.hideSemiRaid)
+		stateMonitor.party:SetAttribute("hideAnyRaid", ShadowUF.db.profile.units.party.hideAnyRaid)
 		stateMonitor.party:WrapScript(stateMonitor.party, "OnAttributeChanged", [[
 			if( name ~= "state-raidmonitor" and name ~= "partydisabled" and name ~= "hideanyraid" and name ~= "hidesemiraid" ) then return end
 			if( self:GetAttribute("partyDisabled") ) then return end
@@ -1011,18 +1012,19 @@ function Units:LoadGroupHeader(type)
 		stateMonitor.raid = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 		stateMonitor.raid:SetAttribute("raidDisabled", nil)
 		stateMonitor.raid:SetFrameRef("raidHeader", headerFrame)
+		stateMonitor.raid:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.raid.hideSemiRaid)
 		stateMonitor.raid:WrapScript(stateMonitor.raid, "OnAttributeChanged", [[
 			if( name ~= "state-raidmonitor" and name ~= "raiddisabled" and name ~= "hidesemiraid" ) then return end
-			if( self:GetAttribute("partyDisabled") ) then return end
+			if( self:GetAttribute("raidDisabled") ) then return end
 			
-			if( self:GetAttribute("hideSemiRaid") and self:GetAttribute("state-raidmonitor") ~= "raid6" ) then
+			if( self:GetAttribute("hideSemiRaid") and self:GetAttribute("state-raidmonitor") ~= "raid5" ) then
 				self:GetFrameRef("raidHeader"):Hide()
 			else
 				self:GetFrameRef("raidHeader"):Show()
 			end
 		]])
 		
-		RegisterStateDriver(stateMonitor.raid, "raidmonitor", "[target=raid6, exists] raid6; [target=raid1, exists] raid1; none")
+		RegisterStateDriver(stateMonitor.raid, "raidmonitor", "[target=raid5, exists] raid5; none")
 	else
 		headerFrame:Show()
 	end
