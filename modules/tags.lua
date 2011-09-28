@@ -704,7 +704,14 @@ Tags.defaultTags = {
 			end
 		end
 	end]],
-	["dechp"] = [[function(unit, unitOwner) return string.format("%.1f%%", (UnitHealth(unit) / UnitHealthMax(unit)) * 100) end]],
+	["dechp"] = [[function(unit, unitOwner)
+		local maxHealth = UnitHealthMax(unit)
+		if( maxHealth <= 0 ) then
+			return "0.0%"
+		end
+		
+		return string.format("%.1f%%", (UnitHealth(unit) / maxHealth) * 100)
+	end]],
 	["classification"] = [[function(unit, unitOwner)
 		local classif = UnitClassification(unit)
 		if( classif == "rare" ) then

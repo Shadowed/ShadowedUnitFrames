@@ -105,8 +105,8 @@ function IncHeal:UpdateFrame(frame)
 				frame.incHeal:SetValue(frame.incHeal.total)
 			else
 				local health, maxHealth = UnitHealth(frame.unit), UnitHealthMax(frame.unit)
-				local healthWidth = frame.incHeal.healthWidth * (health / maxHealth)
-				local incWidth = frame.healthBar:GetWidth() * (healed / health)
+				local healthWidth = frame.incHeal.healthWidth * (maxHealth > 0 and health / maxHealth or 0)
+				local incWidth = frame.healthBar:GetWidth() * (health > 0 and healed / health or 0)
 				if( (healthWidth + incWidth) > frame.incHeal.maxWidth ) then
 					incWidth = frame.incHeal.cappedWidth
 				end

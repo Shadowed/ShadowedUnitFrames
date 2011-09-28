@@ -99,7 +99,7 @@ function XP:UpdateRep(frame)
 	local color = FACTION_BAR_COLORS[reaction]
 	frame.xpBar.rep:SetMinMaxValues(0, max)
 	frame.xpBar.rep:SetValue(reaction == 8 and max or current)
-	frame.xpBar.rep.tooltip = string.format(L["%s (%s): %s/%s (%.2f%% done)"], name, GetText("FACTION_STANDING_LABEL" .. reaction, UnitSex("player")), formatNumber(current), formatNumber(max), reaction == 8 and 100 or (current / max) * 100)
+	frame.xpBar.rep.tooltip = string.format(L["%s (%s): %s/%s (%.2f%% done)"], name, GetText("FACTION_STANDING_LABEL" .. reaction, UnitSex("player")), formatNumber(current), formatNumber(max), reaction == 8 and 100 or (max > 0 and current / max or 0) * 100)
 	frame.xpBar.rep:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
 	frame.xpBar.rep.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
 	frame.xpBar.rep:Show()
@@ -128,10 +128,10 @@ function XP:UpdateXP(frame)
 		frame.xpBar.rested:SetMinMaxValues(min, max)
 		frame.xpBar.rested:SetValue(math.min(current + GetXPExhaustion(), max))
 		frame.xpBar.rested:Show()
-		frame.xpBar.xp.tooltip = string.format(L["Level %s - %s: %s/%s (%.2f%% done), %s rested."], UnitLevel(frame.unitOwner), UnitLevel(frame.unitOwner) + 1, formatNumber(current), formatNumber(max), (current / max) * 100, formatNumber(GetXPExhaustion()))
+		frame.xpBar.xp.tooltip = string.format(L["Level %s - %s: %s/%s (%.2f%% done), %s rested."], UnitLevel(frame.unitOwner), UnitLevel(frame.unitOwner) + 1, formatNumber(current), formatNumber(max), (max > 0 and current / max or 0) * 100, formatNumber(GetXPExhaustion()))
 	else
 		frame.xpBar.rested:Hide()
-		frame.xpBar.xp.tooltip = string.format(L["Level %s - %s: %s/%s (%.2f%% done)"], UnitLevel(frame.unitOwner), UnitLevel(frame.unitOwner) + 1, formatNumber(current), formatNumber(max), (current / max) * 100)
+		frame.xpBar.xp.tooltip = string.format(L["Level %s - %s: %s/%s (%.2f%% done)"], UnitLevel(frame.unitOwner), UnitLevel(frame.unitOwner) + 1, formatNumber(current), formatNumber(max), (max > 0 and current / max or 0) * 100)
 	end
 end
 

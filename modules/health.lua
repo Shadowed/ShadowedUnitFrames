@@ -2,7 +2,8 @@ local Health = {}
 ShadowUF:RegisterModule(Health, "healthBar", ShadowUF.L["Health bar"], true)
 
 local function getGradientColor(unit)
-	local percent = UnitHealth(unit) / UnitHealthMax(unit)
+	local maxHealth = UnitHealthMax(unit)
+	local percent = maxHealth > 0 and UnitHealth(unit) / maxHealth or 0
 	if( percent >= 1 ) then return ShadowUF.db.profile.healthColors.green.r, ShadowUF.db.profile.healthColors.green.g, ShadowUF.db.profile.healthColors.green.b end
 	if( percent == 0 ) then return ShadowUF.db.profile.healthColors.red.r, ShadowUF.db.profile.healthColors.red.g, ShadowUF.db.profile.healthColors.red.b end
 	
