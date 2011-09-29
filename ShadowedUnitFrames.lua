@@ -357,28 +357,12 @@ function ShadowUF:ProfilesChanged()
 	self.modules.movers:Update()
 end
 
-local function hideCompactParty()
-	CompactPartyFrame:UnregisterAllEvents()
-	CompactPartyFrame.Show = ShadowUF.noop
-	CompactPartyFrame:Hide()
-
-	for i=1, MEMBERS_PER_RAID_GROUP do
-		local name = "CompactPartyFrameMember" .. i
-		local frame = _G[name]
-		frame:UnregisterAllEvents()
-	end
-end
-
--- Stolen from haste
 ShadowUF.noop = function() end
 function ShadowUF:HideBlizzardFrames()
-	local _, class = UnitClass("player")
-	if( ShadowUF.db.profile.hidden.runes or class ~= "DEATHKNIGHT" ) then
+	if( ShadowUF.db.profile.hidden.runes ) then
 		RuneFrame.Show = self.noop
 		RuneFrame:Hide()
 		RuneFrame:UnregisterAllEvents()
-	elseif( class == "DEATHKNIGHT" ) then
-		RuneFrame:Show()
 	end
 
 	if( ShadowUF.db.profile.hidden.cast ) then
@@ -399,6 +383,16 @@ function ShadowUF:HideBlizzardFrames()
 			_G[name .. "ManaBar"]:UnregisterAllEvents()
 		end
 		
+		local function hideCompactParty()
+			CompactPartyFrame:UnregisterAllEvents()
+			CompactPartyFrame.Show = ShadowUF.noop
+			CompactPartyFrame:Hide()
+
+			for i=1, MEMBERS_PER_RAID_GROUP do
+      			_G["CompactPartyFrameMember" .. i]:UnregisterAllEvents()
+			end
+		end
+
 		if( CompactPartyFrame ) then
 			hideCompactParty()
 		elseif( CompactPartyFrame_Generate ) then
@@ -406,13 +400,8 @@ function ShadowUF:HideBlizzardFrames()
 		end
 	end
 
-	-- this doesn't really belong here, but oh well!
-	if( CompactRaidFrameManager ) then
-		CompactRaidFrameManager:SetFrameStrata("DIALOG")
-	end
-
 	if( ShadowUF.db.profile.hidden.raid ) then
-        local function hide_raid()
+        local function hideRaid()
 	        CompactRaidFrameManager:UnregisterAllEvents()
 	        if( not InCombatLockdown() ) then CompactRaidFrameManager:Hide() end
     
@@ -421,14 +410,16 @@ function ShadowUF:HideBlizzardFrames()
 	            CompactRaidFrameManager_SetSetting("IsShown", "0")
 	        end
         end
-
+		
         hooksecurefunc("CompactRaidFrameManager_UpdateShown", function()
             if( ShadowUF.db.profile.hidden.raid ) then
-                hide_raid();
+                hideRaid();
             end
         end)
         
-    	hide_raid();
+		hideRaid();
+	else
+		CompactRaidFrameManager:SetFrameStrata("DIALOG")
 	end
 
 	if( ShadowUF.db.profile.hidden.buffs ) then
@@ -445,7 +436,8 @@ function ShadowUF:HideBlizzardFrames()
 		PlayerFrame:UnregisterAllEvents()
 		PlayerFrame.Show = self.noop
 		PlayerFrame:Hide()
-
+			
+		-- We keep these in case someone is still using the default auras, otherwise it messes up vehicle stuff
 		PlayerFrame:RegisterEvent("UNIT_ENTERING_VEHICLE")
 		PlayerFrame:RegisterEvent("UNIT_ENTERED_VEHICLE")
 		PlayerFrame:RegisterEvent("UNIT_EXITING_VEHICLE")
