@@ -3263,12 +3263,49 @@ local function loadUnitOptions()
 				set = setUnit,
 				get = getUnit,
 				args = {
-					bar = {
+					powerbar = {
 						order = 1,
 						type = "group",
 						inline = true,
-						name = L["General"],
+						name = L["Power bar"],
 						hidden = false,
+						args = {
+							powerBar = {
+								order = 1,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Power bar"]),
+								arg = "powerBar.enabled",
+							},
+							altPowerBar = {
+								order = 2,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Alt. Power bar"]),
+								desc = L["Shows a bar for alternate power info (used in some encounters)"],
+								hidden = hideRestrictedOption,
+								arg = "altPowerBar.enabled",
+							},
+							predictPower = {
+								order = 3,
+								type = "toggle",
+								name = L["Enable quick power"],
+								desc = L["Turns fast updating of the power bar on giving you more up to date power information than normal."],
+								arg = "powerBar.predicted",
+							},
+						},
+					},
+					classmiscbars = {
+						order = 2,
+						type = "group",
+						inline = true,
+						name = L["Class/misc bars"],
+						hidden = function(info) 
+							local unit = info[2]
+							if( unit == "global" ) then
+								return not globalConfig.runeBar and not globalConfig.eclipseBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.xpBar
+							else
+								return unit ~= "player"
+							end
+						end,
 						args = {
 							runeBar = {
 								order = 1,
@@ -3286,14 +3323,6 @@ local function loadUnitOptions()
 								hidden = hideRestrictedOption,
 								arg = "eclipseBar.enabled",
 							},
-							altPowerBar = {
-								order = 1.4,
-								type = "toggle",
-								name = string.format(L["Enable %s"], L["Alt. Power bar"]),
-								desc = L["Shows a bar for alternate power info (used in some encounters)"],
-								hidden = hideRestrictedOption,
-								arg = "altPowerBar.enabled",
-							},
 							totemBar = {
 								order = 1.5,
 								type = "toggle",
@@ -3305,7 +3334,7 @@ local function loadUnitOptions()
 								arg = "totemBar.enabled",
 							},
 							druidBar = {
-								order = 1,
+								order = 3,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Druid mana bar"]),
 								desc = L["Adds another mana bar to the player frame when you are in Bear or Cat form showing you how much mana you have."],
@@ -3313,31 +3342,12 @@ local function loadUnitOptions()
 								arg = "druidBar.enabled",
 							},
 							xpBar = {
-								order = 2,
+								order = 4,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["XP/Rep bar"]),
 								desc = L["This bar will automatically hide when you are at the level cap, or you do not have any reputations tracked."],
 								hidden = hideRestrictedOption,
 								arg = "xpBar.enabled",
-							},
-							sep = {
-								order = 3,
-								type = "description",
-								name = "",
-								hidden = function(info) return playerClass ~= "DRUID" and playerClass ~= "SHAMAN" and playerClass ~= "DEATHKNIGHT" and info[2] ~= "player" end,
-							},
-							powerBar = {
-								order = 4,
-								type = "toggle",
-								name = string.format(L["Enable %s"], L["Power bar"]),
-								arg = "powerBar.enabled",
-							},
-							predictPower = {
-								order = 5,
-								type = "toggle",
-								name = L["Enable quick power"],
-								desc = L["Turns fast updating of the power bar on giving you more up to date power information than normal."],
-								arg = "powerBar.predicted",
 							},
 						},
 					},
