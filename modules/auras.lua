@@ -1,7 +1,7 @@
 local Auras = {}
 local stealableColor = {r = 1, g = 1, b = 1}
 local playerUnits = {player = true, vehicle = true, pet = true}
-local mainHand, offHand, tempEnchantScan = {time = 0}, {time = 0}
+local mainHand, offHand, ranged, tempEnchantScan = {time = 0}, {time = 0}, {time = 0}
 local canCure = ShadowUF.Units.canCure
 ShadowUF:RegisterModule(Auras, "auras", ShadowUF.L["Auras"])
 
@@ -421,7 +421,7 @@ tempEnchantScan = function(self, elapsed)
 	if( timeElapsed < 0.50 ) then return end
 	timeElapsed = timeElapsed - 0.50
 
-	local hasMain, mainTimeLeft, mainCharges, hasOff, offTimeLeft, offCharges = GetWeaponEnchantInfo()
+	local hasMain, mainTimeLeft, mainCharges, hasOff, offTimeLeft, offCharges, hasRanged, rangedTimeLeft, rangedCharges = GetWeaponEnchantInfo()
 	self.temporaryEnchants = 0
 	
 	if( hasMain ) then
@@ -439,6 +439,13 @@ tempEnchantScan = function(self, elapsed)
 	end
 	
 	offHand.has = hasOff
+	
+	if( hasRanged and self.temporaryEnchants < self.maxAuras ) then
+		self.temporaryEcnhants = self.temporaryEnchants + 1
+		updateTemporaryEnchant(self, 18, ranged, hasRanged, rangedTimeLeft or 0, rangedCharges)
+	end
+	
+	ranged.has = hasRanged
 	
 	-- Update if totals changed
 	if( self.lastTemporary ~= self.temporaryEnchants ) then
@@ -471,7 +478,7 @@ local function scan(parent, frame, type, config, filter)
 	local index = 0
 	while( true ) do
 		index = index + 1
-		local name, rank, texture, count, auraType, duration, endTime, caster, isStealable = UnitAura(frame.parent.unit, index, filter)
+		local name, rank, texture, count, auraType, duration, endTime, caster, isRemovable = UnitAura(frame.parent.unit, index, filter)
 		if( not name ) then break end
 		
 		if( ( not config.player or playerUnits[caster] ) and ( not parent.whitelist[type] and not parent.blacklist[type] or parent.whitelist[type] and parent.whitelist[name] or parent.blacklist[type] and not parent.blacklist[name] ) and ( not curable or canCure[auraType] ) ) then
@@ -483,8 +490,8 @@ local function scan(parent, frame, type, config, filter)
 				
 			-- Show debuff border, or a special colored border if it's stealable
 			local button = frame.buttons[frame.totalAuras]
-			if( isStealable and not isFriendly and not ShadowUF.db.profile.auras.disableColor ) then
-				button.border:SetVertexColor(stealableColor.r, stealableColor.g, stealableColor.b)
+			if( isRemovable and not isFriendly and not ShadowUF.db.profile.auras.disableColor ) then
+				button.border:SetVertexColor(ShadowUF.db.profile.auraColors.removable.r, ShadowUF.db.profile.auraColors.removable.g, ShadowUF.db.profile.auraColors.removable.b)
 			elseif( ( not isFriendly or type == "debuffs" ) and not ShadowUF.db.profile.auras.disableColor ) then
 				local color = auraType and DebuffTypeColor[auraType] or DebuffTypeColor.none
 				button.border:SetVertexColor(color.r, color.g, color.b)
@@ -501,7 +508,7 @@ local function scan(parent, frame, type, config, filter)
 			end
 			
 			-- Enlarge our own auras
-			if( config.enlargeSelf and playerUnits[caster] or ( isStealable and not isFriendly and config.enlargeStealable ) ) then
+			if( config.enlargeSelf and playerUnits[caster] or ( isRemovable and not isFriendly and config.enlargeStealable ) ) then
 				button.isSelfScaled = true
 				button:SetScale(config.selfScale)
 			else

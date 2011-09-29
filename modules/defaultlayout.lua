@@ -120,6 +120,10 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		config.font.name = SML.DefaultMedia.font
 	end
 	
+	config.auraColors = {
+		removable = {r = 1, g = 1, b = 1}
+	}
+	
 	config.classColors = {
 		HUNTER = {r = 0.67, g = 0.83, b = 0.45},
 		WARLOCK = {r = 0.58, g = 0.51, b = 0.79},

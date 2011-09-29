@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 7
+ShadowUF.dbRevision = 8
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -84,6 +84,10 @@ end
 
 function ShadowUF:CheckUpgrade()
     local revision = self.db.profile.revision or 1
+	if( revision <= 7 ) then
+		self.db.profile.auraColors = {removable = {r = 1, g = 1, b = 1}}
+	end
+
     if( revision <= 6 ) then
         for _, unit in pairs({"player", "focus", "target", "raid", "party", "mainassist", "maintank"}) do
             local db = self.db.profile.units[unit]

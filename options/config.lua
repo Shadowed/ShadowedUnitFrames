@@ -1029,7 +1029,7 @@ local function loadGeneralOptions()
 								desc = L["Health bar color to use for hostile units who you cannot attack, used for reaction coloring."],
 								hidden = hideAdvancedOption,
 								arg = "healthColors.enemyUnattack",
-							},
+							}
 						},
 					},
 					power = {
@@ -1191,6 +1191,24 @@ local function loadGeneralOptions()
 								arg = "castColors.uninterruptible",
 							},
 						},
+					},
+					auras = {
+						order = 3.5,
+						type = "group",
+						inline = true,
+						name = L["Aura borders"],
+						set = setColor,
+						get = getColor,
+						hidden = hideAdvancedOption,
+						args = {
+							removableColor = {
+								order = 0,
+								type = "color",
+								name = L["Stealable or Removable"],
+								desc = L["Border coloring of stealable or removable auras."],
+								arg = "auraColors.removable",
+							}
+						}
 					},
 					classColors = {
 						order = 4,
@@ -1880,8 +1898,8 @@ local function loadUnitOptions()
 			enlargeStealable = {
 				order = 6.5,
 				type = "toggle",
-				name = L["Enlarge stealable auras"],
-				desc = L["If you can Spellsteal an aura, then it will be shown scaled using the scaled aura size option."],
+				name = L["Enlarge removable auras"],
+				desc = L["If you can Spellsteal or remove an aura, then it will be shown scaled using the scaled aura size option."],
 				arg = "auras.$parent.enlargeStealable",
 				hidden = hideStealable,
 			},
