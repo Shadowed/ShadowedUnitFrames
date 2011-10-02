@@ -1017,14 +1017,14 @@ function Units:LoadGroupHeader(type)
 			if( name ~= "state-raidmonitor" and name ~= "raiddisabled" and name ~= "hidesemiraid" ) then return end
 			if( self:GetAttribute("raidDisabled") ) then return end
 			
-			if( self:GetAttribute("hideSemiRaid") and self:GetAttribute("state-raidmonitor") ~= "raid5" ) then
+			if( self:GetAttribute("hideSemiRaid") and self:GetAttribute("state-raidmonitor") ~= "raid6" ) then
 				self:GetFrameRef("raidHeader"):Hide()
 			else
 				self:GetFrameRef("raidHeader"):Show()
 			end
 		]])
 		
-		RegisterStateDriver(stateMonitor.raid, "raidmonitor", "[target=raid5, exists] raid5; none")
+		RegisterStateDriver(stateMonitor.raid, "raidmonitor", "[target=raid6, exists] raid6; none")
 	else
 		headerFrame:Show()
 	end
