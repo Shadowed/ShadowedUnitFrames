@@ -3475,7 +3475,7 @@ local function loadUnitOptions()
 								order = 3,
 								type = "toggle",
 								name = L["Color by class"],
-								desc = L["Players will be colored by class, "],
+								desc = L["Players will be colored by class."],
 								arg = "emptyBar.class",
 							},
 							overrideColor = {
