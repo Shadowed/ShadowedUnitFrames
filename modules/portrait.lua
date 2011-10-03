@@ -14,11 +14,6 @@ function Portrait:OnEnable(frame)
 	frame:RegisterUnitEvent("UNIT_PORTRAIT_UPDATE", self, "UpdateFunc")
 	frame:RegisterUnitEvent("UNIT_MODEL_CHANGED", self, "Update")
 	
-	if( frame.unitRealType == "party" ) then
-	--	frame:RegisterNormalEvent("PARTY_MEMBER_ENABLE", self, "Update")
-	-- frame:RegisterNormalEvent("PARTY_MEMBER_DISABLE", self, "Update")
-	end
-	
 	frame:RegisterUpdateFunc(self, "UpdateFunc")
 end
 
