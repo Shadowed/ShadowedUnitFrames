@@ -198,6 +198,14 @@ local function hideTooltip(self)
 	GameTooltip:Hide()
 end
 
+local function cancelAura(self, mouse)
+	if( mouse ~= "RightButton" or not UnitIsPlayer(self.parent.unit) or InCombatLockdown() or self.filter == "TEMP" ) then
+		return
+	end
+
+	CancelUnitBuff("player", self.auraID, self.filter)
+end
+
 local function updateButton(id, group, config)
 	local button = group.buttons[id]
 	if( not button ) then
@@ -250,6 +258,8 @@ local function updateButton(id, group, config)
 	button:SetWidth(config.size)
 	button.border:SetHeight(config.size + 1)
 	button.border:SetWidth(config.size + 1)
+	button:SetScript("OnClick", cancelAura)
+	button.parent = group.parent
 	button:ClearAllPoints()
 	button:Hide()
 	
