@@ -19,7 +19,7 @@ function Empty:OnLayoutApplied(frame)
 		local color = frame.emptyBar.background.overrideColor or fallbackColor
 		frame.emptyBar.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
 
-		if( ShadowUF.db.profile.units[frame.unitType].emptyBar.reaction or ShadowUF.db.profile.units[frame.unitType].emptyBar.class ) then
+		if( ShadowUF.db.profile.units[frame.unitType].emptyBar.reactionType or ShadowUF.db.profile.units[frame.unitType].emptyBar.class ) then
 			frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdateColor")
 			frame:RegisterUpdateFunc(self, "UpdateColor")
 		else
