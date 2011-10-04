@@ -30,7 +30,6 @@ function Health:OnEnable(frame)
 		frame.healthBar = ShadowUF.Units:CreateBar(frame)
 	end
 	
-	frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
 	frame:RegisterUnitEvent("UNIT_CONNECTION", self, "Update")
 	frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdateColor")
@@ -49,8 +48,10 @@ function Health:OnLayoutApplied(frame)
 
 	if( ShadowUF.db.profile.units[frame.unitType].healthBar.predicted ) then
 	    frame:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", self, "UpdateFrequent")
+		frame:UnregisterEvent("UNIT_HEALTH", self)
 	else
 		frame:UnregisterEvent("UNIT_HEALTH_FREQUENT", self)
+		frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
 	end
 end
 
@@ -110,8 +111,7 @@ function Health:UpdateColor(frame)
 end
 
 function Health:UpdateFrequent(frame)
-	frame.healthBar.currentHealth = UnitHealth(frame.unit)
-	frame.healthBar:SetValue(frame.healthBar.currentHealth)
+	self:Update(frame)
 
 	-- As much as I would rather not have to do this in an OnUpdate, I don't have much choice large health changes in a single update will make them very clearly be lagging behind
 	for _, fontString in pairs(frame.fontStrings) do
