@@ -3900,6 +3900,10 @@ local function loadUnitOptions()
 		},
 	}
 	
+	local sort_units = function(a, b)
+		return a < b
+	end
+	
 	options.args.units = {
 		type = "group",
 		name = L["Unit configuration"],
@@ -3925,8 +3929,35 @@ local function loadUnitOptions()
 				order = 0,
 				name = L["Global"],
 				args = {
-					units = {
+					test = {
 						order = 0,
+						type = "group",
+						name = L["Currently modifying"],
+						inline = true,
+						hidden = function()
+							for k in pairs(modifyUnits) do return false end
+							return true
+						end,
+						args = {
+							info = {
+								order = 0,
+								type = "description",
+								name = function()
+									local units = {};
+									for unit, enabled in pairs(modifyUnits) do
+										if( enabled ) then
+											table.insert(units, L.units[unit])
+										end
+									end
+									
+									table.sort(units, sort_units)
+									return table.concat(units, ", ")
+								end,
+							}
+						}
+					},
+					units = {
+						order = 1,
 						type = "group",
 						name = L["Units"],
 						set = function(info, value)
@@ -5446,7 +5477,7 @@ function Config:Open()
 		loadOptions()
 		
 		LibStub("AceConfig-3.0"):RegisterOptionsTable("ShadowedUF", options)
-		AceDialog:SetDefaultSize("ShadowedUF", 835, 525)
+		AceDialog:SetDefaultSize("ShadowedUF", 835, 550)
 		registered = true
 	end
 	
