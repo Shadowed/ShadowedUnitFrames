@@ -5,7 +5,7 @@ Units.zoneUnits = {["arena"] = "arena", ["boss"] = "raid"}
 local stateMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 local playerClass = select(2, UnitClass("player"))
 local unitFrames, headerFrames, frameList, unitEvents, childUnits, queuedCombat, canCure = Units.unitFrames, Units.headerFrames, Units.frameList, Units.unitEvents, Units.childUnits, {}, Units.canCure
-local curableData = {["PRIEST"] = {["Magic"] = true, ["Disease"] = true}, ["DRUID"] = {["Curse"] = true, ["Poison"] = true, ["Magic"] = GetSpellInfo(88423)}, ["SHAMAN"] = {["Curse"] = true, ["Magic"] = GetSpellInfo(77130)}, ["PALADIN"] = {["Poison"] = true, ["Disease"] = true, ["Magic"] = GetSpellInfo(53551)}}
+local curableData = {["PRIEST"] = {["Magic"] = true, ["Disease"] = true}, ["DRUID"] = {["Curse"] = true, ["Poison"] = true, ["Magic"] = GetSpellInfo(88423)}, ["SHAMAN"] = {["Curse"] = true, ["Magic"] = GetSpellInfo(77130)}, ["PALADIN"] = {["Poison"] = true, ["Disease"] = true, ["Magic"] = GetSpellInfo(53551)}, ["MAGE"] = {["Curse"] = true}}
 local _G = getfenv(0)
 
 ShadowUF.Units = Units
