@@ -1,14 +1,13 @@
 local IncHeal = {}
-local frames = {}
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUF.L["Incoming heals"])
 
 function IncHeal:OnEnable(frame)
-	frames[frame] = true
 	frame.incHeal = frame.incHeal or ShadowUF.Units:CreateBar(frame)
 	
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
 	frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
 	frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", self, "UpdateFrame")
+	
 	frame:RegisterUpdateFunc(self, "UpdateFrame")
 end
 
