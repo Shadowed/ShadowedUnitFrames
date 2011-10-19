@@ -1,7 +1,6 @@
 local IncHeal = {}
 local frames = {}
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUF.L["Incoming heals"])
-ShadowUF.Tags.customEvents["HEALCOMM"] = IncHeal
 
 function IncHeal:OnEnable(frame)
 	frames[frame] = true
@@ -16,10 +15,6 @@ end
 function IncHeal:OnDisable(frame)
 	frame:UnregisterAll(self)
 	frame.incHeal:Hide()
-	
-	if( not frame.hasHCTag ) then
-		frames[frame] = nil
-	end
 end
 
 function IncHeal:OnLayoutApplied(frame)
@@ -58,40 +53,10 @@ function IncHeal:OnLayoutApplied(frame)
 	end
 end
 
--- Since I don't want a more complicated system where both incheal.lua and tags.lua are watching the same events
--- I'll update the HC tags through here instead
-function IncHeal:EnableTag(frame)
-	frames[frame] = true
-	frame.hasHCTag = true
-end
-
-function IncHeal:DisableTag(frame)
-	frame.hasHCTag = nil
-	
-	if( not frame.visibility.incHeal ) then
-		frames[frame] = nil
-	end
-end
-
--- Update any tags using HC
-function IncHeal:UpdateTags(frame, amount)
-	if( not frame.fontStrings or not frame.hasHCTag ) then return end
-	
-	for _, fontString in pairs(frame.fontStrings) do
-		if( fontString.HEALCOMM ) then
-			fontString.incoming = amount > 0 and amount or nil
-			fontString:UpdateTags()
-		end
-	end
-end
-
 function IncHeal:UpdateFrame(frame)
 	-- This makes sure that when a heal like Tranquility is cast, it won't show the entire cast but cap it at 4 seconds into the future
 	local healed = UnitGetIncomingHeals(frame.unit) or 0
-	
-	-- Update any tags that are using HC data
-	IncHeal:UpdateTags(frame, healed)
-	
+		
 	-- Bar is also supposed to be enabled, lets update that too
 	if( frame.visibility.incHeal and frame.visibility.healthBar ) then
 		if( healed > 0 ) then
