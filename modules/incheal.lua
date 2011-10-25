@@ -4,11 +4,19 @@ ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUF.L["Incoming heals"])
 function IncHeal:OnEnable(frame)
 	frame.incHeal = frame.incHeal or ShadowUF.Units:CreateBar(frame)
 	
-	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
-	frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
-	frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", self, "UpdateFrame")
+	if( ShadowUF.db.profile.units[frame.unitType].incHeal.heals ) then
+		frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
+		frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
+		frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", self, "UpdateFrame")
+	end
 	
-	frame:RegisterUpdateFunc(self, "UpdateFrame")
+	if( ShadowUF.db.profile.units[frame.unitType].incHeal.absorbs ) then
+		frame:RegisterUnitEvent("UNIT_AURA", self, "CalculateAbsorb")
+		frame:RegisterUpdateFunc(self, "CalculateAbsorb")
+	-- Since CalculateAbsorb already calls UpdateFrame, we don't need to explicitly do it
+	else
+		frame:RegisterUpdateFunc(self, "UpdateFrame")
+	end
 end
 
 function IncHeal:OnDisable(frame)
@@ -50,6 +58,11 @@ function IncHeal:OnLayoutApplied(frame)
 			frame.incHeal.cappedWidth = frame.incHeal.healthWidth * (ShadowUF.db.profile.units[frame.unitType].incHeal.cap - 1)
 		end
 	end
+end
+
+function IncHeal:CalculateAbsorb(frame)
+	
+	self:UpdateFrame(frame)
 end
 
 function IncHeal:UpdateFrame(frame)

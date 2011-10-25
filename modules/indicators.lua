@@ -20,7 +20,7 @@ end
 function Indicators:UpdatePhase(frame)
     if( not frame.indicators.phase or not frame.indicators.phase.enabled ) then return end
     
-    if( UnitIsPlayer(frame.unit) and not UnitInPhase(frame.unit) ) then
+    if( UnitExists(frame.unit) and UnitIsPlayer(frame.unit) and not UnitInPhase(frame.unit) ) then
         frame.indicators.phase:Show()
     else
         frame.indicators.phase:Hide()

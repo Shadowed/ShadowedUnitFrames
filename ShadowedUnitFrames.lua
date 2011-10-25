@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 8
+ShadowUF.dbRevision = 10
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -84,6 +84,22 @@ end
 
 function ShadowUF:CheckUpgrade()
     local revision = self.db.profile.revision or 1
+	if( revision <= 9 ) then
+		for unit, config in pairs(self.db.profile.units) do
+			if( unit ~= "party" and config.indicators and config.indicators.phase ) then
+				config.indicators.phase = nil
+			end
+		end
+	end
+
+	if( revision <= 8 ) then
+		for unit, config in pairs(self.db.profile.units) do
+			if( config.incHeal ) then
+				config.incHeal.heals = config.incHeal.enabled
+			end
+		end
+	end
+
 	if( revision <= 7 ) then
 		self.db.profile.auraColors = {removable = {r = 1, g = 1, b = 1}}
 	end

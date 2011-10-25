@@ -219,16 +219,7 @@ local function specialRestricted(unit, moduleKey, moduleSubKey, key)
 	end
 end
 
-local function setUnit(info, value)
-	local unit = info[2]
-	-- auras, buffs, enabled / text, 1, text / portrait, enabled
-	local moduleKey, moduleSubKey, key = string.split(".", info.arg)
-	if( not moduleSubKey ) then key = moduleKey moduleKey = nil end
-	if( moduleSubKey and not key ) then key = moduleSubKey moduleSubKey = nil end
-	if( moduleSubKey == "$parent" ) then moduleSubKey = info[#(info) - 1] end
-	if( moduleKey == "$parent" ) then moduleKey = info[#(info) - 1] end
-	if( tonumber(moduleSubKey) ) then moduleSubKey = tonumber(moduleSubKey) end
-				
+local function setDirectUnit(unit, moduleKey, moduleSubKey, key, value)
 	if( unit == "global" ) then
 		for unit in pairs(modifyUnits) do
 			if( not specialRestricted(unit, moduleKey, moduleSubKey, key) ) then
@@ -240,6 +231,19 @@ local function setUnit(info, value)
 	else
 		setVariable(unit, moduleKey, moduleSubKey, key, value)
 	end
+end
+
+local function setUnit(info, value)
+	local unit = info[2]
+	-- auras, buffs, enabled / text, 1, text / portrait, enabled
+	local moduleKey, moduleSubKey, key = string.split(".", info.arg)
+	if( not moduleSubKey ) then key = moduleKey moduleKey = nil end
+	if( moduleSubKey and not key ) then key = moduleSubKey moduleSubKey = nil end
+	if( moduleSubKey == "$parent" ) then moduleSubKey = info[#(info) - 1] end
+	if( moduleKey == "$parent" ) then moduleKey = info[#(info) - 1] end
+	if( tonumber(moduleSubKey) ) then moduleSubKey = tonumber(moduleSubKey) end
+	
+	setDirectUnit(unit, moduleKey, moduleSubKey, key, value)
 end
 
 local function getVariable(unit, moduleKey, moduleSubKey, key)
@@ -3425,20 +3429,36 @@ local function loadUnitOptions()
 						order = 3,
 						type = "group",
 						inline = true,
-						name = L["Incoming heals"],
+						name = L["Incoming heals and absorbs"],
 						hidden = hideRestrictedOption,
 						disabled = function(info) return not getVariable(info[2], "healthBar", nil, "enabled") end,
 						args = {
-							enabled = {
+							heals = {
 								order = 1,
 								type = "toggle",
-								name = string.format(L["Enable %s"], L["Incoming heals"]),
-								desc = L["Adds a bar inside the health bar indicating how much healing someone is estimated to be receiving."],
-								arg = "incHeal.enabled",
+								name = L["Show incoming heals"],
+								desc = L["Adds a bar inside the health bar indicating how much healing someone will receive."],
+								arg = "incHeal.heals",
 								hidden = false,
+								set = function(info, value)
+									setUnit(info, value)
+									setDirectUnit(info[2], "incHeal", nil, "enabled", getVariable(info[2], "incHeal", nil, "absorbs") or getVariable(info[2], "incHeal", nil, "heals"))
+								end
+							},
+							absorbs = {
+								order = 2,
+								type = "toggle",
+								name = L["Show current absorbs"],
+								desc = L["Adds a bar inside the health bar indicating how much damage absorbed they have."],
+								arg = "incHeal.absorbs",
+								hidden = false,
+								set = function(info, value)
+									setUnit(info, value)
+									setDirectUnit(info[2], "incHeal", nil, "enabled", getVariable(info[2], "incHeal", nil, "absorbs") or getVariable(info[2], "incHeal", nil, "heals"))
+								end
 							},
 							cap = {
-								order = 2,
+								order = 3,
 								type = "range",
 								name = L["Outside bar limit"],
 								desc = L["Percentage value of how far outside the unit frame the incoming heal bar can go. 130% means it will go 30% outside the frame, 100% means it will not go outside."],
