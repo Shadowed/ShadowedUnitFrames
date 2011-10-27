@@ -779,6 +779,18 @@ Tags.defaultTags = {
 		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
 		return UnitPower(unit, 0)
 	end]],
+	-- ["abs:crtabs"] = [[function(unit, unitOwner, fontString)
+	-- 	local absorb = fontString.parent.absorb
+	-- 	return absorb > 0 and string.format("%d", absorb)
+	-- ]],
+	-- ["crtabs"] = [[function(unit, unitOwner, fontString)
+	-- 	local absorb = fontString.parent.absorb
+	-- 	return absorb > 0 and ShadowUF:FormatLargeNumber(absorb)
+	-- ]],
+	-- ["crtabs:name"] = [[function(unit, unitOwner, fontString)
+	-- 	local absorb = fontString.parent.absorb
+	-- 	return absorb > 0 and string.format("+%d", heal) or ShadowUF.tagFunc.name(unit, unitOwner, fontString)
+	-- ]],
 	["abs:incheal"] = [[function(unit, unitOwner, fontString)
 	    local heal = UnitGetIncomingHeals(unit) 
 		return heal and heal > 0 and string.format("%d", heal)
@@ -789,7 +801,7 @@ Tags.defaultTags = {
 	end]],
 	["incheal:name"] = [[function(unit, unitOwner, fontString)
 	    local heal = UnitGetIncomingHeals(unit)
-		return heal and heal > 0 and string.format("+%d", heal) or ShadowUF.tagFunc.name(unit, unitOwner)
+		return heal and heal > 0 and string.format("+%d", heal) or ShadowUF.tagFunc.name(unit, unitOwner, fontString)
 	end]],
 	["unit:raid:targeting"] = [[function(unit, unitOwner, fontString)
 		if( GetNumRaidMembers() == 0 ) then return nil end
@@ -826,10 +838,13 @@ Tags.defaultEvents = {
 	["hp:color"]			= "UNIT_HEALTH UNIT_MAXHEALTH",
 	["short:druidform"]		= "UNIT_AURA",
 	["druidform"]			= "UNIT_AURA",
-	["guild"]				= "UNIT_NAME_UPDATE", -- Not sure when this data is available, guessing
+	["guild"]				= "UNIT_NAME_UPDATE",
 	["abs:incheal"]			= "UNIT_HEAL_PREDICTION",
 	["incheal:name"]		= "UNIT_HEAL_PREDICTION",
 	["incheal"]				= "UNIT_HEAL_PREDICTION",
+	-- ["crtabs"]				= "CRTABS",
+	-- ["abs:crtabs"]			= "CRTABS",
+	-- ["crtabs:name"]			= "CRTABS",
 	["afk"]					= "PLAYER_FLAGS_CHANGED", -- Yes, I know it's called PLAYER_FLAGS_CHANGED, but arg1 is the unit including non-players.
 	["afk:time"]			= "PLAYER_FLAGS_CHANGED UNIT_CONNECTION",
 	["status:time"]			= "UNIT_POWER UNIT_CONNECTION",
@@ -900,6 +915,9 @@ Tags.defaultFrequents = {
 
 -- Default tag categories
 Tags.defaultCategories = {
+	-- ["crtabs"]				= "absorb",
+	-- ["crtabs:name"]			= "absorb",
+	-- ["abs:crtabs"]			= "absorb",
 	["hp:color"]			= "health",
 	["abs:incheal"]			= "health",
 	["incheal"]				= "health",
@@ -981,6 +999,9 @@ Tags.defaultHelp = {
 	["guild"]				= L["Show's the units guild name if they are in a guild."],
 	["short:druidform"]		= L["Short version of [druidform], C = Cat, B = Bear, F = Flight and so on."],
 	["druidform"]			= L["Returns the units current form if they are a druid, Cat for Cat Form, Moonkin for Moonkin and so on."],
+	-- ["crtabs"]				= L["Shorten current absorb value, if 13,000 absorb is on a target it will show 13k."],
+	-- ["abs:crtabs"]			= L["Absolute current absorb value, if 15,000 absorb is on a target it will show 15,000."],
+	-- ["crtabs:name"]			= L["If the unit has absorbs on them, it will show the absolute absorb value, otherwise it will show the units name."],
 	["abs:incheal"]			= L["Absolute incoming heal value, if 10,000 healing is incoming it will show 10,000."],
 	["incheal"]				= L["Shorten incoming heal value, if 13,000 healing is incoming it will show 13k."],
 	["incheal:name"]		= L["If the unit has heals incoming, it will show the absolute incoming heal value, otherwise it will show the units name."],
@@ -1061,6 +1082,9 @@ Tags.defaultNames = {
 	["guild"]				= L["Guild name"],
 	["druidform"]			= L["Druid form"],
 	["short:druidform"]		= L["Druid form (Short)"],
+	-- ["abs:crtabs"]			= L["Current absorb (Absolute)"],
+	-- ["crtabs"]				= L["Current absorb (Short)"],
+	-- ["crtabs:name"]			= L["Current absorb/Name"],
 	["abs:incheal"]			= L["Incoming heal (Absolute)"],
 	["incheal"]				= L["Incoming heal (Short)"],
 	["abbrev:name"]			= L["Name (Abbreviated)"],

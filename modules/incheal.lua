@@ -1,5 +1,7 @@
 local IncHeal = {}
+local frames = {}
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUF.L["Incoming heals"])
+-- ShadowUF.Tags.customEvents["CRTABS"] = IncHeal
 
 function IncHeal:OnEnable(frame)
 	frame.incHeal = frame.incHeal or ShadowUF.Units:CreateBar(frame)
@@ -10,13 +12,13 @@ function IncHeal:OnEnable(frame)
 		frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", self, "UpdateFrame")
 	end
 	
-	if( ShadowUF.db.profile.units[frame.unitType].incHeal.absorbs ) then
-		frame:RegisterUnitEvent("UNIT_AURA", self, "CalculateAbsorb")
-		frame:RegisterUpdateFunc(self, "CalculateAbsorb")
-	-- Since CalculateAbsorb already calls UpdateFrame, we don't need to explicitly do it
-	else
+	-- if( ShadowUF.db.profile.units[frame.unitType].incHeal.absorbs ) then
+	-- 	frame:RegisterUnitEvent("UNIT_AURA", self, "CalculateAbsorb")
+	-- 	frame:RegisterUpdateFunc(self, "CalculateAbsorb")
+	-- -- Since CalculateAbsorb already calls UpdateFrame, we don't need to explicitly do it
+	-- else
 		frame:RegisterUpdateFunc(self, "UpdateFrame")
-	end
+	-- end
 end
 
 function IncHeal:OnDisable(frame)
@@ -60,10 +62,69 @@ function IncHeal:OnLayoutApplied(frame)
 	end
 end
 
-function IncHeal:CalculateAbsorb(frame)
-	
-	self:UpdateFrame(frame)
-end
+-- function IncHeal:EnableTag(frame, fontString)
+-- 	if( not frames[frame] ) then frames[frame] = {} end
+-- 	
+-- 	frames[frame][fontString] = true
+-- 	
+-- 	-- Need to register the events since we're not watching them by default
+-- 	if( not frame.tagEnabled and not ShadowUF.db.profile.units[frame.unitType].incHeal.absorbs ) then
+-- 		frame:RegisterUnitEvent("UNIT_AURA", self, "CalculateAbsorb")
+-- 		frame:RegisterUpdateFunc(self, "CalculateAbsorb")
+-- 		
+-- 		-- And unregister the default updater since it's used by default
+-- 		if( ShadowUF.db.profileunits[frame.unitType].incHeal.heals ) then
+-- 			frame:UnregisterUpdateFunc(self, "UpdateFrame")
+-- 		end
+-- 	end
+-- 	
+-- 	frame.tagEnabled = true;
+-- end
+-- 
+-- function IncHeal:DisableTag(frame, fontString)
+-- 	if( not frames[frame] or not frames[frame][fontString] ) then return end
+-- 	
+-- 	frames[frame][fontString] = nil
+-- 	frame.tagEnabled = nil
+-- 	for _, _ in pairs(frames[frame]) do
+-- 		frame.tagEnabled = true
+-- 		break
+-- 	end
+-- 	
+-- 	if( frame.tagEnabled ) then return end
+-- 
+-- 	-- Need to unrregister the events since we're not watching them by default
+-- 	if( not ShadowUF.db.profile.units[frame.unitType].incHeal.absorbs ) then
+-- 		frame:UnregisterUnitEvent("UNIT_AURA", self, "CalculateAbsorb")
+-- 		frame:UnregisterUpdateFunc(self, "CalculateAbsorb")
+-- 		
+-- 		-- Also register the default updater since we used it by default
+-- 		if( ShadowUF.db.profileunits[frame.unitType].incHeal.heals ) then
+-- 			frame:RegisterUpdateFunc(self, "UpdateFrame")
+-- 		end
+-- 	end
+-- end	
+-- 
+-- function IncHeal:CalculateAbsorb(frame)
+-- 	frame.absorb = 0
+-- 	
+-- 	local index = 0
+-- 	while( true ) do
+-- 		index = index + 1
+-- 		local name, _, _, _, _, _, _, _, _, _, _, _, _, absorbAmount = UnitAura(frame.unit, index, "HELPFUL"))
+-- 		if( not name ) then break end
+-- 		
+-- 		
+-- 	end
+-- 	
+-- 	if( frame.tagEnabled ) then
+-- 		for fontString, _ in pairs(frames[frame]) do
+-- 			fontString:UpdateTags()
+-- 		end
+-- 	end
+-- 	
+-- 	self:UpdateFrame(frame)
+-- end
 
 function IncHeal:UpdateFrame(frame)
 	-- This makes sure that when a heal like Tranquility is cast, it won't show the entire cast but cap it at 4 seconds into the future
