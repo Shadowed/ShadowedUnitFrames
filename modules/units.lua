@@ -1264,11 +1264,11 @@ function Units:SetCurable()
     if( list ) then
         for magic, spell in pairs(list) do
             if( spell == true ) then
-                canCure[magic] = true
+            	canCure[magic] = true
             -- Need some specific talents for this
             else
                 for tab=1, GetNumTalentTabs() do
-                    for talent=1, GetNumTalents(tab) do
+					for talent=1, GetNumTalents(tab) do
                         local name, _, _, _, currentRank = GetTalentInfo(tab, talent)
                         if( name == spell and currentRank > 0 ) then
                             canCure[magic] = true
@@ -1295,6 +1295,7 @@ centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 centralFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 centralFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
+centralFrame:RegisterEvent("PLAYER_LOGIN")
 centralFrame:SetScript("OnEvent", function(self, event, unit)
 	-- Check if the player changed zone types and we need to change module status, while they are dead
 	-- we won't change their zone type as releasing from an instance will change the zone type without them
@@ -1310,11 +1311,11 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 	elseif( event == "PLAYER_UNGHOST" ) then
 		Units:CheckPlayerZone()
 	-- Monitor talent changes
-	elseif( event == "ACTIVE_TALENT_GROUP_CHANGED" ) then
+	elseif( event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "PLAYER_TALENT_UPDATE" ) then
 		Units:SetCurable()
-	elseif( event == "PLAYER_TALENT_UPDATE" ) then
-		self:UnregisterEvent(event)
+	elseif( event == "PLAYER_LOGIN" ) then
 		Units:SetCurable()
+		self:RegisterEvent("PLAYER_TALENT_UPDATE")
 	-- This is slightly hackish, but it suits the purpose just fine for somthing thats rarely called.
 	elseif( event == "PLAYER_REGEN_ENABLED" ) then
 		-- Now do all of the creation for child wrapping
