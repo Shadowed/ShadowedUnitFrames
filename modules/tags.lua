@@ -791,6 +791,11 @@ Tags.defaultTags = {
 	-- 	local absorb = fontString.parent.absorb
 	-- 	return absorb > 0 and string.format("+%d", heal) or ShadowUF.tagFunc.name(unit, unitOwner, fontString)
 	-- ]],
+	["per:incheal"] = [[function(unit, unitOwner, fontString)
+		local heal = UnitGetIncomingHeals(unit)
+		local maxHealth = UnitHealthMax(unit)
+		return heal and heal > 0 and maxHealth > 0 and string.format("%d%%", (heal / maxHealth))
+	end]],
 	["abs:incheal"] = [[function(unit, unitOwner, fontString)
 	    local heal = UnitGetIncomingHeals(unit) 
 		return heal and heal > 0 and string.format("%d", heal)
@@ -839,6 +844,7 @@ Tags.defaultEvents = {
 	["short:druidform"]		= "UNIT_AURA",
 	["druidform"]			= "UNIT_AURA",
 	["guild"]				= "UNIT_NAME_UPDATE",
+	["per:incheal"]			= "UNIT_HEAL_PREDICTION",
 	["abs:incheal"]			= "UNIT_HEAL_PREDICTION",
 	["incheal:name"]		= "UNIT_HEAL_PREDICTION",
 	["incheal"]				= "UNIT_HEAL_PREDICTION",
@@ -919,6 +925,7 @@ Tags.defaultCategories = {
 	-- ["crtabs:name"]			= "absorb",
 	-- ["abs:crtabs"]			= "absorb",
 	["hp:color"]			= "health",
+	["per:incheal"]			= "health",
 	["abs:incheal"]			= "health",
 	["incheal"]				= "health",
 	["incheal:name"]		= "health",
@@ -1002,6 +1009,7 @@ Tags.defaultHelp = {
 	-- ["crtabs"]				= L["Shorten current absorb value, if 13,000 absorb is on a target it will show 13k."],
 	-- ["abs:crtabs"]			= L["Absolute current absorb value, if 15,000 absorb is on a target it will show 15,000."],
 	-- ["crtabs:name"]			= L["If the unit has absorbs on them, it will show the absolute absorb value, otherwise it will show the units name."],
+	["per:incheal"]			= L["Percent of the players current health that's being healed, if they have 100,000 total health and 15,000 is incoming then 15% is shown."]
 	["abs:incheal"]			= L["Absolute incoming heal value, if 10,000 healing is incoming it will show 10,000."],
 	["incheal"]				= L["Shorten incoming heal value, if 13,000 healing is incoming it will show 13k."],
 	["incheal:name"]		= L["If the unit has heals incoming, it will show the absolute incoming heal value, otherwise it will show the units name."],
@@ -1074,6 +1082,7 @@ Tags.defaultHelp = {
 }
 
 Tags.defaultNames = {
+	["per:incheal"]			= L["Incoming heal (Percent)"],
 	["incheal:name"]		= L["Incoming heal/Name"],
 	["unit:scaled:threat"]	= L["Unit scaled threat"],
 	["unit:color:sit"]		= L["Unit colored situation"],
