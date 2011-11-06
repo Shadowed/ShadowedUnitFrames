@@ -127,7 +127,7 @@ end
 function Highlight:Update(frame)
 	local color
 	if( frame.highlight.hasDebuff ) then
-		color = DebuffTypeColor[frame.highlight.hasDebuff]
+		color = DebuffTypeColor[frame.highlight.hasDebuff] or DebuffTypeColor[""]
 	elseif( frame.highlight.hasThreat ) then
 		color = ShadowUF.db.profile.healthColors.hostile
 	elseif( frame.highlight.hasAttention ) then
@@ -165,6 +165,7 @@ function Highlight:UpdateAura(frame)
 			id = id + 1
 			local name, _, _, _, auraType = UnitDebuff(frame.unit, id)
 			if( not name ) then break end
+			if( auraType == "" ) then auraType = "Enrage" end
 			
 			if( canCure[auraType] ) then
 				frame.highlight.hasDebuff = auraType
