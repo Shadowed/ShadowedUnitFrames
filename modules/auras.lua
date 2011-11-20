@@ -486,6 +486,7 @@ local function scan(parent, frame, type, config, filter)
 	local isFriendly = UnitIsFriend(frame.parent.unit, "player")
 	local curable = (isFriendly and type == "debuffs" and config.raid)
 	local index = 0
+	local cureType
 	while( true ) do
 		index = index + 1
 		local name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID = UnitAura(frame.parent.unit, index, filter)
