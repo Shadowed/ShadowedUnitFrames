@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 10
+ShadowUF.dbRevision = 11
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -84,7 +84,13 @@ end
 
 function ShadowUF:CheckUpgrade()
     local revision = self.db.profile.revision or 1
-	if( revision <= 9 ) then
+	if( revision <= 10 ) then
+		for unit, config in pairs(self.db.profile.units) do
+			if( config.healthBar ) then
+				config.healthBar.predicted = nil
+			end
+		end
+
 		for unit, config in pairs(self.db.profile.units) do
 			if( unit ~= "party" and config.indicators and config.indicators.phase ) then
 				config.indicators.phase = nil
@@ -111,8 +117,8 @@ function ShadowUF:CheckUpgrade()
                 db.indicators.resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"}
             end
             
-            if( not db.indicators.phase ) then
-               db.indicators.phase = {enabled = true, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
+            if( unit == "party" and not db.indicators.phase ) then
+               db.indicators.phase = {enabled = false, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
             end
         end
     end
