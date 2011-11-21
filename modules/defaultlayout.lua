@@ -342,7 +342,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			offset = 23,
 			indicators = {
                 resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
-                phase = {enabled = true, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
+                phase = {enabled = false, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
 			},
 			auras = {
 				buffs = {enabled = true, maxRows = 1},
