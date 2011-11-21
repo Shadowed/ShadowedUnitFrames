@@ -3386,28 +3386,6 @@ local function loadUnitOptions()
 								name = string.format(L["Enable %s"], L["Health bar"]),
 								arg = "healthBar.enabled",
 							},
-							predictedHealth = {
-								order = 3,
-								type = "toggle",
-								name = L["Enable quick health"],
-								desc = L["Turns on fast updating of health bars giving you more up to date health info."],
-								arg = "healthBar.predicted",
-								set = function(info, value)
-									setUnit(info, value)
-									
-									local hasQuick = false
-									for _, config in pairs(ShadowUF.db.profile.units) do
-										if( config.healthBar and config.healthBar.enabled and config.healthBar.predicted ) then
-											hasQuick = true
-											break
-										end
-									end
-									
-									if( hasQuick and GetCVar("predictedHealth") ~= "1" ) then
-										SetCVar("predictedHealth", "1")
-									end
-								end,
-							},
 							sep = {
 								order = 3.5,
 								type = "description",

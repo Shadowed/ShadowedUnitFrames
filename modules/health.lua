@@ -30,10 +30,12 @@ function Health:OnEnable(frame)
 		frame.healthBar = ShadowUF.Units:CreateBar(frame)
 	end
 	
+	frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
 	frame:RegisterUnitEvent("UNIT_CONNECTION", self, "Update")
 	frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdateColor")
 	frame:RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", self, "UpdateColor")
+    frame:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", self, "Update")
 	
 	if( frame.unit == "pet" ) then
 		frame:RegisterUnitEvent("UNIT_POWER", self, "UpdateColor")
@@ -41,18 +43,6 @@ function Health:OnEnable(frame)
 	
 	frame:RegisterUpdateFunc(self, "UpdateColor")
 	frame:RegisterUpdateFunc(self, "Update")
-end
-
-function Health:OnLayoutApplied(frame)
-	if( not frame.visibility.healthBar ) then return end
-
-	if( ShadowUF.db.profile.units[frame.unitType].healthBar.predicted ) then
-	    frame:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", self, "UpdateFrequent")
-		frame:UnregisterEvent("UNIT_HEALTH", self)
-	else
-		frame:UnregisterEvent("UNIT_HEALTH_FREQUENT", self)
-		frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
-	end
 end
 
 function Health:OnDisable(frame)
@@ -107,27 +97,6 @@ function Health:UpdateColor(frame)
 	else
 		frame.healthBar.hasPercent = true
 		frame:SetBarColor("healthBar", ShadowUF.db.profile.units[frame.unitType].healthBar.invert, getGradientColor(unit))
-	end
-end
-
-function Health:UpdateFrequent(frame)
-	self:Update(frame)
-
-	-- As much as I would rather not have to do this in an OnUpdate, I don't have much choice large health changes in a single update will make them very clearly be lagging behind
-	for _, fontString in pairs(frame.fontStrings) do
-		if( fontString.fastHealth ) then
-			fontString:UpdateTags()
-		end
-	end
-		
-	-- Update incoming heal number
-	if( frame.incHeal and frame.incHeal.healed ) then
-		frame.incHeal:SetValue(frame.healthBar.currentHealth + frame.incHeal.healed)
-	end
-	
-	-- The target is not offline, and we have a health percentage so update the gradient
-	if( not frame.healthBar.wasOffline and frame.healthBar.hasPercent ) then
-		frame:SetBarColor("healthBar", ShadowUF.db.profile.units[frame.unitType].healthBar.invert, getGradientColor(frame.unit))
 	end
 end
 
