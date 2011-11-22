@@ -5491,7 +5491,7 @@ function Config:Open()
 		loadOptions()
 		
 		LibStub("AceConfig-3.0"):RegisterOptionsTable("ShadowedUF", options)
-		AceDialog:SetDefaultSize("ShadowedUF", 835, 550)
+		AceDialog:SetDefaultSize("ShadowedUF", 845, 550)
 		registered = true
 	end
 	
