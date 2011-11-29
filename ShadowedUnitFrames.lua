@@ -114,8 +114,12 @@ function ShadowUF:CheckUpgrade()
         for _, unit in pairs({"player", "focus", "target", "raid", "party", "mainassist", "maintank"}) do
             local db = self.db.profile.units[unit]
             if( not db.indicators.resurrect ) then
-                db.indicators.resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"}
-            end
+				if( unit == "target" ) then
+                	db.indicators.resurrect = {enabled = true, anchorPoint = "RC", size = 28, x = -39, y = -1, anchorTo = "$parent"}
+            	else
+                	db.indicators.resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"}
+				end
+			end
             
             if( unit == "party" and not db.indicators.phase ) then
                db.indicators.phase = {enabled = false, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
