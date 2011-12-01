@@ -451,7 +451,7 @@ tempEnchantScan = function(self, elapsed)
 	offHand.has = hasOff
 	
 	if( hasRanged and self.temporaryEnchants < self.maxAuras ) then
-		self.temporaryEcnhants = self.temporaryEnchants + 1
+		self.temporaryEnchants = self.temporaryEnchants + 1
 		updateTemporaryEnchant(self, 18, ranged, hasRanged, rangedTimeLeft or 0, rangedCharges)
 	end
 	
