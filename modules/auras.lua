@@ -124,7 +124,7 @@ local function positionAllButtons(group, config)
 			columnsHaveScale[columnID] = columnsHaveScale[columnID] and math.max(size, columnsHaveScale[columnID]) or size
 		end
 	end
-
+	
 	local columnID = 1
 	for id, button in pairs(group.buttons) do
 		if( id > 1 ) then
@@ -481,7 +481,7 @@ function Auras:UpdateFilter(frame)
 end
 
 -- Scan for auras
-local function scan(parent, frame, type, config, filter)
+local function scan(parent, frame, type, config, displayConfig, filter)
 	if( frame.totalAuras >= frame.maxAuras or not config.enabled ) then return end
 	
 	local isFriendly = UnitIsFriend(frame.parent.unit, "player")
@@ -557,7 +557,7 @@ local function scan(parent, frame, type, config, filter)
 
 	-- The default 1.30 scale doesn't need special handling, after that it does
 	if( config.enlargeSelf ) then
-		positionAllButtons(frame, config)
+		positionAllButtons(frame, displayConfig)
 	end
 end
 
@@ -600,17 +600,17 @@ function Auras:Update(frame)
 	if( frame.auras.anchor ) then
 		frame.auras.anchor.totalAuras = frame.auras.anchor.temporaryEnchants
 		
-		scan(frame.auras, frame.auras.anchor, frame.auras.primary, config[frame.auras.primary], frame.auras[frame.auras.primary].filter)
-		scan(frame.auras, frame.auras.anchor, frame.auras.secondary, config[frame.auras.secondary], frame.auras[frame.auras.secondary].filter)
+		scan(frame.auras, frame.auras.anchor, frame.auras.primary, config[frame.auras.primary], config[frame.auras.primary], frame.auras[frame.auras.primary].filter)
+		scan(frame.auras, frame.auras.anchor, frame.auras.secondary, config[frame.auras.secondary], config[frame.auras.primary], frame.auras[frame.auras.secondary].filter)
 	else
 		if( config.buffs.enabled ) then
 			frame.auras.buffs.totalAuras = frame.auras.buffs.temporaryEnchants
-			scan(frame.auras, frame.auras.buffs, "buffs", config.buffs, frame.auras.buffs.filter)
+			scan(frame.auras, frame.auras.buffs, "buffs", config.buffs, config.buffs, frame.auras.buffs.filter)
 		end
 
 		if( config.debuffs.enabled ) then
 			frame.auras.debuffs.totalAuras = 0
-			scan(frame.auras, frame.auras.debuffs, "debuffs", config.debuffs, frame.auras.debuffs.filter)
+			scan(frame.auras, frame.auras.debuffs, "debuffs", config.debuffs, config.debuffs, frame.auras.debuffs.filter)
 		end
 		
 		if( frame.auras.anchorAurasOn ) then
