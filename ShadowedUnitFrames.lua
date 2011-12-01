@@ -87,7 +87,7 @@ function ShadowUF:CheckUpgrade()
 	if( revision <= 11 ) then
 		for unit, config in pairs(self.db.profile.units) do
 			if( config.powerBar ) then
-				config.powerBar.colorType = "class"
+				config.powerBar.colorType = "type"
 			end
 		end
 	end
