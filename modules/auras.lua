@@ -294,6 +294,7 @@ local function updateGroup(self, type, config, reverseConfig)
 	if( self.unit == "player" ) then
 		mainHand.time = 0
 		offHand.time = 0
+		ranged.time = 0
 
 		group:SetScript("OnUpdate", config.temporary and tempEnchantScan or nil)
 	else
@@ -551,7 +552,7 @@ local function scan(parent, frame, type, config, filter)
 			if( frame.totalAuras >= frame.maxAuras ) then break end
 		end
 	end
-
+	
 	for i=frame.totalAuras + 1, #(frame.buttons) do frame.buttons[i]:Hide() end
 
 	-- The default 1.30 scale doesn't need special handling, after that it does
