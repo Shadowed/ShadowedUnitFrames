@@ -3313,6 +3313,21 @@ local function loadUnitOptions()
 								hidden = hideRestrictedOption,
 								arg = "altPowerBar.enabled",
 							},
+							sep = { 
+								order = 4,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = false,
+							},
+							colorType = {
+								order = 5,
+								type = "select",
+								name = L["Color power by"],
+								desc = L["Primary means of coloring the power bar. Coloring by class only applies to players, for non-players it will default to the power type."],
+								values = {["class"] = L["Class"], ["type"] = L["Power Type"]},
+								arg = "powerBar.colorType",
+							}
 						},
 					},
 					classmiscbars = {

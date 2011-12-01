@@ -44,7 +44,15 @@ function Power:OnDisable(frame)
 end
 
 function Power:UpdateColor(frame)
-	local color = ShadowUF.db.profile.powerColors[select(2, UnitPowerType(frame.unit))] or ShadowUF.db.profile.powerColors.MANA
+	local color
+	if( ShadowUF.db.profile.units[frame.unitType].powerBar.colorType == "class" and UnitIsPlayer(frame.unit) ) then
+		local class = select(2, UnitClass(frame.unit))
+		color = class and ShadowUF.db.profile.classColors[class]
+	end
+	
+	if( not color ) then
+		color = ShadowUF.db.profile.powerColors[select(2, UnitPowerType(frame.unit))] or ShadowUF.db.profile.powerColors.MANA
+	end
 	
 	if( not ShadowUF.db.profile.units[frame.unitType].powerBar.invert ) then
 		frame.powerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)

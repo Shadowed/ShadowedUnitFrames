@@ -235,7 +235,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		combatText = {anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0},
 		emptyBar = {background = true, height = 1, reactionType = "none", order = 0},
 		healthBar = {background = true, colorType = "class", reactionType = "npc", height = 1.20, order = 10},
-		powerBar = {background = true, height = 1.0, order = 20},
+		powerBar = {background = true, height = 1.0, order = 20, colorType = "type"},
 		xpBar = {background = true, height = 0.25, order = 55},
 		castBar = {background = true, height = 0.60, order = 40, icon = "HIDE", name = {enabled = true, size = 0, anchorTo = "$parent", rank = true, anchorPoint = "CLI", x = 1, y = 0}, time = {enabled = true, size = 0, anchorTo = "$parent", anchorPoint = "CRI", x = -1, y = 0}},
 		altPowerBar = {background = true, height = 0.40, order = 100},

@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 11
+ShadowUF.dbRevision = 12
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -84,6 +84,14 @@ end
 
 function ShadowUF:CheckUpgrade()
     local revision = self.db.profile.revision or 1
+	if( revision <= 11 ) then
+		for unit, config in pairs(self.db.profile.units) do
+			if( config.powerBar ) then
+				config.powerBar.colorType = "class"
+			end
+		end
+	end
+
 	if( revision <= 10 ) then
 		for unit, config in pairs(self.db.profile.units) do
 			if( config.healthBar ) then
@@ -323,9 +331,9 @@ end
 
 -- Module APIs
 function ShadowUF:RegisterModule(module, key, name, isBar, class)
-	-- December 16th
-	if( module.OnDefaultsSet ) then
-		DEFAULT_CHAT_FRAME:AddMessage(string.format("[WARNING!] You are running an outdated version of %s, you need to update it to the latest available for it to work with SUF.", name or key or "unknown"))
+	-- November 30th
+	if( key == "ClassColoredPowerBar" ) then
+		DEFAULT_CHAT_FRAME:AddMessage("[WARNING!] ShadowedUF_ClassPower is broken and built in by default now. You do not need it anymore")
 		return
 	end
 
