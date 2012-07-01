@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 12
+ShadowUF.dbRevision = 13
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -83,7 +83,11 @@ function ShadowUF:OnInitialize()
 end
 
 function ShadowUF:CheckUpgrade()
-    local revision = self.db.profile.revision or 1
+	local revision = self.db.profile.revision or 1
+	if( revision <= 12 ) then
+		self.db.profile.classColors["MONK"] = {r = 0.0, g = 1.00 , b = 0.59}
+	end
+
 	if( revision <= 11 ) then
 		for unit, config in pairs(self.db.profile.units) do
 			if( config.powerBar ) then
@@ -118,22 +122,22 @@ function ShadowUF:CheckUpgrade()
 		self.db.profile.auraColors = {removable = {r = 1, g = 1, b = 1}}
 	end
 
-    if( revision <= 6 ) then
-        for _, unit in pairs({"player", "focus", "target", "raid", "party", "mainassist", "maintank"}) do
-            local db = self.db.profile.units[unit]
-            if( not db.indicators.resurrect ) then
+	if( revision <= 6 ) then
+		for _, unit in pairs({"player", "focus", "target", "raid", "party", "mainassist", "maintank"}) do
+			local db = self.db.profile.units[unit]
+			if( not db.indicators.resurrect ) then
 				if( unit == "target" ) then
-                	db.indicators.resurrect = {enabled = true, anchorPoint = "RC", size = 28, x = -39, y = -1, anchorTo = "$parent"}
-            	else
-                	db.indicators.resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"}
+					db.indicators.resurrect = {enabled = true, anchorPoint = "RC", size = 28, x = -39, y = -1, anchorTo = "$parent"}
+				else
+					db.indicators.resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"}
 				end
 			end
-            
-            if( unit == "party" and not db.indicators.phase ) then
-               db.indicators.phase = {enabled = false, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
-            end
-        end
-    end
+			
+			if( unit == "party" and not db.indicators.phase ) then
+			   db.indicators.phase = {enabled = false, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
+			end
+		end
+	end
 end
 
 function ShadowUF:LoadUnits()
@@ -427,34 +431,34 @@ function ShadowUF:HideBlizzardFrames()
 			CompactPartyFrame:Hide()
 
 			for i=1, MEMBERS_PER_RAID_GROUP do
-      			_G["CompactPartyFrameMember" .. i]:UnregisterAllEvents()
+				_G["CompactPartyFrameMember" .. i]:UnregisterAllEvents()
 			end
 		end
 
 		if( CompactPartyFrame ) then
 			hideCompactParty()
 		elseif( CompactPartyFrame_Generate ) then
-		    hooksecurefunc("CompactPartyFrame_Generate", hideCompactParty)
+			hooksecurefunc("CompactPartyFrame_Generate", hideCompactParty)
 		end
 	end
 
 	if( ShadowUF.db.profile.hidden.raid ) then
-        local function hideRaid()
-	        CompactRaidFrameManager:UnregisterAllEvents()
-	        if( not InCombatLockdown() ) then CompactRaidFrameManager:Hide() end
-    
-	        local shown = CompactRaidFrameManager_GetSetting("IsShown")
-	        if( shown and shown ~= "0" ) then
-	            CompactRaidFrameManager_SetSetting("IsShown", "0")
-	        end
-        end
+		local function hideRaid()
+			CompactRaidFrameManager:UnregisterAllEvents()
+			if( not InCombatLockdown() ) then CompactRaidFrameManager:Hide() end
+	
+			local shown = CompactRaidFrameManager_GetSetting("IsShown")
+			if( shown and shown ~= "0" ) then
+				CompactRaidFrameManager_SetSetting("IsShown", "0")
+			end
+		end
 		
-        hooksecurefunc("CompactRaidFrameManager_UpdateShown", function()
-            if( ShadowUF.db.profile.hidden.raid ) then
-                hideRaid();
-            end
-        end)
-        
+		hooksecurefunc("CompactRaidFrameManager_UpdateShown", function()
+			if( ShadowUF.db.profile.hidden.raid ) then
+				hideRaid();
+			end
+		end)
+		
 		hideRaid();
 	else
 		CompactRaidFrameManager:SetFrameStrata("DIALOG")
