@@ -55,7 +55,7 @@ end
 
 function Eclipse:UpdateVisibility(frame)
 	local form = GetShapeshiftFormID()
-	ShadowUF.Layout:SetBarVisibility(frame, "eclipseBar", (form == MOONKIN_FORM or not form) and GetPrimaryTalentTree() == 1)
+	ShadowUF.Layout:SetBarVisibility(frame, "eclipseBar", (form == MOONKIN_FORM or not form) and GetSpecialization() == 1)
 	Eclipse:UpdateDirection(frame)
 	Eclipse:Update(frame, nil, nil, "ECLIPSE")
 end

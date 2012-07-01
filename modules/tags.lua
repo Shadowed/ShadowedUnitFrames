@@ -731,13 +731,13 @@ Tags.defaultTags = {
 		return classif == "rare" and "R" or classif == "rareelite" and "R+" or classif == "elite" and "+" or classif == "worldboss" and "B"
 	end]],
 	["group"] = [[function(unit, unitOwner)
-		if( GetNumRaidMembers() == 0 ) then return nil end
+		if( GetNumGroupMembers() == 0 ) then return nil end
 		local name, server = UnitName(unitOwner)
 		if( server and server ~= "" ) then
 			name = string.format("%s-%s", name, server)
 		end
 		
-		for i=1, GetNumRaidMembers() do
+		for i=1, GetNumGroupMembers() do
 			local raidName, _, group = GetRaidRosterInfo(i)
 			if( raidName == name ) then
 				return group
@@ -809,12 +809,12 @@ Tags.defaultTags = {
 		return heal and heal > 0 and string.format("+%d", heal) or ShadowUF.tagFunc.name(unit, unitOwner, fontString)
 	end]],
 	["unit:raid:targeting"] = [[function(unit, unitOwner, fontString)
-		if( GetNumRaidMembers() == 0 ) then return nil end
+		if( GetNumGroupMembers() == 0 ) then return nil end
 		local guid = UnitGUID(unit)
 		if( not guid ) then return "0" end
 		
 		local total = 0
-		for i=1, GetNumRaidMembers() do
+		for i=1, GetNumGroupMembers() do
 			local unit = ShadowUF.raidUnits[i]
 			if( UnitGUID(ShadowUF.unitTarget[unit]) == guid ) then
 				total = total + 1
@@ -823,12 +823,12 @@ Tags.defaultTags = {
 		return total
 	end]],
 	["unit:raid:assist"] = [[function(unit, unitOwner, fontString)
-		if( GetNumRaidMembers() == 0 ) then return nil end
+		if( GetNumGroupMembers() == 0 ) then return nil end
 		local guid = UnitGUID(ShadowUF.unitTarget[unit])
 		if( not guid ) then return "--" end
 		
 		local total = 0
-		for i=1, GetNumRaidMembers() do
+		for i=1, GetNumGroupMembers() do
 			local unit = ShadowUF.raidUnits[i]
 			if( UnitGUID(ShadowUF.unitTarget[unit]) == guid ) then
 				total = total + 1
@@ -893,7 +893,7 @@ Tags.defaultEvents = {
 	["classification"]      = "UNIT_CLASSIFICATION_CHANGED",
 	["shortclassification"] = "UNIT_CLASSIFICATION_CHANGED",
 	["dechp"]				= "UNIT_HEALTH UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH",
-	["group"]				= "RAID_ROSTER_UPDATE",
+	["group"]				= "GROUP_ROSTER_UPDATE",
 	["unit:color:aggro"]	= "UNIT_THREAT_SITUATION_UPDATE",
 	["color:aggro"]			= "UNIT_THREAT_SITUATION_UPDATE",
 	["situation"]			= "UNIT_THREAT_SITUATION_UPDATE",
@@ -1168,10 +1168,9 @@ Tags.eventType = {
 	["UNIT_HEALTH_FREQUENT"] = "health",
 	["UNIT_HEALTH"] = "health",
 	["UNIT_MAXHEALTH"] = "health",
-	["RAID_ROSTER_UPDATE"] = "unitless",
+	["GROUP_ROSTER_UPDATE"] = "unitless",
 	["RAID_TARGET_UPDATE"] = "unitless",
 	["PLAYER_TARGET_CHANGED"] = "unitless",
-	["PARTY_MEMBERS_CHANGED"] = "unitless",
 	["PARTY_LEADER_CHANGED"] = "unitless",
 	["PLAYER_ENTERING_WORLD"] = "unitless",
 	["PLAYER_XP_UPDATE"] = "unitless",
@@ -1212,7 +1211,7 @@ local function loadAPIEvents()
 		["UnitIsAFK"]				= "PLAYER_FLAGS_CHANGED",
 		["UnitIsDND"]				= "PLAYER_FLAGS_CHANGED",
 		["UnitIsPVP"]				= "PLAYER_FLAGS_CHANGED UNIT_FACTION",
-		["UnitIsPartyLeader"]		= "PARTY_LEADER_CHANGED PARTY_MEMBERS_CHANGED",
+		["UnitIsGroupLeader"]		= "PARTY_LEADER_CHANGED GROUP_ROSTER_UPDATE",
 		["UnitIsPVPFreeForAll"]		= "PLAYER_FLAGS_CHANGED UNIT_FACTION",
 		["UnitCastingInfo"]			= "UNIT_SPELLCAST_START UNIT_SPELLCAST_STOP UNIT_SPELLCAST_FAILED UNIT_SPELLCAST_INTERRUPTED UNIT_SPELLCAST_DELAYED",
 		["UnitChannelInfo"]			= "UNIT_SPELLCAST_CHANNEL_START UNIT_SPELLCAST_CHANNEL_STOP UNIT_SPELLCAST_CHANNEL_INTERRUPTED UNIT_SPELLCAST_CHANNEL_UPDATE",
@@ -1228,9 +1227,9 @@ local function loadAPIEvents()
 		["GetRuneType"]				= "RUNE_TYPE_UPDATE",
 		["GetRaidTargetIndex"]		= "RAID_TARGET_UPDATE",
 		["GetComboPoints"]			= "UNIT_COMBO_POINTS",
-		["GetNumPartyMembers"]		= "PARTY_MEMBERS_CHANGED",
-		["GetNumRaidMembers"]		= "RAID_ROSTER_UPDATE",
-		["GetRaidRosterInfo"]		= "RAID_ROSTER_UPDATE",
+		["GetNumSubgroupMembers"]	= "GROUP_ROSTER_UPDATE",
+		["GetNumGroupMembers"]		= "GROUP_ROSTER_UPDATE",
+		["GetRaidRosterInfo"]		= "GROUP_ROSTER_UPDATE",
 		["GetReadyCheckStatus"]		= "READY_CHECK READY_CHECK_CONFIRM READY_CHECK_FINISHED",
 		["GetLootMethod"]			= "PARTY_LOOT_METHOD_CHANGED",
 		["GetThreatStatusColor"]	= "UNIT_THREAT_SITUATION_UPDATE",

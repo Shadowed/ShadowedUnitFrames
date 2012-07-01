@@ -34,7 +34,7 @@ local function updateBackdrop()
 	-- Update the backdrop table
 	local backdrop = ShadowUF.db.profile.backdrop
 	backdropTbl.bgFile = mediaPath.background
-	backdropTbl.edgeFile = mediaPath.border
+	if( mediaPath.border ~= "Interface\\None" ) then backdropTbl.edgeFile = mediaPath.border end
 	backdropTbl.tile = backdrop.tileSize > 0 and true or false
 	backdropTbl.edgeSize = backdrop.edgeSize
 	backdropTbl.tileSize = backdrop.tileSize

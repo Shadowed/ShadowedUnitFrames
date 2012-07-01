@@ -5,7 +5,6 @@ Units.zoneUnits = {["arena"] = "arena", ["boss"] = "raid"}
 local stateMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 local playerClass = select(2, UnitClass("player"))
 local unitFrames, headerFrames, frameList, unitEvents, childUnits, queuedCombat, canCure = Units.unitFrames, Units.headerFrames, Units.frameList, Units.unitEvents, Units.childUnits, {}, Units.canCure
-local curableData = {["PRIEST"] = {["Magic"] = true, ["Disease"] = true}, ["DRUID"] = {["Curse"] = true, ["Poison"] = true, ["Magic"] = GetSpellInfo(88423), ["Enrage"] = true}, ["SHAMAN"] = {["Curse"] = true, ["Magic"] = GetSpellInfo(77130)}, ["PALADIN"] = {["Poison"] = true, ["Disease"] = true, ["Magic"] = GetSpellInfo(53551)}, ["MAGE"] = {["Curse"] = true}, ["HUNTER"] = {["Enrage"] = true}, ["ROGUE"] = {["Enrage"] = true}}
 local _G = getfenv(0)
 
 ShadowUF.Units = Units
@@ -506,12 +505,12 @@ OnAttributeChanged = function(self, name, unit)
 		
 	-- Check for a unit guid to do a full update
 	elseif( self.unitRealType == "raid" ) then
-		self:RegisterNormalEvent("RAID_ROSTER_UPDATE", Units, "CheckGroupedUnitStatus")
+		self:RegisterNormalEvent("GROUP_ROSTER_UPDATE", Units, "CheckGroupedUnitStatus")
 		self:RegisterUnitEvent("UNIT_NAME_UPDATE", Units, "CheckUnitStatus")
 		
 	-- Party members need to watch for changes
 	elseif( self.unitRealType == "party" ) then
-		self:RegisterNormalEvent("PARTY_MEMBERS_CHANGED", Units, "CheckGroupedUnitStatus")
+		self:RegisterNormalEvent("GROUP_ROSTER_UPDATE", Units, "CheckGroupedUnitStatus")
 		self:RegisterNormalEvent("PARTY_MEMBER_ENABLE", Units, "CheckGroupedUnitStatus")
 		self:RegisterNormalEvent("PARTY_MEMBER_DISABLE", Units, "CheckGroupedUnitStatus")
 		self:RegisterUnitEvent("UNIT_NAME_UPDATE", Units, "CheckUnitStatus")
@@ -1256,40 +1255,6 @@ function Units:CheckPlayerZone(force)
 	end
 end
 
--- Monitor talents to figure out what the user can currently cure
-function Units:SetCurable()
-	table.wipe(canCure)
-	
-    local list = curableData[select(2, UnitClass("player"))]
-    if( list ) then
-        for magic, spell in pairs(list) do
-            if( spell == true ) then
-            	canCure[magic] = true
-            -- Need some specific talents for this
-            else
-                for tab=1, GetNumTalentTabs() do
-					for talent=1, GetNumTalents(tab) do
-                        local name, _, _, _, currentRank = GetTalentInfo(tab, talent)
-                        if( name == spell and currentRank > 0 ) then
-                            canCure[magic] = true
-                        end
-                    end
-                end
-            end
-        end
-    end
-    
-    -- Reload frames
-	for frame in pairs(ShadowUF.Units.frameList) do
-		if( frame.unit and frame:IsVisible() and UnitIsFriend(frame.unit, "player") ) then
-	    	local config = ShadowUF.db.profile.units[frame.unitType];
-		    if( ( config.auras and config.auras.debuffs and config.auras.debuffs.raid ) or ( config.highlight and config.highlight.hasDebuff ) ) then
-				frame:FullUpdate()
-			end
-	    end
-    end
-end
-
 local centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
@@ -1312,10 +1277,18 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 		Units:CheckPlayerZone()
 	-- Monitor talent changes
 	elseif( event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "PLAYER_TALENT_UPDATE" ) then
-		Units:SetCurable()
+		for frame in pairs(ShadowUF.Units.frameList) do
+			if( frame.unit and frame:IsVisible() and UnitIsFriend(frame.unit, "player") ) then
+		    	local config = ShadowUF.db.profile.units[frame.unitType];
+			    if( ( config.auras and config.auras.debuffs and config.auras.debuffs.raid ) or ( config.highlight and config.highlight.hasDebuff ) ) then
+					frame:FullUpdate()
+				end
+		    end
+	    end
+
 	elseif( event == "PLAYER_LOGIN" ) then
-		Units:SetCurable()
 		self:RegisterEvent("PLAYER_TALENT_UPDATE")
+
 	-- This is slightly hackish, but it suits the purpose just fine for somthing thats rarely called.
 	elseif( event == "PLAYER_REGEN_ENABLED" ) then
 		-- Now do all of the creation for child wrapping

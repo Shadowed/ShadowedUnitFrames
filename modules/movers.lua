@@ -41,7 +41,7 @@ local function createConfigEnv()
 		UnitInPhase = function(unit) return true end,
 		UnitExists = function(unit) return true end,
 		UnitPowerMax = function(unit) return 50000 end,
-		UnitIsPartyLeader = function() return true end,
+		UnitIsGroupLeader = function() return true end,
 		UnitIsPVP = function(unit) return true end,
 		UnitIsDND = function(unit) return false end,
 		UnitIsAFK = function(unit) return false end,

@@ -7,7 +7,7 @@ function Combo:OnEnable(frame)
 	frame.comboPoints = frame.comboPoints or CreateFrame("Frame", nil, frame)
 	frame.comboPoints.config = cpConfig
 	frame.comboPointType = cpConfig.key
-	frame:RegisterNormalEvent("UNIT_COMBO_POINTS", self, "Update")
+	frame:RegisterUnitEvent("UNIT_COMBO_POINTS", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
