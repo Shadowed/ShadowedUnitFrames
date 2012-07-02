@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 13
+ShadowUF.dbRevision = 14
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -84,6 +84,10 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or 1
+	if( revision <= 13 ) then
+		self.db.profile.powerColors["BANKEDHOLYPOWER"] = CopyTable(self.db.profile.powerColors["HOLYPOWER"])
+	end
+
 	if( revision <= 12 ) then
 		self.db.profile.classColors["MONK"] = {r = 0.0, g = 1.00 , b = 0.59}
 	end

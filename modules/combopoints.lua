@@ -14,7 +14,7 @@ end
 function Combo:OnLayoutApplied(frame, config)
 	local key = frame.comboPointType  
 	local pointsFrame = frame[key]
-	if not pointsFrame then return end
+	if( not pointsFrame ) then return end
 
 	pointsFrame:SetFrameLevel(frame.topFrameLevel + 1)
 	
@@ -38,6 +38,8 @@ function Combo:OnLayoutApplied(frame, config)
 	if( config.isBar ) then
 		pointsFrame.blocks = pointsFrame.blocks or {}
 		pointsFrame.points = pointsFrame.blocks
+
+		pointsFrame.visibleBlocks = pointsConfig.max
 	
 		-- Position bars, the 5 accounts for borders
 		local blockWidth = (pointsFrame:GetWidth() - (pointsConfig.max - 1)) / pointsConfig.max
@@ -45,7 +47,7 @@ function Combo:OnLayoutApplied(frame, config)
 			pointsFrame.blocks[id] = pointsFrame.blocks[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 			local texture = pointsFrame.blocks[id]
 			local color = ShadowUF.db.profile.powerColors[pointsConfig.colorKey or "COMBOPOINTS"]
-			texture:SetVertexColor(color.r, color.g, color.b)
+			texture:SetVertexColor(color.r, color.g, color.b, color.a)
 			texture:SetHorizTile(false)
 			texture:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
 			texture:SetHeight(pointsFrame:GetHeight())
@@ -110,6 +112,32 @@ function Combo:OnLayoutApplied(frame, config)
 		
 		ShadowUF.Layout:AnchorFrame(frame, pointsFrame, config)
 	end
+end
+
+function Combo:UpdateBarBlocks(frame, event, unit, powerType)
+	local pointsFrame = frame[frame.comboPointType]
+	if( not pointsFrame or not pointsFrame.config.eventType ) then return end
+	if( event and powerType ~= pointsFrame.config.eventType ) then return end
+
+	if( not ShadowUF.db.profile.units[frame.unitType][frame.comboPointType].isBar ) then
+		return
+	end
+
+	local max = UnitPowerMax("player", pointsFrame.config.powerType)
+	if( pointsFrame.visibleBlocks == max ) then return end
+
+	local blockWidth = (pointsFrame:GetWidth() - (max - 1)) / max
+	for id=1, max do
+		print(id, pointsFrame.blocks[id])
+		pointsFrame.blocks[id]:SetWidth(blockWidth)
+		pointsFrame.blocks[id]:Show()
+	end
+
+	for id=max+1, max do
+		pointsFrame.blocks[id]:Hide()
+	end
+
+	pointsFrame.visibleBlocks = max
 end
 
 function Combo:OnDisable(frame)

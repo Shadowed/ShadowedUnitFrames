@@ -1132,8 +1132,16 @@ local function loadGeneralOptions()
 								arg = "powerColors.HOLYPOWER",
 								hidden = function(info) return select(2, UnitClass("player")) ~= "PALADIN" end,
 							},
-							SOULSHARDS = {
+							BANKEDHOLYPOWER = {
 								order = 13,
+								type = "color",
+								name = L["Banked Holy Power"],
+								hasAlpha = true,
+								arg = "powerColors.BANKEDHOLYPOWER",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "PALADIN" end,
+							},
+							SOULSHARDS = {
+								order = 14,
 								type = "color",
 								name = L["Soul Shards"],
 								hasAlpha = true,
