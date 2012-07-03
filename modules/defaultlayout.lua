@@ -156,7 +156,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		SOULSHARDS = {r = 0.58, g = 0.51, b = 0.79},
 		DEMONICFURY = {r = 0.58, g = 0.51, b = 0.79},
 		BURNINGEMBERS = {r = 0.58, g = 0.51, b = 0.79},
-		FULLBURNINGEMBER = {r = 0, g = 1, b = 0},
+		FULLBURNINGEMBER = {r = 0.23, g = 0.039, b = 0.49},
 		SHADOWORBS = {r = 0.58, g = 0.51, b = 0.79},
 		ALTERNATE = {r = 0.71, g = 0.0, b = 1.0},
 		CHI = {r = 0.0, g = 1.0, b = 0.59},
