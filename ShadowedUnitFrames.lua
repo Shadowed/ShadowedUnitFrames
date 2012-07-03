@@ -102,7 +102,7 @@ function ShadowUF:CheckUpgrade()
 	end
 
 	if( revision <= 13 ) then
-		self.db.profile.powerColors["BANKEDHOLYPOWER"] = CopyTable(self.db.profile.powerColors["HOLYPOWER"])
+		self.db.profile.powerColors["BANKEDHOLYPOWER"] = {r = 0.96, g = 0.61, b = 0.84}
 	end
 
 	if( revision <= 12 ) then

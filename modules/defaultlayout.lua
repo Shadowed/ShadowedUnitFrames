@@ -152,7 +152,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		FUEL = {r = 0.85, g = 0.47, b = 0.36},
 		COMBOPOINTS = {r = 1.0, g = 0.80, b = 0.0},
 		HOLYPOWER = {r = 0.96, g = 0.55, b = 0.73},
-		BANKEDHOLYPOWER = {r = 0.96, g = 0.55, b = 0.73},
+		BANKEDHOLYPOWER = {r = 0.96, g = 0.61, b = 0.84},
 		SOULSHARDS = {r = 0.58, g = 0.51, b = 0.79},
 		DEMONICFURY = {r = 0.58, g = 0.51, b = 0.79},
 		BURNINGEMBERS = {r = 0.58, g = 0.51, b = 0.79},

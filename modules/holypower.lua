@@ -38,7 +38,11 @@ function HolyPower:UpdateBarBlocks(frame, event, unit, powerType)
 	local max = UnitPowerMax("player", holyConfig.powerType)
 	if( max > HOLY_POWER_FULL ) then
 		for id=HOLY_POWER_FULL+1, max do
-			pointsFrame.points[id]:SetVertexColor(color.r, color.g, color.b)
+			if( config.isBar ) then
+				pointsFrame.blocks[id]:SetVertexColor(color.r, color.g, color.b)
+			else
+				pointsFrame.icons[id]:SetVertexColor(color.r, color.g, color.b)
+			end
 		end
 	end
 end
