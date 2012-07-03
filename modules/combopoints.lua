@@ -91,7 +91,7 @@ function Combo:OnLayoutApplied(frame, config)
 
 		pointsFrame.icons = pointsFrame.icons or {}
 		pointsFrame.points = pointsFrame.icons
-		
+	
 		for id=1, pointsConfig.max do
 			pointsFrame.icons[id] = pointsFrame.icons[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 			local texture = pointsFrame.icons[id]
