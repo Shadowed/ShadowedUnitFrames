@@ -11,6 +11,7 @@ function HolyPower:OnEnable(frame)
 	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "UpdateBarBlocks")
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
+	frame:RegisterUpdateFunc(self, "UpdateBarBlocks")
 end
 
 function HolyPower:OnDisable(frame)
@@ -36,9 +37,9 @@ function HolyPower:UpdateBarBlocks(frame, event, unit, powerType)
 	if( max > HOLY_POWER_FULL ) then
 		for id=HOLY_POWER_FULL+1, max do
 			if( config.isBar ) then
-				pointsFrame.blocks[id]:SetVertexColor(color.r, color.g, color.b, color.a)
+				pointsFrame.blocks[id]:SetVertexColor(color.r, color.g, color.b)
 			else
-				pointsFrame.icons[id]:SetVertexColor(color.r, color.g, color.b, color.a)
+				pointsFrame.icons[id]:SetVertexColor(color.r, color.g, color.b)
 			end
 		end
 	end

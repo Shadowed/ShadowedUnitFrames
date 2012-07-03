@@ -1,25 +1,33 @@
 local Souls = setmetatable({}, {__index = ShadowUF.ComboPoints})
-ShadowUF:RegisterModule(Souls, "soulShards", ShadowUF.L["Soul Shards"], nil, "WARLOCK")
-local soulsConfig = {max = SHARD_BAR_NUM_SHARDS, key = "soulShards", colorKey = "SOULSHARDS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\shard"}
+ShadowUF:RegisterModule(Souls, "soulShards", ShadowUF.L["Soul Shards"], nil, "WARLOCK", SPEC_WARLOCK_AFFLICTION)
+local soulsConfig = {max = 4, key = "soulShards", colorKey = "SOULSHARDS", powerType = SPELL_POWER_SOUL_SHARDS, eventType = "SOUL_SHARDS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\shard"}
 
 function Souls:OnEnable(frame)
 	frame.soulShards = frame.soulShards or CreateFrame("Frame", nil, frame)
 	frame.soulShards.config = soulsConfig
 	frame.comboPointType = soulsConfig.key
 
-	frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
+	frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")
+	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "UpdateBarBlocks")
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "Update")
+
 	frame:RegisterUpdateFunc(self, "Update")
+	frame:RegisterUpdateFunc(self, "UpdateBarBlocks")
 end
 
 function Souls:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 
+function Souls:OnLayoutApplied(frame, config)
+	ShadowUF.ComboPoints:OnLayoutApplied(frame, config)
+	self:UpdateBarBlocks(frame)
+end
+
 function Souls:Update(frame, event, unit, powerType)
-	if( event == "UNIT_POWER" and powerType ~= "SOUL_SHARDS" ) then return end
-	
-	local points = UnitPower("player", SPELL_POWER_SOUL_SHARDS)
+	if( event == "UNIT_POWER" and powerType ~= soulsConfig.eventType ) then return end
+
+	local points = UnitPower("player", soulsConfig.powerType)
 	-- Bar display, hide it if we don't have any soul shards
 	if( ShadowUF.db.profile.units[frame.unitType].soulShards.isBar ) then
 		ShadowUF.Layout:SetBarVisibility(frame, "soulShards", ShadowUF.db.profile.units[frame.unitType].soulShards.showAlways or (points and points > 0))

@@ -192,6 +192,7 @@ end
 local function SetVisibility(self)
 	local layoutUpdate
 	local instanceType = select(2, IsInInstance())
+	local playerSpec = GetSpecialization()
 
 	-- Selectively disable modules
 	for _, module in pairs(ShadowUF.moduleOrder) do
@@ -223,7 +224,11 @@ local function SetVisibility(self)
 			if( module.moduleClass and module.moduleClass ~= playerClass ) then
 				enabled = nil
 			end
-						
+			
+			if( module.moduleSpec and module.moduleSpec ~= playerSpec ) then
+				enabled = nil
+			end
+
 			-- Module isn't enabled all the time, only in this zone so we need to force it to be enabled
 			if( not self.visibility[key] and enabled ) then
 				module:OnEnable(self)
@@ -1276,18 +1281,19 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 	elseif( event == "PLAYER_UNGHOST" ) then
 		Units:CheckPlayerZone()
 	-- Monitor talent changes
-	elseif( event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "PLAYER_TALENT_UPDATE" ) then
+	elseif( event == "PLAYER_SPECIALIZATION_CHANGED" ) then
 		for frame in pairs(ShadowUF.Units.frameList) do
-			if( frame.unit and frame:IsVisible() and UnitIsFriend(frame.unit, "player") ) then
-		    	local config = ShadowUF.db.profile.units[frame.unitType]
-			    if( ( config.auras and config.auras.debuffs and config.auras.debuffs.raid ) or ( config.highlight and config.highlight.hasDebuff ) ) then
+			if( frame.unit ) then
+				frame:SetVisibility()
+
+				if( frame:IsVisible() ) then
 					frame:FullUpdate()
 				end
 		    end
 	    end
 
 	elseif( event == "PLAYER_LOGIN" ) then
-		self:RegisterEvent("PLAYER_TALENT_UPDATE")
+		self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 
 	-- This is slightly hackish, but it suits the purpose just fine for somthing thats rarely called.
 	elseif( event == "PLAYER_REGEN_ENABLED" ) then

@@ -1,8 +1,9 @@
 -- Moon on left, Sun on right
 -- Cast Arcane -> Move to Sun (Buff Nature)
 -- Cast Nature -> Move to Moon (Buff Arcane)
+-- 1 = Balance spec
 local Eclipse = {types = {"sun", "moon"}}
-ShadowUF:RegisterModule(Eclipse, "eclipseBar", ShadowUF.L["Eclipse bar"], true, "DRUID")
+ShadowUF:RegisterModule(Eclipse, "eclipseBar", ShadowUF.L["Eclipse bar"], true, "DRUID", 1)
 
 function Eclipse:OnEnable(frame)
 	if( not frame.eclipseBar ) then
@@ -30,8 +31,6 @@ function Eclipse:OnEnable(frame)
 	frame:RegisterNormalEvent("UNIT_MAXPOWER", self, "Update")
 	frame:RegisterNormalEvent("ECLIPSE_DIRECTION_CHANGE", self, "UpdateDirection")
 	frame:RegisterNormalEvent("UPDATE_SHAPESHIFT_FORM", self, "UpdateVisibility")
-	frame:RegisterNormalEvent("PLAYER_TALENT_UPDATE", self, "UpdateVisibility")
-	frame:RegisterNormalEvent("MASTERY_UPDATE", self, "UpdateVisibility")
 	
 	frame:RegisterUpdateFunc(self, "UpdateVisibility")
 end
@@ -55,7 +54,7 @@ end
 
 function Eclipse:UpdateVisibility(frame)
 	local form = GetShapeshiftFormID()
-	ShadowUF.Layout:SetBarVisibility(frame, "eclipseBar", (form == MOONKIN_FORM or not form) and GetSpecialization() == 1)
+	ShadowUF.Layout:SetBarVisibility(frame, "eclipseBar", (form == MOONKIN_FORM or not form))
 	Eclipse:UpdateDirection(frame)
 	Eclipse:Update(frame, nil, nil, "ECLIPSE")
 end

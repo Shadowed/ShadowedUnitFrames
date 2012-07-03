@@ -86,7 +86,13 @@ function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or 1
 	if( revision <= 14 ) then
 		self.db.profile.powerColors["CHI"] = {r = 0.0, g = 1.0, b = 0.59}
+		self.db.profile.powerColors["DEMONICFURY"] = {r = 0.58, g = 0.51, b = 0.79}
+		self.db.profile.powerColors["BURNINGEMBERS"] = {r = 0.58, g = 0.51, b = 0.79}
+		self.db.profile.powerColors["FULLBURNINGEMBER"] = {r = 0, g = 1, b = 0}
+
 		self.db.profile.units.player.chi = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true}
+		self.db.profile.units.player.burningEmbersBar = {enabled = true, background = false, height = 0.40, order = 70}
+		self.db.profile.units.player.demonicFuryBar = {enabled = true, background = false, height = 0.40, order = 70}
 	end
 
 	if( revision <= 13 ) then
@@ -250,6 +256,8 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.xpBar = {enabled = false}
 	self.defaults.profile.units.player.fader = {enabled = false}
 	self.defaults.profile.units.player.soulShards = {enabled = true, isBar = true}
+	self.defaults.profile.units.player.demonicFuryBar = {enabled = true}
+	self.defaults.profile.units.player.burningEmbersBar = {enabled = true}
 	self.defaults.profile.units.player.eclipseBar = {enabled = true}
 	self.defaults.profile.units.player.holyPower = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.chi = {enabled = true, isBar = true}
@@ -344,19 +352,14 @@ function ShadowUF:LoadUnitDefaults()
 end
 
 -- Module APIs
-function ShadowUF:RegisterModule(module, key, name, isBar, class)
-	-- November 30th
-	if( key == "ClassColoredPowerBar" ) then
-		DEFAULT_CHAT_FRAME:AddMessage("[WARNING!] ShadowedUF_ClassPower is broken and built in by default now. You do not need it anymore")
-		return
-	end
-
+function ShadowUF:RegisterModule(module, key, name, isBar, class, spec)
 	self.modules[key] = module
 
 	module.moduleKey = key
 	module.moduleHasBar = isBar
 	module.moduleName = name
 	module.moduleClass = class
+	module.moduleSpec = spec
 	
 	table.insert(self.moduleOrder, module)
 end

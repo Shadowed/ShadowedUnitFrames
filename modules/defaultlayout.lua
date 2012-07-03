@@ -154,6 +154,9 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		HOLYPOWER = {r = 0.96, g = 0.55, b = 0.73},
 		BANKEDHOLYPOWER = {r = 0.96, g = 0.55, b = 0.73},
 		SOULSHARDS = {r = 0.58, g = 0.51, b = 0.79},
+		DEMONICFURY = {r = 0.58, g = 0.51, b = 0.79},
+		BURNINGEMBERS = {r = 0.58, g = 0.51, b = 0.79},
+		FULLBURNINGEMBER = {r = 0, g = 1, b = 0},
 		ALTERNATE = {r = 0.71, g = 0.0, b = 1.0},
 		CHI = {r = 0.0, g = 1.0, b = 0.59},
 	}
@@ -315,6 +318,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			totemBar = {enabled = true, background = false, height = 0.40, order = 70},
 			druidBar = {enabled = true, background = true, height = 0.40, order = 70},
 			eclipseBar = {enabled = true, background = true, order = 70, height = 0.40},
+			demonicFuryBar = {enabled = true, background = false, height = 0.40, order = 70},
+			burningEmbersBar = {enabled = true, background = false, height = 0.40, order = 70},
 			soulShards = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -8, y = 6, size = 12, spacing = -2, growth = "LEFT", isBar = true, showAlways = true},
 			holyPower = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true},
 			chi = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true},

@@ -569,7 +569,7 @@ local function loadGeneralOptions()
 							
 							-- Strip module settings that aren't with SUF by default
 							if( not layoutData.modules ) then
-								local validModules = {["healthBar"] = true, ["powerBar"] = true, ["portrait"] = true, ["range"] = true, ["text"] = true, ["indicators"] = true, ["auras"] = true, ["incHeal"] = true, ["castBar"] = true, ["combatText"] = true, ["highlight"] = true, ["runeBar"] = true, ["totemBar"] = true, ["xpBar"] = true, ["fader"] = true, ["comboPoints"] = true, ["eclipseBar"] = true, ["soulShards"] = true, ["holyPower"] = true, ["altPowerBar"] = true}
+								local validModules = {["healthBar"] = true, ["powerBar"] = true, ["portrait"] = true, ["range"] = true, ["text"] = true, ["indicators"] = true, ["auras"] = true, ["incHeal"] = true, ["castBar"] = true, ["combatText"] = true, ["highlight"] = true, ["runeBar"] = true, ["totemBar"] = true, ["xpBar"] = true, ["fader"] = true, ["comboPoints"] = true, ["eclipseBar"] = true, ["soulShards"] = true, ["holyPower"] = true, ["altPowerBar"] = true, ["demonicFuryBar"] = true, ["burningEmbersBar"] = true, ["chi"] = true}
 								for _, unitData in pairs(layout.units) do
 									for key, data in pairs(unitData) do
 										if( type(data) == "table" and not validModules[key] and ShadowUF.modules[key] ) then
@@ -1148,8 +1148,32 @@ local function loadGeneralOptions()
 								arg = "powerColors.SOULSHARDS",
 								hidden = function(info) return select(2, UnitClass("player")) ~= "WARLOCK" end,
 							},
+							DEMONICFURY = {
+								order = 15,
+								type = "color",
+								name = L["Demonic Fury"],
+								hasAlpha = true,
+								arg = "powerColors.DEMONICFURY",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "WARLOCK" end,
+							},
+							BURNINGEMBERS = {
+								order = 16,
+								type = "color",
+								name = L["Burning Embers"],
+								hasAlpha = true,
+								arg = "powerColors.BURNINGEMBERS",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "WARLOCK" end,
+							},
+							FULLBURNINGEMBER = {
+								order = 16,
+								type = "color",
+								name = L["Full Burning Ember"],
+								hasAlpha = true,
+								arg = "powerColors.FULLBURNINGEMBER",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "WARLOCK" end,
+							},
 							CHI = {
-								order = 14,
+								order = 17,
 								type = "color",
 								name = L["Chi"],
 								hasAlpha = true,
@@ -3464,7 +3488,7 @@ local function loadUnitOptions()
 						hidden = function(info) 
 							local unit = info[2]
 							if( unit == "global" ) then
-								return not globalConfig.runeBar and not globalConfig.eclipseBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.xpBar
+								return not globalConfig.runeBar and not globalConfig.eclipseBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.xpBar and not globalConfig.demonicFuryBar and not globalConfig.burningEmbersBar
 							else
 								return unit ~= "player"
 							end
@@ -3482,9 +3506,25 @@ local function loadUnitOptions()
 								order = 1.25,
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Eclipse bar"]),
-								desc = L["Adds eclipse bars and how far into sun or moon eclipse is.."],
+								desc = L["Adds eclipse bars and how far into sun or moon eclipse is."],
 								hidden = hideRestrictedOption,
 								arg = "eclipseBar.enabled",
+							},
+							demonicFuryBar = {
+								order = 1.25,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Demonic Fury bar"]),
+								desc = L["Adds a Demonic Fury bar for Demonology Warlocks."],
+								hidden = hideRestrictedOption,
+								arg = "demonicFuryBar.enabled",
+							},
+							burningEmbersBar = {
+								order = 1.25,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Burning Embers bar"]),
+								desc = L["Adds a Burning Embers bar for Destruction Warlocks."],
+								hidden = hideRestrictedOption,
+								arg = "burningEmbersBar.enabled",
 							},
 							totemBar = {
 								order = 1.5,

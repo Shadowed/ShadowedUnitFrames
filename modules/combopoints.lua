@@ -114,6 +114,11 @@ function Combo:OnLayoutApplied(frame, config)
 	end
 end
 
+function Combo:OnDisable(frame)
+	frame:UnregisterAll(self)
+end
+
+
 function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 	local pointsFrame = frame[frame.comboPointType]
 	if( not pointsFrame or not pointsFrame.config.eventType ) then return end
@@ -139,9 +144,6 @@ function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 	pointsFrame.visibleBlocks = max
 end
 
-function Combo:OnDisable(frame)
-	frame:UnregisterAll(self)
-end
 
 function Combo:Update(frame)
 	-- For Malygos dragons, they also self cast their CP on themselves, which is why we check CP on ourself!
