@@ -49,6 +49,7 @@ modules\druid.lua
 modules\eclipse.lua
 modules\soulshards.lua
 modules\holypower.lua
+modules\chi.lua
 modules\altpower.lua
 #@do-not-package@
 options\config.lua

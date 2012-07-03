@@ -1279,7 +1279,7 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 	elseif( event == "ACTIVE_TALENT_GROUP_CHANGED" or event == "PLAYER_TALENT_UPDATE" ) then
 		for frame in pairs(ShadowUF.Units.frameList) do
 			if( frame.unit and frame:IsVisible() and UnitIsFriend(frame.unit, "player") ) then
-		    	local config = ShadowUF.db.profile.units[frame.unitType];
+		    	local config = ShadowUF.db.profile.units[frame.unitType]
 			    if( ( config.auras and config.auras.debuffs and config.auras.debuffs.raid ) or ( config.highlight and config.highlight.hasDebuff ) ) then
 					frame:FullUpdate()
 				end

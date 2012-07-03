@@ -78,7 +78,7 @@ end
 -- 		end
 -- 	end
 -- 	
--- 	frame.tagEnabled = true;
+-- 	frame.tagEnabled = true
 -- end
 -- 
 -- function IncHeal:DisableTag(frame, fontString)

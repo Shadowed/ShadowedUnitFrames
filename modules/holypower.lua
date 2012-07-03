@@ -11,8 +11,6 @@ function HolyPower:OnEnable(frame)
 	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "UpdateBarBlocks")
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
-
-	holyConfig.max = UnitPowerMax("player", holyConfig.powerType);
 end
 
 function HolyPower:OnDisable(frame)
@@ -29,7 +27,7 @@ function HolyPower:UpdateBarBlocks(frame, event, unit, powerType)
 	if( not pointsFrame or frame.comboPointType ~= holyConfig.key ) then return end
 	if( event and powerType ~= holyConfig.eventType ) then return end
 
-	ShadowUF.ComboPoints:UpdateBarBlocks(frame);
+	ShadowUF.ComboPoints:UpdateBarBlocks(frame)
 
 	local config = ShadowUF.db.profile.units[frame.unitType].holyPower
 	local color = ShadowUF.db.profile.powerColors["BANKEDHOLYPOWER"]
@@ -47,9 +45,9 @@ function HolyPower:UpdateBarBlocks(frame, event, unit, powerType)
 end
 
 function HolyPower:Update(frame, event, unit, powerType)
-	if( event == "UNIT_POWER" and powerType ~= "HOLY_POWER" ) then return end
+	if( event == "UNIT_POWER" and powerType ~= holyConfig.eventType ) then return end
 	
-	local points = UnitPower("player", SPELL_POWER_HOLY_POWER)
+	local points = UnitPower("player", holyConfig.powerType)
 	-- Bar display, hide it if we don't have any combo points
 	if( ShadowUF.db.profile.units[frame.unitType].holyPower.isBar ) then
 		ShadowUF.Layout:SetBarVisibility(frame, "holyPower", ShadowUF.db.profile.units[frame.unitType].holyPower.showAlways or (points and points > 0))

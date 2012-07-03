@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 14
+ShadowUF.dbRevision = 15
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -84,6 +84,11 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or 1
+	if( revision <= 14 ) then
+		self.db.profile.powerColors["CHI"] = {r = 0.0, g = 1.0, b = 0.59}
+		self.db.profile.units.player.chi = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true}
+	end
+
 	if( revision <= 13 ) then
 		self.db.profile.powerColors["BANKEDHOLYPOWER"] = CopyTable(self.db.profile.powerColors["HOLYPOWER"])
 	end
@@ -247,6 +252,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.soulShards = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.eclipseBar = {enabled = true}
 	self.defaults.profile.units.player.holyPower = {enabled = true, isBar = true}
+	self.defaults.profile.units.player.chi = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.indicators.lfdRole = {enabled = true, size = 0, x = 0, y = 0}
 	-- PET
 	self.defaults.profile.units.pet.enabled = true
@@ -459,11 +465,11 @@ function ShadowUF:HideBlizzardFrames()
 		
 		hooksecurefunc("CompactRaidFrameManager_UpdateShown", function()
 			if( ShadowUF.db.profile.hidden.raid ) then
-				hideRaid();
+				hideRaid()
 			end
 		end)
 		
-		hideRaid();
+		hideRaid()
 	else
 		CompactRaidFrameManager:SetFrameStrata("DIALOG")
 	end

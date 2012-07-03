@@ -128,7 +128,6 @@ function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 
 	local blockWidth = (pointsFrame:GetWidth() - (max - 1)) / max
 	for id=1, max do
-		print(id, pointsFrame.blocks[id])
 		pointsFrame.blocks[id]:SetWidth(blockWidth)
 		pointsFrame.blocks[id]:Show()
 	end

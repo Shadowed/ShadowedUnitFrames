@@ -152,8 +152,10 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		FUEL = {r = 0.85, g = 0.47, b = 0.36},
 		COMBOPOINTS = {r = 1.0, g = 0.80, b = 0.0},
 		HOLYPOWER = {r = 0.96, g = 0.55, b = 0.73},
+		BANKEDHOLYPOWER = {r = 0.96, g = 0.55, b = 0.73},
 		SOULSHARDS = {r = 0.58, g = 0.51, b = 0.79},
 		ALTERNATE = {r = 0.71, g = 0.0, b = 1.0},
+		CHI = {r = 0.0, g = 1.0, b = 0.59},
 	}
 	config.healthColors = {
 		tapped = {r = 0.5, g = 0.5, b = 0.5},
@@ -315,6 +317,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			eclipseBar = {enabled = true, background = true, order = 70, height = 0.40},
 			soulShards = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -8, y = 6, size = 12, spacing = -2, growth = "LEFT", isBar = true, showAlways = true},
 			holyPower = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true},
+			chi = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true},
 			indicators = {
                 resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
 			},
