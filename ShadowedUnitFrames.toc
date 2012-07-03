@@ -53,6 +53,7 @@ modules\chi.lua
 modules\demonicfury.lua
 modules\burningembers.lua
 modules\altpower.lua
+modules\shadoworbs.lua
 #@do-not-package@
 options\config.lua
 #@end-do-not-package@
