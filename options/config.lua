@@ -2157,9 +2157,53 @@ local function loadUnitOptions()
 				hidden = hideBarOption,
 				arg = "$parent.background",
 			},
+			overrideBackground = {
+				order = 1.6,
+				type = "toggle",
+				name = L["Override background"],
+				desc = L["Show a background behind the bars with the same texture/color but faded out."],
+				disabled = function(info) return not getVariable(info[2], info[#(info) - 1], nil, "background") end,
+				hidden = function(info) return info[#(info) - 1] ~= "burningEmbersBar" end,
+				set = function(info, toggle)
+					if( toggle ) then
+						setVariable(info[2], info[#(info) - 1], nil, "backgroundColor", {r = 0, g = 0, b = 0, a = 0.70})
+					else
+						setVariable(info[2], info[#(info) - 1], nil, "backgroundColor", nil)
+					end
+				end,
+				get = function(info)
+					return not not getVariable(info[2], info[#(info) - 1], nil, "backgroundColor")
+				end
+			},
+			overrideColor = {
+				order = 1.65,
+				type = "color",
+				hasAlpha = true,
+				name = L["Background color"],
+				hidden = function(info) return info[#(info) - 1] ~= "burningEmbersBar" or not getVariable(info[2], info[#(info) - 1], nil, "backgroundColor") or not getVariable(info[2], info[#(info) - 1], nil, "background") end,
+				set = function(info, r, g, b, a)
+					local color = getUnit(info) or {}
+					color.r = r
+					color.g = g
+					color.b = b
+					color.a = a
+					
+					setUnit(info, color)
+				end,
+				get = function(info)
+					local color = getUnit(info)
+					if( not color ) then
+						return 0, 0, 0, 1
+					end
+					
+					return color.r, color.g, color.b, color.a
+
+				end,
+				arg = "$parent.backgroundColor",
+			},
 			sep2 = {order = 1.75, type = "description", name = "", hidden = function(info)
 				local moduleKey = info[#(info) - 1]
-				return ( moduleKey ~= "healthBar" and moduleKey ~= "powerBar" and moduleKey ~= "druidBar" ) or not ShadowUF.db.profile.advanced
+				return ( moduleKey ~= "healthBar" and moduleKey ~= "powerBar" and moduleKey ~= "druidBar" and moduleKey ~= "burningEmbersBar" ) or not ShadowUF.db.profile.advanced
 			end},
 			invert = {
 				order = 2,

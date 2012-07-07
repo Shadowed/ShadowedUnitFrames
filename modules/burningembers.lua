@@ -75,7 +75,11 @@ function Embers:UpdateBarBlocks(frame, event, unit, powerType)
 	for id=1, max do
 		local ember = frame.burningEmbersBar.embers[id]
 		ember:SetWidth(blockWidth)
-		ember.background:Show()
+
+		if( ShadowUF.db.profile.units[frame.unitType].burningEmbersBar.background ) then
+			ember.background:Show()
+		end
+
 		ember:Show()
 	end
 
@@ -111,7 +115,7 @@ function Embers:Update(frame, event, unit, powerType)
 			ember:SetStatusBarColor(ShadowUF.db.profile.powerColors[color].r, ShadowUF.db.profile.powerColors[color].g, ShadowUF.db.profile.powerColors[color].b)
 
 			color = ShadowUF.db.profile.bars.backgroundColor or ShadowUF.db.profile.units[frame.unitType].burningEmbersBar.backgroundColor or ShadowUF.db.profile.powerColors[color]
-			ember.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
+			ember.background:SetVertexColor(color.r, color.g, color.b, color.a or ShadowUF.db.profile.bars.backgroundAlpha)
 		end
 
 		power = power - MAX_POWER_PER_EMBER
