@@ -129,7 +129,7 @@ function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 	end
 
 	local max = UnitPowerMax("player", pointsFrame.config.powerType)
-	if( pointsFrame.visibleBlocks == max ) then return end
+	if( max == 0 or pointsFrame.visibleBlocks == max ) then return end
 
 	local blockWidth = (pointsFrame:GetWidth() - (max - 1)) / max
 	for id=1, max do

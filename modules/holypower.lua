@@ -36,7 +36,7 @@ function HolyPower:UpdateBarBlocks(frame, event, unit, powerType)
 	local color = ShadowUF.db.profile.powerColors["BANKEDHOLYPOWER"]
 
 	local max = UnitPowerMax("player", holyConfig.powerType)
-	if( max > HOLY_POWER_FULL ) then
+	if( max > 0 and max > HOLY_POWER_FULL ) then
 		for id=HOLY_POWER_FULL+1, max do
 			if( config.isBar ) then
 				pointsFrame.blocks[id]:SetVertexColor(color.r, color.g, color.b)
