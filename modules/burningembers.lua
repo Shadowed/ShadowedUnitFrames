@@ -69,7 +69,7 @@ function Embers:UpdateBarBlocks(frame, event, unit, powerType)
 	local max = UnitPowerMax("player", SPELL_POWER_BURNING_EMBERS, true)
 	max = floor(max / MAX_POWER_PER_EMBER)
 
-	if( frame.burningEmbersBar.visibleBlocks == max ) then return end
+	if( max == 0 or frame.burningEmbersBar.visibleBlocks == max ) then return end
 
 	local blockWidth = (frame.burningEmbersBar:GetWidth() - (max - 1)) / max
 	for id=1, max do
