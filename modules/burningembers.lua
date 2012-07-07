@@ -14,6 +14,7 @@ function Embers:OnEnable(frame)
 		for id=1, 4 do
 			local ember = ShadowUF.Units:CreateBar(frame)
 			ember:SetFrameLevel(1)
+
 			
 			if( id > 1 ) then
 				ember:SetPoint("TOPLEFT", frame.burningEmbersBar.embers[id - 1], "TOPRIGHT", 1, 0)
@@ -109,7 +110,7 @@ function Embers:Update(frame, event, unit, powerType)
 
 			ember:SetStatusBarColor(ShadowUF.db.profile.powerColors[color].r, ShadowUF.db.profile.powerColors[color].g, ShadowUF.db.profile.powerColors[color].b)
 
-			color = ShadowUF.db.profile.bars.backgroundColor or ShadowUF.db.profile.units[frame.unitType].runeBar.backgroundColor or ShadowUF.db.profile.powerColors[color]
+			color = ShadowUF.db.profile.bars.backgroundColor or ShadowUF.db.profile.units[frame.unitType].burningEmbersBar.backgroundColor or ShadowUF.db.profile.powerColors[color]
 			ember.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
 		end
 
