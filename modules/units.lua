@@ -191,7 +191,7 @@ end
 -- Deal with enabling modules inside a zone
 local function SetVisibility(self)
 	local layoutUpdate
-	local instanceType = select(2, IsInInstance())
+	local instanceType = select(2, IsInInstance()) or "none"
 	local playerSpec = GetSpecialization()
 
 	-- Selectively disable modules
@@ -1239,7 +1239,7 @@ function Units:CheckPlayerZone(force)
 	end
 	
 	-- CanHearthAndResurrectFromArea() returns true for world pvp areas, according to BattlefieldFrame.lua
-	local instance = CanHearthAndResurrectFromArea() and "pvp" or select(2, IsInInstance())
+	local instance = CanHearthAndResurrectFromArea() and "pvp" or select(2, IsInInstance()) or "none"
 	if( instance == instanceType and not force ) then return end
 	instanceType = instance
 	

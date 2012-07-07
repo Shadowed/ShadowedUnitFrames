@@ -471,7 +471,7 @@ end
 -- This isn't actually filled with data, it's just to stop any errors from triggering if no filter is added
 local filterDefault = {}
 function Auras:UpdateFilter(frame)
-	local zone = select(2, IsInInstance())
+	local zone = select(2, IsInInstance()) or "none"
 	local id = zone .. frame.unitType
 	
 	local white = ShadowUF.db.profile.filters.zonewhite[zone .. frame.unitType]
