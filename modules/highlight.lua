@@ -159,7 +159,7 @@ end
 function Highlight:UpdateAura(frame)
 	frame.highlight.hasDebuff = nil
 	if( UnitIsFriend(frame.unit, "player") ) then
-		frame.highlight.hasDebuff = not not UnitDebuff(frame.unit, 1)
+		frame.highlight.hasDebuff = select(5, UnitDebuff(frame.unit, 1, "RAID"))
 	end
 
 	self:Update(frame)
