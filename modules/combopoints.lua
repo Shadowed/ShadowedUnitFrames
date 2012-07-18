@@ -7,7 +7,7 @@ function Combo:OnEnable(frame)
 	frame.comboPoints = frame.comboPoints or CreateFrame("Frame", nil, frame)
 	frame.comboPoints.config = cpConfig
 	frame.comboPointType = cpConfig.key
-	frame:RegisterUnitEvent("UNIT_COMBO_POINTS", self, "Update")
+	frame:RegisterNormalEvent("UNIT_COMBO_POINTS", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
@@ -145,7 +145,10 @@ function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 end
 
 
-function Combo:Update(frame)
+function Combo:Update(frame, event, unit)
+	-- MoP changed UNIT_COMBO_POINTS so that unit is now player even if it's done on the target
+	if( event and unit ~= "player" ) then return end
+
 	-- For Malygos dragons, they also self cast their CP on themselves, which is why we check CP on ourself!
 	local playerUnit = UnitHasVehicleUI("player") and "vehicle" or "player"
 	local points = GetComboPoints(playerUnit)
