@@ -440,7 +440,7 @@ OnAttributeChanged = function(self, name, unit)
 
 	-- Add to Clique
 	if( not self:GetAttribute("isHeaderDriven") ) then
-		FRAMELOCK_STATES["PETBATTLES"][self:GetName()] = true
+		FRAMELOCK_STATES["PETBATTLES"][self:GetName()] = "hidden"
 		ClickCastFrames = ClickCastFrames or {}
 		ClickCastFrames[self] = true
 	end
@@ -951,7 +951,7 @@ function Units:LoadGroupHeader(type)
 
 	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent, type == "raidpet" and "SecureGroupPetHeaderTemplate" or "SecureGroupHeaderTemplate")
 	headerFrames[type] = headerFrame
-	FRAMELOCK_STATES["PETBATTLES"][headerFrame:GetName()] = true
+	FRAMELOCK_STATES["PETBATTLES"][headerFrame:GetName()] = "hidden"
 
 	self:SetHeaderAttributes(headerFrame, type)
 
@@ -1039,7 +1039,7 @@ function Units:LoadZoneHeader(type)
 	headerFrame:SetHeight(0.1)
 	headerFrame.children = {}
 	headerFrames[type] = headerFrame
-	FRAMELOCK_STATES["PETBATTLES"][self:GetName()] = true
+	FRAMELOCK_STATES["PETBATTLES"][self:GetName()] = "hidden"
 	
 	if( type == "arena" ) then
 		headerFrame:SetScript("OnAttributeChanged", function(self, key, value)
