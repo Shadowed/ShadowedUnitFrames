@@ -440,6 +440,7 @@ OnAttributeChanged = function(self, name, unit)
 
 	-- Add to Clique
 	if( not self:GetAttribute("isHeaderDriven") ) then
+		FRAMELOCK_STATES["PETBATTLES"][self:GetName()] = true
 		ClickCastFrames = ClickCastFrames or {}
 		ClickCastFrames[self] = true
 	end
@@ -895,7 +896,7 @@ function Units:LoadSplitGroupHeader(type)
 				frame:SetAttribute("style-width", config.width)
 				frame:SetAttribute("style-scale", config.scale)
 				
-				if ClickCastHeader then
+				if( ClickCastHeader ) then
 					-- the OnLoad adds the functions like SetFrameRef to the header
 					SecureHandler_OnLoad(frame)
 					frame:SetFrameRef("clickcast_header", ClickCastHeader)
@@ -950,6 +951,7 @@ function Units:LoadGroupHeader(type)
 
 	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent, type == "raidpet" and "SecureGroupPetHeaderTemplate" or "SecureGroupHeaderTemplate")
 	headerFrames[type] = headerFrame
+	FRAMELOCK_STATES["PETBATTLES"][headerFrame:GetName()] = true
 
 	self:SetHeaderAttributes(headerFrame, type)
 
@@ -1037,6 +1039,7 @@ function Units:LoadZoneHeader(type)
 	headerFrame:SetHeight(0.1)
 	headerFrame.children = {}
 	headerFrames[type] = headerFrame
+	FRAMELOCK_STATES["PETBATTLES"][self:GetName()] = true
 	
 	if( type == "arena" ) then
 		headerFrame:SetScript("OnAttributeChanged", function(self, key, value)
