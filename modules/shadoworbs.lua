@@ -7,7 +7,7 @@ function ShadowOrbs:OnEnable(frame)
 	frame.shadowOrbs.config = shadowConfig
 	frame.comboPointType = shadowConfig.key
 	
-	frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
+	frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "UpdateBarBlocks")
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")

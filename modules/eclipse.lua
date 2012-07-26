@@ -27,7 +27,7 @@ function Eclipse:OnEnable(frame)
 		frame.eclipseBar.sun:SetPoint("BOTTOMLEFT", frame.eclipseBar, "BOTTOM")
 	end
 	
-	frame:RegisterNormalEvent("UNIT_POWER", self, "Update")
+	frame:RegisterNormalEvent("UNIT_POWER_FREQUENT", self, "Update")
 	frame:RegisterNormalEvent("UNIT_MAXPOWER", self, "Update")
 	frame:RegisterNormalEvent("ECLIPSE_DIRECTION_CHANGE", self, "UpdateDirection")
 	frame:RegisterNormalEvent("UPDATE_SHAPESHIFT_FORM", self, "UpdateVisibility")

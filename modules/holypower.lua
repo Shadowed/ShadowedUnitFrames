@@ -7,7 +7,7 @@ function HolyPower:OnEnable(frame)
 	frame.holyPower.config = holyConfig
 	frame.comboPointType = holyConfig.key
 
-	frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
+	frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "UpdateBarBlocks")
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
