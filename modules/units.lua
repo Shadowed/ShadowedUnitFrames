@@ -10,6 +10,20 @@ local _G = getfenv(0)
 ShadowUF.Units = Units
 ShadowUF:RegisterModule(Units, "units")
 
+-- This is the wrapper frame that everything parents to so we can just hide it when we need to deal with pet battles
+local petBattleFrame = CreateFrame("Frame", "SUFWrapperFrame", UIParent, "SecureHandlerBaseTemplate")
+petBattleFrame:SetAllPoints(UIParent)
+petBattleFrame:WrapScript(petBattleFrame, "OnAttributeChanged", [[
+	if( name ~= "state-petbattle" ) then return end
+	if( value == "active" ) then
+		self:Hide()
+	else
+		self:Show()
+	end
+]])
+
+RegisterStateDriver(petBattleFrame, "petbattle", "[petbattle] active; none")
+
 -- Frame shown, do a full update
 local function FullUpdate(self)
 	for i=1, #(self.fullUpdates), 2 do
@@ -440,7 +454,6 @@ OnAttributeChanged = function(self, name, unit)
 
 	-- Add to Clique
 	if( not self:GetAttribute("isHeaderDriven") ) then
-		FRAMELOCK_STATES["PETBATTLES"][self:GetName()] = "hidden"
 		ClickCastFrames = ClickCastFrames or {}
 		ClickCastFrames[self] = true
 	end
@@ -859,7 +872,7 @@ function Units:LoadUnit(unit)
 		return
 	end
 	
-	local frame = self:CreateUnit("Button", "SUFUnit" .. unit, UIParent, "SecureUnitButtonTemplate")
+	local frame = self:CreateUnit("Button", "SUFUnit" .. unit, petBattleFrame, "SecureUnitButtonTemplate")
 	frame:SetAttribute("unit", unit)
 	frame.hasStateWatch = unit == "pet"
 		
@@ -876,7 +889,7 @@ function Units:LoadSplitGroupHeader(type)
 		local frame = headerFrames["raid" .. id]
 		if( enabled ) then
 			if( not frame ) then
-				frame = CreateFrame("Frame", "SUFHeader" .. type .. id, UIParent, "SecureGroupHeaderTemplate")
+				frame = CreateFrame("Frame", "SUFHeader" .. type .. id, petBattleFrame, "SecureGroupHeaderTemplate")
 				frame:SetAttribute("template", unitButtonTemplate)
 				frame:SetAttribute("initial-unitWatch", true)
 				frame:SetAttribute("showRaid", true)
@@ -949,9 +962,8 @@ function Units:LoadGroupHeader(type)
 		return
 	end
 
-	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent, type == "raidpet" and "SecureGroupPetHeaderTemplate" or "SecureGroupHeaderTemplate")
+	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, petBattleFrame, type == "raidpet" and "SecureGroupPetHeaderTemplate" or "SecureGroupHeaderTemplate")
 	headerFrames[type] = headerFrame
-	FRAMELOCK_STATES["PETBATTLES"][headerFrame:GetName()] = "hidden"
 
 	self:SetHeaderAttributes(headerFrame, type)
 
@@ -1002,6 +1014,7 @@ function Units:LoadGroupHeader(type)
 			end
 		]])
 		RegisterStateDriver(stateMonitor.party, "raidmonitor", "[target=raid6, exists] raid6; [target=raid1, exists] raid1; none")
+		
 	elseif( type == "raid" ) then
 		stateMonitor.raid = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 		stateMonitor.raid:SetAttribute("raidDisabled", nil)
@@ -1031,7 +1044,7 @@ function Units:LoadZoneHeader(type)
 		return
 	end
 	
-	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, UIParent)
+	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, petBattleFrame)
 	headerFrame.isHeaderFrame = true
 	headerFrame.unitType = type
 	headerFrame:SetClampedToScreen(true)
@@ -1039,7 +1052,6 @@ function Units:LoadZoneHeader(type)
 	headerFrame:SetHeight(0.1)
 	headerFrame.children = {}
 	headerFrames[type] = headerFrame
-	FRAMELOCK_STATES["PETBATTLES"][self:GetName()] = "hidden"
 	
 	if( type == "arena" ) then
 		headerFrame:SetScript("OnAttributeChanged", function(self, key, value)
