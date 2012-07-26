@@ -22,7 +22,7 @@ petBattleFrame:WrapScript(petBattleFrame, "OnAttributeChanged", [[
 	end
 ]])
 
-RegisterStateDriver(petBattleFrame, "petbattle", "[petbattle] active; none")
+-- RegisterStateDriver(petBattleFrame, "petbattle", "[petbattle] active; none")
 
 -- Frame shown, do a full update
 local function FullUpdate(self)
