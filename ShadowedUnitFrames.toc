@@ -1,6 +1,6 @@
 ## Interface: 50001
 ## Title: Shadowed Unit Frames
-## Notes: This is a note, I don't know why you're reading this because it's not telling you anything useful.
+## Notes: As with every other SUF note, this isn't telling you something useful. You should probably not be reading it still.
 ## Author: Shadowed
 ## Version: @project-version@
 ## SavedVariables: ShadowedUFDB
