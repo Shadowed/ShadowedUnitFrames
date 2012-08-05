@@ -1,4 +1,4 @@
-local Indicators = {list = {"status", "pvp", "leader", "resurrect", "masterLoot", "raidTarget", "ready", "role", "lfdRole", "class", "phase"}}
+local Indicators = {list = {"status", "pvp", "leader", "resurrect", "masterLoot", "raidTarget", "ready", "role", "lfdRole", "class", "phase", "questBoss"}}
 local leavingWorld
 
 ShadowUF:RegisterModule(Indicators, "indicators", ShadowUF.L["Indicators"])
@@ -58,6 +58,16 @@ function Indicators:UpdateRaidTarget(frame)
 		frame.indicators.raidTarget:Show()
 	else
 		frame.indicators.raidTarget:Hide()
+	end
+end
+
+function Indicators:UpdateQuestBoss(frame)
+	if( not frame.indicators.questBoss or not frame.indicators.questBoss.enabled ) then return end
+
+	if( UnitIsQuestBoss(frame.unit) ) then
+		frame.indicators.questBoss:Show()
+	else
+		frame.indicators.questBoss:Hide()
 	end
 end
 
@@ -358,6 +368,14 @@ function Indicators:OnEnable(frame)
 		
 		frame.indicators.lfdRole = frame.indicators.lfdRole or frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.lfdRole:SetTexture("Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES")
+	end
+
+	if( config.indicators.questBoss and config.indicators.questBoss.enabled ) then
+		frame:RegisterUnitEvent("UNIT_CLASSIFICATION_CHANGED", self, "UpdateQuestBoss")
+		frame:RegisterUpdateFunc(self, "UpdateQuestBoss")
+
+		frame.indicators.questBoss = frame.indicators.questBoss or frame.indicators:CreateTexture(nil, "OVERLAY")
+		frame.indicators.questBoss:SetTexture("Interface\\TargetingFrame\\PortraitQuestBadge")
 	end
 
 	-- As they all share the function, register it as long as one is active

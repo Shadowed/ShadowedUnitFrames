@@ -578,6 +578,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			indicators = {
 				lfdRole = {enabled = false},
                 resurrect = {enabled = true, anchorPoint = "RC", size = 28, x = -39, y = -1, anchorTo = "$parent"},
+                questBoss = {enabled = true, anchorPoint = "BR", size = 22, x = 9, y = 24, anchorTo = "$parent"},
 			},
 			auras = {
 				buffs = {enabled = true},
@@ -632,6 +633,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			indicators = {
 				lfdRole = {enabled = false},
                 resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
+                questBoss = {enabled = false, anchorPoint = "BR", size = 22, x = 7, y = 14, anchorTo = "$parent"},
 			},
 			text = {
 				{text = "[(()afk() )][name]"},
