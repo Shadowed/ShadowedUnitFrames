@@ -32,15 +32,38 @@ local function createConfigEnv()
 		UnitHealth = function(unit) return getValue("UnitHealth", unit, math.random(20000, 50000)) end,
 		UnitHealthMax = function(unit) return 50000 end,
 		UnitPower = function(unit, powerType)
-			if powerType == SPELL_POWER_HOLY_POWER or powerType == SPELL_POWER_SOUL_SHARDS then
+			if( powerType == SPELL_POWER_HOLY_POWER or powerType == SPELL_POWER_SOUL_SHARDS ) then
 				return 3
+			elseif( powerType == SPELL_POWER_LIGHT_FORCE ) then
+				return 4
+			elseif( powerType == SPELL_POWER_SHADOW_ORBS ) then
+				return PRIEST_BAR_NUM_ORBS
+			elseif( powerType == SPELL_POWER_BURNING_EMBERS ) then
+				return math.floor(MAX_POWER_PER_EMBER + (MAX_POWER_PER_EMBER / 2))
+			elseif( powerType == SPELL_POWER_DEMONIC_FURY ) then
+				return 100
 			end
+
 			return getValue("UnitPower", unit, math.random(20000, 50000))
 		end,
+		UnitPowerMax = function(unit, powerType)
+			if( powerType == SPELL_POWER_HOLY_POWER or powerType == SPELL_POWER_SOUL_SHARDS ) then
+				return 3
+			elseif( powerType == SPELL_POWER_LIGHT_FORCE ) then
+				return 4
+			elseif( powerType == SPELL_POWER_SHADOW_ORBS ) then
+				return PRIEST_BAR_NUM_ORBS
+			elseif( powerType == SPELL_POWER_BURNING_EMBERS ) then
+				return MAX_POWER_PER_EMBER * 3
+			elseif( powerType == SPELL_POWER_DEMONIC_FURY ) then
+				return 100
+			end
+
+			return 50000
+		end, 
 		UnitHasIncomingResurrection = function(unit) return true end,
 		UnitInPhase = function(unit) return true end,
 		UnitExists = function(unit) return true end,
-		UnitPowerMax = function(unit) return 50000 end,
 		UnitIsGroupLeader = function() return true end,
 		UnitIsPVP = function(unit) return true end,
 		UnitIsDND = function(unit) return false end,
