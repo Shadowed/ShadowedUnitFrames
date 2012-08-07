@@ -1,4 +1,4 @@
-local Indicators = {list = {"status", "pvp", "leader", "resurrect", "masterLoot", "raidTarget", "ready", "role", "lfdRole", "class", "phase", "questBoss"}}
+local Indicators = {list = {"status", "pvp", "leader", "resurrect", "masterLoot", "raidTarget", "ready", "role", "lfdRole", "class", "phase", "questBoss", "petBattle"}}
 local leavingWorld
 
 ShadowUF:RegisterModule(Indicators, "indicators", ShadowUF.L["Indicators"])
@@ -19,8 +19,12 @@ end
 
 function Indicators:UpdatePhase(frame)
     if( not frame.indicators.phase or not frame.indicators.phase.enabled ) then return end
-    
-    if( UnitExists(frame.unit) and UnitIsPlayer(frame.unit) and not UnitInPhase(frame.unit) ) then
+
+    if( UnitInOtherParty(frame.unit) ) then
+	    frame.indicators.phase:SetTexture("Interface\\PlayerFrame\\whisper-only")
+        frame.indicators.phase:Show()
+    elseif( not UnitExists(frame.unit) and UnitInPhase(frame.unit) ) then
+	    frame.indicators.phase:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon")
         frame.indicators.phase:Show()
     else
         frame.indicators.phase:Hide()
@@ -130,6 +134,16 @@ function Indicators:UpdatePVPFlag(frame)
 	else
 		frame.indicators.pvp:Hide()
 	end
+end
+
+function Indicators:UpdatePetBattle(frame)
+  	if( UnitIsWildBattlePet(frame.unit) or UnitIsBattlePetCompanion(frame.unit) ) then
+  		local petType = UnitBattlePetType(frame.unit)
+  		frame.indicators.petBattle:SetTexture(string.format("Interface\\TargetingFrame\\PetBadge-%s", PET_TYPE_SUFFIX[petType]))
+  		frame.indicators.petBattle:Show()
+  	else
+  		frame.indicators.petBattle:Hide()
+  	end
 end
 
 -- Non-player units do not give events when they enter or leave combat, so polling is necessary
@@ -274,9 +288,7 @@ function Indicators:OnEnable(frame)
 
     if( config.indicators.phase and config.indicators.phase.enabled ) then
         frame:RegisterUpdateFunc(self, "UpdatePhase")
-        
         frame.indicators.phase = frame.indicators.phase or frame.indicators:CreateTexture(nil, "OVERLAY")
-        frame.indicators.phase:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon")
     end
 	
 	if( config.indicators.resurrect and config.indicators.resurrect.enabled ) then
@@ -376,6 +388,11 @@ function Indicators:OnEnable(frame)
 
 		frame.indicators.questBoss = frame.indicators.questBoss or frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.questBoss:SetTexture("Interface\\TargetingFrame\\PortraitQuestBadge")
+	end
+
+	if( config.indicators.petBattle and config.indicators.petBattle.enabled ) then
+		frame:RegisterUpdateFunc(self, "UpdatePetBattle")
+		frame.indicators.petBattle = frame.indicators.petBattle or frame.indicators:CreateTexture(nil, "OVERLAY")
 	end
 
 	-- As they all share the function, register it as long as one is active

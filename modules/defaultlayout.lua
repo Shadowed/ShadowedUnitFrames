@@ -353,7 +353,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			offset = 23,
 			indicators = {
                 resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
-                phase = {enabled = false, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
+                phase = {enabled = true, anchorPoint = "RC", size = 26, x = -17, y = 0, anchorTo = "$parent"}
 			},
 			auras = {
 				buffs = {enabled = true, maxRows = 1},
@@ -579,6 +579,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				lfdRole = {enabled = false},
                 resurrect = {enabled = true, anchorPoint = "RC", size = 28, x = -39, y = -1, anchorTo = "$parent"},
                 questBoss = {enabled = true, anchorPoint = "BR", size = 22, x = 9, y = 24, anchorTo = "$parent"},
+				petBattle = {enabled = true, anchorPoint = "BL", size = 18, x = -6, y = 14, anchorTo = "$parent"}
 			},
 			auras = {
 				buffs = {enabled = true},
@@ -634,6 +635,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				lfdRole = {enabled = false},
                 resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
                 questBoss = {enabled = false, anchorPoint = "BR", size = 22, x = 7, y = 14, anchorTo = "$parent"},
+                petBattle = {enabled = false, anchorPoint = "BL", size = 18, x = -6, y = 12, anchorTo = "$parent"}
 			},
 			text = {
 				{text = "[(()afk() )][name]"},

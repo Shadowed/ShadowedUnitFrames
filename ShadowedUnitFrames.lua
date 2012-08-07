@@ -39,7 +39,7 @@ end
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 17
+ShadowUF.dbRevision = 18
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -119,6 +119,13 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or 1
+
+	if( revision <= 17 ) then
+		self.db.profile.units.target.indicators.petBattle = {enabled = true, anchorPoint = "BL", size = 18, x = -6, y = 14, anchorTo = "$parent"}
+		self.db.profile.units.focus.indicators.petBattle = {enabled = false, anchorPoint = "BL", size = 18, x = -6, y = 12, anchorTo = "$parent"}
+		self.db.profile.units.party.indicators.phase = {enabled = true}
+	end
+
 	if( revision <= 16 ) then
 		self.db.profile.units.target.indicators.questBoss = {enabled = true, anchorPoint = "BR", size = 22, x = 9, y = 24, anchorTo = "$parent"}
 		self.db.profile.units.focus.indicators.questBoss = {enabled = false, anchorPoint = "BR", size = 22, x = 7, y = 14, anchorTo = "$parent"}
