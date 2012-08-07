@@ -3,7 +3,7 @@ ShadowUF:RegisterModule(Portrait, "portrait", ShadowUF.L["Portrait"])
 
 -- If the camera isn't reset OnShow, it'll show the entire character instead of just the head, odd I know
 local function resetCamera(self)
-	self:SetCamera(0)
+	self:SetPortraitZoom(1)
 end
 
 local function resetGUID(self)
@@ -83,7 +83,7 @@ function Portrait:Update(frame, event)
 	-- Use animated 3D portrait
 	else
 		frame.portrait:SetUnit(frame.unitOwner)
-		frame.portrait:SetCamera(0)
+		frame.portrait:SetPortraitZoom(1)
 		frame.portrait:Show()
 	end
 end
