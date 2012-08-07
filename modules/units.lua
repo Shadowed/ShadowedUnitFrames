@@ -834,7 +834,7 @@ function Units:SetHeaderAttributes(frame, type)
 		frame:SetAttribute("groupFilter", filter or "1,2,3,4,5,6,7,8")
 		
 		if( config.groupBy == "CLASS" ) then
-			frame:SetAttribute("groupingOrder", "DEATHKNIGHT,DRUID,HUNTER,MAGE,PALADIN,PRIEST,ROGUE,SHAMAN,WARLOCK,WARRIOR")
+			frame:SetAttribute("groupingOrder", "DEATHKNIGHT,DRUID,HUNTER,MAGE,PALADIN,PRIEST,ROGUE,SHAMAN,WARLOCK,WARRIOR,MONK")
 			frame:SetAttribute("groupBy", "CLASS")
 		else
 			frame:SetAttribute("groupingOrder", "1,2,3,4,5,6,7,8")
