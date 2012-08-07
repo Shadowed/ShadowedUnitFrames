@@ -125,11 +125,12 @@ end
 function Indicators:UpdatePVPFlag(frame)
 	if( not frame.indicators.pvp or not frame.indicators.pvp.enabled ) then return end
 
-	if( UnitIsPVP(frame.unit) and UnitFactionGroup(frame.unit) ) then
-		frame.indicators.pvp:SetTexture(string.format("Interface\\TargetingFrame\\UI-PVP-%s", UnitFactionGroup(frame.unit)))
-		frame.indicators.pvp:Show()
-	elseif( UnitIsPVPFreeForAll(frame.unit) ) then
+	local faction = UnitFactionGroup(frame.unit)
+	if( UnitIsPVPFreeForAll(frame.unit) ) then
 		frame.indicators.pvp:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA")
+		frame.indicators.pvp:Show()
+	elseif( faction and faction ~= "Neutral" and UnitIsPVP(frame.unit) ) then
+		frame.indicators.pvp:SetTexture(string.format("Interface\\TargetingFrame\\UI-PVP-%s", faction)) 
 		frame.indicators.pvp:Show()
 	else
 		frame.indicators.pvp:Hide()
