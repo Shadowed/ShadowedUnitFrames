@@ -1,4 +1,4 @@
-local isOSX = os.getenv("MANPATH") and true or false
+local isOSX = true
 local leaks = {}
 local results = ""
 local function output(msg)
