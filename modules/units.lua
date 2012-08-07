@@ -40,7 +40,12 @@ local function RegisterNormalEvent(self, event, handler, func)
 		return
 	end
 
-	self:RegisterEvent(event)
+	if( unitEvents[event] and not ShadowUF.fakeUnits[self.unitRealType] ) then
+		self:BlizzRegisterUnitEvent(event, self.unitOwner, self.vehicleUnit)
+	else
+		self:RegisterEvent(event)
+	end
+
 	self.registeredEvents[event] = self.registeredEvents[event] or {}
 	
 	-- Each handler can only register an event once per a frame.
@@ -467,7 +472,7 @@ OnAttributeChanged = function(self, name, unit)
 	
 	-- Phase change, do a full update on it
 	self:RegisterUnitEvent("UNIT_PHASE", self, "FullUpdate")
-	
+
 	-- Pet changed, going from pet -> vehicle for one
 	if( self.unit == "pet" or self.unitType == "partypet" ) then
 		self.unitRealOwner = self.unit == "pet" and "player" or ShadowUF.partyUnits[self.unitID]
@@ -504,11 +509,13 @@ OnAttributeChanged = function(self, name, unit)
 	elseif( self.unit == "target" ) then
 		self.isUnitVolatile = true
 		self:RegisterNormalEvent("PLAYER_TARGET_CHANGED", Units, "CheckUnitStatus")
+		self:RegisterUnitEvent("UNIT_TARGETABLE_CHANGED", self, "FullUpdate")
 
 	-- Automatically do a full update on focus change
 	elseif( self.unit == "focus" ) then
 		self.isUnitVolatile = true
 		self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", Units, "CheckUnitStatus")
+		self:RegisterUnitEvent("UNIT_TARGETABLE_CHANGED", self, "FullUpdate")
 				
 	elseif( self.unit == "player" ) then
 		self:SetAttribute("toggleForVehicle", true)
@@ -521,7 +528,7 @@ OnAttributeChanged = function(self, name, unit)
 		self.timeElapsed = 0
 		self:SetScript("OnUpdate", TargetUnitUpdate)
 		self:RegisterNormalEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", self, "FullUpdate")
-		
+
 	-- Check for a unit guid to do a full update
 	elseif( self.unitRealType == "raid" ) then
 		self:RegisterNormalEvent("GROUP_ROSTER_UPDATE", Units, "CheckGroupedUnitStatus")
@@ -533,6 +540,7 @@ OnAttributeChanged = function(self, name, unit)
 		self:RegisterNormalEvent("PARTY_MEMBER_ENABLE", Units, "CheckGroupedUnitStatus")
 		self:RegisterNormalEvent("PARTY_MEMBER_DISABLE", Units, "CheckGroupedUnitStatus")
 		self:RegisterUnitEvent("UNIT_NAME_UPDATE", Units, "CheckUnitStatus")
+		self:RegisterUnitEvent("UNIT_OTHER_PARTY_CHANGED", self, "FullUpdate")
 	
 	-- *target units are not real units, thus they do not receive events and must be polled for data
 	elseif( ShadowUF.fakeUnits[self.unitRealType] ) then
@@ -641,6 +649,7 @@ function Units:CreateUnit(...)
 	frame.fullUpdates = {}
 	frame.registeredEvents = {}
 	frame.visibility = {}
+	frame.BlizzRegisterUnitEvent = frame.RegisterUnitEvent
 	frame.RegisterNormalEvent = RegisterNormalEvent
 	frame.RegisterUnitEvent = RegisterUnitEvent
 	frame.RegisterUpdateFunc = RegisterUpdateFunc
