@@ -576,6 +576,10 @@ Tags.defaultTags = {
 		return string.format("%s/%s", ShadowUF:SmartFormatNumber(power), ShadowUF:SmartFormatNumber(maxPower))
 	end]],
 	["levelcolor"] = [[function(unit, unitOwner)
+		if( UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit) ) then
+			return nil
+		end
+
 		local level = UnitLevel(unit)
 		if( level < 0 and UnitClassification(unit) == "worldboss" ) then
 			return nil
@@ -594,6 +598,10 @@ Tags.defaultTags = {
 	end]],
 	["faction"] = [[function(unit, unitOwner) return UnitFactionGroup(unitOwner) end]],
 	["level"] = [[function(unit, unitOwner)
+		if( UnitIsWildBattlePet(unit) or UnitIsBattlePetCompanion(unit) ) then
+			return UnitBattlePetLevel(unit)
+		end
+
 		local level = UnitLevel(unit)
 		return level > 0 and level or UnitClassification(unit) ~= "worldboss" and "??" or nil
 	end]],
@@ -909,8 +917,8 @@ Tags.defaultEvents = {
 	["druid:absolutepp"]		= "UNIT_POWER UNIT_MAXPOWER UNIT_DISPLAYPOWER",
 	["sshards"]					= "UNIT_POWER",
 	["hpower"]					= "UNIT_POWER",
-	["level"]               	= "UNIT_LEVEL PLAYER_LEVEL_UP",
-	["levelcolor"]				= "UNIT_LEVEL PLAYER_LEVEL_UP",
+	["level"]               	= "UNIT_LEVEL UNIT_FACTION PLAYER_LEVEL_UP",
+	["levelcolor"]				= "UNIT_LEVEL UNIT_FACTION PLAYER_LEVEL_UP",
 	["maxhp"]               	= "UNIT_MAXHEALTH",
 	["def:name"]				= "UNIT_NAME_UPDATE UNIT_MAXHEALTH UNIT_HEALTH UNIT_HEALTH_FREQUENT",
 	["absmaxhp"]				= "UNIT_MAXHEALTH",
@@ -1254,7 +1262,8 @@ local function loadAPIEvents()
 	if( Tags.APIEvents ) then return end
 	Tags.APIEvents = {
 		["InCombatLockdown"]		= "PLAYER_REGEN_ENABLED PLAYER_REGEN_DISABLED",
-		["UnitLevel"]				= "UNIT_LEVEL",
+		["UnitLevel"]				= "UNIT_LEVEL UNIT_FACTION",
+		["UnitBattlePetLevel"]		= "UNIT_LEVEL UNIT_FACTION",
 		["UnitName"]				= "UNIT_NAME_UPDATE",
 		["UnitClassification"]		= "UNIT_CLASSIFICATION_CHANGED",
 		["UnitFactionGroup"]		= "UNIT_FACTION PLAYER_FLAGS_CHANGED",
