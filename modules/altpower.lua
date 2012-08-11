@@ -25,7 +25,7 @@ end
 
 function AltPower:UpdateVisibility(frame)
 	local barType, minPower, _, _, _, hideFromOthers = UnitAlternatePowerInfo(frame.unit)
-	local visible = barType and ( frame.unit == "player" or not hideFromOthers )
+	local visible = barType and ( frame.unitType == "player" or not hideFromOthers )
 	ShadowUF.Layout:SetBarVisibility(frame, "altPowerBar", visible)
 	AltPower:Update(frame, nil, nil, "ALTERNATE")
 end
