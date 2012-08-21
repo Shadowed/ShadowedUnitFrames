@@ -1082,6 +1082,7 @@ function Units:LoadZoneHeader(type)
 		-- stealths the frame will hide which looks bad. Instead force it to stay open and it has to be manually hidden when the player leaves an arena.
 		if( type == "arena" ) then
 			frame:SetAttribute("unitID", id)
+			frame:SetFrameRef("prepframe", _G["ArenaPrepFrame" .. id])
 			frame.hasStateWatch = true
 
 			stateMonitor:WrapScript(frame, "OnAttributeChanged", [[
@@ -1095,6 +1096,7 @@ function Units:LoadZoneHeader(type)
 					end
 					
 					if( value ) then
+						self:GetFrameRef("prepframe"):Hide()
 						self:Show()
 					end
 				end
