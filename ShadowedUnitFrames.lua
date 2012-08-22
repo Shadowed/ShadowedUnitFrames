@@ -148,7 +148,7 @@ function ShadowUF:CheckUpgrade()
 	end
 
 	if( revision <= 14 ) then
-		self.db.profile.powerColors["CHI"] = {r = 0.0, g = 1.0, b = 0.59}
+		self.db.profile.powerColors["CHI"] = {r = 0.71, g = 1.0, b = 0.92}
 
 		self.db.profile.units.player.chi = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true}
 	end
@@ -158,7 +158,7 @@ function ShadowUF:CheckUpgrade()
 	end
 
 	if( revision <= 12 ) then
-		self.db.profile.classColors["MONK"] = {r = 0.0, g = 1.00 , b = 0.59}
+		self.db.profile.classColors["MONK"] = {r = 0.0, g = 1.00, b = 0.59}
 	end
 
 	if( revision <= 11 ) then
@@ -312,6 +312,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.runeBar = {enabled = false}
 	self.defaults.profile.units.player.totemBar = {enabled = false}
 	self.defaults.profile.units.player.druidBar = {enabled = false}
+	self.defaults.profile.units.player.monkBar = {enabled = false}
 	self.defaults.profile.units.player.xpBar = {enabled = false}
 	self.defaults.profile.units.player.fader = {enabled = false}
 	self.defaults.profile.units.player.soulShards = {enabled = true, isBar = true}

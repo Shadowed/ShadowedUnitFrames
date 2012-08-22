@@ -151,7 +151,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		AMMOSLOT = {r = 0.85, g = 0.60, b = 0.55},
 		FUEL = {r = 0.85, g = 0.47, b = 0.36},
 		COMBOPOINTS = {r = 1.0, g = 0.80, b = 0.0},
-		HOLYPOWER = {r = 0.96, g = 0.55, b = 0.73},
+		HOLYPOWER = {r = 0.95, g = 0.90, b = 0.60},
 		BANKEDHOLYPOWER = {r = 0.96, g = 0.61, b = 0.84},
 		SOULSHARDS = {r = 0.58, g = 0.51, b = 0.79},
 		DEMONICFURY = {r = 0.58, g = 0.51, b = 0.79},
@@ -159,7 +159,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		FULLBURNINGEMBER = {r = 0.88, g = 0.09, b = 0.062},
 		SHADOWORBS = {r = 0.58, g = 0.51, b = 0.79},
 		ALTERNATE = {r = 0.71, g = 0.0, b = 1.0},
-		CHI = {r = 0.0, g = 1.0, b = 0.59},
+		CHI = {r = 0.71, g = 1.0, b = 0.92},
 		STATUE = {r = 0.35, g = 0.45, b = 0.60},
 		MUSHROOMS = {r = 0.20, g = 0.90, b = 0.20}
 	}
