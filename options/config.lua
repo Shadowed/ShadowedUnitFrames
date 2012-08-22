@@ -44,7 +44,7 @@ local INDICATOR_DESC = {
 		["raidTarget"] = L["Raid target indicator."], ["ready"] = L["Ready status of group members."], ["phase"] = L["Shows when a party member is in a different phase or another group."],
 		["questBoss"] = L["Shows that a NPC is a boss for a quest."], ["petBattle"] = L["Shows what kind of pet the unit is for pet battles."],
 		["role"] = L["Raid role indicator, adds a shield indicator for main tanks and a sword icon for main assists."], ["status"] = L["Status indicator, shows if the unit is currently in combat. For the player it will also show if you are rested."], ["class"] = L["Class icon for players."]}
-local TAG_GROUPS = {["classification"] = L["Classifications"], ["health"] = L["Health"], ["misc"] = L["Miscellaneous"], ["playerthreat"] = L["Player threat"], ["power"] = L["Power"], ["status"] = L["Status"], ["threat"] = L["Threat"], ["raid"] = L["Raid"], ["absorb"] = L["Absorb"], ["classspec"] = L["Class Specific"]}
+local TAG_GROUPS = {["classification"] = L["Classifications"], ["health"] = L["Health"], ["misc"] = L["Miscellaneous"], ["playerthreat"] = L["Player threat"], ["power"] = L["Power"], ["status"] = L["Status"], ["threat"] = L["Threat"], ["raid"] = L["Raid"], ["classspec"] = L["Class Specific"]}
 
 local pointPositions = {["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["CENTER"] = L["Center"]}
 local positionList = {["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"]}
@@ -3790,7 +3790,6 @@ local function loadUnitOptions()
 						order = 3,
 						type = "group",
 						inline = true,
-						-- name = L["Incoming heals and absorbs"],
 						name = L["Incoming heals"],
 						hidden = hideRestrictedOption,
 						disabled = function(info) return not getVariable(info[2], "healthBar", nil, "enabled") end,
@@ -3804,21 +3803,9 @@ local function loadUnitOptions()
 								hidden = false,
 								set = function(info, value)
 									setUnit(info, value)
-									setDirectUnit(info[2], "incHeal", nil, "enabled", getVariable(info[2], "incHeal", nil, "absorbs") or getVariable(info[2], "incHeal", nil, "heals"))
+									setDirectUnit(info[2], "incHeal", nil, "enabled", getVariable(info[2], "incHeal", nil, "heals"))
 								end
 							},
-							-- absorbs = {
-							-- 	order = 2,
-							-- 	type = "toggle",
-							-- 	name = L["Show current absorbs"],
-							-- 	desc = L["Adds a bar inside the health bar indicating how much damage absorbed they have."],
-							-- 	arg = "incHeal.absorbs",
-							-- 	hidden = false,
-							-- 	set = function(info, value)
-							-- 		setUnit(info, value)
-							-- 		setDirectUnit(info[2], "incHeal", nil, "enabled", getVariable(info[2], "incHeal", nil, "absorbs") or getVariable(info[2], "incHeal", nil, "heals"))
-							-- 	end
-							-- },
 							cap = {
 								order = 3,
 								type = "range",

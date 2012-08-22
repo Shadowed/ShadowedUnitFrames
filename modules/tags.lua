@@ -857,18 +857,6 @@ Tags.defaultTags = {
 
 		return UnitPower(unit, SPELL_POWER_MANA)
 	end]],
-	-- ["abs:crtabs"] = [[function(unit, unitOwner, fontString)
-	-- 	local absorb = fontString.parent.absorb
-	-- 	return absorb > 0 and string.format("%d", absorb)
-	-- ]],
-	-- ["crtabs"] = [[function(unit, unitOwner, fontString)
-	-- 	local absorb = fontString.parent.absorb
-	-- 	return absorb > 0 and ShadowUF:FormatLargeNumber(absorb)
-	-- ]],
-	-- ["crtabs:name"] = [[function(unit, unitOwner, fontString)
-	-- 	local absorb = fontString.parent.absorb
-	-- 	return absorb > 0 and string.format("+%d", heal) or ShadowUF.tagFunc.name(unit, unitOwner, fontString)
-	-- ]],
 	["per:incheal"] = [[function(unit, unitOwner, fontString)
 		local heal = UnitGetIncomingHeals(unit)
 		local maxHealth = UnitHealthMax(unit)
@@ -1008,9 +996,6 @@ Tags.defaultFrequents = {
 
 -- Default tag categories
 Tags.defaultCategories = {
-	-- ["crtabs"]				= "absorb",
-	-- ["crtabs:name"]			= "absorb",
-	-- ["abs:crtabs"]			= "absorb",
 	["hp:color"]				= "health",
 	["per:incheal"]				= "health",
 	["abs:incheal"]				= "health",
@@ -1102,9 +1087,6 @@ Tags.defaultHelp = {
 	["guild"]					= L["Show's the units guild name if they are in a guild."],
 	["short:druidform"]			= L["Short version of [druidform], C = Cat, B = Bear, F = Flight and so on."],
 	["druidform"]				= L["Returns the units current form if they are a druid, Cat for Cat Form, Moonkin for Moonkin and so on."],
-	-- ["crtabs"]				= L["Shorten current absorb value, if 13,000 absorb is on a target it will show 13k."],
-	-- ["abs:crtabs"]			= L["Absolute current absorb value, if 15,000 absorb is on a target it will show 15,000."],
-	-- ["crtabs:name"]			= L["If the unit has absorbs on them, it will show the absolute absorb value, otherwise it will show the units name."],
 	["per:incheal"]				= L["Percent of the players current health that's being healed, if they have 100,000 total health and 15,000 is incoming then 15% is shown."],
 	["abs:incheal"]				= L["Absolute incoming heal value, if 10,000 healing is incoming it will show 10,000."],
 	["incheal"]					= L["Shorten incoming heal value, if 13,000 healing is incoming it will show 13k."],
@@ -1196,9 +1178,6 @@ Tags.defaultNames = {
 	["guild"]					= L["Guild name"],
 	["druidform"]				= L["Druid form"],
 	["short:druidform"]			= L["Druid form (Short)"],
-	-- ["abs:crtabs"]			= L["Current absorb (Absolute)"],
-	-- ["crtabs"]				= L["Current absorb (Short)"],
-	-- ["crtabs:name"]			= L["Current absorb/Name"],
 	["abs:incheal"]				= L["Incoming heal (Absolute)"],
 	["incheal"]					= L["Incoming heal (Short)"],
 	["abbrev:name"]				= L["Name (Abbreviated)"],
