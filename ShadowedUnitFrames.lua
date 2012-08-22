@@ -39,7 +39,7 @@ end
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 18
+ShadowUF.dbRevision = 19
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -119,6 +119,11 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or 1
+
+	if( revision <= 18 ) then
+		self.db.profile.powerColors["MUSHROOMS"] = {r = 0.20, g = 0.90, b = 0.20}
+		self.db.profile.powerColors["STATUE"] = {r = 0.35, g = 0.45, b = 0.60}
+	end
 
 	if( revision <= 17 ) then
 		self.db.profile.units.target.indicators.petBattle = {enabled = true, anchorPoint = "BL", size = 18, x = -6, y = 14, anchorTo = "$parent"}
