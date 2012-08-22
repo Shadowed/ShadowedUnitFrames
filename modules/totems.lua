@@ -9,7 +9,7 @@ if( playerClass == "DEATHKNIGHT" ) then
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Guardian bar"], true, "DEATHKNIGHT", {1, 2}, 55)
 elseif( playerClass == "DRUID" ) then
 	MAX_TOTEMS = 3
-	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Mushroom bar"], true, "DRUID", {1}, 84)
+	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Mushroom bar"], true, "DRUID", {1, 4}, 84)
 elseif( playerClass == "MONK" ) then
 	MAX_TOTEMS = 1
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Statue bar"], true, "MONK", {1, 2}, 70)
