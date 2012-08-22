@@ -1,6 +1,6 @@
 local Range = {
-	friendly = {["PRIEST"] = GetSpellInfo(2061), ["DRUID"] = GetSpellInfo(774), ["PALADIN"] = GetSpellInfo(635), ["SHAMAN"] = GetSpellInfo(331), ["MONK"] = GetSpellInfo(115450)},
-	hostile = {["PRIEST"] = GetSpellInfo(585), ["DRUID"] = GetSpellInfo(5176), ["PALADIN"] = GetSpellInfo(62124), ["HUNTER"] = GetSpellInfo(75), ["WARLOCK"] = GetSpellInfo(686), ["SHAMAN"] = GetSpellInfo(403), ["MAGE"] = GetSpellInfo(133), ["DEATHKNIGHT"] = GetSpellInfo(49576)},
+	friendly = {["WARRIOR"] = GetSpellInfo(3411), ["PRIEST"] = GetSpellInfo(2061), ["DRUID"] = GetSpellInfo(774), ["PALADIN"] = GetSpellInfo(635), ["SHAMAN"] = GetSpellInfo(331), ["WARLOCK"] = GetSpellInfo(5697), ["DEATHKNIGHT"] = GetSpellInfo(49016), ["MAGE"] = GetSpellInfo(475), ["ROGUE"] = GetSpellInfo(57934), ["MONK"] = GetSpellInfo(115450)},
+	hostile = {["WARRIOR"] = GetSpellInfo(100), ["PRIEST"] = GetSpellInfo(585), ["DRUID"] = GetSpellInfo(5176), ["PALADIN"] = GetSpellInfo(62124), ["SHAMAN"] = GetSpellInfo(403), ["HUNTER"] = GetSpellInfo(75), ["WARLOCK"] = GetSpellInfo(686), ["DEATHKNIGHT"] = GetSpellInfo(49576), ["MAGE"] = GetSpellInfo(133), ["ROGUE"] = GetSpellInfo(2094), ["MONK"] = GetSpellInfo(115546)},
 }
 ShadowUF:RegisterModule(Range, "range", ShadowUF.L["Range indicator"])
 
