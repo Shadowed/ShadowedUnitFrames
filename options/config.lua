@@ -2220,14 +2220,14 @@ local function loadUnitOptions()
 			},
 			sep2 = {order = 1.75, type = "description", name = "", hidden = function(info)
 				local moduleKey = info[#(info) - 1]
-				return ( moduleKey ~= "healthBar" and moduleKey ~= "powerBar" and moduleKey ~= "druidBar" and moduleKey ~= "burningEmbersBar" ) or not ShadowUF.db.profile.advanced
+				return ( moduleKey ~= "healthBar" and moduleKey ~= "powerBar" and moduleKey ~= "druidBar" and moduleKey ~= "monkBar" and moduleKey ~= "burningEmbersBar" ) or not ShadowUF.db.profile.advanced
 			end},
 			invert = {
 				order = 2,
 				type = "toggle",
 				name = L["Invert colors"],
 				desc = L["Flips coloring so the bar color is shown as the background color and the background as the bar"],
-				hidden = function(info) return ( info[#(info) - 1] ~= "healthBar"  and info[#(info) - 1] ~= "powerBar" and info[#(info) - 1] ~= "druidBar" ) or not ShadowUF.db.profile.advanced end,
+				hidden = function(info) return ( info[#(info) - 1] ~= "healthBar"  and info[#(info) - 1] ~= "powerBar" and info[#(info) - 1] ~= "druidBar" and info[#(info) - 1] ~= "monkBar" ) or not ShadowUF.db.profile.advanced end,
 				arg = "$parent.invert",
 			},
 			order = {
@@ -3667,7 +3667,7 @@ local function loadUnitOptions()
 						hidden = function(info) 
 							local unit = info[2]
 							if( unit == "global" ) then
-								return not globalConfig.runeBar and not globalConfig.eclipseBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.xpBar and not globalConfig.demonicFuryBar and not globalConfig.burningEmbersBar
+								return not globalConfig.runeBar and not globalConfig.eclipseBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.monkBar and not globalConfig.xpBar and not globalConfig.demonicFuryBar and not globalConfig.burningEmbersBar
 							else
 								return unit ~= "player"
 							end
@@ -3722,6 +3722,14 @@ local function loadUnitOptions()
 								desc = L["Adds another mana bar to the player frame when you are in Bear or Cat form showing you how much mana you have."],
 								hidden = hideRestrictedOption,
 								arg = "druidBar.enabled",
+							},
+							monkBar = {
+								order = 3,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Monk mana bar"]),
+								desc = L["Shows the mana power bar for Mistweaver Monks."],
+								hidden = hideRestrictedOption,
+								arg = "monkBar.enabled",
 							},
 							xpBar = {
 								order = 4,

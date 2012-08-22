@@ -242,9 +242,8 @@ local function SetVisibility(self)
 			-- Force disable modules for people who aren't the appropriate class
 			if( module.moduleClass and module.moduleClass ~= playerClass ) then
 				enabled = nil
-			end
-			
-			if( module.moduleSpec and module.moduleSpec ~= playerSpec ) then
+			-- Force disable if they aren't the appropriate spec
+			elseif( module.moduleSpec and module.moduleSpec[playerSpec] ~= true ) then
 				enabled = nil
 			end
 

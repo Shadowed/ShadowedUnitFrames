@@ -414,7 +414,15 @@ function ShadowUF:RegisterModule(module, key, name, isBar, class, spec)
 	module.moduleHasBar = isBar
 	module.moduleName = name
 	module.moduleClass = class
-	module.moduleSpec = spec
+
+	if( type(spec) == "number" ) then
+		module.moduleSpec = {spec = true}
+	else
+		module.moduleSpec = {}
+		for _, id in pairs(spec) do
+			module.moduleSpec[id] = true
+		end
+	end
 	
 	table.insert(self.moduleOrder, module)
 end
