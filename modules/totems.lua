@@ -3,12 +3,16 @@ local totemColors = {}
 local MAX_TOTEMS = MAX_TOTEMS
 
 -- Death Knights untalented ghouls are guardians and are considered totems........... so set it up for them
-if( select(2, UnitClass("player")) == "DEATHKNIGHT" ) then
+local playerClass = select(2, UnitClass("player"))
+if( playerClass == "DEATHKNIGHT" ) then
 	MAX_TOTEMS = 1
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Guardian bar"], true, "DEATHKNIGHT")
-elseif( select(2, UnitClass("player")) == "DRUID" ) then
+elseif( playerClass == "DRUID" ) then
 	MAX_TOTEMS = 3
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Mushroom bar"], true, "DRUID")
+elseif( playerClass == "MONK" ) then
+	MAX_TOTEMS = 1
+	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Statue bar"], true, "MONK")
 else
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Totem bar"], true, "SHAMAN")
 end
@@ -35,9 +39,13 @@ function Totems:OnEnable(frame)
 			
 			table.insert(frame.totemBar.totems, totem)
 		end
-		
-		if( MAX_TOTEMS == 1 ) then
+
+		if( playerClass == "DRUID" ) then
+			totemColors[1] = totemColors[2] = totemColors[3] = ShadowUF.db.profile.powerColors.MUSHROOMS
+		elseif( playerClass == "DEATHKNIGHT" ) then
 			totemColors[1] = ShadowUF.db.profile.classColors.PET
+		elseif( playerClass == "MONK" ) then
+			totemColors[1] = ShadowUF.db.profile.powerColors.STATUE
 		else
 			totemColors[1] = {r = 1, g = 0, b = 0.4}
 			totemColors[2] = {r = 0, g = 1, b = 0.4}

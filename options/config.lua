@@ -1189,6 +1189,22 @@ local function loadGeneralOptions()
 								arg = "powerColors.CHI",
 								hidden = function(info) return select(2, UnitClass("player")) ~= "MONK" end,
 							},
+							MUSHROOMS = {
+								order = 17,
+								type = "color",
+								name = L["Mushrooms"],
+								hasAlpha = true,
+								arg = "powerColors.MUSHROOMS",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "DRUID" end,
+							},
+							STATUE = {
+								order = 17,
+								type = "color",
+								name = L["Statue"],
+								hasAlpha = true,
+								arg = "powerColors.STATUE",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "MONK" end,
+							},
 						},
 					},
 					cast = {
