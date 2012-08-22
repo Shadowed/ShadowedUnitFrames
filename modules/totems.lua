@@ -41,7 +41,7 @@ function Totems:OnEnable(frame)
 		end
 
 		if( playerClass == "DRUID" ) then
-			totemColors[1] = totemColors[2] = totemColors[3] = ShadowUF.db.profile.powerColors.MUSHROOMS
+			totemColors[1], totemColors[2], totemColors[3] = ShadowUF.db.profile.powerColors.MUSHROOMS, ShadowUF.db.profile.powerColors.MUSHROOMS, ShadowUF.db.profile.powerColors.MUSHROOMS
 		elseif( playerClass == "DEATHKNIGHT" ) then
 			totemColors[1] = ShadowUF.db.profile.classColors.PET
 		elseif( playerClass == "MONK" ) then
