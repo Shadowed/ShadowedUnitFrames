@@ -423,7 +423,8 @@ function ShadowUF:RegisterModule(module, key, name, isBar, class, spec, level)
 	module.moduleLevel = level
 
 	if( type(spec) == "number" ) then
-		module.moduleSpec = {spec = true}
+		module.moduleSpec = {}
+		module.moduleSpec[spec] = true
 	elseif( type(spec) == "table" ) then
 		module.moduleSpec = {}
 		for _, id in pairs(spec) do
