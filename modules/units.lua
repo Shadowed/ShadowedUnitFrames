@@ -249,12 +249,11 @@ local function SetVisibility(self)
 
 			-- Restrict by level
 			if( module.moduleLevel and enabled and self.unitType == "player" ) then
-				if( UnitLevel("player") > module.moduleLevel ) then
+				if( UnitLevel("player") < module.moduleLevel ) then
 					enabled = nil
 				end
 			end
-
-
+    
 			-- Module isn't enabled all the time, only in this zone so we need to force it to be enabled
 			if( not self.visibility[key] and enabled ) then
 				module:OnEnable(self)
