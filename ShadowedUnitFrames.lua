@@ -407,17 +407,18 @@ function ShadowUF:LoadUnitDefaults()
 end
 
 -- Module APIs
-function ShadowUF:RegisterModule(module, key, name, isBar, class, spec)
+function ShadowUF:RegisterModule(module, key, name, isBar, class, spec, level)
 	self.modules[key] = module
 
 	module.moduleKey = key
 	module.moduleHasBar = isBar
 	module.moduleName = name
 	module.moduleClass = class
+	module.moduleLevel = level
 
 	if( type(spec) == "number" ) then
 		module.moduleSpec = {spec = true}
-	else
+	elseif( type(spec) == "table" ) then
 		module.moduleSpec = {}
 		for _, id in pairs(spec) do
 			module.moduleSpec[id] = true

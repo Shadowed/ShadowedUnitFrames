@@ -247,6 +247,14 @@ local function SetVisibility(self)
 				enabled = nil
 			end
 
+			-- Restrict by level
+			if( module.moduleLevel and enabled and self.unitType == "player" ) then
+				if( UnitLevel("player") > module.moduleLevel ) then
+					enabled = nil
+				end
+			end
+
+
 			-- Module isn't enabled all the time, only in this zone so we need to force it to be enabled
 			if( not self.visibility[key] and enabled ) then
 				module:OnEnable(self)
@@ -1291,6 +1299,8 @@ centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 centralFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 centralFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
 centralFrame:RegisterEvent("PLAYER_LOGIN")
+centralFrame:RegisterEvent("PLAYER_LEVEL_UP")
+
 centralFrame:SetScript("OnEvent", function(self, event, unit)
 	-- Check if the player changed zone types and we need to change module status, while they are dead
 	-- we won't change their zone type as releasing from an instance will change the zone type without them
@@ -1302,9 +1312,18 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 			self:UnregisterEvent("PLAYER_UNGHOST")
 			Units:CheckPlayerZone()
 		end				
+
 	-- They're alive again so they "officially" changed zone types now
 	elseif( event == "PLAYER_UNGHOST" ) then
 		Units:CheckPlayerZone()
+
+	-- Monitor level up
+	elseif( event == "PLAYER_LEVEL_UP" ) then
+		if( ShadowUF.Units.unitFrames.player ) then
+			ShadowUF.Units.unitFrames.player:SetVisibility()
+			ShadowUF.Units.unitFrames.player:FullUpdate()
+		end
+
 	-- Monitor talent changes
 	elseif( event == "PLAYER_SPECIALIZATION_CHANGED" ) then
 		for frame in pairs(ShadowUF.Units.frameList) do
