@@ -796,21 +796,21 @@ Tags.defaultTags = {
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
 		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
-		return ShadowUF:FormatLargeNumber(UnitPower(unit, 0))
+		return ShadowUF:FormatLargeNumber(UnitPower(unit, SPELL_POWER_MANA))
 	end]],
 	["druid:abscurpp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
 		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
-		return UnitPower(unit, 0)
+		return UnitPower(unit, SPELL_POWER_MANA)
 	end]],
 	["druid:curmaxpp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
 		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
 		
-		local maxPower = UnitPowerMax(unit, 0)
-		local power = UnitPower(unit, 0)
+		local maxPower = UnitPowerMax(unit, SPELL_POWER_MANA)
+		local power = UnitPower(unit, SPELL_POWER_MANA)
 		if( UnitIsDeadOrGhost(unit) ) then
 			return string.format("0/%s", ShadowUF:FormatLargeNumber(maxPower))
 		elseif( maxPower == 0 and power == 0 ) then
@@ -821,9 +821,41 @@ Tags.defaultTags = {
 	end]],
 	["druid:absolutepp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
-		local powerType = UnitPowerType(unit)
-		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
-		return UnitPower(unit, 0)
+		if( GetSpecialization() ~= SPEC_MONK_MISTWEAVER ) then return nil end
+
+		return UnitPower(unit, SPELL_POWER_MANA)
+	end]],
+	["monk:curpp"] = [[function(unit, unitOwner)
+		if( select(2, UnitClass(unit)) ~= "MONK" ) then return nil end
+		if( GetSpecialization() ~= SPEC_MONK_MISTWEAVER ) then return nil end
+
+		return ShadowUF:FormatLargeNumber(UnitPower(unit, SPELL_POWER_MANA))
+	end]],
+	["monk:abscurpp"] = [[function(unit, unitOwner)
+		if( select(2, UnitClass(unit)) ~= "MONK" ) then return nil end
+		if( GetSpecialization() ~= SPEC_MONK_MISTWEAVER ) then return nil end
+
+		return UnitPower(unit, SPELL_POWER_MANA)
+	end]],
+	["monk:curmaxpp"] = [[function(unit, unitOwner)
+		if( select(2, UnitClass(unit)) ~= "MONK" ) then return nil end
+		if( GetSpecialization() ~= SPEC_MONK_MISTWEAVER ) then return nil end
+		
+		local maxPower = UnitPowerMax(unit, SPELL_POWER_MANA)
+		local power = UnitPower(unit, SPELL_POWER_MANA)
+		if( UnitIsDeadOrGhost(unit) ) then
+			return string.format("0/%s", ShadowUF:FormatLargeNumber(maxPower))
+		elseif( maxPower == 0 and power == 0 ) then
+			return nil
+		end
+		
+		return string.format("%s/%s", ShadowUF:FormatLargeNumber(power), ShadowUF:FormatLargeNumber(maxPower))
+	end]],
+	["monk:absolutepp"] = [[function(unit, unitOwner)
+		if( select(2, UnitClass(unit)) ~= "MONK" ) then return nil end
+		if( GetSpecialization() ~= SPEC_MONK_MISTWEAVER ) then return nil end
+
+		return UnitPower(unit, SPELL_POWER_MANA)
 	end]],
 	-- ["abs:crtabs"] = [[function(unit, unitOwner, fontString)
 	-- 	local absorb = fontString.parent.absorb
@@ -915,6 +947,10 @@ Tags.defaultEvents = {
 	["druid:abscurpp"]      	= "UNIT_POWER UNIT_DISPLAYPOWER",
 	["druid:curmaxpp"]			= "UNIT_POWER UNIT_MAXPOWER UNIT_DISPLAYPOWER",
 	["druid:absolutepp"]		= "UNIT_POWER UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["monk:curpp"]  	    	= "UNIT_POWER UNIT_DISPLAYPOWER",
+	["monk:abscurpp"]      		= "UNIT_POWER UNIT_DISPLAYPOWER",
+	["monk:curmaxpp"]			= "UNIT_POWER UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["monk:absolutepp"]			= "UNIT_POWER UNIT_MAXPOWER UNIT_DISPLAYPOWER",
 	["sshards"]					= "UNIT_POWER",
 	["hpower"]					= "UNIT_POWER",
 	["level"]               	= "UNIT_LEVEL UNIT_FACTION PLAYER_LEVEL_UP",
@@ -1035,6 +1071,10 @@ Tags.defaultCategories = {
 	["druid:abscurpp"]  	    = "classspec",
 	["druid:curmaxpp"]			= "classspec",
 	["druid:absolutepp"]		= "classspec",
+	["monk:curpp"]     	    = "classspec",
+	["monk:abscurpp"]  	    = "classspec",
+	["monk:curmaxpp"]			= "classspec",
+	["monk:absolutepp"]		= "classspec",
 	["sshards"]					= "classspec",
 	["hpower"]					= "classspec",
 	["situation"]				= "playerthreat",
@@ -1123,6 +1163,10 @@ Tags.defaultHelp = {
 	["druid:abscurpp"]      	= string.format(L["Works the same as [%s], but this is only shown if the unit is in Cat or Bear form."], "abscurpp"),
 	["druid:curmaxpp"]			= string.format(L["Works the same as [%s], but this is only shown if the unit is in Cat or Bear form."], "curmaxpp"),
 	["druid:absolutepp"]		= string.format(L["Works the same as [%s], but this is only shown if the unit is in Cat or Bear form."], "absolutepp"),
+	["monk:curpp"]         		= string.format(L["Works the same as [%s], but this is only shown if you are a Mistweaver Monk."], "currpp"),
+	["monk:abscurpp"]      		= string.format(L["Works the same as [%s], but this is only shown if you are a Mistweaver Monk."], "abscurpp"),
+	["monk:curmaxpp"]			= string.format(L["Works the same as [%s], but this is only shown if you are a Mistweaver Monk."], "curmaxpp"),
+	["monk:absolutepp"]			= string.format(L["Works the same as [%s], but this is only shown if you are a Mistweaver Monk."], "absolutepp"),
 	["situation"]				= L["Returns text based on your threat situation with your target: Aggro for Aggro, High for being close to taking aggro, and Medium as a general warning to be wary."],
 	["color:sit"]				= L["Returns a color code of the threat situation with your target: Red for Aggro, Orange for High threat and Yellow to be careful."],
 	["scaled:threat"]			= L["Returns a scaled threat percent of your aggro on your current target, always 0 - 100%."],
@@ -1211,6 +1255,10 @@ Tags.defaultNames = {
 	["druid:abscurpp"]      	= L["Current power (Druid/Absolute)"],
 	["druid:curmaxpp"]			= L["Cur/Max power (Druid)"],
 	["druid:absolutepp"]		= L["Current health (Druid/Absolute)"],
+	["monk:curpp"]        	 	= L["Current power (Monk)"],
+	["monk:abscurpp"]   	   	= L["Current power (Monk/Absolute)"],
+	["monk:curmaxpp"]			= L["Cur/Max power (Monk)"],
+	["monk:absolutepp"]			= L["Current health (Monk/Absolute)"],
 	["situation"]				= L["Threat situation"],
 	["color:sit"]				= L["Color code for situation"],
 	["scaled:threat"]			= L["Scaled threat percent"],
