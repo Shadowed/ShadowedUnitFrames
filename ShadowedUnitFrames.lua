@@ -487,7 +487,6 @@ ShadowUF.noop = function() end
 local active_hiddens = {}
 function ShadowUF:HideBlizzardFrames()
 	if( ShadowUF.db.profile.hidden.runes and not active_hiddens.runes ) then
-		RuneFrame.Show = self.noop
 		RuneFrame:Hide()
 		RuneFrame:UnregisterAllEvents()
 	end
@@ -503,27 +502,19 @@ function ShadowUF:HideBlizzardFrames()
 			local frame = _G[name]
 
 			frame:UnregisterAllEvents()
-			frame.Show = self.noop
 			frame:Hide()
 
 			_G[name .. "HealthBar"]:UnregisterAllEvents()
 			_G[name .. "ManaBar"]:UnregisterAllEvents()
 		end
 		
-		local function hideCompactParty()
-			CompactPartyFrame:UnregisterAllEvents()
-			CompactPartyFrame.Show = ShadowUF.noop
-			CompactPartyFrame:Hide()
+		-- This stops the compact party frame from being shown		
+		UIParent:UnregisterEvent("GROUP_ROSTER_UPDATE")
 
-			for i=1, MEMBERS_PER_RAID_GROUP do
-				_G["CompactPartyFrameMember" .. i]:UnregisterAllEvents()
-			end
-		end
-
+		-- This just makes sure
 		if( CompactPartyFrame ) then
-			hideCompactParty()
-		elseif( CompactPartyFrame_Generate ) then
-			hooksecurefunc("CompactPartyFrame_Generate", hideCompactParty)
+			CompactPartyFrame:UnregisterAllEvents()
+			CompactPartyFrame:Hide()
 		end
 	end
 
@@ -551,17 +542,13 @@ function ShadowUF:HideBlizzardFrames()
 
 	if( ShadowUF.db.profile.hidden.buffs and not active_hiddens.buffs ) then
 		BuffFrame:UnregisterAllEvents()
-		BuffFrame.Show = self.noop
 		BuffFrame:Hide()
-		ConsolidatedBuffs.Show = self.noop
-		ConsolidatedBuffs:Hide()
-		TemporaryEnchantFrame.Show = self.noop
 		TemporaryEnchantFrame:Hide()
+		ConsolidatedBuffs:Hide()
 	end
 	
 	if( ShadowUF.db.profile.hidden.player and not active_hiddens.player ) then
 		PlayerFrame:UnregisterAllEvents()
-		PlayerFrame.Show = self.noop
 		PlayerFrame:Hide()
 			
 		-- We keep these in case someone is still using the default auras, otherwise it messes up vehicle stuff
@@ -579,7 +566,6 @@ function ShadowUF:HideBlizzardFrames()
 	
 	if( ShadowUF.db.profile.hidden.pet and not active_hiddens.pet ) then
 		PetFrame:UnregisterAllEvents()
-		PetFrame.Show = self.noop
 		PetFrame:Hide()
 
 		PetFrameHealthBar:UnregisterAllEvents()
@@ -588,7 +574,6 @@ function ShadowUF:HideBlizzardFrames()
 	
 	if( ShadowUF.db.profile.hidden.target and not active_hiddens.target ) then
 		TargetFrame:UnregisterAllEvents()
-		TargetFrame.Show = self.noop
 		TargetFrame:Hide()
 
 		TargetFrameHealthBar:UnregisterAllEvents()
@@ -596,13 +581,11 @@ function ShadowUF:HideBlizzardFrames()
 		TargetFrameSpellBar:UnregisterAllEvents()
 
 		ComboFrame:UnregisterAllEvents()
-		ComboFrame.Show = self.noop
 		ComboFrame:Hide()
 	end
 	
 	if( ShadowUF.db.profile.hidden.focus and not active_hiddens.focus ) then
 		FocusFrame:UnregisterAllEvents()
-		FocusFrame.Show = self.noop
 		FocusFrame:Hide()
 
 		FocusFrameHealthBar:UnregisterAllEvents()
@@ -616,7 +599,6 @@ function ShadowUF:HideBlizzardFrames()
 			local frame = _G[name]
 
 			frame:UnregisterAllEvents()
-			frame.Show = self.noop
 			frame:Hide()
 
 			_G[name .. "HealthBar"]:UnregisterAllEvents()
