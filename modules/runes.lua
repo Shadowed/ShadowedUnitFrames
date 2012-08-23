@@ -11,8 +11,7 @@ function Runes:OnEnable(frame)
 		frame.runeBar.runes = {}
 		
 		for id=1, 6 do
-			local rune = ShadowUF.Units:CreateBar(frame)
-			rune:SetFrameLevel(1)
+			local rune = ShadowUF.Units:CreateBar(frame.runeBar)
 			
 			if( id > 1 ) then
 				rune:SetPoint("TOPLEFT", frame.runeBar.runes[RUNE_MAP[id - 1]], "TOPRIGHT", 1, 0)

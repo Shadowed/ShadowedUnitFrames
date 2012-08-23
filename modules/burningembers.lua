@@ -12,9 +12,7 @@ function Embers:OnEnable(frame)
 		frame.burningEmbersBar.embers = {}
 		
 		for id=1, 4 do
-			local ember = ShadowUF.Units:CreateBar(frame)
-			ember:SetFrameLevel(1)
-
+			local ember = ShadowUF.Units:CreateBar(frame.burningEmbersBar)
 			
 			if( id > 1 ) then
 				ember:SetPoint("TOPLEFT", frame.burningEmbersBar.embers[id - 1], "TOPRIGHT", 1, 0)
@@ -83,7 +81,7 @@ function Embers:UpdateBarBlocks(frame, event, unit, powerType)
 		ember:Show()
 	end
 
-	for id=max+1, max do
+	for id=max+1, #(frame.burningEmbersBar.embers) do
 		frame.burningEmbersBar.embers[id]:Hide()
 	end
 
