@@ -2,41 +2,6 @@
 	Shadowed Unit Frames, Shadow of Mal'Ganis (US) PvP
 ]]
 
-if( select(4, GetBuildInfo()) < 50001 ) then
-	local frame = CreateFrame("Frame", nil, UIParent)
-	frame:SetClampedToScreen(true)
-	frame:SetFrameStrata("TOOLTIP")
-	frame:SetWidth(400)
-	frame:SetHeight(100)
-	frame:SetBackdrop({
-		  bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
-		  edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
-		  edgeSize = 26,
-		  insets = {left = 9, right = 9, top = 9, bottom = 9},
-	})
-	frame:SetBackdropColor(0, 0, 0, 0.85)
-	frame:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-
-	frame.titleBar = frame:CreateTexture(nil, "ARTWORK")
-	frame.titleBar:SetTexture("Interface\\DialogFrame\\UI-DialogBox-Header")
-	frame.titleBar:SetPoint("TOP", 0, 8)
-	frame.titleBar:SetWidth(350)
-	frame.titleBar:SetHeight(45)
-
-	frame.title = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
-	frame.title:SetPoint("TOP", 0, 0)
-	frame.title:SetText("Shadowed Unit Frames")
-
-	frame.text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
-	frame.text:SetText(select(2, ...).L["This version of Shadowed Unit Frames is ONLY for 5.0.1 and higher.|n|nIf you are auto downloading alpha releases, stop that.|n|nYou are not missing out, the next stable release of SUF will be with 5.0.1/MoP."])
-	frame.text:SetPoint("TOPLEFT", 12, -22)
-	frame.text:SetWidth(frame:GetWidth() - 20)
-	frame.text:SetJustifyH("LEFT")
-
-	frame:SetScale(2)
-	return
-end
-
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
 ShadowUF.dbRevision = 19
