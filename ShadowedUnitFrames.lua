@@ -292,7 +292,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.pet.enabled = true
 	self.defaults.profile.units.pet.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.pet.xpBar = {enabled = false}
-	self.defaults.profiel.units.pet.altPowerBar.enabled = true
+	self.defaults.profile.units.pet.altPowerBar.enabled = true
   -- FOCUS
 	self.defaults.profile.units.focus.enabled = true
 	self.defaults.profile.units.focus.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
