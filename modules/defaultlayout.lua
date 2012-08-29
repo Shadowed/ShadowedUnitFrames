@@ -228,6 +228,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			{width = 0.60, name = L["Right text"], anchorTo = "$powerBar", anchorPoint = "CRI", x = -3, y = 0, size = 0},
 
 			{width = 1, name = L["Text"], anchorTo = "$emptyBar", anchorPoint = "CLI", x = 3, y = 0, size = 0},
+
+			{enabled = true, width = 1, name = L["Text"], anchorTo = "$demonicFuryBar", anchorPoint = "C", x = 3, y = 0, size = -1},
 		},
 		indicators = {
 			raidTarget = {anchorTo = "$parent", anchorPoint = "C", size = 20, x = 0, y = 0},
@@ -321,7 +323,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			totemBar = {enabled = true, background = false, height = 0.40, order = 70},
 			druidBar = {enabled = true, background = true, height = 0.40, order = 70},
 			eclipseBar = {enabled = true, background = true, order = 70, height = 0.40},
-			demonicFuryBar = {enabled = true, background = false, height = 0.40, order = 70},
+			demonicFuryBar = {enabled = true, background = false, height = 0.50, order = 70},
 			burningEmbersBar = {enabled = true, background = false, height = 0.40, order = 70},
 			soulShards = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -8, y = 6, size = 12, spacing = -2, growth = "LEFT", isBar = true, showAlways = true},
 			holyPower = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true},
