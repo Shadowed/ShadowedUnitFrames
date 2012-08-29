@@ -84,6 +84,7 @@ function Portrait:Update(frame, event)
 	else
 		frame.portrait:SetUnit(frame.unitOwner)
 		frame.portrait:SetPortraitZoom(1)
+		frame.portrait:SetPosition(0, 0, 0)
 		frame.portrait:Show()
 	end
 end
