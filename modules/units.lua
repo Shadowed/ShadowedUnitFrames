@@ -1,10 +1,11 @@
-local Units = {headerFrames = {}, unitFrames = {}, frameList = {}, unitEvents = {}, canCure = {}}
+local Units = {headerFrames = {}, unitFrames = {}, frameList = {}, unitEvents = {}}
 Units.childUnits = {["partytarget"] = "party", ["partypet"] = "party", ["maintanktarget"] = "maintank", ["mainassisttarget"] = "mainassist", ["bosstarget"] = "boss", ["arenatarget"] = "arena", ["arenapet"] = "arena"}
 Units.zoneUnits = {["arena"] = "arena", ["boss"] = "raid"}
+Units.headerUnits = {["raid"] = true, ["party"] = true, ["maintank"] = true, ["mainassist"] = true, ["raidpet"] = true, ["partypet"] = true}
 
 local stateMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 local playerClass = select(2, UnitClass("player"))
-local unitFrames, headerFrames, frameList, unitEvents, childUnits, queuedCombat, canCure = Units.unitFrames, Units.headerFrames, Units.frameList, Units.unitEvents, Units.childUnits, {}, Units.canCure
+local unitFrames, headerFrames, frameList, unitEvents, childUnits, headerUnits, queuedCombat = Units.unitFrames, Units.headerFrames, Units.frameList, Units.unitEvents, Units.childUnits, Units.headerUnits, {}
 local _G = getfenv(0)
 
 ShadowUF.Units = Units
@@ -40,7 +41,7 @@ local function RegisterNormalEvent(self, event, handler, func)
 		return
 	end
 
-	if( unitEvents[event] and not ShadowUF.fakeUnits[self.unitRealType] ) then
+	if( unitEvents[event] and not ShadowUF.fakeUnits[self.unitRealType] and not headerUnits[self.unitRealType] ) then
 		self:BlizzRegisterUnitEvent(event, self.unitOwner, self.vehicleUnit)
 	else
 		self:RegisterEvent(event)
