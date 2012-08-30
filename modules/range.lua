@@ -50,7 +50,10 @@ end
 
 function Range:OnLayoutApplied(frame)
 	hostileSpell = ShadowUF.db.profile.range["hostile" .. playerClass] or self.hostile[playerClass]
-	friendlySpell = ShadowUF.db.profile.range["friendly" .. playerClass] or self.friendly[playerClass]
+	if( not GetSpellInfo(hostileSpell) ) then hostileSpell = nil end
+
+  friendlySpell = ShadowUF.db.profile.range["friendly" .. playerClass] or self.friendly[playerClass]
+  if( not GetSpellInfo(friendlySpell) ) then friendlySpell = nil end
 end
 
 function Range:OnDisable(frame)
