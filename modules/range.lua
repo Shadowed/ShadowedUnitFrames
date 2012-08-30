@@ -14,8 +14,8 @@ local function checkRange(self, elapsed)
 	self.timeElapsed = 0
 
   	-- Bypass any checks if it's the player
-  	if( UnitIsPlayer(frame.unit) ) then
-		return self.parent:SetRangeAlpha(ShadowUF.db.profile.units[frame.unitType].range.inAlpha)
+  	if( UnitIsPlayer(self.parent.unit) ) then
+		return self.parent:SetRangeAlpha(ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha)
   	end
 	
 	local frame = self.parent
