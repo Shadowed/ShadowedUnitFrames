@@ -147,7 +147,7 @@ end
 
 function Combo:Update(frame, event, unit)
 	-- MoP changed UNIT_COMBO_POINTS so that unit is now player even if it's done on the target
-	if( event and unit ~= "player" ) then return end
+  	--if( event and unit ~= "player" ) then return end
 
 	-- For Malygos dragons, they also self cast their CP on themselves, which is why we check CP on ourself!
 	local playerUnit = UnitHasVehicleUI("player") and "vehicle" or "player"
