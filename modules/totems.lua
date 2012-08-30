@@ -26,7 +26,6 @@ function Totems:OnEnable(frame)
 		
 		for id=1, MAX_TOTEMS do
 			local totem = ShadowUF.Units:CreateBar(frame)
-			totem:SetFrameLevel(1)
 			totem:SetMinMaxValues(0, 1)
 			totem:SetValue(0)
 			totem.id = MAX_TOTEMS == 1 and 1 or priorities[id]
