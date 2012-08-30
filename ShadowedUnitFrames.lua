@@ -484,6 +484,7 @@ function ShadowUF:HideBlizzardFrames()
 			local frame = _G[name]
 
 			frame:UnregisterAllEvents()
+			frame.Show = self.noop
 			frame:Hide()
 
 			_G[name .. "HealthBar"]:UnregisterAllEvents()
