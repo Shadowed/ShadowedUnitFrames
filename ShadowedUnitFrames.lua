@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 20
+ShadowUF.dbRevision = 21
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -84,7 +84,18 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or 1
-
+	
+	if( revision <= 20 ) then
+		self.db.profile.powerColors["ALTERNATE"] = {r = 0.71, g = 0.0, b = 1.0}
+		
+		for _, unit in pairs(self.unitList) do
+			self.db.profile.units[unit].altPowerBar.enabled = true
+			self.db.profile.units[unit].altPowerBar.background = true
+			self.db.profile.units[unit].altPowerBar.height = 0.40
+			self.db.profile.units[unit].altPowerBar.order = 100
+		end
+	end
+	
 	if( revision <= 19 ) then
 		self.db.profile.units.pet.altPowerBar.enabled = true
 		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Text"], text = "[warlock:demonic:curpp]", anchorTo = "$demonicFuryBar", anchorPoint = "C", size = -1, x = 0, y = 0})
@@ -186,7 +197,7 @@ end
 function ShadowUF:LoadUnits()
 	-- CanHearthAndResurrectFromArea() returns true for world pvp areas, according to BattlefieldFrame.lua
 	local instanceType = CanHearthAndResurrectFromArea() and "pvp" or select(2, IsInInstance())
-  if( not instanceType ) then instanceType = "none" end
+  	if( not instanceType ) then instanceType = "none" end
 	
 	for _, type in pairs(self.unitList) do
 		local enabled = self.db.profile.units[type].enabled
@@ -271,7 +282,7 @@ function ShadowUF:LoadUnitDefaults()
 			end
 		end
 
-		self.defaults.profile.units[unit].altPowerBar = {enabled = false}
+		self.defaults.profile.units[unit].altPowerBar = {enabled = true}
 	end
 		
 	-- PLAYER
@@ -297,7 +308,6 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.pet.enabled = true
 	self.defaults.profile.units.pet.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.pet.xpBar = {enabled = false}
-	self.defaults.profile.units.pet.altPowerBar.enabled = true
   -- FOCUS
 	self.defaults.profile.units.focus.enabled = true
 	self.defaults.profile.units.focus.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
