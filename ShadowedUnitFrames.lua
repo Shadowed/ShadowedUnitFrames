@@ -503,6 +503,7 @@ function ShadowUF:HideBlizzardFrames()
 	if( ShadowUF.db.profile.hidden.raid and not active_hiddens.raid ) then
 		local function hideRaid()
 			CompactRaidFrameManager:UnregisterAllEvents()
+			CompactRaidFrameContainer:UnregisterAllEvents()
 			if( not InCombatLockdown() ) then CompactRaidFrameManager:Hide() end
 	
 			local shown = CompactRaidFrameManager_GetSetting("IsShown")
