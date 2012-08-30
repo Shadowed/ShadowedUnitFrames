@@ -30,6 +30,8 @@ function AltPower:UpdateVisibility(frame)
 	end
 
 	ShadowUF.Layout:SetBarVisibility(frame, "altPowerBar", visible)
+	
+	if( not visible ) then return end
 
 	local color = ShadowUF.db.profile.powerColors.ALTERNATE
 	if( not showOnRaid ) then
@@ -40,7 +42,7 @@ function AltPower:UpdateVisibility(frame)
 			altColor.r, altColor.g, altColor.b = altR, altG, altB
 			color = altColor
 		else
-			color = ShadowUF.db.profile.colors.MANA
+			color = ShadowUF.db.profile.powerColors.MANA
 		end
 	end
 	
