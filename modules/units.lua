@@ -41,7 +41,7 @@ local function RegisterNormalEvent(self, event, handler, func)
 		return
 	end
 
-	if( unitEvents[event] and not ShadowUF.fakeUnits[self.unitRealType] and not headerUnits[self.unitRealType] ) then
+	if( unitEvents[event] and not ShadowUF.fakeUnits[self.unitRealType] and not headerUnits[self.unitType] ) then
 		self:BlizzRegisterUnitEvent(event, self.unitOwner, self.vehicleUnit)
 	else
 		self:RegisterEvent(event)
