@@ -4,11 +4,8 @@ ShadowUF:RegisterModule(AltPower, "altPowerBar", ShadowUF.L["Alt. Power bar"], t
 function AltPower:OnEnable(frame)
 	frame.altPowerBar = frame.altPowerBar or ShadowUF.Units:CreateBar(frame)
 
-	frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
-	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")
 	frame:RegisterUnitEvent("UNIT_POWER_BAR_SHOW", self, "UpdateVisibility")
 	frame:RegisterUnitEvent("UNIT_POWER_BAR_HIDE", self, "UpdateVisibility")
-	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdateVisibility")
 
 	frame:RegisterUpdateFunc(self, "UpdateVisibility")
 end
@@ -30,8 +27,14 @@ function AltPower:UpdateVisibility(frame)
 	end
 
 	ShadowUF.Layout:SetBarVisibility(frame, "altPowerBar", visible)
-	
+
+	-- Register or unregister events based on if it's visible
+	local type = visible and "RegisterUnitEvent" or "UnregisterEvent"
+	frame[type](frame, "UNIT_POWER", self, "Update")
+	frame[type](frame, "UNIT_MAXPOWER", self, "Update")
+	frame[type](frame, "UNIT_DISPLAYPOWER", self, "UpdateVisibility")
 	if( not visible ) then return end
+
 
 	local color = ShadowUF.db.profile.powerColors.ALTERNATE
 	if( not showOnRaid ) then
