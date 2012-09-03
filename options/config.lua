@@ -1411,7 +1411,7 @@ local function loadHideOptions()
 		type = "toggle",
 		name = function(info)
 			local key = info[#(info)]
-			return L.units[key] and string.format(L["Hide %s frames"], string.lower(L.units[key])) or string.format(L["Hide %s"], key == "cast" and L["player cast bar"] or key == "runes" and L["rune bar"] or key == "buffs" and L["buff frames"] or key == "playerAltPower" and L["player alt. power"])
+			return L.units[key] and string.format(L["Hide %s frames"], string.lower(L.units[key])) or string.format(L["Hide %s"], key == "cast" and L["player cast bar"] or key == "playerPower" and L["player power frames"] or key == "buffs" and L["buff frames"] or key == "playerAltPower" and L["player alt. power"])
 		end,
 		set = function(info, value)
 			set(info, value)
@@ -1448,7 +1448,7 @@ local function loadHideOptions()
 				args = {
 					buffs = Config.hideTable,
 					cast = Config.hideTable,
-					runes = Config.hideTable,
+					playerPower = Config.hideTable,
 					party = Config.hideTable,
                     raid = Config.hideTable,
 					player = Config.hideTable,

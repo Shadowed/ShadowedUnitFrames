@@ -37,7 +37,7 @@ function ShadowUF:OnInitialize()
 			range = {},
 			filters = {zonewhite = {}, zoneblack = {}, whitelists = {}, blacklists = {}},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
-			hidden = {cast = false, runes = true, buffs = false, party = true, raid = false, player = true, pet = true, target = true, focus = true, boss = true, arena = true, playerAltPower = false},
+			hidden = {cast = false, playerPower = true, buffs = false, party = true, raid = false, player = true, pet = true, target = true, focus = true, boss = true, arena = true, playerAltPower = false},
 		},
 	}
 	
@@ -468,11 +468,6 @@ ShadowUF.noop = function() end
 
 local active_hiddens = {}
 function ShadowUF:HideBlizzardFrames()
-	if( ShadowUF.db.profile.hidden.runes and not active_hiddens.runes ) then
-		RuneFrame:Hide()
-		RuneFrame:UnregisterAllEvents()
-	end
-
 	if( ShadowUF.db.profile.hidden.cast and not active_hiddens.cast ) then
 		CastingBarFrame:UnregisterAllEvents()
 		PetCastingBarFrame:UnregisterAllEvents()
@@ -544,10 +539,17 @@ function ShadowUF:HideBlizzardFrames()
 		PlayerFrameHealthBar:UnregisterAllEvents()
 		PlayerFrameManaBar:UnregisterAllEvents()
 		PlayerFrameAlternateManaBar:UnregisterAllEvents()
-		EclipseBarFrame:UnregisterAllEvents()
-		ShardBarFrame:UnregisterAllEvents()
 	end
-	
+
+
+	if( ShadowUF.db.profile.hidden.playerPower and not active_hiddens.playerPower ) then
+		for _, frame in pairs({EclipseBarFrame, ShardBarFrame, RuneFrame, TotemFrame, PaladinPowerBar, MonkHarmonyBar, PriestBarFrame, WarlockPowerFrame}) do
+			frame:UnregisterAllEvents()
+			frame:Hide()
+			frame.Hide = self.noop
+		end
+	end
+
 	if( ShadowUF.db.profile.hidden.pet and not active_hiddens.pet ) then
 		PetFrame:UnregisterAllEvents()
 		PetFrame:Hide()
