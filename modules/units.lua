@@ -874,9 +874,22 @@ function Units:SetHeaderAttributes(frame, type)
 			stateMonitor.raid:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.raid.hideSemiRaid)
 		end
 	end
+
 	-- calling :Show basically resets the header
-	if frame:IsShown() then
+	if( frame:IsShown() ) then
 		frame:Show()
+	end
+
+	if( headerUnits[type] and not InCombatLockdown() ) then
+		local name = frame:GetName() .. "UnitButton"
+		local index = 1
+		local child = _G[name .. index]
+		while( child ) do
+			child:ClearAllPoints()
+
+			index = index + 1
+			child = _G[name .. index]
+		end
 	end
 end
 
