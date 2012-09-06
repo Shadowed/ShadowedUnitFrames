@@ -496,27 +496,29 @@ function ShadowUF:HideBlizzardFrames()
 		end
 	end
 
-	if( ShadowUF.db.profile.hidden.raid and not active_hiddens.raid ) then
-		local function hideRaid()
-			CompactRaidFrameManager:UnregisterAllEvents()
-			CompactRaidFrameContainer:UnregisterAllEvents()
-			if( not InCombatLockdown() ) then CompactRaidFrameManager:Hide() end
-	
-			local shown = CompactRaidFrameManager_GetSetting("IsShown")
-			if( shown and shown ~= "0" ) then
-				CompactRaidFrameManager_SetSetting("IsShown", "0")
+	if( CompactRaidFrameManager ) then
+		if( ShadowUF.db.profile.hidden.raid and not active_hiddens.raid ) then
+			local function hideRaid()
+				CompactRaidFrameManager:UnregisterAllEvents()
+				CompactRaidFrameContainer:UnregisterAllEvents()
+				if( not InCombatLockdown() ) then CompactRaidFrameManager:Hide() end
+		
+				local shown = CompactRaidFrameManager_GetSetting("IsShown")
+				if( shown and shown ~= "0" ) then
+					CompactRaidFrameManager_SetSetting("IsShown", "0")
+				end
 			end
+			
+			hooksecurefunc("CompactRaidFrameManager_UpdateShown", function()
+				if( ShadowUF.db.profile.hidden.raid ) then
+					hideRaid()
+				end
+			end)
+			
+			hideRaid()
+		elseif( not ShadowUF.db.profile.hidden.raid ) then
+			CompactRaidFrameManager:SetFrameStrata("DIALOG")
 		end
-		
-		hooksecurefunc("CompactRaidFrameManager_UpdateShown", function()
-			if( ShadowUF.db.profile.hidden.raid ) then
-				hideRaid()
-			end
-		end)
-		
-		hideRaid()
-	elseif( not ShadowUF.db.profile.hidden.raid ) then
-		CompactRaidFrameManager:SetFrameStrata("DIALOG")
 	end
 
 	if( ShadowUF.db.profile.hidden.buffs and not active_hiddens.buffs ) then
@@ -544,9 +546,10 @@ function ShadowUF:HideBlizzardFrames()
 
 	if( ShadowUF.db.profile.hidden.playerPower and not active_hiddens.playerPower ) then
 		for _, frame in pairs({EclipseBarFrame, ShardBarFrame, RuneFrame, TotemFrame, PaladinPowerBar, MonkHarmonyBar, PriestBarFrame, WarlockPowerFrame}) do
+			print("Hiding", frame:GetName())
 			frame:UnregisterAllEvents()
 			frame:Hide()
-			frame.Hide = self.noop
+			frame.Show = self.noop
 		end
 	end
 
