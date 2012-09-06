@@ -17,7 +17,7 @@ end
 function Power:OnEnable(frame)
 	frame.powerBar = frame.powerBar or ShadowUF.Units:CreateBar(frame)
 		
-	frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
+	frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")
 	frame:RegisterUnitEvent("UNIT_CONNECTION", self, "Update")
 	frame:RegisterUnitEvent("UNIT_POWER_BAR_SHOW", self, "Update")
@@ -30,13 +30,13 @@ end
 
 function Power:OnLayoutApplied(frame)
 	-- Enable predicted updates which requires polling in an OnUpdate to get more up to date values
-	if( frame.visibility.powerBar ) then
-		if( ShadowUF.db.profile.units[frame.unitType].powerBar.predicted ) then
-			frame.powerBar:SetScript("OnUpdate", updatePower)
-		else
-			frame.powerBar:SetScript("OnUpdate", nil)
-		end
-	end
+	--if( frame.visibility.powerBar ) then
+	--	if( ShadowUF.db.profile.units[frame.unitType].powerBar.predicted ) then
+	--		frame.powerBar:SetScript("OnUpdate", updatePower)
+	--	else
+	--		frame.powerBar:SetScript("OnUpdate", nil)
+	--	end
+	--end
 end
 
 function Power:OnDisable(frame)
