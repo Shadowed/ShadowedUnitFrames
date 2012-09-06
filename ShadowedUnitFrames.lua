@@ -546,7 +546,6 @@ function ShadowUF:HideBlizzardFrames()
 
 	if( ShadowUF.db.profile.hidden.playerPower and not active_hiddens.playerPower ) then
 		for _, frame in pairs({EclipseBarFrame, ShardBarFrame, RuneFrame, TotemFrame, PaladinPowerBar, MonkHarmonyBar, PriestBarFrame, WarlockPowerFrame}) do
-			print("Hiding", frame:GetName())
 			frame:UnregisterAllEvents()
 			frame:Hide()
 			frame.Show = self.noop
