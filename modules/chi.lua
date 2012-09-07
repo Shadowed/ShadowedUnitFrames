@@ -23,7 +23,7 @@ function Chi:OnLayoutApplied(frame, config)
 end
 
 function Chi:Update(frame, event, unit, powerType)
-	if( event == "UNIT_POWER" and powerType ~= chiConfig.eventType ) then return end
+	if( powerType and powerType ~= chiConfig.eventType ) then return end
 	
 	local points = UnitPower("player", chiConfig.powerType)
 	-- Bar display, hide it if we don't have any combo points
