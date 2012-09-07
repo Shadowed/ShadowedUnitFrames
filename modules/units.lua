@@ -33,6 +33,27 @@ local function FullUpdate(self)
 	end
 end
 
+-- Re-registers events when unit changes
+local function ReregisterUnitEvents(self)
+	-- Not an unit event
+	if( ShadowUF.fakeUnits[self.unitRealType] or not headerUnits[self.unitType] ) then return end
+
+	for event, list in pairs(self.registeredEvents) do
+		if( unitEvents[event] ) then
+			local hasHandler
+			for handler in pairs(list) do
+				hasHandler = true
+				break
+			end
+
+			if( hasHandler ) then
+				self:UnregisterEvent(event)
+				self:BlizzRegisterUnitEvent(event, self.unitOwner, self.vehicleUnit)
+			end
+		end
+	end
+end
+
 -- Register an event that should always call the frame
 local function RegisterNormalEvent(self, event, handler, func)
 	-- Make sure the handler/func exists
@@ -41,7 +62,7 @@ local function RegisterNormalEvent(self, event, handler, func)
 		return
 	end
 
-	if( unitEvents[event] and not ShadowUF.fakeUnits[self.unitRealType] and not headerUnits[self.unitType] ) then
+	if( unitEvents[event] and not ShadowUF.fakeUnits[self.unitRealType] ) then
 		self:BlizzRegisterUnitEvent(event, self.unitOwner, self.vehicleUnit)
 	else
 		self:RegisterEvent(event)
@@ -131,6 +152,8 @@ local function UnregisterAll(self, handler)
 			end
 		end
 	end
+
+
 end
 
 -- Handles setting alphas in a way so combat fader and range checker don't override each other
@@ -460,6 +483,7 @@ OnAttributeChanged = function(self, name, unit)
 	-- Don't need to recheck the unitType and force a full update, because a raid frame can never become
 	-- a party frame, or a player frame and so on
 	if( self.unitInitialized ) then
+		self:ReregisterUnitEvents()
 		self:FullUpdate()
 		return
 	end
@@ -667,6 +691,7 @@ function Units:CreateUnit(...)
 	frame.SetRangeAlpha = SetRangeAlpha
 	frame.DisableRangeAlpha = DisableRangeAlpha
 	frame.UnregisterUpdateFunc = UnregisterUpdateFunc
+	frame.ReregisterUnitEvents = ReregisterUnitEvents
 	frame.SetBarColor = SetBarColor
 	frame.FullUpdate = FullUpdate
 	frame.SetVisibility = SetVisibility
