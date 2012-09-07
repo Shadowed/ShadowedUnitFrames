@@ -189,7 +189,7 @@ function Tags:Register(parent, fontString, tags, resetCache)
 		
 		-- Create our update function now
 		updateFunc = function(fontString, frame, event, unit, powerType)
-			if( event ) then
+			if( event and fontString.powerFilters ) then
 				-- Keep track of what the current power type is if we're doing current filtering
 				if( event == "UNIT_DISPLAYPOWER" and fontString.powerFilters.CURRENT ) then
 					fontString.powerType = select(2, UnitPowerType(unit))
