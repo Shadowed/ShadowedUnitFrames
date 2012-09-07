@@ -5,6 +5,14 @@ local L = ShadowUF.L
 
 ShadowUF.Tags = Tags
 
+-- Avoid having to do string.match on every event
+local powerFilters = {["SUF_POWERTYPE:CURRENT"] = "CURRENT"}
+for powerType in pairs(PowerBarColor) do
+	if( type(powerType) == "string" ) then
+		powerFilters["SUF_POWERTYPE:" .. powerType] = powerType
+	end
+end
+
 -- Register the associated events with all the tags
 function Tags:RegisterEvents(parent, fontString, tags)
 	-- Strip parantheses and anything inside them
@@ -20,18 +28,22 @@ function Tags:RegisterEvents(parent, fontString, tags)
 		local tagEvents = Tags.defaultEvents[tag] or ShadowUF.db.profile.tags[tag] and ShadowUF.db.profile.tags[tag].events
 		if( tagEvents ) then
 			for event in string.gmatch(tagEvents, "%S+") do
-				if( self.customEvents[event] ) then
+				-- Power filter event, store it instead
+				if( powerFilters[event] ) then
+					fontString.powerFilters = fontString.powerFilters or {}
+					fontString.powerFilters[powerFilters[event]] = true
+					fontString.powerType = fontString.powerType or select(2, UnitPowerType(parent.unit))
+				-- Custom event registered by another module
+				elseif( self.customEvents[event] ) then
 					self.customEvents[event]:EnableTag(parent, fontString)
 					fontString[event] = true
+				-- Unit event
 				elseif( Tags.eventType[event] ~= "unitless" or ShadowUF.Units.unitEvents[event] ) then
 					parent:RegisterUnitEvent(event, fontString, "UpdateTags")
+				-- Everything else
 				else
 					parent:RegisterNormalEvent(event, fontString, "UpdateTags")
 				end
-				
-				-- The power and health bars will handle updating tags with this flag set
-				fontString.fastPower = fontString.fastPower or Tags.eventType[event] == "power"
-				fontString.fastHealth = fontString.fastHealth or Tags.eventType[event] == "health"
 			end
 		end
 	end
@@ -152,7 +164,20 @@ function Tags:Register(parent, fontString, tags, resetCache)
 		end
 		
 		-- Create our update function now
-		updateFunc = function(fontString)
+		updateFunc = function(fontString, frame, event, unit, powerType)
+			if( event ) then
+				-- Keep track of what the current power type is if we're doing current filtering
+				if( event == "UNIT_DISPLAYPOWER" and fontString.powerFilters.CURRENT ) then
+					fontString.powerType = select(2, UnitPowerType(unit))
+
+				-- Check if we can filter out the update 
+				elseif( event == "UNIT_POWER" or event == "UNIT_POWER_FREQUENT" or event == "UNIT_MAXPOWER" ) then
+					if( powerType and not fontString.powerFilters[powerType] and ( not fontString.powerFilters.CURRENT or fontString.powerType ~= powerType ) ) then
+						return
+					end
+				end
+			end
+
 			for id, func in pairs(args) do
 				temp[id] = func(fontString.parent.unit, fontString.parent.unitOwner, fontString) or ""
 			end
@@ -195,8 +220,6 @@ function Tags:Unregister(fontString)
 		
 	-- Kill any tag data
 	fontString.parent:UnregisterAll(fontString)
-	fontString.fastPower = nil
-	fontString.fastHealth = nil
 	fontString.frequentStart = nil
 	fontString.UpdateTags = nil
 	fontString:SetText("")
@@ -926,36 +949,36 @@ Tags.defaultEvents = {
 	["curmaxhp"]				= "UNIT_HEALTH UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH UNIT_CONNECTION",
 	["absolutehp"]				= "UNIT_HEALTH UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH UNIT_CONNECTION",
 	["smart:curmaxhp"]			= "UNIT_HEALTH UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH UNIT_CONNECTION",
-	["curpp"]               	= "UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
-	["abscurpp"]            	= "UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER UNIT_MAXPOWER",
-	["curmaxpp"]				= "UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER UNIT_MAXPOWER",
-	["absolutepp"]				= "UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER UNIT_MAXPOWER",
-	["smart:curmaxpp"]			= "UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER UNIT_MAXPOWER",
-	["druid:curpp"]  	    	= "UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
-	["druid:abscurpp"]      	= "UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
-	["druid:curmaxpp"]			= "UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
-	["druid:absolutepp"]		= "UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
-	["monk:curpp"]  	    	= "UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
-	["monk:abscurpp"]      		= "UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
-	["monk:curmaxpp"]			= "UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
-	["monk:absolutepp"]			= "UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
-	["sshards"]					= "UNIT_POWER_FREQUENT",
-	["hpower"]					= "UNIT_POWER_FREQUENT",
+	["curpp"]               	= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
+	["abscurpp"]            	= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER UNIT_MAXPOWER",
+	["curmaxpp"]				= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER UNIT_MAXPOWER",
+	["absolutepp"]				= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER UNIT_MAXPOWER",
+	["smart:curmaxpp"]			= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER UNIT_MAXPOWER",
+	["druid:curpp"]  	    	= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
+	["druid:abscurpp"]      	= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
+	["druid:curmaxpp"]			= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["druid:absolutepp"]		= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["monk:curpp"]  	    	= "SUF_POWERTYPE:LIGHT_FORCE UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
+	["monk:abscurpp"]      		= "SUF_POWERTYPE:LIGHT_FORCE UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
+	["monk:curmaxpp"]			= "SUF_POWERTYPE:LIGHT_FORCE UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["monk:absolutepp"]			= "SUF_POWERTYPE:LIGHT_FORCE UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["sshards"]					= "SUF_POWERTYPE:SOUL_SHARDS UNIT_POWER_FREQUENT",
+	["hpower"]					= "SUF_POWERTYPE:HOLY_POWER UNIT_POWER_FREQUENT",
 	["level"]               	= "UNIT_LEVEL UNIT_FACTION PLAYER_LEVEL_UP",
 	["levelcolor"]				= "UNIT_LEVEL UNIT_FACTION PLAYER_LEVEL_UP",
 	["maxhp"]               	= "UNIT_MAXHEALTH",
 	["def:name"]				= "UNIT_NAME_UPDATE UNIT_MAXHEALTH UNIT_HEALTH UNIT_HEALTH_FREQUENT",
 	["absmaxhp"]				= "UNIT_MAXHEALTH",
-	["maxpp"]               	= "UNIT_MAXPOWER",
-	["absmaxpp"]				= "UNIT_MAXPOWER",
+	["maxpp"]               	= "SUF_POWERTYPE:CURRENT UNIT_MAXPOWER",
+	["absmaxpp"]				= "SUF_POWERTYPE:CURRENT UNIT_MAXPOWER",
 	["missinghp"]           	= "UNIT_HEALTH UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH UNIT_CONNECTION",
-	["missingpp"]           	= "UNIT_POWER_FREQUENT UNIT_MAXPOWER",
+	["missingpp"]           	= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_MAXPOWER",
 	["name"]                	= "UNIT_NAME_UPDATE",
 	["abbrev:name"]				= "UNIT_NAME_UPDATE",
 	["server"]					= "UNIT_NAME_UPDATE",
 	["colorname"]				= "UNIT_NAME_UPDATE",
 	["perhp"]               	= "UNIT_HEALTH UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH UNIT_CONNECTION",
-	["perpp"]               	= "UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_CONNECTION",
+	["perpp"]               	= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_CONNECTION",
 	["status"]              	= "UNIT_HEALTH UNIT_HEALTH_FREQUENT PLAYER_UPDATE_RESTING UNIT_CONNECTION",
 	["smartlevel"]          	= "UNIT_LEVEL PLAYER_LEVEL_UP UNIT_CLASSIFICATION_CHANGED",
 	["cpoints"]             	= "UNIT_COMBO_POINTS PLAYER_TARGET_CHANGED",
@@ -974,11 +997,11 @@ Tags.defaultEvents = {
 	["unit:scaled:threat"]		= "UNIT_THREAT_SITUATION_UPDATE",
 	["unit:color:sit"]			= "UNIT_THREAT_SITUATION_UPDATE",
 	["unit:situation"]			= "UNIT_THREAT_SITUATION_UPDATE",
-	["warlock:demonic:curpp"]	= "UNIT_POWER_FREQUENT",
-	["warlock:demonic:maxpp"] 	= "UNIT_MAXPOWER",
-	["warlock:demonic:perpp"] 	= "UNIT_POWER_FREQUENT UNIT_MAXPOWER",
-	["monk:chipoints"]			= "UNIT_POWER_FREQUENT",
-	["priest:shadoworbs"]		= "UNIT_POWER_FREQUENT",
+	["warlock:demonic:curpp"]	= "SUF_POWERTYPE:DEMONIC_FURY UNIT_POWER_FREQUENT",
+	["warlock:demonic:maxpp"] 	= "SUF_POWERTYPE:DEMONIC_FURY UNIT_MAXPOWER",
+	["warlock:demonic:perpp"] 	= "SUF_POWERTYPE:DEMONIC_FURY UNIT_POWER_FREQUENT UNIT_MAXPOWER",
+	["monk:chipoints"]			= "SUF_POWERTYPE:LIGHT_FORCE UNIT_POWER_FREQUENT",
+	["priest:shadoworbs"]		= "SUF_POWERTYPE:SHADOW_ORBS UNIT_POWER_FREQUENT",
 }
 	
 -- Default update frequencies for tag updating, used if it's needed to override the update speed
@@ -1191,7 +1214,7 @@ Tags.defaultNames = {
 	["hpower"]					= L["Holy power"],
 	["sshards"]					= L["Soul shards"],
 	["smartlevel"]				= L["Smart level"],
-	["classification"]			= L["Classificaiton"],
+	["classification"]			= L["Classification"],
 	["shortclassification"]		= L["Short classification"],
 	["rare"]					= L["Rare indicator"],
 	["plus"]					= L["Short elite indicator"],
