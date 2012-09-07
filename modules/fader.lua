@@ -82,7 +82,7 @@ function Fader:PLAYER_REGEN_ENABLED(frame, event)
 	frame:RegisterNormalEvent("UNIT_SPELLCAST_STOP", self, "CastStop")
 	frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
-	frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
+	frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")	
 end
 
@@ -94,7 +94,7 @@ function Fader:PLAYER_REGEN_DISABLED(frame, event)
 	frame:UnregisterSingleEvent("UNIT_SPELLCAST_START", self)
 	frame:UnregisterSingleEvent("UNIT_SPELLCAST_STOP", self)
 	frame:UnregisterSingleEvent("UNIT_HEALTH", self)
-	frame:UnregisterSingleEvent("UNIT_POWER", self)
+	frame:UnregisterSingleEvent("UNIT_POWER_FREQUENT", self)
 	frame:UnregisterSingleEvent("UNIT_MAXHEALTH", self)
 	frame:UnregisterSingleEvent("UNIT_MAXPOWER", self)
 end
