@@ -79,6 +79,28 @@ freqFrame:SetScript("OnUpdate", function(self, elapsed)
 end)
 freqFrame:Hide()
 
+-- This is for bars that can be shown or hidden often, like druid power
+function Tags:FastRegister(frame, parent)
+	for _, fontString in pairs(frame.fontStrings) do
+		-- Re-register anything that was already registered and is part of the parent
+		if( regFontStrings[fontString] and fontString.parentBar == parent ) then
+			fontString.UpdateTags = tagPool[regFontStrings[fontString]]
+			fontString:Show()
+		end
+	end
+end
+
+function Tags:FastUnregister(frame, parent)
+	for _, fontString in pairs(frame.fontStrings) do
+		-- Redirect the updates to not do anything and hide it
+		if( regFontStrings[fontString] and fontString.parentBar == parent ) then
+			fontString.UpdateTags = ShadowUF.noop
+			fontString:Hide()
+		end
+	end
+end
+
+
 -- Register a font string with the tag system
 function Tags:Register(parent, fontString, tags, resetCache)
 	-- Unregister the font string first if we did register it already

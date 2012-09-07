@@ -74,10 +74,17 @@ function Layout:ToggleVisibility(frame, visible)
 end	
 
 function Layout:SetBarVisibility(frame, key, status)
+	-- Show the bar if it wasn't already
 	if( status and not frame[key]:IsVisible() ) then
+		ShadowUF.Tags:FastRegister(frame, frame[key])
+
 		frame[key]:Show()
 		ShadowUF.Layout:PositionWidgets(frame, ShadowUF.db.profile.units[frame.unitType])
+
+	-- Hide the bar if it wasn't already
 	elseif( not status and frame[key]:IsVisible() ) then
+		ShadowUF.Tags:FastUnregister(frame, frame[key])
+
 		frame[key]:Hide()
 		ShadowUF.Layout:PositionWidgets(frame, ShadowUF.db.profile.units[frame.unitType])
 	end
@@ -408,6 +415,7 @@ function Layout:SetupText(frame, config)
 			local anchorPoint = columnDirection[row.anchorPoint]
 			if( string.len(row.anchorPoint) == 3 ) then anchorPoint = anchorPoint .. "I" end
 			
+			fontString.parentBar = parent
 			fontString.availableWidth = parent:GetWidth() - row.x
 			fontString.widthID = row.anchorTo .. anchorPoint .. row.y
 			totalWeight[fontString.widthID] = (totalWeight[fontString.widthID] or 0) + row.width
