@@ -124,6 +124,8 @@ function Tags:Register(parent, fontString, tags, resetCache)
 	if( not updateFunc ) then
 		-- Using .- prevents supporting tags such as [foo ([)]. Supporting that and having a single pattern
 		local formattedText = string.gsub(string.gsub(tags, "%%", "%%%%"), "[[].-[]]", "%%s")
+		formattedText = string.gsub(formattedText, "|", "\124")
+
 		local args = {}
 		
 		for tag in string.gmatch(tags, "%[(.-)%]") do
