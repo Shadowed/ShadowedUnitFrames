@@ -4,7 +4,7 @@ ShadowUF:RegisterModule(Monk, "monkBar", ShadowUF.L["Monk mana bar"], true, "MON
 function Monk:OnEnable(frame)
 	frame.monkBar = frame.monkBar or ShadowUF.Units:CreateBar(frame)
 
-	frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
+	frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")
 
 	frame:RegisterUpdateFunc(self, "Update")
