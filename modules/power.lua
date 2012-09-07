@@ -50,7 +50,7 @@ function Power:UpdateColor(frame)
 end
 
 function Power:Update(frame, event, unit, powerType)
-	if( event and powerType ~= frame.powerBar.currentType ) then return end
+	if( event and powerType and powerType ~= frame.powerBar.currentType ) then return end
 
 	frame.powerBar.currentPower = UnitPower(frame.unit)
 	frame.powerBar:SetMinMaxValues(0, UnitPowerMax(frame.unit))
