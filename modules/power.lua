@@ -47,6 +47,8 @@ function Power:UpdateColor(frame)
 			frame.powerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
 		end
 	end
+
+	self:Update(frame)
 end
 
 function Power:Update(frame, event, unit, powerType)
