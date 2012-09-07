@@ -53,13 +53,13 @@ local function RegisterNormalEvent(self, event, handler, func)
 	if( self.registeredEvents[event][handler] ) then
 		return
 	end
-			
+
 	self.registeredEvents[event][handler] = func
 end
 
 -- Unregister an event
 local function UnregisterEvent(self, event, handler)
-	if( self.registeredEvents[event] ) then
+	if( self.registeredEvents[event] and self.registeredEvents[event][handler] ) then
 		self.registeredEvents[event][handler] = nil
 		
 		local hasHandler
@@ -117,16 +117,18 @@ local function UnregisterAll(self, handler)
 	end
 
 	for event, list in pairs(self.registeredEvents) do
-		list[handler] = nil
-		
-		local hasRegister
-		for handler in pairs(list) do
-			hasRegister = true
-			break
-		end
-		
-		if( not hasRegister ) then
-			self:UnregisterEvent(event)
+		if( list[handler] ) then
+			list[handler] = nil
+			
+			local hasRegister
+			for handler in pairs(list) do
+				hasRegister = true
+				break
+			end
+			
+			if( not hasRegister ) then
+				self:UnregisterEvent(event)
+			end
 		end
 	end
 end
