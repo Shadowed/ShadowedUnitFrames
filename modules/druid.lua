@@ -35,11 +35,11 @@ end
 function Druid:PowerChanged(frame)
 	local form = GetShapeshiftFormID()
 	if( form == CAT_FORM or form == BEAR_FORM ) then
-		frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
+		frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")
 		frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")
 		ShadowUF.Layout:SetBarVisibility(frame, "druidBar", true)
 	else
-		frame:UnregisterSingleEvent("UNIT_POWER", self)
+		frame:UnregisterSingleEvent("UNIT_POWER_FREQUENT", self)
 		frame:UnregisterSingleEvent("UNIT_MAXPOWER", self)
 		ShadowUF.Layout:SetBarVisibility(frame, "druidBar", nil)
 	end
