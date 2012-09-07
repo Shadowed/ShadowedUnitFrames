@@ -25,7 +25,7 @@ function Souls:OnLayoutApplied(frame, config)
 end
 
 function Souls:Update(frame, event, unit, powerType)
-	if( event == "UNIT_POWER" and powerType ~= soulsConfig.eventType ) then return end
+	if( powerType and powerType ~= soulsConfig.eventType ) then return end
 
 	local points = UnitPower("player", soulsConfig.powerType)
 	-- Bar display, hide it if we don't have any soul shards

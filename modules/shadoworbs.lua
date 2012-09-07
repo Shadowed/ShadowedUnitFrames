@@ -25,7 +25,7 @@ function ShadowOrbs:OnLayoutApplied(frame, config)
 end
 
 function ShadowOrbs:Update(frame, event, unit, powerType)
-	if( event == "UNIT_POWER" and powerType ~= shadowConfig.eventType ) then return end
+	if( powerType and powerType ~= shadowConfig.eventType ) then return end
 	
 	local points = UnitPower("player", shadowConfig.powerType)
 	-- Bar display, hide it if we don't have any combo points

@@ -48,7 +48,7 @@ function HolyPower:UpdateBarBlocks(frame, event, unit, powerType)
 end
 
 function HolyPower:Update(frame, event, unit, powerType)
-	if( event == "UNIT_POWER" and powerType ~= holyConfig.eventType ) then return end
+	if( powerType and powerType ~= holyConfig.eventType ) then return end
 	
 	local points = UnitPower("player", holyConfig.powerType)
 	-- Bar display, hide it if we don't have any combo points
