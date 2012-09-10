@@ -3642,13 +3642,6 @@ local function loadUnitOptions()
 								hidden = hideRestrictedOption,
 								arg = "altPowerBar.enabled",
 							},
-							sep = { 
-								order = 4,
-								type = "description",
-								name = "",
-								width = "full",
-								hidden = false,
-							},
 							colorType = {
 								order = 5,
 								type = "select",
