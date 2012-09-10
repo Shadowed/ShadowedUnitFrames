@@ -85,18 +85,40 @@ end
 
 -- Frequent updates
 local freqFrame = CreateFrame("Frame")
+freqFrame.timeToUpdate = 0
 freqFrame:SetScript("OnUpdate", function(self, elapsed)
+	freqFrame.timeToUpdate = freqFrame.timeToUpdate - elapsed
+	if( freqFrame.timeToUpdate > 0 ) then return end
+	freqFrame.timeToUpdate = freqFrame.timeToUpdate + freqFrame.minInterval
+
 	for fontString, timeLeft in pairs(frequentUpdates) do
 		if( fontString.parent:IsVisible() ) then
-			frequentUpdates[fontString] = timeLeft - elapsed
+			frequentUpdates[fontString] = timeLeft - freqFrame.minInterval
 			if( frequentUpdates[fontString] <= 0 ) then
-				frequentUpdates[fontString] = fontString.frequentStart
 				fontString:UpdateTags()
 			end
 		end
 	end
 end)
 freqFrame:Hide()
+
+local function updateMinimumFrequency()
+	local min
+	for fontString, pollTime in pairs(frequentUpdates) do
+		if( not min or min > pollTime ) then
+			min = pollTime
+		end
+	end
+
+	if( not min ) then
+		freqFrame:Hide()
+		return
+	end
+
+	freqFrame.timeToUpdate = min
+	freqFrame.minInterval = min
+	freqFrame:Show()
+end
 
 -- This is for bars that can be shown or hidden often, like druid power
 function Tags:FastRegister(frame, parent)
@@ -136,7 +158,8 @@ function Tags:Register(parent, fontString, tags, resetCache)
 	if( pollTime ) then
 		frequentUpdates[fontString] = pollTime
 		fontString.frequentStart = pollTime
-		freqFrame:Show()
+		
+		updateMinimumFrequency()
 	end
 	
 	local updateFunc = not resetCache and tagPool[tags]
@@ -196,7 +219,7 @@ function Tags:Register(parent, fontString, tags, resetCache)
 				frequencyCache[tags] = pollTime
 				frequentUpdates[fontString] = pollTime
 				fontString.frequentStart = pollTime
-				freqFrame:Show()
+				updateMinimumFrequency()
 			end
 			
 			-- It's an invalid tag, simply return the tag itself wrapped in brackets
@@ -219,6 +242,10 @@ function Tags:Register(parent, fontString, tags, resetCache)
 				end
 			end
 
+			if( frequentUpdates[fontString] ) then
+				frequentUpdates[fontString] = fontString.frequentStart + 0.01
+			end
+
 			for id, func in pairs(args) do
 				temp[id] = func(fontString.parent.unit, fontString.parent.unitOwner, fontString) or ""
 			end
@@ -239,17 +266,7 @@ end
 function Tags:Unregister(fontString)
 	regFontStrings[fontString] = nil
 	frequentUpdates[fontString] = nil
-	
-	-- Kill frequent updates if they aren't needed anymore
-	local hasFrequent
-	for k in pairs(frequentUpdates) do
-		hasFrequent = true
-		break
-	end
-	
-	if( not hasFrequent ) then
-		freqFrame:Hide()
-	end
+	updateMinimumFrequency()
 	
 	-- Unregister it as using HC
 	for key, module in pairs(self.customEvents) do
@@ -1136,10 +1153,10 @@ Tags.defaultCategories = {
 	["druid:abscurpp"]  	    = "classspec",
 	["druid:curmaxpp"]			= "classspec",
 	["druid:absolutepp"]		= "classspec",
-	["monk:curpp"]     	    = "classspec",
-	["monk:abscurpp"]  	    = "classspec",
+	["monk:curpp"]     	   		= "classspec",
+	["monk:abscurpp"]  	  	 	= "classspec",
 	["monk:curmaxpp"]			= "classspec",
-	["monk:absolutepp"]		= "classspec",
+	["monk:absolutepp"]			= "classspec",
 	["sshards"]					= "classspec",
 	["hpower"]					= "classspec",
 	["situation"]				= "playerthreat",
