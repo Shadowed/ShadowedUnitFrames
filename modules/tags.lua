@@ -144,6 +144,8 @@ function Tags:Register(parent, fontString, tags, resetCache)
 		-- Using .- prevents supporting tags such as [foo ([)]. Supporting that and having a single pattern
 		local formattedText = string.gsub(string.gsub(tags, "%%", "%%%%"), "[[].-[]]", "%%s")
 		formattedText = string.gsub(formattedText, "|", "||")
+		formattedText = string.gsub(formattedText, "||c", "|c")
+		formattedText = string.gsub(formattedText, "||r", "|r")
 
 		local args = {}
 		
