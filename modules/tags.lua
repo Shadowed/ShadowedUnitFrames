@@ -15,6 +15,7 @@ end
 
 -- Register the associated events with all the tags
 function Tags:RegisterEvents(parent, fontString, tags)
+	local hasPowerFilters;
 	-- Strip parantheses and anything inside them
 	for tag in string.gmatch(tags, "%[(.-)%]") do
 		-- The reason the original %b() match won't work, with [( ()group())] (or any sort of tag with ( or )
@@ -32,7 +33,16 @@ function Tags:RegisterEvents(parent, fontString, tags)
 				if( powerFilters[event] ) then
 					fontString.powerFilters = fontString.powerFilters or {}
 					fontString.powerFilters[powerFilters[event]] = true
-					fontString.powerType = fontString.powerType or select(2, UnitPowerType(parent.unit))
+					
+					if( powerFilters[event] == "CURRENT" ) then
+						if( not hasPowerFilters ) then
+							parent:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdatePowerType")
+							parent:RegisterUpdateFunc(self, "UpdatePowerType")
+						end
+
+						hasPowerFilters = true
+					end
+
 				-- Custom event registered by another module
 				elseif( self.customEvents[event] ) then
 					self.customEvents[event]:EnableTag(parent, fontString)
@@ -46,6 +56,15 @@ function Tags:RegisterEvents(parent, fontString, tags)
 				end
 			end
 		end
+	end
+end
+
+-- Update the cached power type
+function Tags:UpdatePowerType(frame)
+	local powerType = select(2, UnitPowerType(frame.unit))
+	for _, fontString in pairs(frame.fontStrings) do
+		fontString.powerType = powerType
+		fontString:UpdateTags()
 	end
 end
 
@@ -189,14 +208,10 @@ function Tags:Register(parent, fontString, tags, resetCache)
 		
 		-- Create our update function now
 		updateFunc = function(fontString, frame, event, unit, powerType)
-			if( event and fontString.powerFilters ) then
-				-- Keep track of what the current power type is if we're doing current filtering
-				if( event == "UNIT_DISPLAYPOWER" and fontString.powerFilters.CURRENT ) then
-					fontString.powerType = select(2, UnitPowerType(unit))
-
+			if( event and powerType and fontString.powerFilters ) then
 				-- Check if we can filter out the update 
-				elseif( event == "UNIT_POWER" or event == "UNIT_POWER_FREQUENT" or event == "UNIT_MAXPOWER" ) then
-					if( powerType and not fontString.powerFilters[powerType] and ( not fontString.powerFilters.CURRENT or fontString.powerType ~= powerType ) ) then
+				if( event == "UNIT_POWER" or event == "UNIT_POWER_FREQUENT" or event == "UNIT_MAXPOWER" ) then
+					if( not fontString.powerFilters[powerType] and ( not fontString.powerFilters.CURRENT or fontString.powerType ~= powerType ) ) then
 						return
 					end
 				end
@@ -241,12 +256,28 @@ function Tags:Unregister(fontString)
 			module:DisableTag(fontString.parent, fontString)
 		end
 	end
-		
+	
 	-- Kill any tag data
 	fontString.parent:UnregisterAll(fontString)
+	fontString.powerFilters = nil
 	fontString.frequentStart = nil
 	fontString.UpdateTags = nil
 	fontString:SetText("")
+
+	-- See if we need to unregister events
+	local parent = fontString.parent
+	local hasPowerFilter
+	for _, fontString in pairs(parent.fontStrings) do
+		if( fontString.powerFilters and fontString.powerFilters.CURRENT ) then
+			hasPowerFilter = true
+			break
+		end
+	end
+
+	if( not hasPowerFilter ) then
+		parent:UnregisterSingleEvent("UNIT_DISPLAYPOWER", self)
+		parent:UnregisterUpdateFunc(self, "UpdatePowerType")
+	end
 end
 
 -- Helper functions for tags, the reason I store it in ShadowUF is it's easier to type ShadowUF than ShadowUF.modules.Tags, and simpler for users who want to implement it.
@@ -973,11 +1004,11 @@ Tags.defaultEvents = {
 	["curmaxhp"]				= "UNIT_HEALTH UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH UNIT_CONNECTION",
 	["absolutehp"]				= "UNIT_HEALTH UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH UNIT_CONNECTION",
 	["smart:curmaxhp"]			= "UNIT_HEALTH UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH UNIT_CONNECTION",
-	["curpp"]               	= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
-	["abscurpp"]            	= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER UNIT_MAXPOWER",
-	["curmaxpp"]				= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER UNIT_MAXPOWER",
-	["absolutepp"]				= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER UNIT_MAXPOWER",
-	["smart:curmaxpp"]			= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER UNIT_MAXPOWER",
+	["curpp"]               	= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT",
+	["abscurpp"]            	= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_MAXPOWER",
+	["curmaxpp"]				= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_MAXPOWER",
+	["absolutepp"]				= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_MAXPOWER",
+	["smart:curmaxpp"]			= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_MAXPOWER",
 	["druid:curpp"]  	    	= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
 	["druid:abscurpp"]      	= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
 	["druid:curmaxpp"]			= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
