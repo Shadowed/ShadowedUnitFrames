@@ -3627,13 +3627,13 @@ local function loadUnitOptions()
 								name = string.format(L["Enable %s"], L["Power bar"]),
 								arg = "powerBar.enabled",
 							},
-							predictPower = {
-								order = 2,
-								type = "toggle",
-								name = L["Enable quick power"],
-								desc = L["Turns fast updating of the power bar on giving you more up to date power information than normal."],
-								arg = "powerBar.predicted",
-							},
+							--predictPower = {
+							--	order = 2,
+							--	type = "toggle",
+							--	name = L["Enable quick power"],
+							--	desc = L["Turns fast updating of the power bar on giving you more up to date power information than normal."],
+							--	arg = "powerBar.predicted",
+							--},
 							altPowerBar = {
 								order = 3,
 								type = "toggle",
