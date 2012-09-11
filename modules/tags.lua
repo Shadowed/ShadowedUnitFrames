@@ -63,8 +63,10 @@ end
 function Tags:UpdatePowerType(frame)
 	local powerType = select(2, UnitPowerType(frame.unit))
 	for _, fontString in pairs(frame.fontStrings) do
-		fontString.powerType = powerType
-		fontString:UpdateTags()
+		if( fontString.UpdateTags ) then
+			fontString.powerType = powerType
+			fontString:UpdateTags()
+		end
 	end
 end
 
