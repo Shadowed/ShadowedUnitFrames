@@ -347,7 +347,12 @@ function Layout:SetupBars(frame, config)
 		local key = module.moduleKey
 		local widget = frame[key]
 		if( widget and ( module.moduleHasBar or config[key] and config[key].isBar ) ) then
-			self:ToggleVisibility(widget, frame.visibility[key])
+			if( frame.visibility[key] and not frame[key].defaultHidden and module.defaultVisibility == false ) then
+				frame[key].defaultHidden = true
+				self:ToggleVisibility(widget, false)
+			else
+				self:ToggleVisibility(widget, frame.visibility[key])
+			end
 			
 			if( widget:IsShown() and widget.SetStatusBarTexture ) then
 				widget:SetStatusBarTexture(mediaPath.statusbar)
