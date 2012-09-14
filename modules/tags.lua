@@ -62,6 +62,8 @@ end
 -- Update the cached power type
 function Tags:UpdatePowerType(frame)
 	local powerType = select(2, UnitPowerType(frame.unit))
+	if( powerType ) then powerType = string.gsub(powerType, "POWER_TYPE_FEL_", "") end
+
 	for _, fontString in pairs(frame.fontStrings) do
 		if( fontString.UpdateTags ) then
 			fontString.powerType = powerType
