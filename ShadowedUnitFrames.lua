@@ -610,12 +610,18 @@ function ShadowUF:HideBlizzardFrames()
 	-- and the fix is simple enough
 	if( not active_hiddens.lfd ) then
 		active_hiddens.lfd = true
-		hooksecurefunc(LFDQueueFrameCooldownFrame, "SetFrameLevel", function(frame, value)
-			local parentLevel = LFDParentFrame:GetFrameLevel() + 5
-			if( value < parentLevel ) then
-				frame:SetFrameLevel(parentLevel + 10)
+		
+
+		for _, frame in pairs({QueueStatusFrame, LFDQueueFrameCooldownFrame}) do
+			if( frame ) then
+				hooksecurefunc(frame, "SetFrameLevel", function(frame, value)
+					local parentLevel = frame:GetFrameLevel() + 5
+					if( value < parentLevel ) then
+						frame:SetFrameLevel(parentLevel + 10)
+					end
+				end)
 			end
-		end)
+		end
 	end
 
 	-- Don't modify the raid menu because that will taint the MA/MT stuff and it'll break and that's bad
