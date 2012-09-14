@@ -161,7 +161,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		ALTERNATE = {r = 0.71, g = 0.0, b = 1.0},
 		CHI = {r = 0.71, g = 1.0, b = 0.92},
 		STATUE = {r = 0.35, g = 0.45, b = 0.60},
-		MUSHROOMS = {r = 0.20, g = 0.90, b = 0.20}
+		MUSHROOMS = {r = 0.20, g = 0.90, b = 0.20},
+		POWER_TYPE_FEL_ENERGY = {r = 0.878, g = 0.980, b = 0}
 	}
 	config.healthColors = {
 		tapped = {r = 0.5, g = 0.5, b = 0.5},

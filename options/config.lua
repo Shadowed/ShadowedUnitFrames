@@ -1205,6 +1205,14 @@ local function loadGeneralOptions()
 								arg = "powerColors.STATUE",
 								hidden = function(info) return select(2, UnitClass("player")) ~= "MONK" end,
 							},
+							POWER_TYPE_FEL_ENERGY = {
+								order = 18,
+								type = "color",
+								name = L["Fel Energy"],
+								hasAlpha = true,
+								arg = "powerColors.POWER_TYPE_FEL_ENERGY",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "WARLOCK" end,
+							},
 						},
 					},
 					cast = {
