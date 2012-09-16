@@ -3,7 +3,7 @@ ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUF.L["Incoming heals"])
 
 function IncHeal:OnEnable(frame)
 	frame.incHeal = frame.incHeal or ShadowUF.Units:CreateBar(frame)
-	
+
 	if( ShadowUF.db.profile.units[frame.unitType].incHeal.heals ) then
 		frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
 		frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
@@ -31,7 +31,7 @@ function IncHeal:OnLayoutApplied(frame)
 		if( ( ShadowUF.db.profile.units[frame.unitType].healthBar.invert and ShadowUF.db.profile.bars.backgroundAlpha == 0 ) or ( not ShadowUF.db.profile.units[frame.unitType].healthBar.invert and ShadowUF.db.profile.bars.alpha == 1 ) ) then
 			frame.incHeal.simple = true
 			frame.incHeal:SetWidth(frame.healthBar:GetWidth() * ShadowUF.db.profile.units[frame.unitType].incHeal.cap)
-			frame.incHeal:SetFrameLevel(frame.topFrameLevel - 3)
+			frame.incHeal:SetFrameLevel(frame.topFrameLevel - 1)
 
 			frame.incHeal:ClearAllPoints()
 			frame.incHeal:SetPoint("TOPLEFT", frame.healthBar)
