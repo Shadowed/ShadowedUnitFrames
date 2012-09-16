@@ -58,6 +58,7 @@ function Power:UpdateColor(frame)
 		end
 	end
 
+	frame.powerBar.currentType = string.gsub(frame.powerBar.currentType, "POWER_TYPE_FEL_", "")
 	self:Update(frame)
 end
 
