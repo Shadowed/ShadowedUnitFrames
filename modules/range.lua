@@ -13,11 +13,6 @@ local function checkRange(self, elapsed)
 	if( self.timeElapsed <= 0.50 ) then return end
 	self.timeElapsed = 0
 
-  	-- Bypass any checks if it's the player
-  	if( UnitIsUnit(self.parent.unit, "player") ) then
-		return self.parent:SetRangeAlpha(ShadowUF.db.profile.units[self.parent.unitType].range.inAlpha)
-  	end
-	
 	local frame = self.parent
 	local spell
 	-- check which spell to use
@@ -39,7 +34,13 @@ local function checkRange(self, elapsed)
 end
 
 function Range:ForceUpdate(frame)
-	checkRange(frame.range, 1)
+	if( UnitIsUnit(self.parent.unit, "player") ) then
+		frame:SetRangeAlpha(ShadowUF.db.profile.units[frame.unitType].range.inAlpha)
+		frame.range:Hide()
+	else
+		frame.range:Show()
+		checkRange(frame.range, 1)
+	end
 end
 
 function Range:OnEnable(frame)
@@ -48,8 +49,10 @@ function Range:OnEnable(frame)
 		frame.range:SetScript("OnUpdate", checkRange)
 		frame.range.timeElapsed = 0
 		frame.range.parent = frame
-		frame.range:Show()
 	end
+
+	frame.range:Show()
+
 	frame:RegisterUpdateFunc(self, "ForceUpdate")
 end
 
