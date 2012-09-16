@@ -15,10 +15,11 @@ local function checkRange(self, elapsed)
 
 	local frame = self.parent
 	local spell
-	-- check which spell to use
-	if UnitIsFriend("player", frame.unit) then
+
+	-- Check which spell to use
+	if( UnitIsFriend("player", frame.unit) ) then
 		spell = friendlySpell
-	elseif UnitCanAttack("player", frame.unit) then
+	elseif( UnitCanAttack("player", frame.unit) ) then
 		spell = hostileSpell
 	end
 
@@ -34,7 +35,7 @@ local function checkRange(self, elapsed)
 end
 
 function Range:ForceUpdate(frame)
-	if( UnitIsUnit(self.parent.unit, "player") ) then
+	if( UnitIsUnit(frame.unit, "player") ) then
 		frame:SetRangeAlpha(ShadowUF.db.profile.units[frame.unitType].range.inAlpha)
 		frame.range:Hide()
 	else
