@@ -1,7 +1,5 @@
 local IncHeal = {}
-local frames = {}
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUF.L["Incoming heals"])
--- ShadowUF.Tags.customEvents["CRTABS"] = IncHeal
 
 function IncHeal:OnEnable(frame)
 	frame.incHeal = frame.incHeal or ShadowUF.Units:CreateBar(frame)
