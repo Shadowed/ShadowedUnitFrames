@@ -53,6 +53,9 @@ local function createConfigEnv()
 
 			return getValue("UnitPower", unit, math.random(20000, 50000))
 		end,
+		UnitGetIncomingHeals = function(unit)
+			return getValue("UnitGetIncomingHeals", unit, math.random(5000, 10000))
+		end,
 		UnitPowerMax = function(unit, powerType)
 			if( powerType == SPELL_POWER_HOLY_POWER or powerType == SPELL_POWER_SOUL_SHARDS ) then
 				return 3
