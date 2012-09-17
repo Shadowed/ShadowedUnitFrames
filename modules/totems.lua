@@ -79,9 +79,11 @@ function Totems:OnLayoutApplied(frame)
 			else
 				totem.background:Hide()
 			end
-			
+
 			totem:SetHeight(frame.totemBar:GetHeight())
 			totem:SetWidth(barWidth)
+			totem:SetOrientation(ShadowUF.db.profile.units[frame.unitType].totemBar.vertical and "VERTICAL" or "HORIZONTAL")
+			totem:SetReverseFill(ShadowUF.db.profile.units[frame.unitType].totemBar.reverse and true or false)
 			totem:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 			totem:SetStatusBarColor(totemColors[totem.id].r, totemColors[totem.id].g, totemColors[totem.id].b, ShadowUF.db.profile.bars.alpha)
 			totem:GetStatusBarTexture():SetHorizTile(false)

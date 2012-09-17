@@ -1,4 +1,4 @@
-local Combo = {}
+local Combo = {isComboPoints = true}
 ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUF.L["Combo points"])
 ShadowUF.ComboPoints = Combo
 local cpConfig = {max = MAX_COMBO_POINTS, key = "comboPoints", colorKey = "COMBOPOINTS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}

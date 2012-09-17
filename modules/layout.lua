@@ -357,6 +357,9 @@ function Layout:SetupBars(frame, config)
 			if( widget:IsShown() and widget.SetStatusBarTexture ) then
 				widget:SetStatusBarTexture(mediaPath.statusbar)
 				widget:GetStatusBarTexture():SetHorizTile(false)
+
+				widget:SetOrientation(config[key].vertical and "VERTICAL" or "HORIZONTAL")
+				widget:SetReverseFill(config[key].reverse and true or false)
 			end
 
 			if( widget.background ) then

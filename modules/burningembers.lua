@@ -54,6 +54,8 @@ function Embers:OnLayoutApplied(frame)
 		ember:GetStatusBarTexture():SetHorizTile(false)
 		ember:SetHeight(frame.burningEmbersBar:GetHeight())
 		ember:SetMinMaxValues(0, MAX_POWER_PER_EMBER)
+		ember:SetOrientation(ShadowUF.db.profile.units[frame.unitType].burningEmbersBar.vertical and "VERTICAL" or "HORIZONTAL")
+		ember:SetReverseFill(ShadowUF.db.profile.units[frame.unitType].burningEmbersBar.reverse and true or false)
 		ember.setColor = nil
 	end
 

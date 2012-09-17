@@ -2226,6 +2226,23 @@ local function loadUnitOptions()
 				end,
 				arg = "$parent.backgroundColor",
 			},
+			sep3 = {order = 1.66, type = "description", name = "", hidden = function(info) return info[#(info) - 1] ~= "burningEmbersBar" or not ShadowUF.db.profile.advanced end},
+			vertical = {
+				order = 1.70,
+				type = "toggle",
+				name = L["Vertical growth"],
+				desc = L["Rather than bars filling from left -> right, they will fill from bottom -> top."],
+				arg = "$parent.vertical",
+				hidden = function(info) return not ShadowUF.db.profile.advanced or ShadowUF.modules[info[#(info) - 1]].isComboPoints end,
+			},
+			reverse = {
+				order = 1.71,
+				type = "toggle",
+				name = L["Reverse fill"],
+				desc = L["Will fill right -> left when using horizontal growth, or top -> bottom when using vertical growth."],
+				arg = "$parent.reverse",
+				hidden = function(info) return not ShadowUF.db.profile.advanced or ShadowUF.modules[info[#(info) - 1]].isComboPoints end,
+			},
 			sep2 = {order = 1.75, type = "description", name = "", hidden = function(info)
 				local moduleKey = info[#(info) - 1]
 				return ( moduleKey ~= "healthBar" and moduleKey ~= "powerBar" and moduleKey ~= "druidBar" and moduleKey ~= "monkBar" and moduleKey ~= "burningEmbersBar" ) or not ShadowUF.db.profile.advanced
@@ -2254,7 +2271,7 @@ local function loadUnitOptions()
 				min = 0, max = 10, step = 0.1,
 				hidden = hideBarOption,
 				arg = "$parent.height",
-			},
+			}
 		},
 	}
 	
