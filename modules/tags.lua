@@ -31,16 +31,18 @@ function Tags:RegisterEvents(parent, fontString, tags)
 			for event in string.gmatch(tagEvents, "%S+") do
 				-- Power filter event, store it instead
 				if( powerFilters[event] ) then
-					fontString.powerFilters = fontString.powerFilters or {}
-					fontString.powerFilters[powerFilters[event]] = true
-					
-					if( powerFilters[event] == "CURRENT" ) then
-						if( not hasPowerFilters ) then
-							parent:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdatePowerType")
-							parent:RegisterUpdateFunc(self, "UpdatePowerType")
-						end
+					if( powerFilters[event] ~= "CURRENT" ) then
+						fontString.powerFilters = fontString.powerFilters or {}
+						fontString.powerFilters[powerFilters[event]] = true
+						
+						if( powerFilters[event] == "CURRENT" ) then
+							if( not hasPowerFilters ) then
+								parent:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdatePowerType")
+								parent:RegisterUpdateFunc(self, "UpdatePowerType")
+							end
 
-						hasPowerFilters = true
+							hasPowerFilters = true
+						end
 					end
 
 				-- Custom event registered by another module
