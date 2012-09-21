@@ -69,7 +69,6 @@ function Power:UpdateColor(frame)
 end
 
 function Power:Update(frame, event, unit, powerType)
-	print(unit, powerType, frame.powerBar.currentType)
 	if( event and powerType and powerType ~= frame.powerBar.currentType ) then return end
 
 	frame.powerBar.currentPower = UnitPower(frame.unit)
