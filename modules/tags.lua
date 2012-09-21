@@ -1,9 +1,24 @@
 -- Thanks to haste for the original tagging code, which I then mostly ripped apart and stole!
-local Tags = {afkStatus = {}, offlineStatus = {}, customEvents = {}}
-local tagPool, functionPool, temp, regFontStrings, frequentUpdates, frequencyCache = {}, {}, {}, {}, {}, {}
+local Tags = {afkStatus = {}, offlineStatus = {}, customEvents = {}, powerMap = {}}
+local tagPool, functionPool, temp, regFontStrings, frequentUpdates, frequencyCache, powerMap = {}, {}, {}, {}, {}, {}, {}
 local L = ShadowUF.L
 
 ShadowUF.Tags = Tags
+
+-- Map the numeric index to the string
+local numerics = {}
+for id, color in pairs(PowerBarColor) do
+	if( type(id) == "number" ) then
+		numerics[color] = id
+	end
+end
+
+for id, color in pairs(PowerBarColor) do
+	if( type(id) == "string" and numerics[color] ) then
+		powerMap[numerics[color]] = id
+		powerMap[id] = true
+	end
+end
 
 -- Avoid having to do string.match on every event
 local powerFilters = {["SUF_POWERTYPE:CURRENT"] = "CURRENT"}
@@ -31,18 +46,16 @@ function Tags:RegisterEvents(parent, fontString, tags)
 			for event in string.gmatch(tagEvents, "%S+") do
 				-- Power filter event, store it instead
 				if( powerFilters[event] ) then
-					if( powerFilters[event] ~= "CURRENT" ) then
-						fontString.powerFilters = fontString.powerFilters or {}
-						fontString.powerFilters[powerFilters[event]] = true
-						
-						if( powerFilters[event] == "CURRENT" ) then
-							if( not hasPowerFilters ) then
-								parent:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdatePowerType")
-								parent:RegisterUpdateFunc(self, "UpdatePowerType")
-							end
-
-							hasPowerFilters = true
+					fontString.powerFilters = fontString.powerFilters or {}
+					fontString.powerFilters[powerFilters[event]] = true
+					
+					if( powerFilters[event] == "CURRENT" ) then
+						if( not hasPowerFilters ) then
+							parent:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdatePowerType")
+							parent:RegisterUpdateFunc(self, "UpdatePowerType")
 						end
+
+						hasPowerFilters = true
 					end
 
 				-- Custom event registered by another module
@@ -63,8 +76,8 @@ end
 
 -- Update the cached power type
 function Tags:UpdatePowerType(frame)
-	local powerType = select(2, UnitPowerType(frame.unit))
-	if( powerType ) then powerType = string.gsub(powerType, "POWER_TYPE_FEL_", "") end
+	local powerID, powerType = UnitPowerType(frame.unit)
+	if( not powerMap[powerType] ) then powerType = powerMap[powerID] or "ENERGY" end
 
 	for _, fontString in pairs(frame.fontStrings) do
 		if( fontString.UpdateTags ) then

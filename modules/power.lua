@@ -1,4 +1,5 @@
 local Power = {}
+local powerMap = ShadowUF.Tags.powerMap
 ShadowUF:RegisterModule(Power, "powerBar", ShadowUF.L["Power bar"], true)
 
 function Power:OnEnable(frame)
@@ -21,7 +22,7 @@ end
 
 local altColor = {}
 function Power:UpdateColor(frame)
-	local currentType, altR, altG, altB = select(2, UnitPowerType(frame.unit))
+	local powerID, currentType, altR, altG, altB = UnitPowerType(frame.unit)
 	frame.powerBar.currentType = currentType
 
 	local color
@@ -58,11 +59,17 @@ function Power:UpdateColor(frame)
 		end
 	end
 
-	frame.powerBar.currentType = string.gsub(frame.powerBar.currentType, "POWER_TYPE_FEL_", "")
+	-- Overridden power types like Warlock pets, or Ulduar vehicles use "POWER_TYPE_#####" but triggers power events with "ENERGY", so this fixes that
+	-- by using the powerID to figure out the event type
+	if( not powerMap[currentType] ) then
+		frame.powerBar.currentType = powerMap[powerID] or "ENERGY"
+	end
+	
 	self:Update(frame)
 end
 
 function Power:Update(frame, event, unit, powerType)
+	print(unit, powerType, frame.powerBar.currentType)
 	if( event and powerType and powerType ~= frame.powerBar.currentType ) then return end
 
 	frame.powerBar.currentPower = UnitPower(frame.unit)
