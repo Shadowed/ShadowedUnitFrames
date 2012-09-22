@@ -619,6 +619,7 @@ function ShadowUF:HideBlizzardFrames()
 	if( ShadowUF.db.profile.hidden.arena and not active_hiddens.arena and IsAddOnLoaded("Blizzard_ArenaUI") ) then
 		ArenaEnemyFrames.show = false
 		ArenaEnemyFrames:UnregisterAllEvents()
+		ArenaEnemyFrames:Hide()
 	end
 
 	if( ShadowUF.db.profile.hidden.playerAltPower and not active_hiddens.playerAltPower ) then
