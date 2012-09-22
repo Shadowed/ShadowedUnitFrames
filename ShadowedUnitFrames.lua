@@ -524,7 +524,9 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	if( CompactRaidFrameManager ) then
-		if( ShadowUF.db.profile.hidden.raid and not active_hiddens.raid ) then
+		if( ShadowUF.db.profile.hidden.raid and not active_hiddens.raidTriggered ) then
+			active_hiddens.raidTriggered = true
+
 			local function hideRaid()
 				CompactRaidFrameManager:UnregisterAllEvents()
 				CompactRaidFrameContainer:UnregisterAllEvents()
