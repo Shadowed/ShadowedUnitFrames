@@ -194,7 +194,7 @@ end
 
 -- Event handling
 local function OnEvent(self, event, unit, ...)
-	if( not unitEvents[event] or self.event == unit ) then
+	if( not unitEvents[event] or self.unit == unit ) then
 		for handler, func in pairs(self.registeredEvents[event]) do
 			handler[func](handler, self, event, unit, ...)
 		end
