@@ -102,7 +102,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		borderColor = {r = 0.30, g = 0.30, b = 0.50, a = 1},
 	}
 	config.hidden = {
-		cast = false, runes = true, buffs = false, party = true, player = true, pet = true, target = true, focus = true, boss = true, arena = true
+		cast = false, buffs = false, party = true, player = true, pet = true, target = true, focus = true, boss = true, arena = true, playerAltPower = true, playerPower = true
 	}
 	config.font = {
 		name = "Myriad Condensed Web",
@@ -210,6 +210,9 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		arena = {anchorPoint = "C", anchorTo = "UIParent", point = "", relativePoint = "", x = 0, y = 0},
 		arenapet = {anchorPoint = "RB", anchorTo = "$parent", x = 0, y = 0},
 		arenatarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
+		battleground = {anchorPoint = "C", anchorTo = "UIParent", point = "", relativePoint = "", x = 0, y = 0},
+		battlegroundpet = {anchorPoint = "RB", anchorTo = "$parent", x = 0, y = 0},
+		battlegroundtarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
 		boss = {anchorPoint = "C", anchorTo = "UIParent", point = "", relativePoint = "", x = 0, y = 0},
 		bosstarget = {anchorPoint = "RB", anchorTo = "$parent", x = 0, y = 0},
 	}
@@ -441,6 +444,56 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			},
 		},
 		arenatarget = {
+			width = 90,
+			height = 25,
+			scale = 1.0,
+			powerBar = {height = 0.60},
+			indicators = {
+				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+			},
+			text = {
+				{text = "[name]"},
+				{text = "[curhp]"},
+				{text = ""},
+				{text = ""},
+				{text = "[name]"},
+			},
+		},
+		battleground = {
+			width = 170,
+			height = 45,
+			scale = 1.0,
+			attribPoint = "TOP",
+			attribAnchorPoint = "LEFT",
+			portrait = {enabled = false, fullAfter = 50},
+			castBar = {order = 60},
+			offset = 25,
+			auras = {
+				buffs = {enabled = false, maxRows = 1, perRow = 9},
+				debuffs = {enabled = false, maxRows = 1, perRow = 9},
+			},
+			text = {
+				{text = "[name]"},
+				{text = "[curmaxhp]"},
+				{text = "[perpp]"},
+				{text = "[curmaxpp]"},
+				{text = "[name]"},
+			},
+		},
+		battlegroundpet = {
+			width = 90,
+			height = 25,
+			scale = 1.0,
+			powerBar = {height = 0.60},
+			text = {
+				{text = "[name]"},
+				{text = "[curhp]"},
+				{text = ""},
+				{text = ""},
+				{text = "[name]"},
+			},
+		},
+		battlegroundtarget = {
 			width = 90,
 			height = 25,
 			scale = 1.0,

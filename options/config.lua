@@ -19,12 +19,17 @@ local unitCategories = {
 	general = {"target", "targettarget", "targettargettarget", "focus", "focustarget", "pettarget"},
 	party = {"party", "partypet", "partytarget"},
 	raid = {"raid", "raidpet", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget"},
-	arena = {"arena", "arenapet", "arenatarget"}}
+	arena = {"arena", "arenapet", "arenatarget"},
+	battleground = {"battleground", "battlegroundpet", "battlegroundtarget"}
+}
 
 local UNIT_DESC = {
 	["boss"] = L["Boss units are for only certain fights, such as Blood Princes or the Gunship battle, you will not see them for every boss fight."],
 	["mainassist"] = L["Main Assists's are set by the Blizzard Main Assist system or mods that use them such as oRA3."],
 	["maintank"] = L["Main Tank's are set by the Blizzard Main Tank system or mods that use them such as oRA3."],
+	["battleground"] = L["Currently used in battlegrounds for showing flag carriers."],
+	["battlegroundpet"] = L["Current pet used by a battleground unit"],
+	["battlegroundtarget"] = L["Current target of a battleground unit"]
 }
 
 local PAGE_DESC = {
@@ -37,7 +42,7 @@ local PAGE_DESC = {
 	["filter"] = L["Simple aura filtering by whitelists and blacklists."],
 }
 local INDICATOR_NAMES = {["questBoss"] = L["Quest Boss"], ["leader"] = L["Leader"], ["lfdRole"] = L["Dungeon Role"], ["masterLoot"] = L["Master Looter"], ["pvp"] = L["PvP Flag"], ["raidTarget"] = L["Raid Target"], ["ready"] = L["Ready Status"], ["role"] = L["Raid Role"], ["status"] = L["Combat Status"], ["class"] = L["Class Icon"], ["resurrect"] = L["Resurrect Status"], ["phase"] = L["Other Party/Phase Status"], ["petBattle"] = L["Pet Battle"]}
-local AREA_NAMES = {["arena"] = L["Arenas"],["none"] = L["Everywhere else"], ["party"] = L["Party instances"], ["pvp"] = L["Battlegrounds"], ["raid"] = L["Raid instances"]}
+local AREA_NAMES = {["arena"] = L["Arenas"],["none"] = L["Everywhere else"], ["party"] = L["Party instances"], ["pvp"] = L["Battleground"], ["raid"] = L["Raid instances"]}
 local INDICATOR_DESC = {
 		["leader"] = L["Crown indicator for group leaders."], ["lfdRole"] = L["Role the unit is playing in dungeons formed through the Looking For Dungeon system."],
 		["masterLoot"] = L["Bag indicator for master looters."], ["pvp"] = L["PVP flag indicator, Horde for Horde flagged pvpers and Alliance for Alliance flagged pvpers."],
@@ -1419,6 +1424,7 @@ local function loadHideOptions()
 		type = "toggle",
 		name = function(info)
 			local key = info[#(info)]
+			if( key == "arena" ) then return string.format(L["Hide %s frames"], "arena/battleground") end
 			return L.units[key] and string.format(L["Hide %s frames"], string.lower(L.units[key])) or string.format(L["Hide %s"], key == "cast" and L["player cast bar"] or key == "playerPower" and L["player power frames"] or key == "buffs" and L["buff frames"] or key == "playerAltPower" and L["player alt. power"])
 		end,
 		set = function(info, value)
@@ -2520,7 +2526,7 @@ local function loadUnitOptions()
 								name = L["On aggro"],
 								desc = L["Highlight units that have aggro on any mob."],
 								arg = "highlight.aggro",
-								hidden = function(info) return info[2] == "arena" or info[2] == "arenapet" or ShadowUF.fakeUnits[info[2]] end,
+								hidden = function(info) return ShadowUF.Units.zoneUnits[info[2]] or info[2] == "battlegroundpet" or info[2] == "arenapet" or ShadowUF.fakeUnits[info[2]] end,
 							},
 							debuff = {
 								order = 6,
@@ -2528,7 +2534,14 @@ local function loadUnitOptions()
 								name = L["On curable debuff"],
 								desc = L["Highlight units that are debuffed with something you can cure."],
 								arg = "highlight.debuff",
-								hidden = function(info) return string.match(info[2], "^arena") or string.match(info[2], "^boss") end,
+								hidden = function(info) return ShadowUF.Units.zoneUnits[info[2]] or info[2] == "battlegroundpet" or info[2] == "arenapet" end,
+							},
+							sep = {
+								order = 6.5,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = function(info) return not (ShadowUF.Units.zoneUnits[info[2]] or info[2] == "battlegroundpet" or info[2] == "arenapet" or ShadowUF.fakeUnits[info[2]]) end,
 							},
 							alpha = {
 								order = 7,
@@ -3155,7 +3168,7 @@ local function loadUnitOptions()
 				name = function(info) return L.units[info[#(info) - 1]] end,
 				hidden = function(info)
 					local unit = info[#(info) - 1]
-					return unit ~= "raid" and unit ~= "raidpet" and unit ~= "party" and unit ~= "mainassist" and unit ~= "maintank" and unit ~= "boss" and unit ~= "arena"
+					return unit ~= "raid" and unit ~= "raidpet" and unit ~= "party" and unit ~= "mainassist" and unit ~= "maintank" and not ShadowUF.Units.zoneUnits[unit]
 				end,
 				set = function(info, value)
 					setUnit(info, value)
@@ -3348,7 +3361,7 @@ local function loadUnitOptions()
 								name = L["Max columns"],
 								min = 1, max = 20, step = 1,
 								arg = "maxColumns",
-								hidden = function(info) return info[2] == "boss" or info[2] == "arena" or hideSplitOrRaidOption(info) end,
+								hidden = function(info) return ShadowUF.Units.zoneUnits[info[2]] or hideSplitOrRaidOption(info) end,
 							},
 							unitsPerColumn = {
 								order = 8,
@@ -3356,7 +3369,7 @@ local function loadUnitOptions()
 								name = L["Units per column"],
 								min = 1, max = 40, step = 1,
 								arg = "unitsPerColumn",
-								hidden = function(info) return info[2] == "boss" or info[2] == "arena" or hideSplitOrRaidOption(info) end,
+								hidden = function(info) return ShadowUF.Units.zoneUnits[info[2]] or hideSplitOrRaidOption(info) end,
 							},
 							partyPerColumn = {
 								order = 9,
@@ -3391,7 +3404,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Sorting"],
-						hidden = function(info) return info[2] == "boss" or info[2] == "arena" or ( info[2] ~= "raid" and not ShadowUF.db.profile.advanced ) end,
+						hidden = function(info) return ShadowUF.Units.zoneUnits[info[2]] or ( info[2] ~= "raid" and not ShadowUF.db.profile.advanced ) end,
 						args = {
 							sortMethod = {
 								order = 2,
@@ -3664,7 +3677,7 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Alt. Power bar"]),
 								desc = L["Shows a bar for alternate power info (used in some encounters)"],
-								hidden = hideRestrictedOption,
+								hidden = function(info) return ShadowUF.Units.fakeUnits[info[2]] or hideRestrictedOption(info) end,
 								arg = "altPowerBar.enabled",
 							},
 							colorType = {
@@ -3809,7 +3822,7 @@ local function loadUnitOptions()
 						type = "group",
 						inline = true,
 						name = L["Incoming heals"],
-						hidden = hideRestrictedOption,
+						hidden = function(info) return ShadowUF.Units.zoneUnits[info[2]] or hideRestrictedOption(info) end,
 						disabled = function(info) return not getVariable(info[2], "healthBar", nil, "enabled") end,
 						args = {
 							heals = {
@@ -4494,12 +4507,12 @@ local function loadUnitOptions()
 	local unitCategory = {
 		order = function(info)
 			local cat = info[#(info)]
-			return cat == "playercat" and 50 or cat == "generalcat" and 100 or cat == "partycat" and 200 or cat == "raidcat" and 300 or 400
+			return cat == "playercat" and 50 or cat == "generalcat" and 100 or cat == "partycat" and 200 or cat == "raidcat" and 300 or cat == "arenacat" and 400 or 500
 		end,
 		type = "header",
 		name = function(info)
 			local cat = info[#(info)]
-			return cat == "playercat" and L["Player"] or cat == "generalcat" and L["General"] or cat == "raidcat" and L["Raid"] or cat == "partycat" and L["Party"] or cat == "arenacat" and L["Arena"]
+			return cat == "playercat" and L["Player"] or cat == "generalcat" and L["General"] or cat == "raidcat" and L["Raid"] or cat == "partycat" and L["Party"] or cat == "arenacat" and L["Arena"] or cat == "battlegroundcat" and L["Battlegrounds"]
 		end,
 		width = "full",
 	}
@@ -4508,7 +4521,7 @@ local function loadUnitOptions()
 		options.args.enableUnits.args.enabled.args[cat .. "cat"] = unitCategory
 
 		for _, unit in pairs(list) do
-			unitCatOrder[unit] = cat == "player" and 50 or cat == "general" and 100 or cat == "party" and 200 or cat == "raid" and 300 or 400
+			unitCatOrder[unit] = cat == "player" and 50 or cat == "general" and 100 or cat == "party" and 200 or cat == "raid" and 300 or cat == "arena" and 400 or 500
 		end
 	end
 
@@ -4953,6 +4966,7 @@ local function loadFilterOptions()
 			none = filterTable,
 			pvp = filterTable,
 			arena = filterTable,
+			battleground = filterTable,
 			party = filterTable,
 			raid = filterTable,
 		}
@@ -5864,7 +5878,7 @@ function Config:Open()
 		loadOptions()
 		
 		LibStub("AceConfig-3.0"):RegisterOptionsTable("ShadowedUF", options)
-		AceDialog:SetDefaultSize("ShadowedUF", 845, 550)
+		AceDialog:SetDefaultSize("ShadowedUF", 880, 550)
 		registered = true
 	end
 	
