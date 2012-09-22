@@ -383,6 +383,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			attribPoint = "TOP",
 			attribAnchorPoint = "LEFT",
 			offset = 20,
+			altPower = {enabled = false},
 			auras = {
 				buffs = {enabled = true, maxRows = 1, perRow = 8},
 				debuffs = {enabled = true, maxRows = 1, perRow = 8},
@@ -415,7 +416,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			scale = 1.0,
 			attribPoint = "TOP",
 			attribAnchorPoint = "LEFT",
-			portrait = {enabled = false, fullAfter = 50},
+			portrait = {enabled = true, type = "class", fullAfter = 50},
+			altPower = {enabled = false},
 			castBar = {order = 60},
 			offset = 25,
 			auras = {
@@ -435,6 +437,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			height = 25,
 			scale = 1.0,
 			powerBar = {height = 0.60},
+			altPower = {enabled = false},
 			text = {
 				{text = "[name]"},
 				{text = "[curhp]"},
@@ -448,6 +451,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			height = 25,
 			scale = 1.0,
 			powerBar = {height = 0.60},
+			altPower = {enabled = false},
 			indicators = {
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
 			},
@@ -460,23 +464,28 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			},
 		},
 		battleground = {
-			width = 170,
-			height = 45,
+			width = 140,
+			height = 35,
 			scale = 1.0,
 			attribPoint = "TOP",
 			attribAnchorPoint = "LEFT",
-			portrait = {enabled = false, fullAfter = 50},
+			portrait = {enabled = false, type = "class", fullAfter = 50},
+			powerBar = {height = 0.5},
+			altPower = {enabled = false},
 			castBar = {order = 60},
-			offset = 25,
+			offset = 0,
 			auras = {
 				buffs = {enabled = false, maxRows = 1, perRow = 9},
 				debuffs = {enabled = false, maxRows = 1, perRow = 9},
 			},
+			indicators = {
+				pvp = {enabled = true, anchorTo = "$parent", anchorPoint = "LC", size = 40, x = 16, y = -8},
+			},
 			text = {
 				{text = "[name]"},
 				{text = "[curmaxhp]"},
-				{text = "[perpp]"},
-				{text = "[curmaxpp]"},
+				{text = ""},
+				{text = ""},
 				{text = "[name]"},
 			},
 		},
@@ -485,6 +494,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			height = 25,
 			scale = 1.0,
 			powerBar = {height = 0.60},
+			altPower = {enabled = false},
 			text = {
 				{text = "[name]"},
 				{text = "[curhp]"},
@@ -498,6 +508,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			height = 25,
 			scale = 1.0,
 			powerBar = {height = 0.60},
+			altPower = {enabled = false},
 			indicators = {
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
 			},

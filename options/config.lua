@@ -302,6 +302,7 @@ local function hideRestrictedOption(info)
 		return string.match(unit, "%w+target" )
 	-- Fall back for indicators, no variable table so it shouldn't be shown
 	elseif( info[#(info) - 1] == "indicators" ) then
+		print(unit, ShadowUF.db.pr)
 		if( ( unit == "global" and not globalConfig.indicators[key] ) or ( unit ~= "global" and not ShadowUF.db.profile.units[unit].indicators[key] ) ) then
 			return true
 		end
@@ -3165,7 +3166,9 @@ local function loadUnitOptions()
 			attributes = {
 				order = 1.5,
 				type = "group",
-				name = function(info) return L.units[info[#(info) - 1]] end,
+				name = function(info)
+					return L.shortUnits[info[#(info) - 1]] or L.units[info[#(info) - 1]]
+				end,
 				hidden = function(info)
 					local unit = info[#(info) - 1]
 					return unit ~= "raid" and unit ~= "raidpet" and unit ~= "party" and unit ~= "mainassist" and unit ~= "maintank" and not ShadowUF.Units.zoneUnits[unit]
@@ -3677,7 +3680,7 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Alt. Power bar"]),
 								desc = L["Shows a bar for alternate power info (used in some encounters)"],
-								hidden = function(info) return ShadowUF.Units.fakeUnits[info[2]] or hideRestrictedOption(info) end,
+								hidden = function(info) return ShadowUF.fakeUnits[info[2]] or hideRestrictedOption(info) end,
 								arg = "altPowerBar.enabled",
 							},
 							colorType = {
@@ -5878,7 +5881,7 @@ function Config:Open()
 		loadOptions()
 		
 		LibStub("AceConfig-3.0"):RegisterOptionsTable("ShadowedUF", options)
-		AceDialog:SetDefaultSize("ShadowedUF", 880, 550)
+		AceDialog:SetDefaultSize("ShadowedUF", 865, 550)
 		registered = true
 	end
 	
