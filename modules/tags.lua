@@ -268,7 +268,7 @@ function Tags:Register(parent, fontString, tags, resetCache)
 			for id, func in pairs(args) do
 				temp[id] = func(fontString.parent.unit, fontString.parent.unitOwner, fontString) or ""
 			end
-			
+
 			fontString:SetFormattedText(formattedText, unpack(temp))
 		end
 

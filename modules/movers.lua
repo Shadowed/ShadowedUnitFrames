@@ -154,7 +154,7 @@ local function prepareChildUnits(header, ...)
 		if( frame.unitType and not frame.configUnitID ) then
 			ShadowUF.Units.frameList[frame] = true
 			frame.configUnitID = header.groupID and (header.groupID * 5) - 5 + i or i
-			frame:SetAttribute("unit", ShadowUF[header.unitType .. "Units"][frame.configUnitID])
+			frame:SetAttribute("unit", ShadowUF[header.unitMappedType .. "Units"][frame.configUnitID])
 		end
 	end
 end
@@ -264,7 +264,7 @@ function Movers:Enable()
 		header:SetMovable(true)
 		prepareChildUnits(header, header:GetChildren())
 	end
-	
+
 	-- Setup the test env
 	if( not self.isEnabled ) then
 		for _, func in pairs(ShadowUF.tagFunc) do
@@ -290,7 +290,7 @@ function Movers:Enable()
 	-- so the first call gets all the parent units, the second call gets the child units
 	setupUnits()
 	setupUnits(true)
-	
+
 	-- Don't show the dialog if the configuration is opened through the configmode spec
 	if( not self.isConfigModeSpec ) then
 		self:CreateInfoFrame()

@@ -1,5 +1,5 @@
 local Units = {headerFrames = {}, unitFrames = {}, frameList = {}, unitEvents = {}, remappedUnits = {}}
-Units.childUnits = {["partytarget"] = "party", ["partypet"] = "party", ["maintanktarget"] = "maintank", ["mainassisttarget"] = "mainassist", ["bosstarget"] = "boss", ["arenatarget"] = "arena", ["arenapet"] = "arena"}
+Units.childUnits = {["partytarget"] = "party", ["partypet"] = "party", ["maintanktarget"] = "maintank", ["mainassisttarget"] = "mainassist", ["bosstarget"] = "boss", ["arenatarget"] = "arena", ["arenapet"] = "arena", ["battlegroundpet"] = "battleground", ["battlegroundtarget"] = "battleground"}
 Units.zoneUnits = {["arena"] = "arena", ["arenapet"] = "arena", ["arenatarget"] = "arena", ["boss"] = "raid", ["bosstarget"] = "raid", ["battleground"] = "pvp", ["battlegroundtarget"] = "pvp", ["battlegroundpet"] = "pvp"}
 Units.remappedUnits = {["battleground"] = "arena", ["battlegroundpet"] = "arenapet", ["battlegroundtarget"] = "arenatarget"}
 Units.headerUnits = {["raid"] = true, ["party"] = true, ["maintank"] = true, ["mainassist"] = true, ["raidpet"] = true, ["partypet"] = true}
@@ -194,7 +194,7 @@ end
 
 -- Event handling
 local function OnEvent(self, event, unit, ...)
-	if( not unitEvents[event] or self.unit == unit ) then
+	if( not unitEvents[event] or self.event == unit ) then
 		for handler, func in pairs(self.registeredEvents[event]) do
 			handler[func](handler, self, event, unit, ...)
 		end
@@ -453,23 +453,25 @@ end
 -- vehicleUnit = Unit to use when the unitOwner is in a vehicle
 OnAttributeChanged = function(self, name, unit)
 	if( name ~= "unit" or not unit or unit == self.unitOwner ) then return end
+
 	-- Nullify the previous entry if it had one
-	if( self.unit and unitFrames[self.unit] == self ) then unitFrames[self.unit] = nil end
+	local configUnit = self.unitUnmapped or unit
+	if( self.configUnit and unitFrames[self.configUnit] == self ) then unitFrames[self.configUnit] = nil end
 	
 	-- Setup identification data
 	self.unit = unit
 	self.unitID = tonumber(string.match(unit, "([0-9]+)"))
 	self.unitRealType = string.gsub(unit, "([0-9]+)", "")
-	self.unitType = self.unitType or self.unitRealType
+	self.unitType = self.unitUnmapped and string.gsub(self.unitUnmapped, "([0-9]+)", "") or self.unitType or self.unitRealType
 	self.unitOwner = unit
 	self.vehicleUnit = self.unitOwner == "player" and "vehicle" or self.unitRealType == "party" and "partypet" .. self.unitID or self.unitRealType == "raid" and "raidpet" .. self.unitID or nil
 	self.inVehicle = nil
-	
+
 	-- Split everything into two maps, this is the simple parentUnit -> frame map
 	-- This is for things like finding a party parent for party target/pet, the main map for doing full updates is
 	-- an indexed frame that is updated once and won't have unit conflicts.
 	if( self.unitRealType == self.unitType ) then
-		unitFrames[unit] = self
+		unitFrames[configUnit] = self
 	end
 	
 	frameList[self] = true
@@ -878,7 +880,7 @@ function Units:SetHeaderAttributes(frame, type)
 		end
 	
 	-- Need to position the fake units
-	elseif( type == "boss" or type == "arena" ) then
+	elseif( type == "boss" or type == "arena" or type == "battleground" ) then
 		frame:SetWidth(config.width)
 		self:PositionHeaderChildren(frame)
 	
@@ -957,6 +959,7 @@ function Units:LoadSplitGroupHeader(type)
 				frame.initialConfigFunction = initializeUnit
 				frame.isHeaderFrame = true
 				frame.unitType = type
+				frame.unitMappedType = type
 				frame.splitParent = type
 				frame.groupID = id
 				--frame:SetBackdrop({bgFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeFile = "Interface\\ChatFrame\\ChatFrameBackground", edgeSize = 1})
@@ -1031,18 +1034,20 @@ function Units:LoadGroupHeader(type)
 	headerFrame.initialConfigFunction = initializeUnit
 	headerFrame.isHeaderFrame = true
 	headerFrame.unitType = type
+	headerFrame.unitMappedType = type
 	headerFrame:UnregisterEvent("UNIT_NAME_UPDATE")
-	-- set style
+
+	-- For securely managely the display
 	local config = ShadowUF.db.profile.units[type]
 	headerFrame:SetAttribute("style-height", config.height)
 	headerFrame:SetAttribute("style-width", config.width)
 	headerFrame:SetAttribute("style-scale", config.scale)
 
-	if type == "raidpet" then
+	if( type == "raidpet" ) then
 		headerFrame:SetAttribute("filterOnPet", true)
 	end
 
-	if ClickCastHeader then
+	if( ClickCastHeader ) then
 		-- the OnLoad adds the functions like SetFrameRef to the header
 		SecureHandler_OnLoad(headerFrame)
 		headerFrame:SetFrameRef("clickcast_header", ClickCastHeader)
@@ -1105,6 +1110,7 @@ function Units:LoadZoneHeader(type)
 	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, petBattleFrame)
 	headerFrame.isHeaderFrame = true
 	headerFrame.unitType = type
+	headerFrame.unitMappedType = remappedUnits[type] or type
 	headerFrame:SetClampedToScreen(true)
 	headerFrame:SetMovable(true)
 	headerFrame:SetHeight(0.1)
@@ -1118,10 +1124,11 @@ function Units:LoadZoneHeader(type)
 			end
 		end)
 	end
-	
+
 	for id, unit in pairs(ShadowUF[type .. "Units"]) do
 		local frame = self:CreateUnit("Button", "SUFHeader" .. type .. "UnitButton" .. id, headerFrame, "SecureUnitButtonTemplate")
 		frame.ignoreAnchor = true
+		frame.unitUnmapped = type .. id
 		frame:SetAttribute("unit", unit)
 		frame:Hide()
 		
@@ -1205,14 +1212,14 @@ function Units:InitializeFrame(type)
 		self:LoadSplitGroupHeader(type)
 	elseif( type == "party" or type == "raid" or type == "maintank" or type == "mainassist" or type == "raidpet" ) then
 		self:LoadGroupHeader(type)
-	elseif( self.zoneUnits[type] ) then
-		self:LoadZoneHeader(type)
 	elseif( self.childUnits[type] ) then
 		for frame in pairs(frameList) do
 			if( frame.unitType == self.childUnits[type] and ShadowUF.db.profile.units[frame.unitType] and frame.unitID ) then
 				self:LoadChildUnit(frame, type, frame.unitID)
 			end
 		end
+	elseif( self.zoneUnits[type] ) then
+		self:LoadZoneHeader(type)
 	else
 		self:LoadUnit(type)
 	end
