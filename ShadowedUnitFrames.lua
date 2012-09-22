@@ -10,7 +10,7 @@ ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
 ShadowUF.moduleOrder = {}
 ShadowUF.unitList = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "raidpet", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet", "battleground", "battlegroundtarget", "battlegroundpet"}
-ShadowUF.fakeUnits = {["targettarget"] = true, ["targettargettarget"] = true, ["pettarget"] = true, ["arenatarget"] = true, ["focustarget"] = true, ["focustargettarget"] = true, ["partytarget"] = true, ["raidtarget"] = true, ["bosstarget"] = true, ["maintanktarget"] = true, ["mainassisttarget"] = true}
+ShadowUF.fakeUnits = {["targettarget"] = true, ["targettargettarget"] = true, ["pettarget"] = true, ["arenatarget"] = true, ["focustarget"] = true, ["focustargettarget"] = true, ["partytarget"] = true, ["raidtarget"] = true, ["bosstarget"] = true, ["maintanktarget"] = true, ["mainassisttarget"] = true, ["battlegroundtarget"] = true}
 L.units = {["raidpet"] = L["Raid pet"], ["PET"] = L["Pet"], ["VEHICLE"] = L["Vehicle"], ["arena"] = L["Arena"], ["arenapet"] = L["Arena Pet"], ["arenatarget"] = L["Arena Target"], ["boss"] = L["Boss"], ["bosstarget"] = L["Boss Target"], ["focus"] = L["Focus"], ["focustarget"] = L["Focus Target"], ["mainassist"] = L["Main Assist"], ["mainassisttarget"] = L["Main Assist Target"], ["maintank"] = L["Main Tank"], ["maintanktarget"] = L["Main Tank Target"], ["party"] = L["Party"], ["partypet"] = L["Party Pet"], ["partytarget"] = L["Party Target"], ["pet"] = L["Pet"], ["pettarget"] = L["Pet Target"], ["player"] = L["Player"],["raid"] = L["Raid"], ["target"] = L["Target"], ["targettarget"] = L["Target of Target"], ["targettargettarget"] = L["Target of Target of Target"], ["battleground"] = L["Battleground"], ["battlegroundpet"] = L["Battleground Pet"], ["battlegroundtarget"] = L["Battleground Target"]}
 
 -- Cache the units so we don't have to concat every time it updates
@@ -263,7 +263,7 @@ function ShadowUF:LoadUnitDefaults()
 		if( not self.fakeUnits[unit] ) then
 			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
 
-			if( unit ~= "arena" and unit ~= "arenapet" ) then
+			if( unit ~= "battleground" and unit ~= "battlegroundpet" and unit ~= "arena" and unit ~= "arenapet" ) then
 				self.defaults.profile.units[unit].incHeal = {enabled = false, cap = 1.30}
 			end
 		end
@@ -343,6 +343,13 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.arena.auras.debuffs.maxRows = 1
 	self.defaults.profile.units.arena.auras.buffs.maxRows = 1
 	self.defaults.profile.units.arena.offset = 0
+	-- BATTLEGROUND
+	self.defaults.profile.units.battleground.enabled = false
+	self.defaults.profile.units.battleground.attribPoint = "TOP"
+	self.defaults.profile.units.battleground.attribAnchorPoint = "LEFT"
+	self.defaults.profile.units.battleground.auras.debuffs.maxRows = 1
+	self.defaults.profile.units.battleground.auras.buffs.maxRows = 1
+	self.defaults.profile.units.battleground.offset = 0
 	-- BOSS
 	self.defaults.profile.units.boss.enabled = false
 	self.defaults.profile.units.boss.attribPoint = "TOP"

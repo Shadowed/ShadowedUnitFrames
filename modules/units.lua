@@ -1,6 +1,6 @@
 local Units = {headerFrames = {}, unitFrames = {}, frameList = {}, unitEvents = {}, remappedUnits = {}}
 Units.childUnits = {["partytarget"] = "party", ["partypet"] = "party", ["maintanktarget"] = "maintank", ["mainassisttarget"] = "mainassist", ["bosstarget"] = "boss", ["arenatarget"] = "arena", ["arenapet"] = "arena"}
-Units.zoneUnits = {["arena"] = "arena", ["boss"] = "raid", ["battleground"] = "arena"}
+Units.zoneUnits = {["arena"] = "arena", ["boss"] = "raid", ["battleground"] = "pvp"}
 Units.remappedUnits = {["battleground"] = "arena", ["battlegroundpet"] = "arenapet", ["battlegroundtarget"] = "arenatarget"}
 Units.headerUnits = {["raid"] = true, ["party"] = true, ["maintank"] = true, ["mainassist"] = true, ["raidpet"] = true, ["partypet"] = true}
 
