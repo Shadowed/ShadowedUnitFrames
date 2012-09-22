@@ -88,6 +88,12 @@ function ShadowUF:CheckUpgrade()
 
 	if( revision <= 22 ) then
 		self:LoadDefaultLayout(true)
+
+		for _, unit in pairs(self.unitList) do
+			if( ShadowUF.fakeUnits[unit] ) then
+				self.db.profile.units[unit].altPowerBar.enabled = false
+			end
+		end
 	end
 
 	if( revision <= 21 ) then
