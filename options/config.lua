@@ -3702,7 +3702,7 @@ local function loadUnitOptions()
 							if( unit == "global" ) then
 								return not globalConfig.runeBar and not globalConfig.eclipseBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.monkBar and not globalConfig.xpBar and not globalConfig.demonicFuryBar and not globalConfig.burningEmbersBar
 							else
-								return unit ~= "player"
+								return unit ~= "player" and unit ~= "pet"
 							end
 						end,
 						args = {
