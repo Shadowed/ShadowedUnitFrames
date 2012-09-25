@@ -302,7 +302,6 @@ local function hideRestrictedOption(info)
 		return string.match(unit, "%w+target" )
 	-- Fall back for indicators, no variable table so it shouldn't be shown
 	elseif( info[#(info) - 1] == "indicators" ) then
-		print(unit, ShadowUF.db.pr)
 		if( ( unit == "global" and not globalConfig.indicators[key] ) or ( unit ~= "global" and not ShadowUF.db.profile.units[unit].indicators[key] ) ) then
 			return true
 		end
