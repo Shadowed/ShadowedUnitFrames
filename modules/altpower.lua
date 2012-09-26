@@ -7,6 +7,7 @@ function AltPower:OnEnable(frame)
 
 	frame:RegisterUnitEvent("UNIT_POWER_BAR_SHOW", self, "UpdateVisibility")
 	frame:RegisterUnitEvent("UNIT_POWER_BAR_HIDE", self, "UpdateVisibility")
+	frame:RegisterNormalEvent("PLAYER_ENTERING_WORLD", self, "UpdateVisibility")
 
 	frame:RegisterUpdateFunc(self, "UpdateVisibility")
 end
