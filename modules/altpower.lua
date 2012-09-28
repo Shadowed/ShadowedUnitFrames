@@ -19,13 +19,15 @@ end
 
 local altColor = {}
 function AltPower:UpdateVisibility(frame)
-	local barType, minPower, _, _, _, hideFromOthers, showOnRaid = UnitAlternatePowerInfo(frame.unit)
 	local visible = false
-	if( barType ) then
-		if( ( frame.unitType == "player" or frame.unitType == "pet" ) or not hideFromOthers ) then
-			visible = true
-		elseif( showOnRaid and ( UnitInRaid(frame.unit) or UnitInParty(frame.unit) ) ) then
-			visible = true
+	if( UnitIsPlayer(frame.unit) ) then
+		local barType, minPower, _, _, _, hideFromOthers, showOnRaid = UnitAlternatePowerInfo(frame.unit)
+		if( barType ) then
+			if( ( frame.unitType == "player" or frame.unitType == "pet" ) or not hideFromOthers ) then
+				visible = true
+			elseif( showOnRaid and ( UnitInRaid(frame.unit) or UnitInParty(frame.unit) ) ) then
+				visible = true
+			end
 		end
 	end
 
