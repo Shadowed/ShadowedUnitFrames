@@ -38,7 +38,6 @@ function AltPower:UpdateVisibility(frame)
 	frame[type](frame, "UNIT_MAXPOWER", self, "Update")
 	if( not visible ) then return end
 
-
 	local color = ShadowUF.db.profile.powerColors.ALTERNATE
 	if( not showOnRaid ) then
 		local powerType, powerToken, altR, altG, altB = UnitPowerType(frame.unit)
@@ -68,11 +67,11 @@ function AltPower:UpdateVisibility(frame)
 		end
 	end
 
-	AltPower:Update(frame, nil, nil, "ALTERNATE")
+	AltPower:Update(frame)
 end
 
 function AltPower:Update(frame, event, unit, type)
-	if( type ~= "ALTERNATE" ) then return end
+	if( event and type ~= "ALTERNATE" ) then return end
 
 	frame.altPowerBar:SetMinMaxValues(select(2, UnitAlternatePowerInfo(frame.unit)) or 0, UnitPowerMax(frame.unit, ALTERNATE_POWER_INDEX) or 0)
 	frame.altPowerBar:SetValue(UnitPower(frame.unit, ALTERNATE_POWER_INDEX) or 0)
