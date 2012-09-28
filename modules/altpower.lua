@@ -7,6 +7,7 @@ function AltPower:OnEnable(frame)
 
 	frame:RegisterUnitEvent("UNIT_POWER_BAR_SHOW", self, "UpdateVisibility")
 	frame:RegisterUnitEvent("UNIT_POWER_BAR_HIDE", self, "UpdateVisibility")
+	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdateVisibility")
 	frame:RegisterNormalEvent("PLAYER_ENTERING_WORLD", self, "UpdateVisibility")
 
 	frame:RegisterUpdateFunc(self, "UpdateVisibility")
@@ -35,7 +36,6 @@ function AltPower:UpdateVisibility(frame)
 	frame[type](frame, "UNIT_POWER", self, "Update")
 	frame[type](frame, "UNIT_POWER_FREQUENT", self, "Update")
 	frame[type](frame, "UNIT_MAXPOWER", self, "Update")
-	frame[type](frame, "UNIT_DISPLAYPOWER", self, "UpdateVisibility")
 	if( not visible ) then return end
 
 
