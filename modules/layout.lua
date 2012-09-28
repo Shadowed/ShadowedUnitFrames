@@ -78,6 +78,7 @@ function Layout:SetBarVisibility(frame, key, status)
 	if( status and not frame[key]:IsVisible() ) then
 		ShadowUF.Tags:FastRegister(frame, frame[key])
 
+		frame[key].visibilityManaged = true
 		frame[key]:Show()
 		ShadowUF.Layout:PositionWidgets(frame, ShadowUF.db.profile.units[frame.unitType])
 
@@ -85,6 +86,7 @@ function Layout:SetBarVisibility(frame, key, status)
 	elseif( not status and frame[key]:IsVisible() ) then
 		ShadowUF.Tags:FastUnregister(frame, frame[key])
 
+		frame[key].visibilityManaged = nil
 		frame[key]:Hide()
 		ShadowUF.Layout:PositionWidgets(frame, ShadowUF.db.profile.units[frame.unitType])
 	end
@@ -347,8 +349,7 @@ function Layout:SetupBars(frame, config)
 		local key = module.moduleKey
 		local widget = frame[key]
 		if( widget and ( module.moduleHasBar or config[key] and config[key].isBar ) ) then
-			if( frame.visibility[key] and not frame[key].defaultHidden and module.defaultVisibility == false ) then
-				frame[key].defaultHidden = true
+			if( frame.visibility[key] and not frame[key].visibilityManaged and module.defaultVisibility == false ) then
 				self:ToggleVisibility(widget, false)
 			else
 				self:ToggleVisibility(widget, frame.visibility[key])
