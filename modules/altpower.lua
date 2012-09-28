@@ -32,6 +32,7 @@ function AltPower:UpdateVisibility(frame)
 
 	-- Register or unregister events based on if it's visible
 	local type = visible and "RegisterUnitEvent" or "UnregisterSingleEvent"
+	frame[type](frame, "UNIT_POWER", self, "Update")
 	frame[type](frame, "UNIT_POWER_FREQUENT", self, "Update")
 	frame[type](frame, "UNIT_MAXPOWER", self, "Update")
 	frame[type](frame, "UNIT_DISPLAYPOWER", self, "UpdateVisibility")
