@@ -33,24 +33,12 @@ function AltPower:UpdateVisibility(frame)
 
 	-- Register or unregister events based on if it's visible
 	local type = visible and "RegisterUnitEvent" or "UnregisterSingleEvent"
-	frame[type](frame, "UNIT_POWER", self, "Update")
 	frame[type](frame, "UNIT_POWER_FREQUENT", self, "Update")
 	frame[type](frame, "UNIT_MAXPOWER", self, "Update")
 	if( not visible ) then return end
 
 	local color = ShadowUF.db.profile.powerColors.ALTERNATE
-	if( not showOnRaid ) then
-		local powerType, powerToken, altR, altG, altB = UnitPowerType(frame.unit)
-		if( ShadowUF.db.profile.powerColors[powerToken] ) then
-			color = ShadowUF.db.profile.powerColors[powerToken]
-		elseif( altR ) then
-			altColor.r, altColor.g, altColor.b = altR, altG, altB
-			color = altColor
-		else
-			color = ShadowUF.db.profile.powerColors.MANA
-		end
-	end
-	
+
 	if( not ShadowUF.db.profile.units[frame.unitType].powerBar.invert ) then
 		frame.altPowerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
 		if( not frame.altPowerBar.background.overrideColor ) then

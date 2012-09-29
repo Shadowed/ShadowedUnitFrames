@@ -355,7 +355,7 @@ function Layout:SetupBars(frame, config)
 				self:ToggleVisibility(widget, frame.visibility[key])
 			end
 			
-			if( widget:IsShown() and widget.SetStatusBarTexture ) then
+			if( ( widget:IsShown() or ( not frame[key].visibilityManaged and module.defaultVisibility == false ) ) and widget.SetStatusBarTexture ) then
 				widget:SetStatusBarTexture(mediaPath.statusbar)
 				widget:GetStatusBarTexture():SetHorizTile(false)
 
