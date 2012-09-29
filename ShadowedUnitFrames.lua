@@ -88,6 +88,7 @@ function ShadowUF:CheckUpgrade()
 
 	if( revision <= 23 ) then
 		self.db.profile.hidden.playerAltPower = false
+		self.db.profile.powerColors.ALTERNATE = {r = 0.815, g = 0.941, b = 1}
 	end
 
 	if( revision <= 22 ) then

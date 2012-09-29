@@ -158,7 +158,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		BURNINGEMBERS = {r = 0.58, g = 0.51, b = 0.79},
 		FULLBURNINGEMBER = {r = 0.88, g = 0.09, b = 0.062},
 		SHADOWORBS = {r = 0.58, g = 0.51, b = 0.79},
-		ALTERNATE = {r = 0.71, g = 0.0, b = 1.0},
+		ALTERNATE = {r = 0.815, g = 0.941, b = 1},
 		CHI = {r = 0.71, g = 1.0, b = 0.92},
 		STATUE = {r = 0.35, g = 0.45, b = 0.60},
 		MUSHROOMS = {r = 0.20, g = 0.90, b = 0.20},
