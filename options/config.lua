@@ -1201,9 +1201,11 @@ local function loadGeneralOptions()
 							},
 							ALTERNATE = {
 								order = 19,
-								type = "color"
+								type = "color",
 								name = L["Alt. Power"],
-							}
+								desc = L["Alternate power is used for things like quests and dungeons."],
+								arg = "powerColors.ALTERNATE",
+							},
 						},
 					},
 					cast = {
