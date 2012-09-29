@@ -102,7 +102,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		borderColor = {r = 0.30, g = 0.30, b = 0.50, a = 1},
 	}
 	config.hidden = {
-		cast = false, buffs = false, party = true, player = true, pet = true, target = true, focus = true, boss = true, arena = true, playerAltPower = true, playerPower = true
+		cast = false, buffs = false, party = true, player = true, pet = true, target = true, focus = true, boss = true, arena = true, playerAltPower = false, playerPower = true
 	}
 	config.font = {
 		name = "Myriad Condensed Web",
