@@ -1345,8 +1345,6 @@ end
 local centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
-centralFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
-centralFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
 centralFrame:RegisterEvent("PLAYER_LOGIN")
 centralFrame:RegisterEvent("PLAYER_LEVEL_UP")
 centralFrame:RegisterEvent("CINEMATIC_STOP")
