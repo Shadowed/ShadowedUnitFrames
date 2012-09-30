@@ -110,9 +110,6 @@ function Indicators:UpdateRole(frame, event)
 end
 
 function Indicators:UpdateLeader(frame)
-	self:UpdateMasterLoot(frame)
-	self:UpdateRole(frame)
-	self:UpdateLFDRole(frame)
 	if( not frame.indicators.leader or not frame.indicators.leader.enabled ) then return end
 
 	if( UnitIsGroupLeader(frame.unit) ) then
@@ -120,6 +117,14 @@ function Indicators:UpdateLeader(frame)
 	else
 		frame.indicators.leader:Hide()
 	end
+end
+
+function Indicators:GroupRosterUpdate(frame)
+	self:UpdateAssist(frame)
+	self:UpdateMasterLoot(frame)
+	self:UpdateRole(frame)
+	self:UpdateLFDRole(frame)
+	self:UpdateLeader(frame)
 end
 
 function Indicators:UpdatePVPFlag(frame)
@@ -323,7 +328,6 @@ function Indicators:OnEnable(frame)
 		
 	if( config.indicators.masterLoot and config.indicators.masterLoot.enabled ) then
 		frame:RegisterNormalEvent("PARTY_LOOT_METHOD_CHANGED", self, "UpdateMasterLoot")
-		frame:RegisterNormalEvent("GROUP_ROSTER_UPDATE", self, "UpdateMasterLoot")
 		frame:RegisterUpdateFunc(self, "UpdateMasterLoot")
 
 		frame.indicators.masterLoot = frame.indicators.masterLoot or frame.indicators:CreateTexture(nil, "OVERLAY")
@@ -398,7 +402,7 @@ function Indicators:OnEnable(frame)
 
 	-- As they all share the function, register it as long as one is active
 	if( frame.indicators.leader or frame.indicators.masterLoot or frame.indicators.role or ( frame.unit ~= "player" and frame.indicators.lfdRole ) ) then
-		frame:RegisterNormalEvent("GROUP_ROSTER_UPDATE", self, "UpdateLeader")
+		frame:RegisterNormalEvent("GROUP_ROSTER_UPDATE", self, "GroupRosterUpdate")
 	end
 end
 
