@@ -120,7 +120,6 @@ function Indicators:UpdateLeader(frame)
 end
 
 function Indicators:GroupRosterUpdate(frame)
-	self:UpdateAssist(frame)
 	self:UpdateMasterLoot(frame)
 	self:UpdateRole(frame)
 	self:UpdateLFDRole(frame)
