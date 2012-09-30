@@ -339,26 +339,6 @@ function Indicators:OnEnable(frame)
 
 		frame.indicators.role = frame.indicators.role or frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.role:SetTexture("Interface\\GroupFrame\\UI-Group-MainAssistIcon")
-		
-		-- Silly hack to fix the fact that Blizzard bugged an API and causes "<unit> is not in your party" errors
-		if( not self.leavingFrame ) then
-			self.leavingFrame = CreateFrame("Frame")
-			self.leavingFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-			self.leavingFrame:RegisterEvent("PLAYER_LEAVING_WORLD")
-			self.leavingFrame:SetScript("OnEvent", function(self, event)
-				if( event == "PLAYER_LEAVING_WORLD" ) then
-					leavingWorld = true
-				else
-					leavingWorld = nil
-					
-					for frame in pairs(ShadowUF.Units.frameList) do
-						if( frame:IsVisible() and frame.indicators and frame.indicators.role and frame.indicators.role.enabled ) then
-							Indicators:UpdateRole(frame)
-						end
-					end
-				end
-			end)
-		end
 	end
 			
 	if( config.indicators.raidTarget and config.indicators.raidTarget.enabled ) then
