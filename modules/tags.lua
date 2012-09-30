@@ -893,7 +893,7 @@ Tags.defaultTags = {
 		return classif == "rare" and "R" or classif == "rareelite" and "R+" or classif == "elite" and "+" or classif == "worldboss" and "B"
 	end]],
 	["group"] = [[function(unit, unitOwner)
-		if( GetNumGroupMembers() == 0 ) then return nil end
+		if( not UnitInRaid(unitOwner) ) then return nil end
 		local name, server = UnitName(unitOwner)
 		if( server and server ~= "" ) then
 			name = string.format("%s-%s", name, server)
