@@ -1,3 +1,4 @@
+[[
 local Combo = {isComboPoints = true}
 ShadowUF:RegisterModule(Combo, "auraPoints", ShadowUF.L["Aura Combo Points"])
 ShadowUF.ComboPoints = Combo
@@ -169,3 +170,4 @@ function AuraPointsUpdate(frame, event, unit)
 		end
 	end
 end
+]]
