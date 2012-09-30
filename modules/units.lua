@@ -1349,6 +1349,7 @@ centralFrame:RegisterEvent("ACTIVE_TALENT_GROUP_CHANGED")
 centralFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
 centralFrame:RegisterEvent("PLAYER_LOGIN")
 centralFrame:RegisterEvent("PLAYER_LEVEL_UP")
+centralFrame:RegisterEvent("CINEMATIC_STOP")
 
 centralFrame:SetScript("OnEvent", function(self, event, unit)
 	-- Check if the player changed zone types and we need to change module status, while they are dead
@@ -1367,10 +1368,10 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 		Units:CheckPlayerZone()
 
 	-- Monitor level up
-	elseif( event == "PLAYER_LEVEL_UP" ) then
-		if( ShadowUF.Units.unitFrames.player ) then
-			ShadowUF.Units.unitFrames.player:SetVisibility()
-			ShadowUF.Units.unitFrames.player:FullUpdate()
+	elseif( event == "PLAYER_LEVEL_UP" or event == "CINEMATIC_STOP" ) then
+		if( unitFrames.player ) then
+			unitFrames.player:SetVisibility()
+			unitFrames.player:FullUpdate()
 		end
 
 	-- Monitor talent changes
