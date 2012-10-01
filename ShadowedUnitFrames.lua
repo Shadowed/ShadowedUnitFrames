@@ -88,7 +88,7 @@ function ShadowUF:CheckUpgrade()
 
 	if( revision <= 24 ) then
 		self.db.profile.powerColors.AURAPOINTS = {r = 1.0, g = 0.80, b = 0}
-		self.db.profile.units.player.auraPoints = {enabled = false, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true, height = 0.40}
+		self.db.profile.units.player.auraPoints = {enabled = false, showAlways = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true, height = 0.40}
 	end
 
 	if( revision <= 23 ) then
