@@ -575,7 +575,7 @@ local function loadGeneralOptions()
 							
 							-- Strip module settings that aren't with SUF by default
 							if( not layoutData.modules ) then
-								local validModules = {["healthBar"] = true, ["powerBar"] = true, ["portrait"] = true, ["range"] = true, ["text"] = true, ["indicators"] = true, ["auras"] = true, ["incHeal"] = true, ["castBar"] = true, ["combatText"] = true, ["highlight"] = true, ["runeBar"] = true, ["totemBar"] = true, ["xpBar"] = true, ["fader"] = true, ["comboPoints"] = true, ["eclipseBar"] = true, ["soulShards"] = true, ["holyPower"] = true, ["altPowerBar"] = true, ["demonicFuryBar"] = true, ["burningEmbersBar"] = true, ["chi"] = true, ["shadowOrbs"] = true}
+								local validModules = {["healthBar"] = true, ["powerBar"] = true, ["portrait"] = true, ["range"] = true, ["text"] = true, ["indicators"] = true, ["auras"] = true, ["incHeal"] = true, ["castBar"] = true, ["combatText"] = true, ["highlight"] = true, ["runeBar"] = true, ["totemBar"] = true, ["xpBar"] = true, ["fader"] = true, ["comboPoints"] = true, ["eclipseBar"] = true, ["soulShards"] = true, ["holyPower"] = true, ["altPowerBar"] = true, ["demonicFuryBar"] = true, ["burningEmbersBar"] = true, ["chi"] = true, ["shadowOrbs"] = true, ["auraPoints"] = true}
 								for _, unitData in pairs(layout.units) do
 									for key, data in pairs(unitData) do
 										if( type(data) == "table" and not validModules[key] and ShadowUF.modules[key] ) then
@@ -1117,8 +1117,15 @@ local function loadGeneralOptions()
 							COMBOPOINTS = {
 								order = 11,
 								type = "color",
-								name = L["Combo points"],
+								name = L["Combo Points"],
 								arg = "powerColors.COMBOPOINTS",
+							},
+							AURAPOINTS = {
+								order = 11.5,
+								type = "color",
+								name = L["Aura Combo Points"],
+								arg = "powerColors.AURAPOINTS",
+								hidden = function() return not ShadowUF.modules.auraPoints end
 							},
 							SHADOWORBS = {
 								order = 12,
@@ -3100,6 +3107,116 @@ local function loadUnitOptions()
 							},
 						},
 					},
+					-- COMBO POINTS
+					barAuraPoints = {
+						order = 4,
+						type = "group",
+						inline = true,
+						name = L["Aura Combo Points"],
+						hidden = function(info) return not ShadowUF.modules.auraPoints or not getVariable(info[2], "auraPoints", nil, "isBar") or not getVariable(info[2], nil, nil, "auraPoints") end,
+						args = {
+							enabled = {
+								order = 1,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Aura Combo Points"]),
+								hidden = false,
+								arg = "auraPoints.enabled",
+							},
+							growth = {
+								order = 2,
+								type = "select",
+								name = L["Growth"],
+								values = {["LEFT"] = L["Left"], ["RIGHT"] = L["Right"]},
+								hidden = false,
+								arg = "auraPoints.growth",
+							},
+							showAlways = {
+								order = 3,
+								type = "toggle",
+								name = L["Don't hide when empty"],
+								hidden = false,
+								arg = "auraPoints.showAlways",
+							},
+						},
+					},
+					auraPoints = {
+						order = 4,
+						type = "group",
+						inline = true,
+						name = L["Aura Combo Points"],
+						hidden = function(info) if( info[2] == "global" or getVariable(info[2], "auraPoints", nil, "isBar") ) then return true end return not ShadowUF.modules.auraPoints or hideRestrictedOption(info) end,
+						args = {
+							enabled = {
+								order = 0,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Aura Combo Points"]),
+								hidden = false,
+								arg = "auraPoints.enabled",
+							},
+							sep1 = {
+								order = 1,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = hideAdvancedOption,
+							},
+							growth = {
+								order = 2,
+								type = "select",
+								name = L["Growth"],
+								values = {["UP"] = L["Up"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["DOWN"] = L["Down"]},
+								hidden = false,
+								arg = "auraPoints.growth",
+							},
+							size = {
+								order = 2,
+								type = "range",
+								name = L["Size"],
+								min = 0, max = 50, step = 1, softMin = 0, softMax = 20,
+								hidden = hideAdvancedOption,
+								arg = "auraPoints.size",
+							},
+							spacing = {
+								order = 3,
+								type = "range",
+								name = L["Spacing"],
+								min = -30, max = 30, step = 1, softMin = -15, softMax = 15,
+								hidden = hideAdvancedOption,
+								arg = "auraPoints.spacing",
+							},
+							sep2 = {
+								order = 4,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = hideAdvancedOption,
+							},
+							anchorPoint = {
+								order = 5,
+								type = "select",
+								name = L["Anchor point"],
+								values = positionList,
+								hidden = false,
+								arg = "auraPoints.anchorPoint",
+							},
+							x = {
+								order = 6,
+								type = "range",
+								name = L["X Offset"],
+								min = -30, max = 30, step = 1,
+								hidden = false,
+								arg = "auraPoints.x",
+							},
+							y = {
+								order = 7,
+								type = "range",
+								name = L["Y Offset"],
+								min = -30, max = 30, step = 1,
+								hidden = false,
+								arg = "auraPoints.y",
+							},
+						},
+					},
 					combatText = {
 						order = 5,
 						type = "group",
@@ -4414,6 +4531,7 @@ local function loadUnitOptions()
 		for _, data in pairs(ShadowUF.defaults.profile.units) do
 			if( data[key] and data[key].isBar ~= nil ) then
 				canHaveBar = true
+				break
 			end
 		end
 		

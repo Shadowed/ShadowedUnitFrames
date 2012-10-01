@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 24
+ShadowUF.dbRevision = 25
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -85,6 +85,11 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or 1
+
+	if( revision <= 24 ) then
+		self.db.profile.powerColors.AURAPOINTS = {r = 1.0, g = 0.80, b = 0}
+		self.db.profile.units.player.auraPoints = {enabled = false, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true, height = 0.40}
+	end
 
 	if( revision <= 23 ) then
 		self.db.profile.hidden.playerAltPower = false
@@ -328,11 +333,12 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.shadowOrbs = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.chi = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.indicators.lfdRole = {enabled = true, size = 0, x = 0, y = 0}
-  -- PET
+	self.defaults.profile.units.player.auraPoints = {enabled = false, isBar = true}
+    -- PET
 	self.defaults.profile.units.pet.enabled = true
 	self.defaults.profile.units.pet.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.pet.xpBar = {enabled = false}
-  -- FOCUS
+    -- FOCUS
 	self.defaults.profile.units.focus.enabled = true
 	self.defaults.profile.units.focus.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.focus.indicators.lfdRole = {enabled = false, size = 0, x = 0, y = 0}

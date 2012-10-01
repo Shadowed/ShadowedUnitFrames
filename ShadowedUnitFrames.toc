@@ -55,6 +55,7 @@ modules\burningembers.lua
 modules\altpower.lua
 modules\shadoworbs.lua
 modules\monk.lua
+modules\aurapoints.lua
 #@do-not-package@
 options\config.lua
 #@end-do-not-package@

@@ -1,32 +1,33 @@
-[[
-local Combo = {isComboPoints = true}
-ShadowUF:RegisterModule(Combo, "auraPoints", ShadowUF.L["Aura Combo Points"])
-ShadowUF.ComboPoints = Combo
-local cpConfig = {max = MAX_COMBO_POINTS, key = "auraPoints", colorKey = "COMBOPOINTS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
+local AuraPoints = {
+	isComboPoints = true,
+	spells = {
+		["MAGE"] = {max = 6, name = GetSpellInfo(36032)},
+	}
+}
 
-function AuraPointsOnEnable(frame)
+AuraPoints.trackSpell = AuraPoints.spells[select(2, UnitClass("player"))]
+
+if( not AuraPoints.trackSpell ) then return end
+ShadowUF:RegisterModule(AuraPoints, "auraPoints", ShadowUF.L["Aura Combo Points"])
+
+function AuraPoints:OnEnable(frame)
 	frame.auraPoints = frame.auraPoints or CreateFrame("Frame", nil, frame)
-	frame.auraPoints.config = cpConfig
-	frame.comboPointType = cpConfig.key
-	frame:RegisterNormalEvent("UNIT_COMBO_POINTS", self, "Update")
+	frame:RegisterUnitEvent("UNIT_AURA", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
-function AuraPointsOnLayoutApplied(frame, config)
-	local key = frame.comboPointType  
-	local pointsFrame = frame[key]
+function AuraPoints:OnLayoutApplied(frame, config)
+	local pointsFrame = frame.auraPoints
 	if( not pointsFrame ) then return end
-
+	
 	pointsFrame:SetFrameLevel(frame.topFrameLevel + 1)
 	
-	local pointsConfig = pointsFrame.config
-	config = config[key]
 	-- Not a bar so set the containers frame configuration
-	if( config and not config.isBar ) then
+	if( not config.auraPoints.isBar ) then
 		ShadowUF.Layout:ToggleVisibility(pointsFrame, frame.visibility[key])
 	end
 	
-	if( not frame.visibility[key] ) then return end
+	if( not frame.visibility.auraPoints ) then return end
 	
 	-- Hide the active combo points
 	if( pointsFrame.points ) then
@@ -36,18 +37,19 @@ function AuraPointsOnLayoutApplied(frame, config)
 	end
 	
 	-- Setup for bar display!
-	if( config.isBar ) then
+	if( config.auraPoints.isBar ) then
 		pointsFrame.blocks = pointsFrame.blocks or {}
 		pointsFrame.points = pointsFrame.blocks
 
-		pointsFrame.visibleBlocks = pointsConfig.max
+		pointsFrame.visibleBlocks = AuraPoints.trackSpell.max
 	
 		-- Position bars, the 5 accounts for borders
-		local blockWidth = (pointsFrame:GetWidth() - (pointsConfig.max - 1)) / pointsConfig.max
-		for id=1, pointsConfig.max do
+		local blockWidth = (pointsFrame:GetWidth() - (AuraPoints.trackSpell.max - 1)) / AuraPoints.trackSpell.max
+		for id=1, AuraPoints.trackSpell.max do
 			pointsFrame.blocks[id] = pointsFrame.blocks[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
+
 			local texture = pointsFrame.blocks[id]
-			local color = ShadowUF.db.profile.powerColors[pointsConfig.colorKey or "COMBOPOINTS"]
+			local color = ShadowUF.db.profile.powerColors.AURAPOINTS
 			texture:SetVertexColor(color.r, color.g, color.b, color.a)
 			texture:SetHorizTile(false)
 			texture:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
@@ -75,29 +77,29 @@ function AuraPointsOnLayoutApplied(frame, config)
 		local point, relativePoint
 		local x, y = 0, 0
 		
-		if( config.growth == "LEFT" ) then
+		if( config.auraPoints.growth == "LEFT" ) then
 			point, relativePoint = "BOTTOMRIGHT", "BOTTOMLEFT"
-			x = config.spacing
-		elseif( config.growth == "RIGHT" ) then
+			x = config.auraPoints.spacing
+		elseif( config.auraPoints.growth == "RIGHT" ) then
 			point, relativePoint = "BOTTOMLEFT", "BOTTOMRIGHT"
-			x = config.spacing
-		elseif( config.growth == "UP" ) then
+			x = config.auraPoints.spacing
+		elseif( config.auraPoints.growth == "UP" ) then
 			point, relativePoint = "BOTTOMLEFT", "TOPLEFT"
-			y = config.spacing
-		elseif( config.growth == "DOWN" ) then
+			y = config.auraPoints.spacing
+		elseif( config.auraPoints.growth == "DOWN" ) then
 			point, relativePoint = "TOPLEFT", "BOTTOMLEFT"
-			y = config.spacing
+			y = config.auraPoints.spacing
 		end
 		
 
 		pointsFrame.icons = pointsFrame.icons or {}
 		pointsFrame.points = pointsFrame.icons
 	
-		for id=1, pointsConfig.max do
+		for id=1, AuraPoints.trackSpell.max do
 			pointsFrame.icons[id] = pointsFrame.icons[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 			local texture = pointsFrame.icons[id]
-			texture:SetTexture(pointsConfig.icon)
-			texture:SetSize(config.size, config.size)
+			texture:SetTexture("Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo")
+			texture:SetSize(config.auraPoints.size, config.auraPoints.size)
 			
 			if( id > 1 ) then
 				texture:ClearAllPoints()
@@ -110,52 +112,19 @@ function AuraPointsOnLayoutApplied(frame, config)
 		
 		-- Position the main frame
 		pointsFrame:SetSize(0.1, 0.1)
-		
-		ShadowUF.Layout:AnchorFrame(frame, pointsFrame, config)
+		pointsFrame:Show()
+
+		ShadowUF.Layout:AnchorFrame(frame, pointsFrame, config.auraPoints)
 	end
 end
 
-function AuraPointsOnDisable(frame)
+function AuraPoints:OnDisable(frame)
 	frame:UnregisterAll(self)
 end
 
 
-function AuraPointsUpdateBarBlocks(frame, event, unit, powerType)
-	local pointsFrame = frame[frame.comboPointType]
-	if( not pointsFrame or not pointsFrame.config.eventType ) then return end
-	if( event and powerType ~= pointsFrame.config.eventType ) then return end
-
-	if( not ShadowUF.db.profile.units[frame.unitType][frame.comboPointType].isBar ) then
-		return
-	end
-
-	local max = UnitPowerMax("player", pointsFrame.config.powerType)
-	if( max == 0 or pointsFrame.visibleBlocks == max ) then return end
-
-	local blockWidth = (pointsFrame:GetWidth() - (max - 1)) / max
-	for id=1, max do
-		pointsFrame.blocks[id]:SetWidth(blockWidth)
-		pointsFrame.blocks[id]:Show()
-	end
-
-	for id=max+1, max do
-		pointsFrame.blocks[id]:Hide()
-	end
-
-	pointsFrame.visibleBlocks = max
-end
-
-
-function AuraPointsUpdate(frame, event, unit)
-	-- MoP changed UNIT_COMBO_POINTS so that unit is now player even if it's done on the target
-  	--if( event and unit ~= "player" ) then return end
-
-	-- For Malygos dragons, they also self cast their CP on themselves, which is why we check CP on ourself!
-	local playerUnit = UnitHasVehiclePlayerFrameUI("player") and "vehicle" or "player"
-	local points = GetComboPoints(playerUnit)
-	if( points == 0 ) then
-		points = GetComboPoints(playerUnit, playerUnit)
-	end
+function AuraPoints:Update(frame, event, unit)
+	local points = select(4, UnitAura("player", AuraPoints.trackSpell.name)) or 0
 	
 	-- Bar display, hide it if we don't have any combo points
 	if( ShadowUF.db.profile.units[frame.unitType].auraPoints.isBar ) then
@@ -170,4 +139,3 @@ function AuraPointsUpdate(frame, event, unit)
 		end
 	end
 end
-]]
