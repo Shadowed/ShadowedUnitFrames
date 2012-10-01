@@ -71,22 +71,22 @@ function Totems:OnLayoutApplied(frame)
 		local barWidth = (frame.totemBar:GetWidth() - (MAX_TOTEMS - 1)) / MAX_TOTEMS
 		
 		for _, totem in pairs(frame.totemBar.totems) do
-			if( ShadowUF.db.profile.units[frame.unitType].totemBar.background ) then
-				local color = ShadowUF.db.profile.bars.backgroundColor or ShadowUF.db.profile.units[frame.unitType].totemBar.backgroundColor or totemColors[totem.id]
-				totem.background:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
-				totem.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
-				totem.background:Show()
-			else
-				totem.background:Hide()
-			end
-
 			totem:SetHeight(frame.totemBar:GetHeight())
 			totem:SetWidth(barWidth)
 			totem:SetOrientation(ShadowUF.db.profile.units[frame.unitType].totemBar.vertical and "VERTICAL" or "HORIZONTAL")
 			totem:SetReverseFill(ShadowUF.db.profile.units[frame.unitType].totemBar.reverse and true or false)
 			totem:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
-			totem:SetStatusBarColor(totemColors[totem.id].r, totemColors[totem.id].g, totemColors[totem.id].b, ShadowUF.db.profile.bars.alpha)
 			totem:GetStatusBarTexture():SetHorizTile(false)
+
+			totem.background:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
+
+			if( ShadowUF.db.profile.units[frame.unitType].totemBar.background or ShadowUF.db.profile.units[frame.unitType].totemBar.invert ) then
+				totem.background:Show()
+			else
+				totem.background:Hide()
+			end
+
+			frame:SetBlockColor(totem, "totemBar", totemColors[totem.id].r, totemColors[totem.id].g, totemColors[totem.id].b)
 		end
 	end
 end

@@ -92,23 +92,21 @@ end
 
 function Runes:UpdateColors(frame)
 	for id, rune in pairs(frame.runeBar.runes) do
-		local color = runeColors[GetRuneType(id)]
-		if( color ) then
-			rune:SetStatusBarColor(color.r, color.g, color.b)
-
-			color = ShadowUF.db.profile.bars.backgroundColor or ShadowUF.db.profile.units[frame.unitType].runeBar.backgroundColor or color
-			rune.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
+		local colorType = GetRuneType(id)
+		if( frame.runeBar.runes[id].colorType ~= colorType ) then
+			local color = runeColors[colorType]
+			frame:SetBlockColor(frame.runeBar.runes[id], "runeBar", color.r, color.g, color.b)
 		end
 	end
 end
 
 -- No rune is passed for full update (Login), a single rune is passed when a single rune type changes, such as Blood Tap
 function Runes:Update(frame, event, id)
-	if( id ) then
-		local color = runeColors[GetRuneType(id)]
-		frame.runeBar.runes[id]:SetStatusBarColor(color.r, color.g, color.b)
+	if( not id ) then return end
 
-		color = ShadowUF.db.profile.bars.backgroundColor or ShadowUF.db.profile.units[frame.unitType].runeBar.backgroundColor or color
-		frame.runeBar.runes[id].background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
+	local colorType = GetRuneType(id)
+	if( frame.runeBar.runes[id].colorType ~= colorType ) then
+		local color = runeColors[colorType]
+		frame:SetBlockColor(frame.runeBar.runes[id], "runeBar", color.r, color.g, color.b)
 	end
 end

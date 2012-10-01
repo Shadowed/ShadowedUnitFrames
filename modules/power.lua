@@ -42,22 +42,8 @@ function Power:UpdateColor(frame)
 			end
 		end
 	end
-	
-	if( not ShadowUF.db.profile.units[frame.unitType].powerBar.invert ) then
-		frame.powerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
-		if( not frame.powerBar.background.overrideColor ) then
-			frame.powerBar.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
-		end
-	else
-		frame.powerBar.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
 
-		color = frame.powerBar.background.overrideColor
-		if( not color ) then
-			frame.powerBar:SetStatusBarColor(0, 0, 0, 1 - ShadowUF.db.profile.bars.backgroundAlpha)
-		else
-			frame.powerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
-		end
-	end
+	frame:SetBarColor("powerBar", color.r, color.g, color.b)
 
 	-- Overridden power types like Warlock pets, or Ulduar vehicles use "POWER_TYPE_#####" but triggers power events with "ENERGY", so this fixes that
 	-- by using the powerID to figure out the event type

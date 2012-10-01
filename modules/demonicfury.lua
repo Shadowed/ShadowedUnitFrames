@@ -14,7 +14,7 @@ end
 function DemonicFury:OnLayoutApplied(frame)
 	if( frame.visibility.demonicFuryBar ) then
 		local color = ShadowUF.db.profile.powerColors.DEMONICFURY
-		frame.demonicFuryBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
+		frame:SetBarColor("demonicFuryBar", color.r, color.g, color.b)
 	end
 end
 
@@ -24,9 +24,7 @@ end
 
 function DemonicFury:UpdateMax(frame, event, unit, powerType)
 	if( event and powerType ~= "DEMONIC_FURY" ) then return end
-	
 	frame.demonicFuryBar:SetMinMaxValues(0, UnitPowerMax("player", SPELL_POWER_DEMONIC_FURY) or 0)
-	frame.demonicFuryBar:SetValue(UnitPower("player", SPELL_POWER_DEMONIC_FURY) or 0)
 end
 
 function DemonicFury:Update(frame, event, unit, powerType)

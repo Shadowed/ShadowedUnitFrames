@@ -59,10 +59,10 @@ function Health:UpdateColor(frame)
 	local reactionType = ShadowUF.db.profile.units[frame.unitType].healthBar.reactionType
 	if( not UnitIsConnected(unit) ) then
 		frame.healthBar.wasOffline = true
-		frame:SetBarColor("healthBar", ShadowUF.db.profile.units[frame.unitType].healthBar.invert, ShadowUF.db.profile.healthColors.offline.r, ShadowUF.db.profile.healthColors.offline.g, ShadowUF.db.profile.healthColors.offline.b)
+		frame:SetBarColor("healthBar", ShadowUF.db.profile.healthColors.offline.r, ShadowUF.db.profile.healthColors.offline.g, ShadowUF.db.profile.healthColors.offline.b)
 		return
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorAggro and UnitThreatSituation(frame.unit) == 3 ) then
-		frame:SetBarColor("healthBar", ShadowUF.db.profile.units[frame.unitType].healthBar.invert, ShadowUF.db.profile.healthColors.hostile.r, ShadowUF.db.profile.healthColors.hostile.g, ShadowUF.db.profile.healthColors.hostile.b)
+		frame:SetBarColor("healthBar", ShadowUF.db.profile.healthColors.hostile.r, ShadowUF.db.profile.healthColors.hostile.g, ShadowUF.db.profile.healthColors.hostile.b)
 		return
 	elseif( frame.inVehicle ) then
 		color = ShadowUF.db.profile.classColors.VEHICLE
@@ -93,10 +93,10 @@ function Health:UpdateColor(frame)
 	end
 	
 	if( color ) then
-		frame:SetBarColor("healthBar", ShadowUF.db.profile.units[frame.unitType].healthBar.invert, color.r, color.g, color.b)
+		frame:SetBarColor("healthBar", color.r, color.g, color.b)
 	else
 		frame.healthBar.hasPercent = true
-		frame:SetBarColor("healthBar", ShadowUF.db.profile.units[frame.unitType].healthBar.invert, getGradientColor(unit))
+		frame:SetBarColor("healthBar", getGradientColor(unit))
 	end
 end
 
@@ -111,13 +111,13 @@ function Health:Update(frame)
 	if( isOffline ) then
 		frame.healthBar.wasOffline = true
 		frame.unitIsOnline = nil
-		frame:SetBarColor("healthBar", ShadowUF.db.profile.units[frame.unitType].healthBar.invert, ShadowUF.db.profile.healthColors.offline.r, ShadowUF.db.profile.healthColors.offline.g, ShadowUF.db.profile.healthColors.offline.b)
+		frame:SetBarColor("healthBar", ShadowUF.db.profile.healthColors.offline.r, ShadowUF.db.profile.healthColors.offline.g, ShadowUF.db.profile.healthColors.offline.b)
 	-- The unit was offline, but they no longer are so we need to do a forced color update
 	elseif( frame.healthBar.wasOffline ) then
 		frame.healthBar.wasOffline = nil
 		self:UpdateColor(frame)
 	-- Color health by percentage
 	elseif( frame.healthBar.hasPercent ) then
-		frame:SetBarColor("healthBar", ShadowUF.db.profile.units[frame.unitType].healthBar.invert, getGradientColor(frame.unit))
+		frame:SetBarColor("healthBar", getGradientColor(frame.unit))
 	end
 end

@@ -38,22 +38,7 @@ function AltPower:UpdateVisibility(frame)
 	if( not visible ) then return end
 
 	local color = ShadowUF.db.profile.powerColors.ALTERNATE
-
-	if( not ShadowUF.db.profile.units[frame.unitType].powerBar.invert ) then
-		frame.altPowerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
-		if( not frame.altPowerBar.background.overrideColor ) then
-			frame.altPowerBar.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
-		end
-	else
-		frame.altPowerBar.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.alpha)
-
-		color = frame.altPowerBar.background.overrideColor
-		if( not color ) then
-			frame.altPowerBar:SetStatusBarColor(0, 0, 0, 1 - ShadowUF.db.profile.bars.backgroundAlpha)
-		else
-			frame.altPowerBar:SetStatusBarColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
-		end
-	end
+	frame:SetBarColor("altPowerBar", color.r, color.g, color.b)
 
 	AltPower:Update(frame)
 end

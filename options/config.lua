@@ -2163,7 +2163,7 @@ local function loadUnitOptions()
 		order = getModuleOrder,
 		name = getName,
 		type = "group",
-		inline = true,
+		inline = false,
 		hidden = function(info) return hideRestrictedOption(info) or not getVariable(info[2], info[#(info)], nil, "enabled") end,
 		args = {
 			enableBar = {
@@ -2173,8 +2173,8 @@ local function loadUnitOptions()
 				desc = L["Turns this widget into a bar that can be resized and ordered just like health and power bars."],
 				hidden = function(info) return ShadowUF.modules[info[#(info) - 1]].moduleHasBar end,
 				arg = "$parent.isBar",
-				width = "full",
 			},
+			sep1 = {order = 1.25, type = "description", name = "", hidden = function(info) return (info[#(info) - 1] ~= "burningEmbersBar" or not getVariable(info[2], info[#(info) - 1], nil, "backgroundColor") or not getVariable(info[2], info[#(info) - 1], nil, "background")) end},
 			background = {
 				order = 1.5,
 				type = "toggle",
@@ -2183,6 +2183,7 @@ local function loadUnitOptions()
 				hidden = hideBarOption,
 				arg = "$parent.background",
 			},
+			sep2 = {order = 1.55, type = "description", name = "", hidden = function(info) return not (not ShadowUF.modules[info[#(info) - 1]] or info[#(info) - 1] == "eclipseBar" or not ShadowUF.db.profile.advanced or ShadowUF.modules[info[#(info) - 1]].isComboPoints) end},
 			overrideBackground = {
 				order = 1.6,
 				type = "toggle",
@@ -2227,7 +2228,6 @@ local function loadUnitOptions()
 				end,
 				arg = "$parent.backgroundColor",
 			},
-			sep3 = {order = 1.66, type = "description", name = "", hidden = function(info) return info[#(info) - 1] ~= "burningEmbersBar" or not ShadowUF.db.profile.advanced end},
 			vertical = {
 				order = 1.70,
 				type = "toggle",
@@ -2244,18 +2244,15 @@ local function loadUnitOptions()
 				arg = "$parent.reverse",
 				hidden = function(info) return not ShadowUF.db.profile.advanced or ShadowUF.modules[info[#(info) - 1]].isComboPoints end,
 			},
-			sep2 = {order = 1.75, type = "description", name = "", hidden = function(info)
-				local moduleKey = info[#(info) - 1]
-				return ( moduleKey ~= "healthBar" and moduleKey ~= "powerBar" and moduleKey ~= "druidBar" and moduleKey ~= "monkBar" and moduleKey ~= "burningEmbersBar" ) or not ShadowUF.db.profile.advanced
-			end},
 			invert = {
 				order = 2,
 				type = "toggle",
 				name = L["Invert colors"],
 				desc = L["Flips coloring so the bar color is shown as the background color and the background as the bar"],
-				hidden = function(info) return ( info[#(info) - 1] ~= "healthBar"  and info[#(info) - 1] ~= "powerBar" and info[#(info) - 1] ~= "druidBar" and info[#(info) - 1] ~= "monkBar" ) or not ShadowUF.db.profile.advanced end,
+				hidden = function(info) return not ShadowUF.modules[info[#(info) - 1]] or info[#(info) - 1] == "eclipseBar" or not ShadowUF.db.profile.advanced or ShadowUF.modules[info[#(info) - 1]].isComboPoints end,
 				arg = "$parent.invert",
 			},
+			sep3 = {order = 3, type = "description", name = "", hidden = function(info) return not ShadowUF.modules[info[#(info) - 1]] or info[#(info) - 1] == "eclipseBar" or not ShadowUF.db.profile.advanced or ShadowUF.modules[info[#(info) - 1]].isComboPoints end,},
 			order = {
 				order = 4,
 				type = "range",
@@ -4193,7 +4190,7 @@ local function loadUnitOptions()
 						order = 0.5,
 						type = "group",
 						name = L["Portrait"],
-						inline = true,
+						inline = false,
 						hidden = false,
 						args = {
 							enableBar = {

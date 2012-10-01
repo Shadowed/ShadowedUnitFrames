@@ -111,11 +111,7 @@ function Embers:Update(frame, event, unit, powerType)
 
 		if( ember.setColor ~= color ) then
 			ember.setColor = color
-
-			ember:SetStatusBarColor(ShadowUF.db.profile.powerColors[color].r, ShadowUF.db.profile.powerColors[color].g, ShadowUF.db.profile.powerColors[color].b)
-
-			color = ShadowUF.db.profile.bars.backgroundColor or ShadowUF.db.profile.units[frame.unitType].burningEmbersBar.backgroundColor or ShadowUF.db.profile.powerColors[color]
-			ember.background:SetVertexColor(color.r, color.g, color.b, color.a or ShadowUF.db.profile.bars.backgroundAlpha)
+			frame:SetBlockColor(ember, "burningEmbersBar", ShadowUF.db.profile.powerColors[color].r, ShadowUF.db.profile.powerColors[color].g, ShadowUF.db.profile.powerColors[color].b)
 		end
 
 		power = power - MAX_POWER_PER_EMBER

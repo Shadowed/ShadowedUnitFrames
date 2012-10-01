@@ -364,7 +364,7 @@ function Layout:SetupBars(frame, config)
 			end
 
 			if( widget.background ) then
-				if( config[key].background ) then
+				if( config[key].background or config[key].invert ) then
 					widget.background:SetTexture(mediaPath.statusbar)
 					widget.background:SetHorizTile(false)
 					widget.background:Show()

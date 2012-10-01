@@ -175,19 +175,25 @@ local function SetRangeAlpha(self, alpha)
 	end
 end
 
-local function SetBarColor(self, key, invert, r, g, b)
-	local bar = self[key]
-	if( not invert ) then
+local function SetBarColor(self, key, r, g, b)
+	self:SetBlockColor(self[key], key, r, g, b)
+end
+
+local function SetBlockColor(self, bar, key, r, g, b)
+	local bgColor = bar.background.overrideColor or bar.background.backgroundColor
+	if( not ShadowUF.db.profile.units[self.unitType][key].invert ) then
 		bar:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.alpha)
-		if( not bar.background.overrideColor ) then
+		if( not bgColor ) then
 			bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.backgroundAlpha)
+		else
+			bar.background:SetVertexColor(bgColor.r, bgColor.g, bgColor.b, ShadowUF.db.profile.bars.backgroundAlpha)
 		end
 	else
 		bar.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.alpha)
-		if( not bar.background.overrideColor ) then
+		if( not bgColor ) then
 			bar:SetStatusBarColor(0, 0, 0, 1 - ShadowUF.db.profile.bars.backgroundAlpha)
 		else
-			bar:SetStatusBarColor(bar.background.overrideColor.r, bar.background.overrideColor.g, bar.background.overrideColor.b, 1 - ShadowUF.db.profile.bars.backgroundAlpha)
+			bar:SetStatusBarColor(bgColor.r, bgColor.g, bgColor.b, 1 - ShadowUF.db.profile.bars.backgroundAlpha)
 		end
 	end
 end
@@ -697,6 +703,7 @@ function Units:CreateUnit(...)
 	frame.UnregisterUpdateFunc = UnregisterUpdateFunc
 	frame.ReregisterUnitEvents = ReregisterUnitEvents
 	frame.SetBarColor = SetBarColor
+	frame.SetBlockColor = SetBlockColor
 	frame.FullUpdate = FullUpdate
 	frame.SetVisibility = SetVisibility
 	frame.topFrameLevel = 5
