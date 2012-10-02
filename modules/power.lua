@@ -64,7 +64,7 @@ function Power:UpdateClassification(frame, event, unit)
 	if( classif == "minus" ) then
 		minus = true
 
-		frame.powerBar:SetMinMaxValue(0, 1)
+		frame.powerBar:SetMinMaxValues(0, 1)
 		frame.powerBar:SetValue(0)
 	end
 
