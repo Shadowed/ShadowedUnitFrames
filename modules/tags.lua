@@ -884,13 +884,15 @@ Tags.defaultTags = {
 			return ShadowUF.L["Elite"]
 		elseif( classif == "worldboss" ) then
 			return ShadowUF.L["Boss"]
+		elseif( classif == "minus" ) then
+			return ShadowUF.L["Minion"]
 		end
 		
 		return nil
 	end]],
 	["shortclassification"] = [[function(unit, unitOwner)
 		local classif = UnitClassification(unit)
-		return classif == "rare" and "R" or classif == "rareelite" and "R+" or classif == "elite" and "+" or classif == "worldboss" and "B"
+		return classif == "rare" and "R" or classif == "rareelite" and "R+" or classif == "elite" and "+" or classif == "worldboss" and "B" or classif = "minus" and "M"
 	end]],
 	["group"] = [[function(unit, unitOwner)
 		if( not UnitInRaid(unitOwner) ) then return nil end
@@ -1217,8 +1219,8 @@ Tags.defaultHelp = {
 	["hpower"]					= L["Total number of active holy power."],
 	["sshards"]					= L["Total number of active soul shards."],
 	["smartlevel"]				= L["Smart level, returns Boss for bosses, +50 for a level 50 elite mob, or just 80 for a level 80."],
-	["classification"]			= L["Units classification, Rare, Rare Elite, Elite, Boss, nothing is shown if they aren't any of those."],
-	["shortclassification"]		= L["Short classifications, R for Rare, R+ for Rare Elite, + for Elite, B for boss, nothing is shown if they aren't any of those."],
+	["classification"]			= L["Units classification, Rare, Rare Elite, Elite, Boss or Minion nothing is shown if they aren't any of those."],
+	["shortclassification"]		= L["Short classifications, R for Rare, R+ for Rare Elite, + for Elite, B for Boss or M for Minion nothing is shown if they aren't any of those."],
 	["rare"]					= L["Returns Rare if the unit is a rare or rare elite mob."],
 	["plus"]					= L["Returns + if the unit is an elite or rare elite mob."],
 	["sex"]						= L["Returns the units sex."],

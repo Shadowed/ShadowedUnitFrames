@@ -11,7 +11,9 @@ function Power:OnEnable(frame)
 	frame:RegisterUnitEvent("UNIT_POWER_BAR_SHOW", self, "Update")
 	frame:RegisterUnitEvent("UNIT_POWER_BAR_HIDE", self, "Update")
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdateColor")
+	frame:RegisterUnitEvent("UNIT_CLASSIFICATION_CHANGED", self, "UpdateClassification")
 
+	frame:RegisterUpdateFunc(self, "UpdateClassification")
 	frame:RegisterUpdateFunc(self, "UpdateColor")
 	frame:RegisterUpdateFunc(self, "Update")
 end
@@ -26,7 +28,9 @@ function Power:UpdateColor(frame)
 	frame.powerBar.currentType = currentType
 
 	local color
-	if( ShadowUF.db.profile.units[frame.unitType].powerBar.colorType == "class" and UnitIsPlayer(frame.unit) ) then
+	if( frame.powerBar.minusMob ) then
+		color = ShadowUF.db.profile.healthColors.offline
+	elseif( ShadowUF.db.profile.units[frame.unitType].powerBar.colorType == "class" and UnitIsPlayer(frame.unit) ) then
 		local class = select(2, UnitClass(frame.unit))
 		color = class and ShadowUF.db.profile.classColors[class]
 	end
@@ -54,8 +58,29 @@ function Power:UpdateColor(frame)
 	self:Update(frame)
 end
 
+function Power:UpdateClassification(frame, event, unit)
+	local classif = UnitClassification(frame.unit)
+	local minus = nil
+	if( classif == "minus" ) then
+		minus = true
+
+		frame.powerBar:SetMinMaxValue(0, 1)
+		frame.powerBar:SetValue(0)
+	end
+
+	if( minus ~= frame.powerBar.minusMob ) then
+		frame.powerBar.minusMob = minus
+
+		-- Only need to force an update if it was event driven, otherwise the update func will hit color/etc next
+		if( event ) then
+			self:UpdateColor(frame)
+		end
+	end
+end
+
 function Power:Update(frame, event, unit, powerType)
 	if( event and powerType and powerType ~= frame.powerBar.currentType ) then return end
+	if( frame.powerBar.minusMob ) then return end
 
 	frame.powerBar.currentPower = UnitPower(frame.unit)
 	frame.powerBar:SetMinMaxValues(0, UnitPowerMax(frame.unit))
