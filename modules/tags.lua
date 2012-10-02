@@ -892,7 +892,7 @@ Tags.defaultTags = {
 	end]],
 	["shortclassification"] = [[function(unit, unitOwner)
 		local classif = UnitClassification(unit)
-		return classif == "rare" and "R" or classif == "rareelite" and "R+" or classif == "elite" and "+" or classif == "worldboss" and "B" or classif = "minus" and "M"
+		return classif == "rare" and "R" or classif == "rareelite" and "R+" or classif == "elite" and "+" or classif == "worldboss" and "B" or classif == "minus" and "M"
 	end]],
 	["group"] = [[function(unit, unitOwner)
 		if( not UnitInRaid(unitOwner) ) then return nil end
