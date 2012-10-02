@@ -41,6 +41,8 @@ local function createConfigEnv()
 		UnitPower = function(unit, powerType)
 			if( powerType == SPELL_POWER_HOLY_POWER or powerType == SPELL_POWER_SOUL_SHARDS ) then
 				return 3
+			elseif( powerType == SPELL_POWER_ECLIPSE ) then
+				return getValue("UnitPower", unit, math.random(-100, 100))
 			elseif( powerType == SPELL_POWER_LIGHT_FORCE ) then
 				return 4
 			elseif( powerType == SPELL_POWER_SHADOW_ORBS ) then
@@ -59,6 +61,8 @@ local function createConfigEnv()
 		UnitPowerMax = function(unit, powerType)
 			if( powerType == SPELL_POWER_HOLY_POWER or powerType == SPELL_POWER_SOUL_SHARDS ) then
 				return 3
+			elseif( powerType == SPELL_POWER_ECLIPSE ) then
+				return 100
 			elseif( powerType == SPELL_POWER_LIGHT_FORCE ) then
 				return 4
 			elseif( powerType == SPELL_POWER_SHADOW_ORBS ) then
