@@ -327,7 +327,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			runeBar = {enabled = true, background = false, height = 0.40, order = 70},
 			totemBar = {enabled = true, background = false, height = 0.40, order = 70},
 			druidBar = {enabled = true, background = true, height = 0.40, order = 70},
-			eclipseBar = {enabled = true, background = true, order = 70, height = 0.40},
+			eclipseBar = {enabled = true, background = true, order = 70, height = 0.75},
 			auraPoints = {enabled = false, showAlways = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true, height = 0.40},
 			demonicFuryBar = {enabled = true, background = false, height = 0.50, order = 70},
 			burningEmbersBar = {enabled = true, background = false, height = 0.40, order = 70},
@@ -348,6 +348,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[perpp]"},
 				{text = "[curmaxpp]"},
 				{text = "[(()afk() )][name][( ()group())]"},
+				{enabled = true, width = 1, name = L["Text"], text = "[warlock:demonic:curpp]", anchorTo = "$demonicFuryBar", anchorPoint = "C", size = 0, x = 0, y = 0},
+				{enabled = true, width = 1, name = L["Text"], text = "[druid:eclipse]", anchorTo = "$eclipseBar", anchorPoint = "CLI", size = -1, x = 0, y = 0}
 			},
 		},
 		party = {
