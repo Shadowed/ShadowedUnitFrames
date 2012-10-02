@@ -27,8 +27,8 @@ function Eclipse:OnEnable(frame)
 		frame.eclipseBar.sun:SetPoint("BOTTOMLEFT", frame.eclipseBar, "BOTTOM")
 	end
 	
-	frame:RegisterNormalEvent("UNIT_POWER_FREQUENT", self, "Update")
-	frame:RegisterNormalEvent("UNIT_MAXPOWER", self, "Update")
+	frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")
+	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "Update")
 	frame:RegisterNormalEvent("ECLIPSE_DIRECTION_CHANGE", self, "UpdateDirection")
 	frame:RegisterNormalEvent("UPDATE_SHAPESHIFT_FORM", self, "UpdateVisibility")
 	
@@ -49,14 +49,15 @@ function Eclipse:OnLayoutApplied(frame)
 		frame.eclipseBar[type]:SetHorizTile(false)
 	end
 	frame.eclipseBar.marker:SetSize(frame.eclipseBar:GetHeight() * 2, frame.eclipseBar:GetHeight() * 2)
-	Eclipse:UpdateVisibility(frame)
+	
+	self:UpdateVisibility(frame)
 end
 
 function Eclipse:UpdateVisibility(frame)
 	local form = GetShapeshiftFormID()
 	ShadowUF.Layout:SetBarVisibility(frame, "eclipseBar", (form == MOONKIN_FORM or not form))
-	Eclipse:UpdateDirection(frame)
-	Eclipse:Update(frame, nil, nil, "ECLIPSE")
+	self:UpdateDirection(frame)
+	self:Update(frame, nil, nil, "ECLIPSE")
 end
 
 function Eclipse:UpdateDirection(frame)
@@ -66,10 +67,10 @@ function Eclipse:UpdateDirection(frame)
 	end
 end
 
-function Eclipse:Update(frame, event, unit, id)
-	if( id == "ECLIPSE" ) then
-		local power = UnitPower("player", SPELL_POWER_ECLIPSE)
-		local xpos = (frame.eclipseBar:GetWidth() / 2) * (power / 100)
-		frame.eclipseBar.marker:SetPoint("CENTER", frame.eclipseBar, "CENTER", xpos, 0)
-	end
+function Eclipse:Update(frame, event, unit, powerType)
+	if( event and powerType ~= "ECLIPSE" ) then return end
+
+	local power = UnitPower("player", SPELL_POWER_ECLIPSE)
+	local xpos = (frame.eclipseBar:GetWidth() / 2) * (power / 100)
+	frame.eclipseBar.marker:SetPoint("CENTER", frame.eclipseBar, "CENTER", xpos, 0)
 end
