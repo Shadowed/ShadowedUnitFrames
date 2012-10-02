@@ -233,8 +233,6 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			{width = 0.60, name = L["Right text"], anchorTo = "$powerBar", anchorPoint = "CRI", x = -3, y = 0, size = 0},
 
 			{width = 1, name = L["Text"], anchorTo = "$emptyBar", anchorPoint = "CLI", x = 3, y = 0, size = 0},
-
-			{enabled = true, width = 1, name = L["Text"], anchorTo = "$demonicFuryBar", anchorPoint = "C", x = 3, y = 0, size = -1},
 		},
 		indicators = {
 			raidTarget = {anchorTo = "$parent", anchorPoint = "C", size = 20, x = 0, y = 0},
@@ -348,8 +346,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[perpp]"},
 				{text = "[curmaxpp]"},
 				{text = "[(()afk() )][name][( ()group())]"},
-				{enabled = true, width = 1, name = L["Text"], text = "[warlock:demonic:curpp]", anchorTo = "$demonicFuryBar", anchorPoint = "C", size = 0, x = 0, y = 0},
-				{enabled = true, width = 1, name = L["Text"], text = "[druid:eclipse]", anchorTo = "$eclipseBar", anchorPoint = "CLI", size = -1, x = 0, y = 0}
+				{enabled = true, width = 1, name = L["Text"], text = "[warlock:demonic:curpp]", anchorTo = "$demonicFuryBar", anchorPoint = "C", x = 3, y = 0, size = -1},
+				{enabled = true, width = 1, name = L["Text"], text = "[druid:eclipse]", anchorTo = "$eclipseBar", anchorPoint = "CLI", size = 0, x = 0, y = 0}
 			},
 		},
 		party = {
