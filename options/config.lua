@@ -1384,10 +1384,12 @@ local function loadGeneralOptions()
 	
 	-- Load text
 	for id, text in pairs(ShadowUF.db.profile.units.player.text) do
-		addTextParent.args[id .. ":label"] = addTextLabel
-		addTextParent.args[tostring(id)] = addText
-		addTextParent.args[id .. ":sep"] = addTextSep
-		options.args.general.args.text.args[text.anchorTo] = addTextParent
+		if( text.anchorTo ~= "" ) then
+			addTextParent.args[id .. ":label"] = addTextLabel
+			addTextParent.args[tostring(id)] = addText
+			addTextParent.args[id .. ":sep"] = addTextSep
+			options.args.general.args.text.args[text.anchorTo] = addTextParent
+		end
 	end
 	
 	

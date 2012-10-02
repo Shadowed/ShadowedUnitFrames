@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 26
+ShadowUF.dbRevision = 27
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -85,6 +85,18 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+
+	if( revision <= 26 ) then
+		for _, unit in pairs(self.unitList) do
+			if( unit ~= "player" ) then
+				for id, text in pairs(self.db.profile.units[unit].text) do
+					if( text.anchorTo == "$demonicFuryBar" ) then
+						self.db.profile.units[unit].text[id] = nil
+					end
+				end
+			end
+		end
+	end
 
 	if( revision <= 25 ) then
 		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Text"], text = "[druid:eclipse]", anchorTo = "$eclipseBar", anchorPoint = "CLI", size = -1, x = 0, y = 0})
@@ -338,8 +350,8 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.chi = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.indicators.lfdRole = {enabled = true, size = 0, x = 0, y = 0}
 	self.defaults.profile.units.player.auraPoints = {enabled = false, isBar = true}
-	table.insert(self.defaults.profile.units.player.text, {enabled = true})
-	table.insert(self.defaults.profile.units.player.text, {enabled = true})
+	table.insert(self.defaults.profile.units.player.text, {enabled = false, text = "", anchorTo = "", anchorPoint = "C", size = 0, x = 0, y = 0})
+	table.insert(self.defaults.profile.units.player.text, {enabled = false, text = "", anchorTo = "", anchorPoint = "C", size = 0, x = 0, y = 0})
 
     -- PET
 	self.defaults.profile.units.pet.enabled = true
