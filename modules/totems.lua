@@ -25,7 +25,7 @@ function Totems:OnEnable(frame)
 		local priorities = (select(2, UnitClass("player")) == "SHAMAN") and SHAMAN_TOTEM_PRIORITIES or STANDARD_TOTEM_PRIORITIES
 		
 		for id=1, MAX_TOTEMS do
-			local totem = ShadowUF.Units:CreateBar(frame)
+			local totem = ShadowUF.Units:CreateBar(frame.totemBar)
 			totem:SetMinMaxValues(0, 1)
 			totem:SetValue(0)
 			totem.id = MAX_TOTEMS == 1 and 1 or priorities[id]
@@ -54,6 +54,7 @@ function Totems:OnEnable(frame)
 	end
 	
 	frame:RegisterNormalEvent("PLAYER_TOTEM_UPDATE", self, "Update")
+	frame:RegisterUpdateFunc(self, "UpdateVisibility")
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
@@ -101,6 +102,19 @@ local function totemMonitor(self, elapsed)
 	end
 end
 
+function Totems:UpdateVisibility(frame)
+	if( frame.totemBar.inVehicle ~= frame.inVehicle ) then
+		frame.totemBar.inVehicle = frame.inVehicle
+
+		if( frame.inVehicle ) then
+			ShadowUF.Layout:SetBarVisibility(frame, "totemBar", false)
+		-- Below check on Update to only show when we have 1 totem if it's active will handle reshowing it
+		elseif( MAX_TOTEMS ~= 1 ) then
+			ShadowUF.Layout:SetBarVisibility(frame, "totemBar", true)
+		end
+	end
+end
+
 function Totems:Update(frame)
 	local totalActive = 0
 	for _, indicator in pairs(frame.totemBar.totems) do
@@ -124,7 +138,7 @@ function Totems:Update(frame)
 	end
 	
 	-- Only guardian timers should auto hide, nothing else
-	if( MAX_TOTEMS == 1 ) then
+	if( MAX_TOTEMS == 1 and not frame.inVehicle ) then
 		ShadowUF.Layout:SetBarVisibility(frame, "totemBar", totalActive > 0)
 	end
 end
