@@ -315,7 +315,7 @@ local function checkVehicleData(self, elapsed)
 		self.dataAttempts = self.dataAttempts + 1
 		
 		-- Took too long to get vehicle data, or they are no longer in a vehicle
-		if( self.dataAttempts >= 6 or not UnitHasVehiclePlayerFrameUI(self.unitOwner) ) then
+		if( self.dataAttempts >= 6 or not UnitHasVehicleUI(self.unitOwner) or not UnitHasVehiclePlayerFrameUI(self.unitOwner) ) then
 			self.timeElapsed = nil
 			self.dataAttempts = nil
 			self:SetScript("OnUpdate", nil)
@@ -341,7 +341,7 @@ function Units:CheckVehicleStatus(frame, event, unit)
 	if( event and frame.unitOwner ~= unit ) then return end
 
 	-- Not in a vehicle yet, and they entered one that has a UI or they were in a vehicle but the GUID changed (vehicle -> vehicle)
-	if( ( not frame.inVehicle or frame.unitGUID ~= UnitGUID(frame.vehicleUnit) ) and UnitHasVehiclePlayerFrameUI(frame.unitOwner) and not ShadowUF.db.profile.units[frame.unitType].disableVehicle ) then
+	if( ( not frame.inVehicle or frame.unitGUID ~= UnitGUID(frame.vehicleUnit) ) and UnitHasVehicleUI(frame.unitOwner) and UnitHasVehiclePlayerFrameUI(frame.unitOwner) and not ShadowUF.db.profile.units[frame.unitType].disableVehicle ) then
 		
 		frame.inVehicle = true
 		frame.unit = frame.vehicleUnit
@@ -356,7 +356,7 @@ function Units:CheckVehicleStatus(frame, event, unit)
 		end
 				
 	-- Was in a vehicle, no longer has a UI
-	elseif( frame.inVehicle and ( not UnitHasVehiclePlayerFrameUI(frame.unitOwner) or ShadowUF.db.profile.units[frame.unitType].disableVehicle ) ) then
+	elseif( frame.inVehicle and ( not UnitHasVehicleUI(frame.unitOwner) or not UnitHasVehiclePlayerFrameUI(frame.unitOwner) or ShadowUF.db.profile.units[frame.unitType].disableVehicle ) ) then
 		frame.inVehicle = false
 		frame.unit = frame.unitOwner
 		frame.unitGUID = UnitGUID(frame.unit)
@@ -528,7 +528,7 @@ OnAttributeChanged = function(self, name, unit)
 		end
 	
 		-- Logged out in a vehicle
-		if( UnitHasVehiclePlayerFrameUI(self.unitRealOwner) ) then
+		if( UnitHasVehicleUI(self.unitRealOwner) and UnitHasVehiclePlayerFrameUI(self.unitRealOwner) ) then
 			self:SetAttribute("unitIsVehicle", true)
 		end
 		
