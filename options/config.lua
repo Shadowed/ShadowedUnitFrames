@@ -3895,6 +3895,7 @@ local function loadUnitOptions()
 								order = 3.5,
 								type = "description",
 								name = "",
+								hidden = function(info) return info[2] == "player" or info[2] == "pet" end,
 							},
 							healthColor = {
 								order = 4,
