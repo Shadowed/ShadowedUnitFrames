@@ -55,35 +55,33 @@ function IncHeal:OnLayoutApplied(frame)
 end
 
 function IncHeal:UpdateFrame(frame)
-	-- This makes sure that when a heal like Tranquility is cast, it won't show the entire cast but cap it at 4 seconds into the future
+	if( not frame.visibility.incHeal or not frame.visibility.healthBar ) then return end
+
 	local healed = UnitGetIncomingHeals(frame.unit) or 0
-		
-	-- Bar is also supposed to be enabled, lets update that too
-	if( frame.visibility.incHeal and frame.visibility.healthBar ) then
-		if( healed > 0 ) then
-			frame.incHeal.healed = healed
-			frame.incHeal:Show()
-			
-			-- When the primary bar has an alpha of 100%, we can cheat and do incoming heals easily. Otherwise we need to do it a more complex way to keep it looking good
-			if( frame.incHeal.simple ) then
-				frame.incHeal.total = UnitHealth(frame.unit) + healed
-				frame.incHeal:SetMinMaxValues(0, UnitHealthMax(frame.unit) * ShadowUF.db.profile.units[frame.unitType].incHeal.cap)
-				frame.incHeal:SetValue(frame.incHeal.total)
-			else
-				local health, maxHealth = UnitHealth(frame.unit), UnitHealthMax(frame.unit)
-				local healthWidth = frame.incHeal.healthWidth * (maxHealth > 0 and health / maxHealth or 0)
-				local incWidth = frame.healthBar:GetWidth() * (health > 0 and healed / health or 0)
-				if( (healthWidth + incWidth) > frame.incHeal.maxWidth ) then
-					incWidth = frame.incHeal.cappedWidth
-				end
-				
-				frame.incHeal:SetWidth(incWidth)
-				frame.incHeal:SetPoint("TOPLEFT", SUFUnitplayer, "TOPLEFT", frame.incHeal.healthX + healthWidth, frame.incHeal.healthY)
-			end
-		else
-			frame.incHeal.total = nil
-			frame.incHeal.healed = nil
-			frame.incHeal:Hide()
+	if( healed < 0 ) then
+		frame.incHeal.total = nil
+		frame.incHeal.healed = nil
+		frame.incHeal:Hide()
+		return
+	end
+
+	frame.incHeal.healed = healed
+	frame.incHeal:Show()
+	
+	-- When the primary bar has an alpha of 100%, we can cheat and do incoming heals easily. Otherwise we need to do it a more complex way to keep it looking good
+	if( frame.incHeal.simple ) then
+		frame.incHeal.total = UnitHealth(frame.unit) + healed
+		frame.incHeal:SetMinMaxValues(0, UnitHealthMax(frame.unit) * ShadowUF.db.profile.units[frame.unitType].incHeal.cap)
+		frame.incHeal:SetValue(frame.incHeal.total)
+	else
+		local health, maxHealth = UnitHealth(frame.unit), UnitHealthMax(frame.unit)
+		local healthWidth = frame.incHeal.healthWidth * (maxHealth > 0 and health / maxHealth or 0)
+		local incWidth = frame.healthBar:GetWidth() * (health > 0 and healed / health or 0)
+		if( (healthWidth + incWidth) > frame.incHeal.maxWidth ) then
+			incWidth = frame.incHeal.cappedWidth
 		end
+		
+		frame.incHeal:SetWidth(incWidth)
+		frame.incHeal:SetPoint("TOPLEFT", SUFUnitplayer, "TOPLEFT", frame.incHeal.healthX + healthWidth, frame.incHeal.healthY)
 	end
 end
