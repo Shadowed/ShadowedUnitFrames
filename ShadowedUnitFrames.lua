@@ -529,6 +529,12 @@ end
 
 ShadowUF.noop = function() end
 
+local rehideFrame = function(self)
+	if( not InCombatLockdown() ) then
+		self:Hide()
+	end
+end
+
 local active_hiddens = {}
 function ShadowUF:HideBlizzardFrames()
 	if( ShadowUF.db.profile.hidden.cast and not active_hiddens.cast ) then
@@ -554,6 +560,7 @@ function ShadowUF:HideBlizzardFrames()
 
 		-- This just makes sure
 		if( CompactPartyFrame ) then
+			CompactPartyFrame:HookScript("OnShow", rehideFrame)
 			CompactPartyFrame:UnregisterAllEvents()
 			CompactPartyFrame:Hide()
 		end
@@ -595,6 +602,7 @@ function ShadowUF:HideBlizzardFrames()
 	
 	if( ShadowUF.db.profile.hidden.player and not active_hiddens.player ) then
 		PlayerFrame:UnregisterAllEvents()
+		PlayerFrame:HookScript("OnShow", rehideFrame)
 		PlayerFrame:Hide()
 			
 		-- We keep these in case someone is still using the default auras, otherwise it messes up vehicle stuff
@@ -613,12 +621,15 @@ function ShadowUF:HideBlizzardFrames()
 		for _, frame in pairs({EclipseBarFrame, ShardBarFrame, RuneFrame, TotemFrame, PaladinPowerBar, MonkHarmonyBar, PriestBarFrame, WarlockPowerFrame}) do
 			frame:UnregisterAllEvents()
 			frame:Hide()
+
+			frame.RegisterAllEvents = self.noop
 			frame.Show = self.noop
 		end
 	end
 
 	if( ShadowUF.db.profile.hidden.pet and not active_hiddens.pet ) then
 		PetFrame:UnregisterAllEvents()
+		PetFrame:HookScript("OnShow", rehideFrame)
 		PetFrame:Hide()
 
 		PetFrameHealthBar:UnregisterAllEvents()
@@ -626,6 +637,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 	
 	if( ShadowUF.db.profile.hidden.target and not active_hiddens.target ) then
+		TargetFrame:HookScript("OnShow", rehideFrame)
 		TargetFrame:UnregisterAllEvents()
 		TargetFrame:Hide()
 
@@ -638,6 +650,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 	
 	if( ShadowUF.db.profile.hidden.focus and not active_hiddens.focus ) then
+		FocusFrame:HookScript("OnShow", rehideFrame)
 		FocusFrame:UnregisterAllEvents()
 		FocusFrame:Hide()
 
@@ -652,6 +665,7 @@ function ShadowUF:HideBlizzardFrames()
 			local frame = _G[name]
 
 			frame:UnregisterAllEvents()
+			frame:HookScript("OnShow", rehideFrame)
 			frame:Hide()
 
 			_G[name .. "HealthBar"]:UnregisterAllEvents()
