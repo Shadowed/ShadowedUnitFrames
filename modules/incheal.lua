@@ -6,7 +6,7 @@ function IncHeal:OnEnable(frame)
 
 	if( ShadowUF.db.profile.units[frame.unitType].incHeal.heals ) then
 		frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
-		frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
+		frame:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", self, "UpdateFrame")
 		frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", self, "UpdateFrame")
 	end
 	
