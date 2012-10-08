@@ -602,7 +602,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	if( ShadowUF.db.profile.hidden.buffs and not active_hiddens.buffs ) then
-		hideBlizzardFrames(false, BuffFrame, TemporaryEnchantFrame, ConsolidateBuffs)
+		hideBlizzardFrames(false, BuffFrame, TemporaryEnchantFrame, ConsolidatedBuffs)
 	end
 	
 	if( ShadowUF.db.profile.hidden.player and not active_hiddens.player ) then
