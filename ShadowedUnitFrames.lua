@@ -4,7 +4,7 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
-ShadowUF.dbRevision = 27
+ShadowUF.dbRevision = 28
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -85,6 +85,10 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+
+	if( revision <= 27 ) then
+		self.db.profile.healthColors.aggro = CopyTable(self.db.profile.healthColors.hostile)
+	end
 
 	if( revision <= 26 ) then
 		for _, unit in pairs(self.unitList) do
