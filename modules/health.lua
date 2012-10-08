@@ -30,6 +30,7 @@ function Health:OnEnable(frame)
 		frame.healthBar = ShadowUF.Units:CreateBar(frame)
 	end
 	
+	frame:RegisterUnitEvent("UNIT_HEALTH", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "Update")
 	frame:RegisterUnitEvent("UNIT_CONNECTION", self, "Update")
 	frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdateColor")
@@ -61,7 +62,7 @@ function Health:UpdateColor(frame)
 		frame:SetBarColor("healthBar", ShadowUF.db.profile.healthColors.offline.r, ShadowUF.db.profile.healthColors.offline.g, ShadowUF.db.profile.healthColors.offline.b)
 		return
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorAggro and UnitThreatSituation(frame.unit) == 3 ) then
-		frame:SetBarColor("healthBar", ShadowUF.db.profile.healthColors.hostile.r, ShadowUF.db.profile.healthColors.hostile.g, ShadowUF.db.profile.healthColors.hostile.b)
+		frame:SetBarColor("healthBar", ShadowUF.db.profile.healthColors.aggro.r, ShadowUF.db.profile.healthColors.aggro.g, ShadowUF.db.profile.healthColors.aggro.b)
 		return
 	elseif( frame.inVehicle ) then
 		color = ShadowUF.db.profile.classColors.VEHICLE
