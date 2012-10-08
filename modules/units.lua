@@ -1,4 +1,4 @@
-local Units = {headerFrames = {}, unitFrames = {}, frameList = {}, unitEvents = {}, remappedUnits = {}}
+local Units = {headerFrames = {}, unitFrames = {}, frameList = {}, unitEvents = {}, remappedUnits = {}, canCure = {}}
 Units.childUnits = {["partytarget"] = "party", ["partypet"] = "party", ["maintanktarget"] = "maintank", ["mainassisttarget"] = "mainassist", ["bosstarget"] = "boss", ["arenatarget"] = "arena", ["arenapet"] = "arena", ["battlegroundpet"] = "battleground", ["battlegroundtarget"] = "battleground"}
 Units.zoneUnits = {["arena"] = "arena", ["arenapet"] = "arena", ["arenatarget"] = "arena", ["boss"] = "raid", ["bosstarget"] = "raid", ["battleground"] = "pvp", ["battlegroundtarget"] = "pvp", ["battlegroundpet"] = "pvp"}
 Units.remappedUnits = {["battleground"] = "arena", ["battlegroundpet"] = "arenapet", ["battlegroundtarget"] = "arenatarget"}
@@ -1349,13 +1349,59 @@ function Units:CheckPlayerZone(force)
 	end
 end
 
+-- Handle figuring out what auras players can cure and also account for symbiosis which can let you cure additional ones
+local curableSpells = {
+	["DRUID"] = {[88423] = {"Magic", "Curse", "Poison"}, [2782] = {"Curse", "Poison"}, [2908] = {"Enrage"}},
+	["HUNTER"] = {[19801] = {"Magic", "Enrage"}},
+	["ROGUE"] = {[5938] = {"Enrage"}},
+	["PRIEST"] = {[528] = {"Magic"}, [527] = {"Magic", "Disease"}},
+	["PALADIN"] = {[122288] = {"Poison", "Disease"}},
+	["SHAMAN"] = {[77130] = {"Curse", "Magic"}},
+	["MONK"] = {[115450] = {"Poison", "Disease"}, [115451] = {"Magic"}}
+}
+
+local symbiosisSpells = {
+	["DRUID"] = {["Disease"] = 122288},
+}
+
+curableSpells = curableSpells[select(2, UnitClass("player"))]
+symbiosisSpells = symbiosisSpells[select(2, UnitClass("player"))]
+
+local function checkCurableSpells()
+	if( not curableSpells ) then return end
+
+	table.wipe(Units.canCure)
+
+	for spellID, cures in pairs(curableSpells) do
+		if( IsPlayerSpell(spellID) ) then
+			for _, type in pairs(cures) do
+				Units.canCure[type] = true
+			end
+		end
+	end
+end
+
+local function checkSymbiosisSpells()
+	if( not symbiosisSpells ) then return end
+
+	local changed = false
+	for type, spellID in pairs(symbiosisSpells) do
+		local hasSpell = IsPlayerSpell(spellID)
+		if( ( Units.canCure[type] and not hasSpell ) or ( not Units.canCure[type] and hasSpell ) ) then
+			changed = true
+			Units.canCure[type] = hasSpell
+		end
+	end
+
+	return changed
+end
+
 local centralFrame = CreateFrame("Frame")
 centralFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 centralFrame:RegisterEvent("ZONE_CHANGED_NEW_AREA")
 centralFrame:RegisterEvent("PLAYER_LOGIN")
 centralFrame:RegisterEvent("PLAYER_LEVEL_UP")
 centralFrame:RegisterEvent("CINEMATIC_STOP")
-
 centralFrame:SetScript("OnEvent", function(self, event, unit)
 	-- Check if the player changed zone types and we need to change module status, while they are dead
 	-- we won't change their zone type as releasing from an instance will change the zone type without them
@@ -1379,8 +1425,21 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 			unitFrames.player:FullUpdate()
 		end
 
-	-- Monitor talent changes
+	-- Symbiosis for curable changes
+	elseif( event == "SPELL_UPDATE_USABLE" ) then
+		local changed = checkSymbiosisSpells()
+		if( changed ) then
+			for frame in pairs(ShadowUF.Units.frameList) do
+				if( frame.unit and frame:IsVisible() ) then
+					frame:FullUpdate()
+				end
+		    end
+		end
+
+	-- Monitor talent changes for curable changes
 	elseif( event == "PLAYER_SPECIALIZATION_CHANGED" ) then
+		checkCurableSpells()
+
 		for frame in pairs(ShadowUF.Units.frameList) do
 			if( frame.unit ) then
 				frame:SetVisibility()
@@ -1392,7 +1451,14 @@ centralFrame:SetScript("OnEvent", function(self, event, unit)
 	    end
 
 	elseif( event == "PLAYER_LOGIN" ) then
+		checkCurableSpells()
+		checkSymbiosisSpells()
+
 		self:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+
+		if( symbiosisSpells ) then
+			self:RegisterEvent("SPELL_UPDATE_USABLE")
+		end
 
 	-- This is slightly hackish, but it suits the purpose just fine for somthing thats rarely called.
 	elseif( event == "PLAYER_REGEN_ENABLED" ) then

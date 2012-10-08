@@ -2,6 +2,7 @@ local Auras = {}
 local stealableColor = {r = 1, g = 1, b = 1}
 local playerUnits = {player = true, vehicle = true, pet = true}
 local mainHand, offHand, ranged, tempEnchantScan = {time = 0}, {time = 0}, {time = 0}
+local canCure = ShadowUF.Units.canCure
 ShadowUF:RegisterModule(Auras, "auras", ShadowUF.L["Auras"])
 
 function Auras:OnEnable(frame)
@@ -305,7 +306,8 @@ local function updateGroup(self, type, config, reverseConfig)
 
 	-- This is a bit of an odd filter, when used with a HELPFUL filter, it will only return buffs you can cast on group members
 	-- When used with HARMFUL it will only return debuffs you can cure
-	if( config.raid ) then
+	-- As of 5.0.5, this is still broken and won't account for talents or symbiosis
+	if( config.raid and group.type == "buffs" ) then
         group.filter = group.filter .. "|RAID"
 	end
 	
@@ -484,6 +486,7 @@ local function scan(parent, frame, type, config, displayConfig, filter)
 	if( frame.totalAuras >= frame.maxAuras or not config.enabled ) then return end
 	
 	local isFriendly = UnitIsFriend(frame.parent.unit, "player")
+	local curable = (isFriendly and type == "debuffs" and config.raid)
 	local index = 0
 	local cureType
 	while( true ) do
@@ -494,7 +497,7 @@ local function scan(parent, frame, type, config, displayConfig, filter)
 		-- Blizzard bug, Enrage is an empty string.
 		cureType = auraType == "" and "Enrage" or auraType
 
-		if( ( not config.player or playerUnits[caster] ) and ( not parent.whitelist[type] and not parent.blacklist[type] or parent.whitelist[type] and ( parent.whitelist[name] or parent.whitelist[spellID] ) or parent.blacklist[type] and ( not parent.blacklist[name] and not parent.blacklist[spellID] ) ) ) then
+		if( ( not config.player or playerUnits[caster] ) and ( not parent.whitelist[type] and not parent.blacklist[type] or parent.whitelist[type] and ( parent.whitelist[name] or parent.whitelist[spellID] ) or parent.blacklist[type] and ( not parent.blacklist[name] and not parent.blacklist[spellID] ) ) and ( not curable or canCure[auraType] ) ) then
 			-- Create any buttons we need
 			frame.totalAuras = frame.totalAuras + 1
 			if( #(frame.buttons) < frame.totalAuras ) then

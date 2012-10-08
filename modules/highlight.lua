@@ -1,5 +1,6 @@
 local Highlight = {}
 local goldColor, mouseColor = {r = 0.75, g = 0.75, b = 0.35}, {r = 0.75, g = 0.75, b = 0.50}
+local canCure = ShadowUF.Units.canCure
 ShadowUF:RegisterModule(Highlight, "highlight", ShadowUF.L["Highlight"])
 
 -- Might seem odd to hook my code in the core manually, but HookScript is ~40% slower due to it being a secure hook
@@ -159,7 +160,18 @@ end
 function Highlight:UpdateAura(frame)
 	frame.highlight.hasDebuff = nil
 	if( UnitIsFriend(frame.unit, "player") ) then
-		frame.highlight.hasDebuff = select(5, UnitDebuff(frame.unit, 1, "RAID"))
+		local id = 0
+		while( true ) do
+			id = id + 1
+			local name, _, _, _, auraType = UnitDebuff(frame.unit, id)
+			if( not name ) then break end
+			if( auraType == "" ) then auraType = "Enrage" end
+			
+			if( canCure[auraType] ) then
+				frame.highlight.hasDebuff = auraType
+				break
+			end
+		end
 	end
 
 	self:Update(frame)
