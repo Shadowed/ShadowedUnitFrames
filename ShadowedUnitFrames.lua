@@ -633,10 +633,6 @@ function ShadowUF:HideBlizzardFrames()
 	
 	if( ShadowUF.db.profile.hidden.focus and not active_hiddens.focus ) then
 		hideBlizzardFrames(false, FocusFrame, FocusFrameHealthBar, FocusFrameManaBar, FocusFrameSpellBar, FocusFrameToT)
-
-		FocusFrame:HookScript("OnShow", rehideFrame)
-		FocusFrame:UnregisterAllEvents()
-		FocusFrame:Hide()
 	end
 		
 	if( ShadowUF.db.profile.hidden.boss and not active_hiddens.boss ) then
