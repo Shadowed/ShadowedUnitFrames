@@ -1,5 +1,4 @@
 local Indicators = {list = {"status", "pvp", "leader", "resurrect", "masterLoot", "raidTarget", "ready", "role", "lfdRole", "class", "phase", "questBoss", "petBattle"}}
-local leavingWorld
 
 ShadowUF:RegisterModule(Indicators, "indicators", ShadowUF.L["Indicators"])
 
@@ -96,7 +95,7 @@ end
 function Indicators:UpdateRole(frame, event)
 	if( not frame.indicators.role or not frame.indicators.role.enabled ) then return end
 	
-	if( leavingWorld or not UnitInRaid(frame.unit) and not UnitInParty(frame.unit) ) then
+	if( not UnitInRaid(frame.unit) and not UnitInParty(frame.unit) ) then
 		frame.indicators.role:Hide()
 	elseif( GetPartyAssignment("MAINTANK", frame.unit) ) then
 		frame.indicators.role:SetTexture("Interface\\GroupFrame\\UI-Group-MainTankIcon")
