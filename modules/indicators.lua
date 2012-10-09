@@ -20,7 +20,7 @@ end
 function Indicators:UpdatePhase(frame)
     if( not frame.indicators.phase or not frame.indicators.phase.enabled ) then return end
 
-    if( UnitInOtherParty(frame.unit) ) then
+    if( not select(2, UnitInOtherParty(frame.unit)) ) then
 	    frame.indicators.phase:SetTexture("Interface\\PlayerFrame\\whisper-only")
         frame.indicators.phase:Show()
     elseif( UnitExists(frame.unit) and not UnitInPhase(frame.unit) ) then
