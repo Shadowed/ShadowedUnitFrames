@@ -357,10 +357,9 @@ function Indicators:OnEnable(frame)
 	end
 		
 	if( config.indicators.lfdRole and config.indicators.lfdRole.enabled ) then
-		if( frame.unit == "player" ) then
-			frame:RegisterNormalEvent("PLAYER_ROLES_ASSIGNED", self, "UpdateLFDRole")
-		end
-		
+		frame:RegisterNormalEvent("PLAYER_ROLES_ASSIGNED", self, "UpdateLFDRole")
+		frame:RegisterUpdateFunc(self, "UpdateLFDRole")
+
 		frame.indicators.lfdRole = frame.indicators.lfdRole or frame.indicators:CreateTexture(nil, "OVERLAY")
 		frame.indicators.lfdRole:SetTexture("Interface\\LFGFrame\\UI-LFG-ICON-PORTRAITROLES")
 	end
