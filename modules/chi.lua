@@ -1,6 +1,6 @@
 local Chi = setmetatable({}, {__index = ShadowUF.ComboPoints})
 ShadowUF:RegisterModule(Chi, "chi", ShadowUF.L["Chi"], nil, "MONK")
-local chiConfig = {max = 5, key = "chi", colorKey = "CHI", powerType = SPELL_POWER_LIGHT_FORCE, eventType = "LIGHT_FORCE", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
+local chiConfig = {max = 5, key = "chi", colorKey = "CHI", powerType = ShadowUF.is501 and SPELL_POWER_CHI or SPELL_POWER_LIGHT_FORCE, eventType = ShadowUF.is501 and "CHI" or "LIGHT_FORCE", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
 
 function Chi:OnEnable(frame)
 	frame.chi = frame.chi or CreateFrame("Frame", nil, frame)
