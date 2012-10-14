@@ -599,8 +599,8 @@ function ShadowUF:HideBlizzardFrames()
 			end)
 			
 			hideRaid()
-			CompactRaidFrameContainer:SetScript("OnShow", hideRaid)
-			CompactRaidFrameManager:SetScript("OnShow", hideRaid)
+			CompactRaidFrameContainer:HookScript("OnShow", hideRaid)
+			CompactRaidFrameManager:HookScript("OnShow", hideRaid)
 
 		elseif( not ShadowUF.db.profile.hidden.raid ) then
 			CompactRaidFrameManager:SetFrameStrata("DIALOG")
