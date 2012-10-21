@@ -109,7 +109,7 @@ end
 
 local columnsHaveScale = {}
 local function positionAllButtons(group, config)
-	local position = positionData[group.forcedAnchorPoint or config.anchorPoint] 
+	local position = positionData[group.forcedAnchorPoint or config.anchorPoint]
 		
 	-- Figure out which columns have scaling so we can work out positioning
 	local columnID = 0
@@ -124,7 +124,7 @@ local function positionAllButtons(group, config)
 			columnsHaveScale[columnID] = columnsHaveScale[columnID] and math.max(size, columnsHaveScale[columnID]) or size
 		end
 	end
-	
+
 	local columnID = 1
 	for id, button in pairs(group.buttons) do
 		if( id > 1 ) then
@@ -166,8 +166,14 @@ local function positionAllButtons(group, config)
 			else
 				offset = offset + 2
 			end
-			
+
+			button.wasScaled = true
 			position.initialAnchor(button, offset)
+
+		-- If the column is no longer scaled but the button was, we need to reset the offset to 0
+		elseif( button.wasScaled and not columnsHaveScale[columnID] ) then
+			button.wasScaled = nil
+			position.initialAnchor(button, 0)
 		end
 	end
 end
