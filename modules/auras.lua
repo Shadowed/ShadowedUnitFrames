@@ -57,6 +57,7 @@ local positionData = setmetatable({}, {
 		data.initialAnchor = load(string.format([[return function(button, offset)
 			button:ClearAllPoints()
 			button:SetPoint(button.point, button.anchorTo, button.relativePoint, button.xOffset%s, button.yOffset%s)
+			button.anchorOffset = offset
 		end]], initialXOffset, initialYOffset))
 		data.column = load(string.format([[return function(button, positionTo, offset)
 			button:ClearAllPoints()
@@ -101,7 +102,7 @@ local function positionButton(id,  group, config)
 		button.xOffset = config.x + (position.xMod * ShadowUF.db.profile.backdrop.inset)
 		button.yOffset = config.y + (position.yMod * ShadowUF.db.profile.backdrop.inset)
 		button.anchorTo = group.anchorTo
-		
+
 		position.initialAnchor(button, 0)
 	end
 end
@@ -158,22 +159,23 @@ local function positionAllButtons(group, config)
 			else
 				position.aura(button, group.buttons[id - 1])
 			end
-		-- If the initial column is self scaled, but the initial anchor isn't, will have to reposition it
-		elseif( columnsHaveScale[columnID] ) then
-			local offset = math.ceil(columnsHaveScale[columnID] / 8)
-			if( button.isSelfScaled ) then
-				offset = -(offset / 2)
-			else
-				offset = offset + 2
+		else
+			-- If the initial column is self scaled, but the initial anchor isn't, will have to reposition it
+			local offset = 0
+			if( columnsHaveScale[columnID] ) then
+				offset = math.ceil(columnsHaveScale[columnID] / 8)
+				if( button.isSelfScaled ) then
+					offset = -(offset / 2)
+				else
+					offset = offset + 2
+				end
+
+				offset = offset
 			end
 
-			button.wasScaled = true
-			position.initialAnchor(button, offset)
-
-		-- If the column is no longer scaled but the button was, we need to reset the offset to 0
-		elseif( button.wasScaled and not columnsHaveScale[columnID] ) then
-			button.wasScaled = nil
-			position.initialAnchor(button, 0)
+			if( offset ~= button.anchorOffset ) then
+				position.initialAnchor(button, offset)
+			end
 		end
 	end
 end
