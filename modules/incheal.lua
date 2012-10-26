@@ -4,11 +4,9 @@ ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUF.L["Incoming heals"])
 function IncHeal:OnEnable(frame)
 	frame.incHeal = frame.incHeal or ShadowUF.Units:CreateBar(frame)
 
-	if( ShadowUF.db.profile.units[frame.unitType].incHeal.heals ) then
-		frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
-		frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
-		frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", self, "UpdateFrame")
-	end
+	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
+	frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
+	frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", self, "UpdateFrame")
 	
 	frame:RegisterUpdateFunc(self, "UpdateFrame")
 end
@@ -78,7 +76,9 @@ function IncHeal:UpdateFrame(frame)
 	if( not frame.visibility.incHeal or not frame.visibility.healthBar ) then return end
 
 	local healed = UnitGetIncomingHeals(frame.unit) or 0
-	if( healed <= 0 ) then
+	local health = UnitHealth(frame.unit)
+
+	if( health <= 0 or healed <= 0 ) then
 		frame.incHeal.total = nil
 		frame.incHeal.healed = nil
 		frame.incHeal:Hide()
@@ -90,7 +90,7 @@ function IncHeal:UpdateFrame(frame)
 	
 	-- When the primary bar has an alpha of 100%, we can cheat and do incoming heals easily. Otherwise we need to do it a more complex way to keep it looking good
 	if( frame.incHeal.simple ) then
-		frame.incHeal.total = UnitHealth(frame.unit) + healed
+		frame.incHeal.total = health + healed
 		frame.incHeal:SetMinMaxValues(0, UnitHealthMax(frame.unit) * ShadowUF.db.profile.units[frame.unitType].incHeal.cap)
 		frame.incHeal:SetValue(frame.incHeal.total)
 	else
