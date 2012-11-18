@@ -6,7 +6,7 @@ ShadowUF = select(2, ...)
 ShadowUF.is510 = select(4, GetBuildInfo()) > 50001
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 28
+ShadowUF.dbRevision = 29
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -87,6 +87,16 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+
+	if( revision <= 28 ) then
+		for unit, config in pairs(self.db.profile.units) do
+			for key, module in pairs(ShadowUF.modules) do
+				if( config[key] and ( module.moduleHasBar or config[key].isBar or config[key].order ) ) then
+					config[key].height = config[key].height or 0.40
+				end
+			end
+		end
+	end
 
 	if( revision <= 27 ) then
 		self.db.profile.healthColors.aggro = CopyTable(self.db.profile.healthColors.hostile)
