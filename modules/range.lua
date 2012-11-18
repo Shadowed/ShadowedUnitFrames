@@ -17,7 +17,7 @@ local function checkRange(self, elapsed)
 	local spell
 
 	-- Check which spell to use
-	if( UnitIsFriend("player", frame.unit) ) then
+	if( UnitCanAssist("player", frame.unit) ) then
 		spell = friendlySpell
 	elseif( UnitCanAttack("player", frame.unit) ) then
 		spell = hostileSpell
