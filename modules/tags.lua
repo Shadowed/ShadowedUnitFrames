@@ -28,7 +28,7 @@ for powerType in pairs(PowerBarColor) do
 	end
 end
 
-if( ShadowUF.is501 ) then
+if( ShadowUF.is510 ) then
 	powerFilters["SUF_POWERTYPE:LIGHT_FORCE"] = "CHI"
 end
 
@@ -816,7 +816,7 @@ Tags.defaultTags = {
 		return points and points > 0 and points
 	end]],
 	["monk:chipoints"] = [[function(unit, unitOwner)
-		local points = UnitPower(ShadowUF.playerUnit, ShadowUF.is501 and SPELL_POWER_CHI or SPELL_POWER_LIGHT_FORCE)
+		local points = UnitPower(ShadowUF.playerUnit, ShadowUF.is510 and SPELL_POWER_CHI or SPELL_POWER_LIGHT_FORCE)
 		return points and points > 0 and points
 	end]],
 	["warlock:demonic:perpp"] = [[function(unit, unitOwner)

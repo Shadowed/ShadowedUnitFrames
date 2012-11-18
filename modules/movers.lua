@@ -43,7 +43,7 @@ local function createConfigEnv()
 				return 3
 			elseif( powerType == SPELL_POWER_ECLIPSE ) then
 				return getValue("UnitPower", unit, math.random(-100, 100))
-			elseif( ( ShadowUF.is501 and powerType == SPELL_POWER_CHI ) or ( not ShadowUF.is501 and powerType == SPELL_POWER_LIGHT_FORCE ) ) then
+			elseif( ( ShadowUF.is510 and powerType == SPELL_POWER_CHI ) or ( not ShadowUF.is510 and powerType == SPELL_POWER_LIGHT_FORCE ) ) then
 				return 4
 			elseif( powerType == SPELL_POWER_SHADOW_ORBS ) then
 				return PRIEST_BAR_NUM_ORBS
