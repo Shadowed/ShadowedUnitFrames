@@ -1,4 +1,4 @@
-## Interface: 50001
+## Interface: 50100
 ## Title: Shadowed Unit Frames
 ## Notes: As with every other SUF note, this isn't telling you something useful. You should probably not be reading it still.
 ## Author: Shadowed
