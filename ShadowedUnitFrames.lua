@@ -3,7 +3,6 @@
 ]]
 
 ShadowUF = select(2, ...)
-ShadowUF.is510 = select(4, GetBuildInfo()) > 50001
 
 local L = ShadowUF.L
 ShadowUF.dbRevision = 29
