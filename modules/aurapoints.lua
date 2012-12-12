@@ -2,6 +2,7 @@ local AuraPoints = {
 	isComboPoints = true,
 	spells = {
 		["MAGE"] = {max = 6, name = GetSpellInfo(36032)},
+		["ROGUE"] = {max = 5, name = GetSpellInfo(115189)}
 	}
 }
 
