@@ -224,7 +224,7 @@ local function updateButton(id, group, config)
 		button:SetScript("OnLeave", hideTooltip)
 		button:RegisterForClicks("RightButtonUp")
 		
-		button.cooldown = CreateFrame("Cooldown", nil, button)
+		button.cooldown = CreateFrame("Cooldown", group.parent:GetName() .. "Aura" .. group.type .. id .. "Cooldown", button)
 		button.cooldown:SetAllPoints(button)
 		button.cooldown:SetReverse(true)
 		button.cooldown:SetFrameLevel(7)
