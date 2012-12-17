@@ -913,12 +913,9 @@ function Units:SetHeaderAttributes(frame, type)
 		end
 	end
 
-	-- calling :Show basically resets the header
-	if( frame:IsShown() ) then
-		frame:Show()
-	end
-
-	if( headerUnits[type] and not InCombatLockdown() ) then
+	if( not InCombatLockdown() and headerUnits[type] ) then
+		-- Children no longer have ClearAllPoints() called on them before they are repositioned
+		-- this tries to stop it from bugging out by clearing it then forcing it to reposition everything
 		local name = frame:GetName() .. "UnitButton"
 		local index = 1
 		local child = _G[name .. index]
@@ -927,6 +924,12 @@ function Units:SetHeaderAttributes(frame, type)
 
 			index = index + 1
 			child = _G[name .. index]
+		end
+	
+		-- Hiding and reshowing the header forces an update
+		if( frame:IsShown() ) then
+			frame:Hide()
+			frame:Show()
 		end
 	end
 end
