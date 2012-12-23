@@ -108,9 +108,8 @@ function Totems:UpdateVisibility(frame)
 
 		if( frame.inVehicle ) then
 			ShadowUF.Layout:SetBarVisibility(frame, "totemBar", false)
-		-- Below check on Update to only show when we have 1 totem if it's active will handle reshowing it
 		elseif( MAX_TOTEMS ~= 1 ) then
-			ShadowUF.Layout:SetBarVisibility(frame, "totemBar", true)
+			self:Update(frame)
 		end
 	end
 end
@@ -137,8 +136,11 @@ function Totems:Update(frame)
 		end
 	end
 	
-	-- Only guardian timers should auto hide, nothing else
-	if( MAX_TOTEMS == 1 and not frame.inVehicle ) then
-		ShadowUF.Layout:SetBarVisibility(frame, "totemBar", totalActive > 0)
+	if( not frame.inVehicle ) then
+		-- Guardian timers always auto hide
+		-- or if it's flagged to not always be shown
+		if( MAX_TOTEMS == 1 or not ShadowUF.db.profile.units[frame.unitType].totemBar.showAlways ) then
+			ShadowUF.Layout:SetBarVisibility(frame, "totemBar", totalActive > 0)
+		end
 	end
 end

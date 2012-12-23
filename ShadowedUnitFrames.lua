@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 29
+ShadowUF.dbRevision = 30
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -86,6 +86,9 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 29 ) then
+		self.db.profile.units.player.totemBar.showAlways = true
+	end
 
 	if( revision <= 28 ) then
 		self.db.profile.units.target.indicators.questBoss = {enabled = true, anchorPoint = "BR", size = 22, x = 9, y = 24, anchorTo = "$parent"}
