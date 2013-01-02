@@ -3,6 +3,7 @@
 ]]
 
 ShadowUF = select(2, ...)
+ShadowUF.is502 = select(4, GetBuildInfo()) >= 50200
 
 local L = ShadowUF.L
 ShadowUF.dbRevision = 30
@@ -687,7 +688,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	-- Don't modify the raid menu because that will taint the MA/MT stuff and it'll break and that's bad
-	if( not active_hiddens.popup ) then
+	if( not active_hiddens.popup and not ShadowUF.is502 ) then
 		active_hiddens.popup = true
 		for key, list in pairs(UnitPopupMenus) do
 			if( key ~= "RAID" ) then

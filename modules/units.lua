@@ -609,7 +609,9 @@ OnAttributeChanged = function(self, name, unit)
 		self:RegisterNormalEvent("UNIT_TARGET", Units, "CheckPetUnitUpdated")
 	end
 	
-	self.menu = ShowMenu
+	if( not ShadowUF.is502 ) then
+		self.menu = ShowMenu
+	end
 	self:SetVisibility()
 	Units:CheckUnitStatus(self)
 end
@@ -626,7 +628,7 @@ local secureInitializeUnit = [[
 	self:SetAttribute("toggleForVehicle", true)
 
 	self:SetAttribute("*type1", "target")
-	self:SetAttribute("*type2", "menu")
+	self:SetAttribute("*type2", "togglemenu")
 
 	self:SetAttribute("isHeaderDriven", true)
 
@@ -640,6 +642,10 @@ local secureInitializeUnit = [[
 		clickHeader:RunAttribute("clickcast_register")
 	end
 ]]
+
+if( not ShadowUF.is502 ) then
+	secureInitializeUnit = string.gsub(secureInitializeUnit, "togglemenu", "menu")
+end
 
 local unitButtonTemplate = ClickCastHeader and "ClickCastUnitTemplate,SecureUnitButtonTemplate" or "SecureUnitButtonTemplate"
 
@@ -719,8 +725,10 @@ function Units:CreateUnit(...)
 	frame:HookScript("OnLeave", OnLeave)
 	frame:SetScript("OnShow", OnShow)
 	frame:SetScript("OnHide", OnHide)
-	frame:SetScript("PostClick", PostClick)
-	
+	if( not ShadowUF.is502 ) then
+		frame:SetScript("PostClick", PostClick)
+	end
+
 	frame.OnEnter = SUF_OnEnter
 	frame.OnLeave = UnitFrame_OnLeave
 
@@ -728,7 +736,7 @@ function Units:CreateUnit(...)
 	-- non-header frames don't set those, so we need to do it
 	if( not InCombatLockdown() ) then
 		frame:SetAttribute("*type1", "target")
-		frame:SetAttribute("*type2", "menu")
+		frame:SetAttribute("*type2", ShadowUF.is502 and "togglemenu" or "menu")
 	end
 	
 	return frame
