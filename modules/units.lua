@@ -618,6 +618,7 @@ end
 
 Units.OnAttributeChanged = OnAttributeChanged
 
+
 local secureInitializeUnit = [[
 	local header = self:GetParent()
 
@@ -737,6 +738,15 @@ function Units:CreateUnit(...)
 	if( not InCombatLockdown() ) then
 		frame:SetAttribute("*type1", "target")
 		frame:SetAttribute("*type2", ShadowUF.is502 and "togglemenu" or "menu")
+
+		if( ShadowUF.is502 and ClickCastHeader and not frame.cliqueShiv ) then
+			frame.cliqueShiv = true
+			stateMonitor:WrapScript(frame, "OnAttributeChanged", [[
+				if( value == "menu" ) then
+					self:SetAttribute(name, "togglemenu")
+				end
+			]])
+		end
 	end
 	
 	return frame
@@ -889,6 +899,9 @@ function Units:SetHeaderAttributes(frame, type)
 		if( config.groupBy == "CLASS" ) then
 			frame:SetAttribute("groupingOrder", "DEATHKNIGHT,DRUID,HUNTER,MAGE,PALADIN,PRIEST,ROGUE,SHAMAN,WARLOCK,WARRIOR,MONK")
 			frame:SetAttribute("groupBy", "CLASS")
+		elseif( config.groupBy == "ASSIGNEDROLE" ) then
+			frame:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER,NONE")
+			frame:SetAttribute("groupBy", "ASSIGNEDROLE")
 		else
 			frame:SetAttribute("groupingOrder", "1,2,3,4,5,6,7,8")
 			frame:SetAttribute("groupBy", "GROUP")
