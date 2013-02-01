@@ -6,7 +6,7 @@ ShadowUF = select(2, ...)
 ShadowUF.is502 = select(4, GetBuildInfo()) >= 50200
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 30
+ShadowUF.dbRevision = 31
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -102,6 +102,10 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 30 ) then
+		self.db.profile.powerColors.RUNEOFPOWER = {r = 0.35, g = 0.45, b = 0.60}
+	end
+
 	if( revision <= 29 ) then
 		self.db.profile.units.player.totemBar.showAlways = true
 	end

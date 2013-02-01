@@ -1206,6 +1206,13 @@ local function loadGeneralOptions()
 								arg = "powerColors.STATUE",
 								hidden = function(info) return select(2, UnitClass("player")) ~= "MONK" end,
 							},
+							STATUE = {
+								order = 17.5,
+								type = "color",
+								name = L["Rune of Power"],
+								arg = "powerColors.RUNEOFPOWER",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "MAGE" end,
+							},
 							POWER_TYPE_FEL_ENERGY = {
 								order = 18,
 								type = "color",

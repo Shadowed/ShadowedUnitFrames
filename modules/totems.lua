@@ -13,6 +13,9 @@ elseif( playerClass == "DRUID" ) then
 elseif( playerClass == "MONK" ) then
 	MAX_TOTEMS = 1
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Statue bar"], true, "MONK", {1, 2}, 70)
+elseif( playerClass == "MAGE" ) then
+	MAX_TOTEMS = 1
+	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Rune of Power bar"], true, "MAGE", {1, 2, 3}, 90)
 else
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Totem bar"], true, "SHAMAN")
 end
@@ -45,6 +48,8 @@ function Totems:OnEnable(frame)
 			totemColors[1] = ShadowUF.db.profile.classColors.PET
 		elseif( playerClass == "MONK" ) then
 			totemColors[1] = ShadowUF.db.profile.powerColors.STATUE
+		elseif( playerClass == "MAGE" ) then
+			totemColors[1] = ShadowUF.db.profile.powerColors.RUNEOFPOWER
 		else
 			totemColors[1] = {r = 1, g = 0, b = 0.4}
 			totemColors[2] = {r = 0, g = 1, b = 0.4}
@@ -89,6 +94,8 @@ function Totems:OnLayoutApplied(frame)
 
 			frame:SetBlockColor(totem, "totemBar", totemColors[totem.id].r, totemColors[totem.id].g, totemColors[totem.id].b)
 		end
+
+		self:Update(frame)
 	end
 end
 
