@@ -738,15 +738,6 @@ function Units:CreateUnit(...)
 	if( not InCombatLockdown() ) then
 		frame:SetAttribute("*type1", "target")
 		frame:SetAttribute("*type2", ShadowUF.is502 and "togglemenu" or "menu")
-
-		if( ShadowUF.is502 and ClickCastHeader and not frame.cliqueShiv ) then
-			frame.cliqueShiv = true
-			stateMonitor:WrapScript(frame, "OnAttributeChanged", [[
-				if( value == "menu" ) then
-					self:SetAttribute(name, "togglemenu")
-				end
-			]])
-		end
 	end
 	
 	return frame
