@@ -571,6 +571,8 @@ function ShadowUF:ProfilesChanged()
 end
 
 ShadowUF.noop = function() end
+ShadowUF.hiddenFrame = CreateFrame("Frame")
+ShadowUF.hiddenFrame:Hide()
 
 local rehideFrame = function(self)
 	if( not InCombatLockdown() ) then
@@ -581,6 +583,7 @@ end
 local function hideBlizzardFrames(taint, ...)
 	for i=1, select("#", ...) do
 		local frame = select(i, ...)
+		frame:SetParent(ShadowUF.hiddenFrame)
 		frame:UnregisterAllEvents()
 		frame:Hide()
 
@@ -594,11 +597,11 @@ end
 
 local active_hiddens = {}
 function ShadowUF:HideBlizzardFrames()
-	if( ShadowUF.db.profile.hidden.cast and not active_hiddens.cast ) then
+	if( self.db.profile.hidden.cast and not active_hiddens.cast ) then
 		hideBlizzardFrames(true, CastingBarFrame, PetCastingBarFrame)
 	end
 
-	if( ShadowUF.db.profile.hidden.party and not active_hiddens.party ) then
+	if( self.db.profile.hidden.party and not active_hiddens.party ) then
 		for i=1, MAX_PARTY_MEMBERS do
 			local name = "PartyMemberFrame" .. i
 			hideBlizzardFrames(true, _G[name], _G[name .. "HealthBar"], _G[name .. "ManaBar"])
@@ -614,7 +617,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	if( CompactRaidFrameManager ) then
-		if( ShadowUF.db.profile.hidden.raid and not active_hiddens.raidTriggered ) then
+		if( self.db.profile.hidden.raid and not active_hiddens.raidTriggered ) then
 			active_hiddens.raidTriggered = true
 
 			local function hideRaid()
@@ -630,7 +633,7 @@ function ShadowUF:HideBlizzardFrames()
 			end
 			
 			hooksecurefunc("CompactRaidFrameManager_UpdateShown", function()
-				if( ShadowUF.db.profile.hidden.raid ) then
+				if( self.db.profile.hidden.raid ) then
 					hideRaid()
 				end
 			end)
@@ -639,16 +642,16 @@ function ShadowUF:HideBlizzardFrames()
 			CompactRaidFrameContainer:HookScript("OnShow", hideRaid)
 			CompactRaidFrameManager:HookScript("OnShow", hideRaid)
 
-		 elseif( not ShadowUF.db.profile.hidden.raid and not InCombatLockdown() ) then
+		 elseif( not self.db.profile.hidden.raid and not InCombatLockdown() ) then
 			CompactRaidFrameManager:SetFrameStrata("DIALOG")
 		end
 	end
 
-	if( ShadowUF.db.profile.hidden.buffs and not active_hiddens.buffs ) then
+	if( self.db.profile.hidden.buffs and not active_hiddens.buffs ) then
 		hideBlizzardFrames(false, BuffFrame, TemporaryEnchantFrame, ConsolidatedBuffs)
 	end
 	
-	if( ShadowUF.db.profile.hidden.player and not active_hiddens.player ) then
+	if( self.db.profile.hidden.player and not active_hiddens.player ) then
 		hideBlizzardFrames(false, PlayerFrame, PlayerFrameHealthBar, PlayerFrameManaBar, PlayerFrameAlternateManaBar)
 			
 		-- We keep these in case someone is still using the default auras, otherwise it messes up vehicle stuff
@@ -658,38 +661,38 @@ function ShadowUF:HideBlizzardFrames()
 		PlayerFrame:RegisterEvent("UNIT_EXITED_VEHICLE")
 	end
 
-	if( ShadowUF.db.profile.hidden.playerPower and not active_hiddens.playerPower ) then
+	if( self.db.profile.hidden.playerPower and not active_hiddens.playerPower ) then
 		hideBlizzardFrames(true, EclipseBarFrame, ShardBarFrame, RuneFrame, TotemFrame, PaladinPowerBar, MonkHarmonyBar, PriestBarFrame, WarlockPowerFrame)
 	end
 
-	if( ShadowUF.db.profile.hidden.pet and not active_hiddens.pet ) then
+	if( self.db.profile.hidden.pet and not active_hiddens.pet ) then
 		hideBlizzardFrames(false, PetFrame, PetFrameHealthBar, PetFrameManaBar)
 	end
 	
-	if( ShadowUF.db.profile.hidden.target and not active_hiddens.target ) then
+	if( self.db.profile.hidden.target and not active_hiddens.target ) then
 		hideBlizzardFrames(false, TargetFrame, TargetFrameHealthBar, TargetFrameManaBar, TargetFrameSpellBar, ComboFrame, TargetFrameToT)
 	end
 	
-	if( ShadowUF.db.profile.hidden.focus and not active_hiddens.focus ) then
+	if( self.db.profile.hidden.focus and not active_hiddens.focus ) then
 		hideBlizzardFrames(false, FocusFrame, FocusFrameHealthBar, FocusFrameManaBar, FocusFrameSpellBar, FocusFrameToT)
 	end
 		
-	if( ShadowUF.db.profile.hidden.boss and not active_hiddens.boss ) then
+	if( self.db.profile.hidden.boss and not active_hiddens.boss ) then
 		for i=1, MAX_BOSS_FRAMES do
 			local name = "Boss" .. i .. "TargetFrame"
 			hideBlizzardFrames(false, _G[name], _G[name .. "HealthBar"], _G[name .. "ManaBar"])
 		end
 	end
 
-	if( ShadowUF.db.profile.hidden.arena and not active_hiddens.arenaTriggered and IsAddOnLoaded("Blizzard_ArenaUI") ) then
+	if( self.db.profile.hidden.arena and not active_hiddens.arenaTriggered and IsAddOnLoaded("Blizzard_ArenaUI") and not InCombatLockdown() ) then
 		active_hiddens.arenaTriggered = true
 
-		ArenaEnemyFrames.show = false
 		ArenaEnemyFrames:UnregisterAllEvents()
-		ArenaEnemyFrames:Hide()
+		ArenaEnemyFrames:SetParent(self.hiddenFrame)
+		SetCVar("showArenaEnemyFrames", 0, "SHOW_ARENA_ENEMY_FRAMES_TEXT")
 	end
 
-	if( ShadowUF.db.profile.hidden.playerAltPower and not active_hiddens.playerAltPower ) then
+	if( self.db.profile.hidden.playerAltPower and not active_hiddens.playerAltPower ) then
 		hideBlizzardFrames(false, PlayerPowerBarAlt)
 	end
 
@@ -707,7 +710,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	-- Don't modify the raid menu because that will taint the MA/MT stuff and it'll break and that's bad
-	if( not active_hiddens.popup and not ShadowUF.is502 ) then
+	if( not active_hiddens.popup and not self.is502 ) then
 		active_hiddens.popup = true
 		for key, list in pairs(UnitPopupMenus) do
 			if( key ~= "RAID" ) then
@@ -721,7 +724,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	-- As a reload is required to reset the hidden hooks, we can just set this to true if anything is true
-	for type, flag in pairs(ShadowUF.db.profile.hidden) do
+	for type, flag in pairs(self.db.profile.hidden) do
 		if( flag ) then
 			active_hiddens[type] = true
 		end
