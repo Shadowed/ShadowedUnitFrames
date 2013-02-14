@@ -572,6 +572,8 @@ end
 
 ShadowUF.noop = function() end
 ShadowUF.hiddenFrame = CreateFrame("Frame")
+ShadowUF.hiddenFrame:SetSize(1, 1)
+ShadowUF.hiddenFrame:SetPoint("CENTER")
 ShadowUF.hiddenFrame:Hide()
 
 local rehideFrame = function(self)
