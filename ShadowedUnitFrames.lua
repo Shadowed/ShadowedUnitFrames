@@ -572,8 +572,6 @@ end
 
 ShadowUF.noop = function() end
 ShadowUF.hiddenFrame = CreateFrame("Frame")
-ShadowUF.hiddenFrame:SetSize(1, 1)
-ShadowUF.hiddenFrame:SetPoint("CENTER")
 ShadowUF.hiddenFrame:Hide()
 
 local rehideFrame = function(self)
@@ -585,7 +583,6 @@ end
 local function hideBlizzardFrames(taint, ...)
 	for i=1, select("#", ...) do
 		local frame = select(i, ...)
-		frame:SetParent(ShadowUF.hiddenFrame)
 		frame:UnregisterAllEvents()
 		frame:Hide()
 
@@ -626,7 +623,7 @@ function ShadowUF:HideBlizzardFrames()
 				CompactRaidFrameManager:UnregisterAllEvents()
 				CompactRaidFrameContainer:UnregisterAllEvents()
 				if( InCombatLockdown() ) then return end
-		
+	
 				CompactRaidFrameManager:Hide()
 				local shown = CompactRaidFrameManager_GetSetting("IsShown")
 				if( shown and shown ~= "0" ) then
