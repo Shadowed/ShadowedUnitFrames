@@ -144,24 +144,30 @@ function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 	pointsFrame.visibleBlocks = max
 end
 
-
-function Combo:Update(frame, event, unit)
-	-- MoP changed UNIT_COMBO_POINTS so that unit is now player even if it's done on the target
-  	--if( event and unit ~= "player" ) then return end
-
-	-- For Malygos dragons, they also self cast their CP on themselves, which is why we check CP on ourself!
+function Combo:GetPoints(unit)
+	-- For Malygos dragons, they also self cast their CP on themselves, which is why we check CP on ourself
 	local playerUnit = UnitHasVehicleUI("player") and UnitHasVehiclePlayerFrameUI("player") and "vehicle" or "player"
 	local points = GetComboPoints(playerUnit)
 	if( points == 0 ) then
 		points = GetComboPoints(playerUnit, playerUnit)
 	end
+
+	return points
+end
+
+function Combo:Update(frame, event, unit, powerType)
+  	local key = frame.comboPointType
+  	-- Anything power based will have an eventType to filter on
+	if( event and frame[key].config.eventType and frame[key].config.eventType ~= powerType ) then return end
+
+  	local points = self:GetPoints(unit)
 	
 	-- Bar display, hide it if we don't have any combo points
-	if( ShadowUF.db.profile.units[frame.unitType].comboPoints.isBar ) then
-		ShadowUF.Layout:SetBarVisibility(frame, "comboPoints", ShadowUF.db.profile.units[frame.unitType].comboPoints.showAlways or (points and points > 0))
+	if( ShadowUF.db.profile.units[frame.unitType][key].isBar ) then
+		ShadowUF.Layout:SetBarVisibility(frame, key, ShadowUF.db.profile.units[frame.unitType][key].showAlways or (points and points > 0))
 	end
 	
-	for id, pointTexture in pairs(frame.comboPoints.points) do
+	for id, pointTexture in pairs(frame[key].points) do
 		if( id <= points ) then
 			pointTexture:Show()
 		else

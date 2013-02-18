@@ -15,29 +15,11 @@ function Souls:OnEnable(frame)
 	frame:RegisterUpdateFunc(self, "UpdateBarBlocks")
 end
 
-function Souls:OnDisable(frame)
-	frame:UnregisterAll(self)
-end
-
 function Souls:OnLayoutApplied(frame, config)
 	ShadowUF.ComboPoints:OnLayoutApplied(frame, config)
 	self:UpdateBarBlocks(frame)
 end
 
-function Souls:Update(frame, event, unit, powerType)
-	if( powerType and powerType ~= soulsConfig.eventType ) then return end
-
-	local points = UnitPower("player", soulsConfig.powerType)
-	-- Bar display, hide it if we don't have any soul shards
-	if( ShadowUF.db.profile.units[frame.unitType].soulShards.isBar ) then
-		ShadowUF.Layout:SetBarVisibility(frame, "soulShards", ShadowUF.db.profile.units[frame.unitType].soulShards.showAlways or (points and points > 0))
-	end
-	
-	for id, pointTexture in pairs(frame.soulShards.points) do
-		if( id <= points ) then
-			pointTexture:Show()
-		else
-			pointTexture:Hide()
-		end
-	end
+function Souls:GetPoints(unit)
+	return UnitPower("player", soulsConfig.powerType)
 end
