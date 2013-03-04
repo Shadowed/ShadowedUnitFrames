@@ -411,8 +411,9 @@ function Layout:SetupText(frame, config)
 	
 	-- Update the actual text, and figure out the weighting information now
 	for id, row in pairs(config.text) do
-		local parent = row.anchorTo == "$parent" and frame or frame[string.sub(row.anchorTo, 2)]
-		if( parent and parent:IsShown() and row.enabled and row.text ~= "" ) then
+		local module = string.sub(row.anchorTo, 2)
+		local parent = row.anchorTo == "$parent" and frame or frame[module]
+		if( parent and ( ShadowUF.modules[module].defaultVisibility == false or parent:IsShown() ) and row.enabled and row.text ~= "" ) then
 			local fontString = frame.fontStrings[id] or frame.highFrame:CreateFontString(nil, "ARTWORK")
 			self:SetupFontString(fontString, row.size)
 			fontString:SetTextColor(ShadowUF.db.profile.font.color.r, ShadowUF.db.profile.font.color.g, ShadowUF.db.profile.font.color.b, ShadowUF.db.profile.font.color.a)
