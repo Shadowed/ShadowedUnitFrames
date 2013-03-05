@@ -56,7 +56,10 @@ local function createConfigEnv()
 			return getValue("UnitPower", unit, math.random(20000, 50000))
 		end,
 		UnitGetIncomingHeals = function(unit)
-			return getValue("UnitGetIncomingHeals", unit, math.random(5000, 10000))
+			return getValue("UnitGetIncomingHeals", unit, math.random(10000, 15000))
+		end,
+		UnitGetTotalAbsorbs = function(unit)
+			return getValue("UnitGetTotalAbsorbs", unit, math.random(2500, 5000))
 		end,
 		UnitPowerMax = function(unit, powerType)
 			if( powerType == SPELL_POWER_HOLY_POWER or powerType == SPELL_POWER_SOUL_SHARDS ) then
@@ -360,6 +363,9 @@ function Movers:Disable()
 	ShadowUF.Units:CheckPlayerZone(true)
 	ShadowUF.Layout:Reload()
 	
+	-- Don't store these so everything can be GCed
+	unitConfig = {}
+
 	if( self.infoFrame ) then
 		self.infoFrame:Hide()
 	end
