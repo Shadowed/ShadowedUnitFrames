@@ -173,6 +173,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		static = {r = 0.70, g = 0.20, b = 0.90},
 		yellow = {r = 0.93, g = 0.93, b = 0.0},
 		inc = {r = 0, g = 0.35, b = 0.23},
+		incAbsorb = {r = 0.93, g = 0.75, b = 0.09},
 		enemyUnattack = {r = 0.60, g = 0.20, b = 0.20},
 		hostile = {r = 0.90, g = 0.0, b = 0.0},
 		aggro = {r = 0.90, g = 0.0, b = 0.0},
@@ -273,6 +274,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			healthBar = {reactionType = "none"},
 			powerBar = {height = 0.30},
 			incHeal = {cap = 1},
+			incAbsorb = {cap = 1},
 			indicators = {
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
 				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -2, y = -10},
@@ -302,6 +304,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			healthBar = {reactionType = "none"},
 			powerBar = {height = 0.30},
 			incHeal = {cap = 1},
+			incAbsorb = {cap = 1},
 			indicators = {
 				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
 				masterLoot = {anchorTo = "$parent", anchorPoint = "TR", size = 12, x = -2, y = -10},
@@ -535,6 +538,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			maxColumns = 1,
 			columnSpacing = 5,
 			incHeal = {cap = 1},
+			incAbsorb = {cap = 1},
 			portrait = {enabled = false, fullAfter = 50},
 			castBar = {order = 60},
 			indicators = {
@@ -579,6 +583,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			maxColumns = 1,
 			columnSpacing = 5,
 			incHeal = {cap = 1},
+			incAbsorb = {cap = 1},
 			portrait = {enabled = false, fullAfter = 50},
 			castBar = {order = 60},
 			indicators = {

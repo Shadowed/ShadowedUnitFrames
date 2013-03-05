@@ -6,7 +6,7 @@ ShadowUF = select(2, ...)
 ShadowUF.is502 = select(4, GetBuildInfo()) >= 50200
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 31
+ShadowUF.dbRevision = 32
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -102,6 +102,18 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 31 ) then
+		self.db.profile.healthColors.incAbsorb = {r = 0.93, g = 0.75, b = 0.09}
+
+		for unit, config in pairs(self.db.profile.units) do
+			if( config.incHeal ) then
+				config.incHeal.enabled = config.incHeal.heals
+				config.incHeal.heals = nil
+				config.incAbsorb = {enabled = config.incHeal.enabled}
+			end
+		end
+	end
+
 	if( revision <= 30 ) then
 		self.db.profile.powerColors.RUNEOFPOWER = {r = 0.35, g = 0.45, b = 0.60}
 	end
@@ -339,7 +351,8 @@ function ShadowUF:LoadUnitDefaults()
 			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
 
 			if( unit ~= "battleground" and unit ~= "battlegroundpet" and unit ~= "arena" and unit ~= "arenapet" ) then
-				self.defaults.profile.units[unit].incHeal = {enabled = true, cap = 1.30}
+				self.defaults.profile.units[unit].incHeal = {enabled = true, cap = 1.20}
+				self.defaults.profile.units[unit].incAbsorb = {enabled = true, cap = 1.30}
 			end
 		end
 		

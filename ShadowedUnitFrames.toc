@@ -43,6 +43,7 @@ modules\runes.lua
 modules\fader.lua
 modules\combopoints.lua
 modules\incheal.lua
+modules\incabsorb.lua
 modules\range.lua
 modules\empty.lua
 modules\druid.lua
