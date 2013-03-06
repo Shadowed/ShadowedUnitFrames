@@ -319,6 +319,8 @@ end
 function ShadowUF:LoadUnits()
 	-- CanHearthAndResurrectFromArea() returns true for world pvp areas, according to BattlefieldFrame.lua
 	local instanceType = CanHearthAndResurrectFromArea() and "pvp" or select(2, IsInInstance())
+	if( instanceType == "scenario" ) then instanceType = "party" end
+
   	if( not instanceType ) then instanceType = "none" end
 	
 	for _, type in pairs(self.unitList) do
