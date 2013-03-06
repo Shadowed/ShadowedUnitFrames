@@ -535,13 +535,6 @@ end
 
 -- Module APIs
 function ShadowUF:RegisterModule(module, key, name, isBar, class, spec, level)
-	-- September 17th, 2012
-	if( key == "impbars" ) then
-		ShadowUF:Print("WARNING: ShadowedUF_Bars is no longer supported and is now built in under advanced options.")
-		DisableAddOn("ShadowedUF_Bars")
-		return
-	end
-
 	self.modules[key] = module
 
 	module.moduleKey = key
