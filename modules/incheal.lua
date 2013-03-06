@@ -32,6 +32,8 @@ function IncHeal:OnLayoutApplied(frame)
 	bar:SetReverseFill(frame.healthBar:GetReverseFill())
 	bar:Hide()
 	
+	local cap = ShadowUF.db.profile.units[frame.unitType][self.frameKey].cap or 1.30
+
 	-- When we can cheat and put the incoming bar right behind the health bar, we can efficiently show the incoming heal bar
 	-- if the main bar has a transparency set, then we need a more complicated method to stop the health bar from being darker with incoming heals up
 	if( ( ShadowUF.db.profile.units[frame.unitType].healthBar.invert and ShadowUF.db.profile.bars.backgroundAlpha == 0 ) or ( not ShadowUF.db.profile.units[frame.unitType].healthBar.invert and ShadowUF.db.profile.bars.alpha == 1 ) ) then
@@ -39,9 +41,9 @@ function IncHeal:OnLayoutApplied(frame)
 		bar:SetFrameLevel(frame.topFrameLevel - 1 - self.frameLevelMod)
 
 		if( bar:GetOrientation() == "HORIZONTAL" ) then
-			bar:SetWidth(frame.healthBar:GetWidth() * ShadowUF.db.profile.units[frame.unitType][self.frameKey].cap)
+			bar:SetWidth(frame.healthBar:GetWidth() * cap)
 		else
-			bar:SetHeight(frame.healthBar:GetHeight() * ShadowUF.db.profile.units[frame.unitType][self.frameKey].cap)
+			bar:SetHeight(frame.healthBar:GetHeight() * cap)
 		end
 
 		bar:ClearAllPoints()
@@ -71,8 +73,8 @@ function IncHeal:OnLayoutApplied(frame)
 		end
 
 		bar.positionMod = bar.reverseFill and -1 or 1
-		bar.cappedSize = bar.healthSize * (ShadowUF.db.profile.units[frame.unitType][self.frameKey].cap - 1)
-		bar.maxSize = bar.healthSize * ShadowUF.db.profile.units[frame.unitType][self.frameKey].cap
+		bar.cappedSize = bar.healthSize * (cap - 1)
+		bar.maxSize = bar.healthSize * cap
 	end
 end
 
@@ -98,7 +100,7 @@ function IncHeal:PositionBar(frame, incAmount)
 	-- When the primary bar has an alpha of 100%, we can cheat and do incoming heals easily. Otherwise we need to do it a more complex way to keep it looking good
 	if( bar.simple ) then
 		bar.total = health + incAmount
-		bar:SetMinMaxValues(0, UnitHealthMax(frame.unit) * ShadowUF.db.profile.units[frame.unitType][self.frameKey].cap)
+		bar:SetMinMaxValues(0, UnitHealthMax(frame.unit) * (ShadowUF.db.profile.units[frame.unitType][self.frameKey].cap or 1.30))
 		bar:SetValue(bar.total)
 	else
 		local maxHealth = UnitHealthMax(frame.unit)
