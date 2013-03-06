@@ -338,6 +338,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			holyPower = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true},
 			chi = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true},
 			shadowOrbs = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true},
+			incHeal = {cap = 1},
+			incAbsorb = {cap = 1},
 			indicators = {
                 resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
 			},
@@ -366,6 +368,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			portrait = {enabled = true, fullAfter = 50},
 			castBar = {order = 60},
 			offset = 23,
+			incHeal = {cap = 1},
+			incAbsorb = {cap = 1},
 			indicators = {
                 resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
                 phase = {enabled = true, anchorPoint = "RC", size = 26, x = -17, y = 0, anchorTo = "$parent"}
@@ -651,6 +655,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			height = 45,
 			scale = 1.0,
 			portrait = {enabled = true, alignment = "RIGHT", fullAfter = 50},
+			incHeal = {cap = 1},
+			incAbsorb = {cap = 1},
 			castBar = {order = 60},
 			comboPoints = {enabled = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true, height = 0.40},
 			indicators = {

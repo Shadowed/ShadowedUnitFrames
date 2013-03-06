@@ -6,7 +6,7 @@ ShadowUF = select(2, ...)
 ShadowUF.is502 = select(4, GetBuildInfo()) >= 50200
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 32
+ShadowUF.dbRevision = 33
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -102,6 +102,26 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 33 ) then
+		for unit, config in pairs(self.db.profile.units) do
+			if( not self.defaults.profile.units[unit].incHeal and config.incHeal ) then
+				config.incHeal = nil
+			end
+
+			if( not self.defaults.profile.units[unit].incAbsorb and config.incAbsorb ) then
+				config.incAbsorb = nil
+			end
+
+			if( config.incAbsorb ) then
+				config.incAbsorb.cap = config.incAbsorb.cap or 1.30
+			end
+
+			if( config.incHeal ) then
+				config.incHeal.cap = config.incHeal.cap or 1.30
+			end
+		end
+	end
+
 	if( revision <= 32 ) then
 		for unit, config in pairs(self.db.profile.units) do
 			if( config.incAbsorb and not config.incAbsorb.cap ) then
@@ -358,7 +378,7 @@ function ShadowUF:LoadUnitDefaults()
 		if( not self.fakeUnits[unit] ) then
 			self.defaults.profile.units[unit].combatText = {enabled = true, anchorTo = "$parent", anchorPoint = "C", x = 0, y = 0}
 
-			if( unit ~= "battleground" and unit ~= "battlegroundpet" and unit ~= "arena" and unit ~= "arenapet" ) then
+			if( unit ~= "battleground" and unit ~= "battlegroundpet" and unit ~= "arena" and unit ~= "arenapet" and unit ~= "boss" ) then
 				self.defaults.profile.units[unit].incHeal = {enabled = true, cap = 1.20}
 				self.defaults.profile.units[unit].incAbsorb = {enabled = true, cap = 1.30}
 			end
