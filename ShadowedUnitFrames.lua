@@ -6,7 +6,7 @@ ShadowUF = select(2, ...)
 ShadowUF.is502 = select(4, GetBuildInfo()) >= 50200
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 33
+ShadowUF.dbRevision = 34
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -102,6 +102,13 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 34 ) then
+		self.db.profile.units.player.staggerBar = {enabled = true, background = false, height = 0.30, order = 70}
+		self.db.profile.powerColors.STAGGER_GREEN = {r = 0.52, g = 1.0, b = 0.52}
+		self.db.profile.powerColors.STAGGER_YELLOW = {r = 1.0, g = 0.98, b = 0.72}
+		self.db.profile.powerColors.STAGGER_RED = {r = 1.0, g = 0.42, b = 0.42}
+	end
+
 	if( revision <= 33 ) then
 		for unit, config in pairs(self.db.profile.units) do
 			if( not self.defaults.profile.units[unit].incHeal and config.incHeal ) then
@@ -426,6 +433,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.xpBar = {enabled = false}
 	self.defaults.profile.units.player.fader = {enabled = false}
 	self.defaults.profile.units.player.soulShards = {enabled = true, isBar = true}
+	self.defaults.profile.units.player.staggerBar = {enabled = true}
 	self.defaults.profile.units.player.demonicFuryBar = {enabled = true}
 	self.defaults.profile.units.player.burningEmbersBar = {enabled = true}
 	self.defaults.profile.units.player.eclipseBar = {enabled = true}

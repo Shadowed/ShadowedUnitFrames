@@ -165,6 +165,9 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		MUSHROOMS = {r = 0.20, g = 0.90, b = 0.20},
 		POWER_TYPE_FEL_ENERGY = {r = 0.878, g = 0.980, b = 0},
 		AURAPOINTS = {r = 1.0, g = 0.80, b = 0.0},
+		STAGGER_GREEN = {r = 0.52, g = 1.0, b = 0.52},
+		STAGGER_YELLOW = {r = 1.0, g = 0.98, b = 0.72},
+		STAGGER_RED = {r = 1.0, g = 0.42, b = 0.42}
 	}
 	config.healthColors = {
 		tapped = {r = 0.5, g = 0.5, b = 0.5},
@@ -334,6 +337,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			auraPoints = {enabled = false, showAlways = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true, height = 0.40},
 			demonicFuryBar = {enabled = true, background = false, height = 0.50, order = 70},
 			burningEmbersBar = {enabled = true, background = false, height = 0.40, order = 70},
+			staggerBar = {enabled = true, background = false, height = 0.30, order = 70},
 			soulShards = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -8, y = 6, size = 12, spacing = -2, growth = "LEFT", isBar = true, showAlways = true},
 			holyPower = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true},
 			chi = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true},

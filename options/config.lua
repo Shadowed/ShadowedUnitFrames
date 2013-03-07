@@ -575,7 +575,7 @@ local function loadGeneralOptions()
 							
 							-- Strip module settings that aren't with SUF by default
 							if( not layoutData.modules ) then
-								local validModules = {["healthBar"] = true, ["powerBar"] = true, ["portrait"] = true, ["range"] = true, ["text"] = true, ["indicators"] = true, ["auras"] = true, ["incAbsorb"] = true, ["incHeal"] = true, ["castBar"] = true, ["combatText"] = true, ["highlight"] = true, ["runeBar"] = true, ["totemBar"] = true, ["xpBar"] = true, ["fader"] = true, ["comboPoints"] = true, ["eclipseBar"] = true, ["soulShards"] = true, ["holyPower"] = true, ["altPowerBar"] = true, ["demonicFuryBar"] = true, ["burningEmbersBar"] = true, ["chi"] = true, ["shadowOrbs"] = true, ["auraPoints"] = true}
+								local validModules = {["healthBar"] = true, ["powerBar"] = true, ["portrait"] = true, ["range"] = true, ["text"] = true, ["indicators"] = true, ["auras"] = true, ["incAbsorb"] = true, ["incHeal"] = true, ["castBar"] = true, ["combatText"] = true, ["highlight"] = true, ["runeBar"] = true, ["totemBar"] = true, ["xpBar"] = true, ["fader"] = true, ["comboPoints"] = true, ["eclipseBar"] = true, ["soulShards"] = true, ["holyPower"] = true, ["altPowerBar"] = true, ["demonicFuryBar"] = true, ["burningEmbersBar"] = true, ["chi"] = true, ["shadowOrbs"] = true, ["auraPoints"] = true, ["staggerBar"] = true}
 								for _, unitData in pairs(layout.units) do
 									for key, data in pairs(unitData) do
 										if( type(data) == "table" and not validModules[key] and ShadowUF.modules[key] ) then
@@ -1055,6 +1055,38 @@ local function loadGeneralOptions()
 								arg = "healthColors.enemyUnattack",
 							}
 						},
+					},
+					stagger = {
+						order = 1.5,
+						type = "group",
+						inline = true,
+						name = L["Stagger"],
+						set = setColor,
+						get = getColor,
+						hidden = function() return select(2, UnitClass("player")) ~= "MONK" end,
+						args = {
+							STAGGER_GREEN = {
+								order = 0,
+								type = "color",
+								name = L["Green (<30% HP)"],
+								desc = L["Stagger bar color when the staggered amount is <30% of your HP."],
+								arg = "powerColors.STAGGER_GREEN"
+							},
+							STAGGER_GREEN = {
+								order = 1,
+								type = "color",
+								name = L["Yellow (>30% HP)"],
+								desc = L["Stagger bar color when the staggered amount is >30% of your HP."],
+								arg = "powerColors.STAGGER_YELLOW"
+							},
+							STAGGER_RED = {
+								order = 2,
+								type = "color",
+								name = L["Red (>70% HP)"],
+								desc = L["Stagger bar color when the staggered amount is >70% of your HP."],
+								arg = "powerColors.STAGGER_RED"
+							}
+						}
 					},
 					power = {
 						order = 2,
@@ -3809,7 +3841,7 @@ local function loadUnitOptions()
 						hidden = function(info) 
 							local unit = info[2]
 							if( unit == "global" ) then
-								return not globalConfig.runeBar and not globalConfig.eclipseBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.monkBar and not globalConfig.xpBar and not globalConfig.demonicFuryBar and not globalConfig.burningEmbersBar
+								return not globalConfig.runeBar and not globalConfig.eclipseBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.monkBar and not globalConfig.xpBar and not globalConfig.demonicFuryBar and not globalConfig.burningEmbersBar and not globalConfig.staggerBar
 							else
 								return unit ~= "player" and unit ~= "pet"
 							end
@@ -3838,6 +3870,14 @@ local function loadUnitOptions()
 								desc = L["Adds a Demonic Fury bar for Demonology Warlocks."],
 								hidden = hideRestrictedOption,
 								arg = "demonicFuryBar.enabled",
+							},
+							staggerBar = {
+								order = 1.25,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Stagger bar"]),
+								desc = L["Adds a Stagger bar for Brewmaster Monks."],
+								hidden = hideRestrictedOption,
+								arg = "staggerBar.enabled",
 							},
 							burningEmbersBar = {
 								order = 1.25,
