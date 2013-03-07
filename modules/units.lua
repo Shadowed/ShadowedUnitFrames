@@ -610,9 +610,6 @@ OnAttributeChanged = function(self, name, unit)
 		self:RegisterNormalEvent("UNIT_TARGET", Units, "CheckPetUnitUpdated")
 	end
 	
-	if( not ShadowUF.is502 ) then
-		self.menu = ShowMenu
-	end
 	self:SetVisibility()
 	Units:CheckUnitStatus(self)
 end
@@ -645,10 +642,6 @@ local secureInitializeUnit = [[
 	end
 ]]
 
-if( not ShadowUF.is502 ) then
-	secureInitializeUnit = string.gsub(secureInitializeUnit, "togglemenu", "menu")
-end
-
 local unitButtonTemplate = ClickCastHeader and "ClickCastUnitTemplate,SecureUnitButtonTemplate" or "SecureUnitButtonTemplate"
 
 -- Header unit initialized
@@ -677,20 +670,6 @@ end
 local function SUF_OnEnter(self)
 	if( not ShadowUF.db.profile.tooltipCombat or not InCombatLockdown() ) then
 		UnitFrame_OnEnter(self)
-	end
-end
-
--- Reset the fact that we clamped the dropdown to the screen to be safe
-DropDownList1:HookScript("OnHide", function(self)
-	self:SetClampedToScreen(false)
-end)
-
--- Reposition the dropdown
-local function PostClick(self)
-	if( UIDROPDOWNMENU_OPEN_MENU and DropDownList1:IsShown() ) then
-		DropDownList1:ClearAllPoints()
-		DropDownList1:SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0, 0)
-		DropDownList1:SetClampedToScreen(true)
 	end
 end
 
@@ -727,9 +706,6 @@ function Units:CreateUnit(...)
 	frame:HookScript("OnLeave", OnLeave)
 	frame:SetScript("OnShow", OnShow)
 	frame:SetScript("OnHide", OnHide)
-	if( not ShadowUF.is502 ) then
-		frame:SetScript("PostClick", PostClick)
-	end
 
 	frame.OnEnter = SUF_OnEnter
 	frame.OnLeave = UnitFrame_OnLeave
@@ -738,7 +714,7 @@ function Units:CreateUnit(...)
 	-- non-header frames don't set those, so we need to do it
 	if( not InCombatLockdown() ) then
 		frame:SetAttribute("*type1", "target")
-		frame:SetAttribute("*type2", ShadowUF.is502 and "togglemenu" or "menu")
+		frame:SetAttribute("*type2", "togglemenu")
 	end
 	
 	return frame

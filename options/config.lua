@@ -3594,7 +3594,7 @@ local function loadUnitOptions()
 								order = 4,
 								type = "select",
 								name = L["Group by"],
-								values = ShadowUF.is502 and {["GROUP"] = L["Group number"], ["CLASS"] = L["Class"], ["ASSIGNEDROLE"] = L["Assigned Role (DPS/Tank/etc)"]} or {["GROUP"] = L["Group number"], ["CLASS"] = L["Class"]},
+								values = {["GROUP"] = L["Group number"], ["CLASS"] = L["Class"], ["ASSIGNEDROLE"] = L["Assigned Role (DPS/Tank/etc)"]},
 								arg = "groupBy",
 								hidden = hideSplitOrRaidOption,
 							},

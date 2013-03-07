@@ -3,7 +3,6 @@
 ]]
 
 ShadowUF = select(2, ...)
-ShadowUF.is502 = select(4, GetBuildInfo()) >= 50200
 
 local L = ShadowUF.L
 ShadowUF.dbRevision = 34
@@ -750,20 +749,6 @@ function ShadowUF:HideBlizzardFrames()
 		
 		QueueStatusFrame:SetFrameLevel(QueueStatusFrame:GetFrameLevel() + 20)
 		QueueStatusFrame:SetFrameStrata("TOOLTIP")
-	end
-
-	-- Don't modify the raid menu because that will taint the MA/MT stuff and it'll break and that's bad
-	if( not active_hiddens.popup and not self.is502 ) then
-		active_hiddens.popup = true
-		for key, list in pairs(UnitPopupMenus) do
-			if( key ~= "RAID" ) then
-				for i=#(list), 1, -1 do
-					if( list[i] == "SET_FOCUS" or list[i] == "CLEAR_FOCUS" or list[i] == "LOCK_FOCUS_FRAME" or list[i] == "UNLOCK_FOCUS_FRAME" ) then
-						table.remove(list, i)
-					end
-				end
-			end
-		end
 	end
 
 	-- As a reload is required to reset the hidden hooks, we can just set this to true if anything is true

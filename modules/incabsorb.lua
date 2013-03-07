@@ -1,4 +1,3 @@
-if( not ShadowUF.is502 ) then return end
 local IncAbsorb = setmetatable({["frameKey"] = "incAbsorb", ["colorKey"] = "incAbsorb", ["frameLevelMod"] = 2}, {__index = ShadowUF.IncHeal})
 ShadowUF:RegisterModule(IncAbsorb, "incAbsorb", ShadowUF.L["Incoming absorbs"])
 
