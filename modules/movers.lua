@@ -128,6 +128,10 @@ local function createConfigEnv()
 			
 			return powerType, powerType == 0 and "MANA" or powerType == 1 and "RAGE" or powerType == 2 and "FOCUS" or powerType == 3 and "ENERGY" or powerType == 6 and "RUNIC_POWER"
 		end,
+		UnitStagger = function(unit)
+			if( unit ~= "player" ) then return nil end
+			return getValue("UnitStagger", math.random(2000, 10000))
+		end,
 		UnitAura = function(unit, id, filter)
 			if( type(id) ~= "number" or id > 40 ) then return end
 			

@@ -4,12 +4,13 @@ ShadowUF:RegisterModule(Stagger, "staggerBar", ShadowUF.L["Stagger bar"], true, 
 function Stagger:OnEnable(frame)
 	frame.staggerBar = frame.staggerBar or ShadowUF.Units:CreateBar(frame)
 	frame.staggerBar.timeElapsed = 0
+	frame.staggerBar.parent = frame
 	frame.staggerBar:SetScript("OnUpdate", function(self, elapsed)
 		self.timeElapsed = self.timeElapsed + elapsed
 		if( self.timeElapsed < 0.50 ) then return end
 		self.timeElapsed = self.timeElapsed - 0.50
 
-		Stagger:Update(self)
+		Stagger:Update(self.parent)
 	end)
 
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateMinMax")
@@ -21,7 +22,9 @@ function Stagger:OnDisable(frame)
 end
 
 function Stagger:OnLayoutApplied(frame)
-	frame.staggerBar.colorState = nil
+	if( frame.staggerBar ) then
+		frame.staggerBar.colorState = nil
+	end
 end
 
 function Stagger:UpdateMinMax(frame)
@@ -46,9 +49,6 @@ function Stagger:Update(frame)
 		state = "STAGGER_RED"
 	end
 
-	if( state ~= frame.staggerBar.colorState ) then
-		frame:SetBarColor("staggerBar", ShadowUF.db.profile.powerColors[state])
-	end
-
+	frame:SetBarColor("staggerBar", ShadowUF.db.profile.powerColors[state].r, ShadowUF.db.profile.powerColors[state].g, ShadowUF.db.profile.powerColors[state].b)
 	frame.staggerBar:SetValue(stagger)
 end
