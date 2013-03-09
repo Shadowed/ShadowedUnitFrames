@@ -93,6 +93,7 @@ function ShadowUF:CheckBuild()
 		self:Print("NOTE! As of 5.2.0, you can now use menus to perform secure actions such as Set/Clear Focus or reporting.")
 		self:Print("SUF has been tested and confirmed to work with this setup. If menus do not show up, you may need to update Clique.")
 		self:Print("If you still get action blocked issues, it is another addons fault and you should yell at that author for doing something bad.")
+		self:Print("Raid dropdowns will still cause action blocked issues due to a bug with the toggle system unfortunately.")
 	end
 
 	self.db.profile.wowBuild = build

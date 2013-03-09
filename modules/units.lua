@@ -578,6 +578,14 @@ OnAttributeChanged = function(self, name, unit)
 		self:RegisterNormalEvent("GROUP_ROSTER_UPDATE", Units, "CheckGroupedUnitStatus")
 		self:RegisterUnitEvent("UNIT_NAME_UPDATE", Units, "CheckUnitStatus")
 		
+		self.menu = ShowMenu
+
+		stateMonitor:WrapScript(self, "OnAttributeChanged", [[
+			if( value == "togglemenu" and self:GetAttribute("clique-shiv") == "1" ) then
+				self:SetAttribute(name, "menu")
+			end
+		]])
+
 	-- Party members need to watch for changes
 	elseif( self.unitRealType == "party" ) then
 		self:RegisterNormalEvent("GROUP_ROSTER_UPDATE", Units, "CheckGroupedUnitStatus")
@@ -609,13 +617,12 @@ OnAttributeChanged = function(self, name, unit)
 
 		self:RegisterNormalEvent("UNIT_TARGET", Units, "CheckPetUnitUpdated")
 	end
-	
+
 	self:SetVisibility()
 	Units:CheckUnitStatus(self)
 end
 
 Units.OnAttributeChanged = OnAttributeChanged
-
 
 local secureInitializeUnit = [[
 	local header = self:GetParent()
@@ -636,9 +643,19 @@ local secureInitializeUnit = [[
 
 	-- Clique integration
 	local clickHeader = header:GetFrameRef("clickcast_header")
-	if clickHeader then
+	if( clickHeader ) then
 		clickHeader:SetAttribute("clickcast_button", self)
 		clickHeader:RunAttribute("clickcast_register")
+
+		-- Because we gsub togglemenu -> menu, we can do this check
+		-- to determine whether we're using togglemenu or not
+		if( "togglemenu" == "menu" ) then
+			self:SetAttribute("clique-shiv", "1")
+			if( self:GetAttribute("type2") == ("toggle" .. "menu") ) then
+				print("Initial force")
+				self:SetAttribute("type2", "menu")
+			end
+		end
 	end
 ]]
 
@@ -656,13 +673,13 @@ end
 
 -- Show tooltip
 local function OnEnter(self)
-	if self.OnEnter then
+	if( self.OnEnter ) then
 		self:OnEnter()
 	end
 end
 
 local function OnLeave(self)
-	if self.OnLeave then
+	if( self.OnLeave ) then
 		self:OnLeave()
 	end
 end
@@ -954,7 +971,7 @@ function Units:LoadSplitGroupHeader(type)
 				frame:SetAttribute("showRaid", true)
 				frame:SetAttribute("groupFilter", id)
 				frame:UnregisterEvent("UNIT_NAME_UPDATE")
-				frame:SetAttribute("initialConfigFunction", secureInitializeUnit)
+				frame:SetAttribute("initialConfigFunction", string.gsub(secureInitializeUnit, "togglemenu", "menu"))
 				frame.initialConfigFunction = initializeUnit
 				frame.isHeaderFrame = true
 				frame.unitType = type
@@ -1029,7 +1046,13 @@ function Units:LoadGroupHeader(type)
 
 	headerFrame:SetAttribute("template", unitButtonTemplate)
 	headerFrame:SetAttribute("initial-unitWatch", true)
-	headerFrame:SetAttribute("initialConfigFunction", secureInitializeUnit)
+	
+	if( type == "raid" ) then
+		headerFrame:SetAttribute("initialConfigFunction", string.gsub(secureInitializeUnit, "togglemenu", "menu"))
+	else
+		headerFrame:SetAttribute("initialConfigFunction", secureInitializeUnit)
+	end
+
 	headerFrame.initialConfigFunction = initializeUnit
 	headerFrame.isHeaderFrame = true
 	headerFrame.unitType = type
