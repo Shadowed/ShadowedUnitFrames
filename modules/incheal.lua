@@ -1,4 +1,4 @@
-local IncHeal = {["frameKey"] = "incHeal", ["colorKey"] = "inc", ["frameLevelMod"] = 2}
+local IncHeal = {["frameKey"] = "incHeal", ["colorKey"] = "inc", ["frameLevelMod"] = 1}
 ShadowUF.IncHeal = IncHeal
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUF.L["Incoming heals"])
 
@@ -38,7 +38,7 @@ function IncHeal:OnLayoutApplied(frame)
 	-- if the main bar has a transparency set, then we need a more complicated method to stop the health bar from being darker with incoming heals up
 	if( ( ShadowUF.db.profile.units[frame.unitType].healthBar.invert and ShadowUF.db.profile.bars.backgroundAlpha == 0 ) or ( not ShadowUF.db.profile.units[frame.unitType].healthBar.invert and ShadowUF.db.profile.bars.alpha == 1 ) ) then
 		bar.simple = true
-		bar:SetFrameLevel(frame.topFrameLevel - 1 - self.frameLevelMod)
+		bar:SetFrameLevel(frame.topFrameLevel - self.frameLevelMod)
 
 		if( bar:GetOrientation() == "HORIZONTAL" ) then
 			bar:SetWidth(frame.healthBar:GetWidth() * cap)
