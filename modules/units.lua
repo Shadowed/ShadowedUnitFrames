@@ -652,7 +652,6 @@ local secureInitializeUnit = [[
 		if( "togglemenu" == "menu" ) then
 			self:SetAttribute("clique-shiv", "1")
 			if( self:GetAttribute("type2") == ("toggle" .. "menu") ) then
-				print("Initial force")
 				self:SetAttribute("type2", "menu")
 			end
 		end
