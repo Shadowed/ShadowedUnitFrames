@@ -705,7 +705,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	if( self.db.profile.hidden.playerPower and not active_hiddens.playerPower ) then
-		hideBlizzardFrames(true, EclipseBarFrame, ShardBarFrame, RuneFrame, TotemFrame, PaladinPowerBar, MonkHarmonyBar, PriestBarFrame, WarlockPowerFrame)
+		hideBlizzardFrames(true, EclipseBarFrame, ShardBarFrame, TotemFrame, PaladinPowerBar, MonkHarmonyBar, PriestBarFrame, WarlockPowerFrame)
 	end
 
 	if( self.db.profile.hidden.pet and not active_hiddens.pet ) then
