@@ -569,7 +569,7 @@ OnAttributeChanged = function(self, name, unit)
 	
 	-- Update boss
 	elseif( self.unitType == "boss" ) then
-		self:RegisterNormalEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", self, "CheckUnitStatus")
+		self:RegisterNormalEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", Units, "CheckUnitStatus")
 
 	-- Check for a unit guid to do a full update
 	elseif( self.unitRealType == "raid" ) then
