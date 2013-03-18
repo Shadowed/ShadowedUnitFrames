@@ -633,6 +633,7 @@ local function hideBlizzardFrames(taint, ...)
 		if( taint ) then
 			frame.Show = ShadowUF.noop
 		else
+			frame:SetParent(ShadowUF.hiddenFrame)
 			frame:HookScript("OnShow", rehideFrame)
 		end
 	end
@@ -705,7 +706,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	if( self.db.profile.hidden.playerPower and not active_hiddens.playerPower ) then
-		hideBlizzardFrames(true, EclipseBarFrame, ShardBarFrame, TotemFrame, PaladinPowerBar, MonkHarmonyBar, PriestBarFrame, WarlockPowerFrame)
+		hideBlizzardFrames(false, EclipseBarFrame, ShardBarFrame, RuneFrame, PaladinPowerBar, MonkHarmonyBar, PriestBarFrame, WarlockPowerFrame)
 	end
 
 	if( self.db.profile.hidden.pet and not active_hiddens.pet ) then
