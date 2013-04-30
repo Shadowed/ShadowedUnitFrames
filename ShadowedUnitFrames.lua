@@ -628,7 +628,7 @@ local function reparentHideBlizzardFrames(...)
 	for i=1, select("#", ...) do
 		local frame = select(i, ...)
 		frame:UnregisterAllEvents()
-		frame:HookScript(rehideFrame)
+		frame:HookScript("OnShow", rehideFrame)
 		frame:Hide()
 	end
 end
