@@ -1,4 +1,4 @@
-## Interface: 50200
+## Interface: 50300
 ## Title: Shadowed Unit Frames
 ## Notes: Now with 90% more shadows than the leading competitors
 ## Author: Shadowed
