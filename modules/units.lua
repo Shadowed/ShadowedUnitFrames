@@ -401,33 +401,6 @@ function Units:CheckGroupedUnitStatus(frame)
 	end
 end
 
-local function ShowMenu(self)
-	if( UnitIsUnit(self.unit, "player") ) then
-		ToggleDropDownMenu(1, nil, PlayerFrameDropDown, "cursor")
-	elseif( self.unit == "pet" or self.unit == "vehicle" ) then
-		ToggleDropDownMenu(1, nil, PetFrameDropDown, "cursor")
-	elseif( self.unit == "target" ) then
-		ToggleDropDownMenu(1, nil, TargetFrameDropDown, "cursor")
-	elseif( self.unitType == "boss" ) then
-		ToggleDropDownMenu(1, nil, _G["Boss" .. self.unitID .. "TargetFrameDropDown"], "cursor")
-	elseif( self.unit == "focus" ) then
-		ToggleDropDownMenu(1, nil, FocusFrameDropDown, "cursor")
-	elseif( self.unitRealType == "party" ) then
-		ToggleDropDownMenu(1, nil, _G["PartyMemberFrame" .. self.unitID .. "DropDown"], "cursor")
-	elseif( self.unitRealType == "raid" ) then
-		HideDropDownMenu(1)
-		
-		local menuFrame = FriendsDropDown
-		menuFrame.displayMode = "MENU"
-		menuFrame.initialize = RaidFrameDropDown_Initialize
-		menuFrame.userData = self.unitID
-		menuFrame.unit = self.unitOwner
-		menuFrame.name = UnitName(self.unitOwner)
-		menuFrame.id = self.unitID
-		ToggleDropDownMenu(1, nil, menuFrame, "cursor")
-	end	
-end
-
 -- More fun with sorting, due to sorting magic we have to check if we want to create stuff when the frame changes of partys too
 local function createChildUnits(self)
 	if( not self.unitID ) then return end
@@ -576,8 +549,6 @@ OnAttributeChanged = function(self, name, unit)
 		self:RegisterNormalEvent("GROUP_ROSTER_UPDATE", Units, "CheckGroupedUnitStatus")
 		self:RegisterUnitEvent("UNIT_NAME_UPDATE", Units, "CheckUnitStatus")
 		
-		self.menu = ShowMenu
-
 	-- Party members need to watch for changes
 	elseif( self.unitRealType == "party" ) then
 		self:RegisterNormalEvent("GROUP_ROSTER_UPDATE", Units, "CheckGroupedUnitStatus")
@@ -956,7 +927,7 @@ function Units:LoadSplitGroupHeader(type)
 				frame:SetAttribute("showRaid", true)
 				frame:SetAttribute("groupFilter", id)
 				frame:UnregisterEvent("UNIT_NAME_UPDATE")
-				frame:SetAttribute("initialConfigFunction", string.gsub(secureInitializeUnit, "togglemenu", "menu"))
+				frame:SetAttribute("initialConfigFunction", secureInitializeUnit)
 				frame.initialConfigFunction = initializeUnit
 				frame.isHeaderFrame = true
 				frame.unitType = type
@@ -1031,12 +1002,7 @@ function Units:LoadGroupHeader(type)
 
 	headerFrame:SetAttribute("template", unitButtonTemplate)
 	headerFrame:SetAttribute("initial-unitWatch", true)
-	
-	if( type == "raid" ) then
-		headerFrame:SetAttribute("initialConfigFunction", string.gsub(secureInitializeUnit, "togglemenu", "menu"))
-	else
-		headerFrame:SetAttribute("initialConfigFunction", secureInitializeUnit)
-	end
+	headerFrame:SetAttribute("initialConfigFunction", secureInitializeUnit)
 
 	headerFrame.initialConfigFunction = initializeUnit
 	headerFrame.isHeaderFrame = true
