@@ -997,6 +997,18 @@ Tags.defaultTags = {
 	    local heal = UnitGetIncomingHeals(unit)
 		return heal and heal > 0 and string.format("+%d", heal) or ShadowUF.tagFunc.name(unit, unitOwner, fontString)
 	end]],
+	["abs:incabsorb"] = [[function(unit, unitOwner, fontString)
+	    local absorb = UnitGetTotalAbsorbs(unit) 
+		return absorb and absorb > 0 and string.format("%d", absorb)
+	end]],
+	["incabsorb"] = [[function(unit, unitOwner, fontString)
+	    local absorb = UnitGetTotalAbsorbs(unit)
+		return absorb and absorb > 0 and ShadowUF:FormatLargeNumber(absorb)
+	end]],
+	["incabsorb:name"] = [[function(unit, unitOwner, fontString)
+	    local absorb = UnitGetTotalAbsorbs(unit)
+		return absorb and absorb > 0 and string.format("+%d", absorb) or ShadowUF.tagFunc.name(unit, unitOwner, fontString)
+	end]],
 	["unit:raid:targeting"] = [[function(unit, unitOwner, fontString)
 		if( GetNumGroupMembers() == 0 ) then return nil end
 		local guid = UnitGUID(unit)
@@ -1037,6 +1049,9 @@ Tags.defaultEvents = {
 	["abs:incheal"]				= "UNIT_HEAL_PREDICTION",
 	["incheal:name"]			= "UNIT_HEAL_PREDICTION",
 	["incheal"]					= "UNIT_HEAL_PREDICTION",
+	["abs:incabsorb"]			= "UNIT_ABSORB_AMOUNT_CHANGED",
+	["incabsorb"]				= "UNIT_ABSORB_AMOUNT_CHANGED",
+	["incabsorb:name"]			= "UNIT_ABSORB_AMOUNT_CHANGED",
 	-- ["crtabs"]				= "CRTABS",
 	-- ["abs:crtabs"]			= "CRTABS",
 	-- ["crtabs:name"]			= "CRTABS",
@@ -1121,6 +1136,9 @@ Tags.defaultFrequents = {
 -- Default tag categories
 Tags.defaultCategories = {
 	["hp:color"]				= "health",
+	["abs:incabsorb"]			= "health",
+	["incabsorb"]				= "health",
+	["incabsorb:name"]			= "health",
 	["per:incheal"]				= "health",
 	["abs:incheal"]				= "health",
 	["incheal"]					= "health",
@@ -1208,6 +1226,9 @@ Tags.defaultCategories = {
 	
 -- Default tag help
 Tags.defaultHelp = {
+	["abs:incabsorb"]			= L["Absolute damage absorption value on the unit, if 10,000 damage will be absorbed, it will show 10,000."],
+	["incabsorb"]				= L["Shorten damage absorption, if 13,000 damage will e absorbed, it will show 13k."],
+	["incabsorb:name"]			= L["If the unit has a damage absorption shield on them, it will show the absolute absorb value, otherwise the units name."],
 	["hp:color"]				= L["Color code based on percentage of HP left on the unit, this works the same way as the color by health option. But for text instead of the entire bar."],
 	["guild"]					= L["Show's the units guild name if they are in a guild."],
 	["short:druidform"]			= L["Short version of [druidform], C = Cat, B = Bear, F = Flight and so on."],
@@ -1295,6 +1316,9 @@ Tags.defaultHelp = {
 }
 
 Tags.defaultNames = {
+	["abs:incabsorb"]			= L["Damage absorption (Absolute)"],
+	["incabsorb"]				= L["Damage absorption (Short)"],
+	["incabsorb:name"]			= L["Damage absorption/Name"],
 	["per:incheal"]				= L["Incoming heal (Percent)"],
 	["incheal:name"]			= L["Incoming heal/Name"],
 	["unit:scaled:threat"]		= L["Unit scaled threat"],
@@ -1385,6 +1409,7 @@ Tags.defaultNames = {
 Tags.eventType = {
 	["UNIT_POWER_FREQUENT"] = "power",
 	["UNIT_MAXPOWER"] = "power",
+	["UNIT_ABSORB_AMOUNT_CHANGED"] = "health",
 	["UNIT_HEALTH_FREQUENT"] = "health",
 	["UNIT_HEALTH"] = "health",
 	["UNIT_MAXHEALTH"] = "health",
@@ -1440,6 +1465,7 @@ local function loadAPIEvents()
 		["UnitBuff"]				= "UNIT_AURA",
 		["UnitDebuff"]				= "UNIT_AURA",
 		["UnitXPMax"]				= "UNIT_PET_EXPERIENCE PLAYER_XP_UPDATE PLAYER_LEVEL_UP",
+		["UnitGetTotalAbsorbs"]		= "UNIT_ABSORB_AMOUNT_CHANGED",
 		["UnitXP%("]				= "UNIT_PET_EXPERIENCE PLAYER_XP_UPDATE PLAYER_LEVEL_UP",
 		["GetTotemInfo"]			= "PLAYER_TOTEM_UPDATE",
 		["GetXPExhaustion"]			= "UPDATE_EXHAUSTION",
