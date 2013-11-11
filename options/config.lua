@@ -41,10 +41,10 @@ local PAGE_DESC = {
 	["tags"] = L["Advanced tag management, allows you to add your own custom tags."],
 	["filter"] = L["Simple aura filtering by whitelists and blacklists."],
 }
-local INDICATOR_NAMES = {["questBoss"] = L["Quest Boss"], ["leader"] = L["Leader"], ["lfdRole"] = L["Dungeon Role"], ["masterLoot"] = L["Master Looter"], ["pvp"] = L["PvP Flag"], ["raidTarget"] = L["Raid Target"], ["ready"] = L["Ready Status"], ["role"] = L["Raid Role"], ["status"] = L["Combat Status"], ["class"] = L["Class Icon"], ["resurrect"] = L["Resurrect Status"], ["phase"] = L["Other Party/Phase Status"], ["petBattle"] = L["Pet Battle"]}
+local INDICATOR_NAMES = {["questBoss"] = L["Quest Boss"], ["leader"] = L["Leader / Assist"], ["lfdRole"] = L["Dungeon Role"], ["masterLoot"] = L["Master Looter"], ["pvp"] = L["PvP Flag"], ["raidTarget"] = L["Raid Target"], ["ready"] = L["Ready Status"], ["role"] = L["Raid Role"], ["status"] = L["Combat Status"], ["class"] = L["Class Icon"], ["resurrect"] = L["Resurrect Status"], ["phase"] = L["Other Party/Phase Status"], ["petBattle"] = L["Pet Battle"]}
 local AREA_NAMES = {["arena"] = L["Arenas"],["none"] = L["Everywhere else"], ["party"] = L["Party instances"], ["pvp"] = L["Battleground"], ["raid"] = L["Raid instances"]}
 local INDICATOR_DESC = {
-		["leader"] = L["Crown indicator for group leaders."], ["lfdRole"] = L["Role the unit is playing in dungeons formed through the Looking For Dungeon system."],
+		["leader"] = L["Crown indicator for group leader or assistants."], ["lfdRole"] = L["Role the unit is playing in dungeons formed through the Looking For Dungeon system."],
 		["masterLoot"] = L["Bag indicator for master looters."], ["pvp"] = L["PVP flag indicator, Horde for Horde flagged pvpers and Alliance for Alliance flagged pvpers."],
 		["raidTarget"] = L["Raid target indicator."], ["ready"] = L["Ready status of group members."], ["phase"] = L["Shows when a party member is in a different phase or another group."],
 		["questBoss"] = L["Shows that a NPC is a boss for a quest."], ["petBattle"] = L["Shows what kind of pet the unit is for pet battles."],

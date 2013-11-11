@@ -52,7 +52,7 @@ function Indicators:UpdateMasterLoot(frame)
 		frame.indicators.masterLoot:Hide()
 	end
 end
-			
+
 function Indicators:UpdateRaidTarget(frame)
 	if( not frame.indicators.raidTarget or not frame.indicators.raidTarget.enabled ) then return end
 
@@ -112,6 +112,10 @@ function Indicators:UpdateLeader(frame)
 	if( not frame.indicators.leader or not frame.indicators.leader.enabled ) then return end
 
 	if( UnitIsGroupLeader(frame.unit) ) then
+		frame.indicators.leader:SetTexture("Interface\\GroupFrame\\UI-Group-LeaderIcon")
+		frame.indicators.leader:Show()
+	elseif( UnitIsGroupAssistant(frame.unit) or IsEveryoneAssistant() ) then
+		frame.indicators.leader:SetTexture("Interface\\GroupFrame\\UI-Group-AssistantIcon")
 		frame.indicators.leader:Show()
 	else
 		frame.indicators.leader:Hide()
@@ -321,7 +325,6 @@ function Indicators:OnEnable(frame)
 		frame:RegisterUpdateFunc(self, "UpdateLeader")
 
 		frame.indicators.leader = frame.indicators.leader or frame.indicators:CreateTexture(nil, "OVERLAY")
-		frame.indicators.leader:SetTexture("Interface\\GroupFrame\\UI-Group-LeaderIcon")
 	end
 		
 	if( config.indicators.masterLoot and config.indicators.masterLoot.enabled ) then
