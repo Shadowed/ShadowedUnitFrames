@@ -137,7 +137,7 @@ function ShadowUF:CheckUpgrade()
 		end
 	end
 
-	if( revision <= 31 ) then
+	if( revision <= 31 or not self.db.profile.healthColors.incAbsorb ) then
 		self.db.profile.healthColors.incAbsorb = {r = 0.93, g = 0.75, b = 0.09}
 
 		for unit, config in pairs(self.db.profile.units) do
