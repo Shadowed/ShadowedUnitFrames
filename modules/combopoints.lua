@@ -121,7 +121,7 @@ end
 
 function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 	local pointsFrame = frame[frame.comboPointType]
-	if( not pointsFrame or not pointsFrame.config.eventType ) then return end
+	if( not pointsFrame or not pointsFrame.config.eventType or not pointsFrame.blocks ) then return end
 	if( event and powerType ~= pointsFrame.config.eventType ) then return end
 
 	if( not ShadowUF.db.profile.units[frame.unitType][frame.comboPointType].isBar ) then
