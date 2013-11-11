@@ -4031,6 +4031,38 @@ local function loadUnitOptions()
 							},
 						},
 					},					
+					totemBar = {
+						order = 3.6,
+						type = "group",
+						inline = true,
+						name = ShadowUF.modules.totemBar.moduleName,
+						hidden = function(info) 
+							local unit = info[2]
+							if( unit == "global" ) then
+								return not globalConfig.totemBar
+							else
+								return unit ~= "player" and unit ~= "pet"
+							end
+						end,
+						args = {
+							enabled = {
+								order = 1,
+								type = "toggle",
+								name = string.format(L["Enable %s"], ShadowUF.modules.totemBar.moduleName),
+								desc = function(info)
+									return select(2, UnitClass("player")) == "SHAMAN" and L["Adds totem bars with timers before they expire to the player frame."] or select(2, UnitClass("player")) == "DEATHKNIGHT" and L["Adds a bar indicating how much time is left on your ghoul timer, only used if you do not have a permanent ghoul."] or select(2, UnitClass("player")) == "MAGE" and L["Adds a bar indicating how much time is left on your Rune of Power."] or L["Adds a bar indicating how much time is left on your mushrooms."]
+								end,
+								arg = "totemBar.enabled",
+							},
+							icon = {
+								order = 2,
+								type = "toggle",
+								name = L["Show icon durations"],
+								desc = L["Uses the icon of the totem being shown instead of a status bar."],
+								arg = "totemBar.icon",
+							},
+						},
+					},
 					emptyBar = {
 						order = 4,
 						type = "group",

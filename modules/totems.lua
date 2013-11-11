@@ -127,8 +127,13 @@ end
 function Totems:Update(frame)
 	local totalActive = 0
 	for _, indicator in pairs(frame.totemBar.totems) do
-		local have, name, start, duration = GetTotemInfo(indicator.id)
+		local have, name, start, duration, icon = GetTotemInfo(indicator.id)
+
 		if( have and start > 0 ) then
+			if( ShadowUF.db.profile.units[frame.unitType].totemBar.icon ) then
+				indicator:SetStatusBarTexture(icon)
+			end
+
 			indicator.have = true
 			indicator.endTime = start + duration
 			indicator:SetMinMaxValues(0, duration)
