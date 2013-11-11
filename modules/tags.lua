@@ -764,6 +764,10 @@ Tags.defaultTags = {
 	["name"] = [[function(unit, unitOwner) return UnitName(unitOwner) or UNKNOWN end]],
 	["server"] = [[function(unit, unitOwner)
 		local server = select(2, UnitName(unitOwner))
+		if UnitRealmRelationship(unitOwner) == LE_REALM_RELATION_VIRTUAL
+			return nil
+		end
+
 		return server ~= "" and server or nil
 	end]],
 	["perhp"] = [[function(unit, unitOwner)
