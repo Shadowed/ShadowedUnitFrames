@@ -77,6 +77,10 @@ end
 
 function Totems:OnLayoutApplied(frame)
 	if( frame.visibility.totemBar ) then
+		if( playerClass == "DRUID" ) then
+			MAX_TOTEMS = GetSpecialization() == 4 and 1 or 3
+		end
+		
 		local barWidth = (frame.totemBar:GetWidth() - (MAX_TOTEMS - 1)) / MAX_TOTEMS
 		
 		for _, totem in pairs(frame.totemBar.totems) do
