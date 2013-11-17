@@ -67,6 +67,7 @@ function Cast:OnEnable(frame)
 		frame.castBar.bar = ShadowUF.Units:CreateBar(frame)
 		frame.castBar.background = frame.castBar.bar.background
 		frame.castBar.bar.parent = frame
+		frame.castBar.bar.background = frame.castBar.background
 		
 		frame.castBar.icon = frame.castBar.bar:CreateTexture(nil, "ARTWORK")
 		frame.castBar.bar.name = frame.castBar.bar:CreateFontString(nil, "ARTWORK")
@@ -111,6 +112,10 @@ function Cast:OnLayoutApplied(frame, config)
 	frame.castBar.background:SetVertexColor(0, 0, 0, 0)
 	frame.castBar.background:SetHorizTile(false)
 	
+	-- Setup fill
+	frame.castBar.bar:SetOrientation(config.castBar.vertical and "VERTICAL" or "HORIZONTAL")
+	frame.castBar.bar:SetReverseFill(config.castBar.reverse and true or false)
+
 	-- Setup the main bar + icon
 	frame.castBar.bar:ClearAllPoints()
 	frame.castBar.bar:SetHeight(frame.castBar:GetHeight())
@@ -183,11 +188,7 @@ end
 
 -- Easy coloring
 local function setBarColor(self, r, g, b)
-	self:SetStatusBarColor(r, g, b, ShadowUF.db.profile.bars.alpha)
-	
-	if( not self.background.overrideColor ) then
-		self.background:SetVertexColor(r, g, b, ShadowUF.db.profile.bars.backgroundAlpha)
-	end
+	self.parent:SetBlockColor(self, "castBar", r, g, b)
 end
 
 -- Cast OnUpdates
