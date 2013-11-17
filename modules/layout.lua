@@ -74,6 +74,8 @@ function Layout:ToggleVisibility(frame, visible)
 end	
 
 function Layout:SetBarVisibility(frame, key, status)
+	if( frame.secureLocked ) then return end
+
 	-- Show the bar if it wasn't already
 	if( status and not frame[key]:IsVisible() ) then
 		ShadowUF.Tags:FastRegister(frame, frame[key])
@@ -121,6 +123,15 @@ end
 -- Do a full update
 function Layout:Load(frame)
 	local unitConfig = ShadowUF.db.profile.units[frame.unitType]
+
+	-- Figure out if we're secure locking
+	frame.secureLocked = nil
+	for _, module in pairs(ShadowUF.moduleOrder) do
+		if( frame.visibility[module.moduleKey] and ShadowUF.db.profile.units[frame.unitType][module.moduleKey].secure ) then
+			frame.secureLocked = true
+			break
+		end
+	end
 
 	-- About to set layout
 	ShadowUF:FireModuleEvent("OnPreLayoutApply", frame, unitConfig)

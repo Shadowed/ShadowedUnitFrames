@@ -3887,16 +3887,6 @@ local function loadUnitOptions()
 								hidden = hideRestrictedOption,
 								arg = "burningEmbersBar.enabled",
 							},
-							totemBar = {
-								order = 1.5,
-								type = "toggle",
-								name = string.format(L["Enable %s"], ShadowUF.modules.totemBar.moduleName),
-								desc = function(info)
-									return select(2, UnitClass("player")) == "SHAMAN" and L["Adds totem bars with timers before they expire to the player frame."] or select(2, UnitClass("player")) == "DEATHKNIGHT" and L["Adds a bar indicating how much time is left on your ghoul timer, only used if you do not have a permanent ghoul."] or select(2, UnitClass("player")) == "MAGE" and L["Adds a bar indicating how much time is left on your Rune of Power."] or L["Adds a bar indicating how much time is left on your mushrooms."]
-								end,
-								hidden = hideRestrictedOption,
-								arg = "totemBar.enabled",
-							},
 							druidBar = {
 								order = 3,
 								type = "toggle",
@@ -4061,6 +4051,15 @@ local function loadUnitOptions()
 								desc = L["Uses the icon of the totem being shown instead of a status bar."],
 								arg = "totemBar.icon",
 							},
+							--secure = {
+							--	order = 3,
+							--	type = "toggle",
+							--	name = L["Dismissable totems bars"],
+							--	desc = function(info)
+							--		return L["Allows you to disable the totem by right clicking it.|n|nWarning: Inner bars for this unit will not resize in combat if you enable this."]
+							--	end,
+							--	arg = "totemBar.secure",
+							--},
 						},
 					},
 					emptyBar = {

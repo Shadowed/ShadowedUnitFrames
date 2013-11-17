@@ -27,7 +27,7 @@ function Totems:OnEnable(frame)
 	if( not frame.totemBar ) then
 		frame.totemBar = CreateFrame("Frame", nil, frame)
 		frame.totemBar.totems = {}
-		
+
 		local priorities = (select(2, UnitClass("player")) == "SHAMAN") and SHAMAN_TOTEM_PRIORITIES or STANDARD_TOTEM_PRIORITIES
 		
 		for id=1, MAX_TOTEMS do
@@ -76,34 +76,47 @@ function Totems:OnDisable(frame)
 end
 
 function Totems:OnLayoutApplied(frame)
-	if( frame.visibility.totemBar ) then
-		if( playerClass == "DRUID" ) then
-			MAX_TOTEMS = GetSpecialization() == 4 and 1 or 3
-		end
-		
-		local barWidth = (frame.totemBar:GetWidth() - (MAX_TOTEMS - 1)) / MAX_TOTEMS
-		
-		for _, totem in pairs(frame.totemBar.totems) do
-			totem:SetHeight(frame.totemBar:GetHeight())
-			totem:SetWidth(barWidth)
-			totem:SetOrientation(ShadowUF.db.profile.units[frame.unitType].totemBar.vertical and "VERTICAL" or "HORIZONTAL")
-			totem:SetReverseFill(ShadowUF.db.profile.units[frame.unitType].totemBar.reverse and true or false)
-			totem:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
-			totem:GetStatusBarTexture():SetHorizTile(false)
+	if( not frame.visibility.totemBar ) then return end
 
-			totem.background:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
-
-			if( ShadowUF.db.profile.units[frame.unitType].totemBar.background or ShadowUF.db.profile.units[frame.unitType].totemBar.invert ) then
-				totem.background:Show()
-			else
-				totem.background:Hide()
-			end
-
-			frame:SetBlockColor(totem, "totemBar", totemColors[totem.id].r, totemColors[totem.id].g, totemColors[totem.id].b)
-		end
-
-		self:Update(frame)
+	if( playerClass == "DRUID" ) then
+		MAX_TOTEMS = GetSpecialization() == 4 and 1 or 3
 	end
+	
+	local barWidth = (frame.totemBar:GetWidth() - (MAX_TOTEMS - 1)) / MAX_TOTEMS
+	local config = ShadowUF.db.profile.units[frame.unitType].totemBar
+
+	for _, totem in pairs(frame.totemBar.totems) do
+		totem:SetHeight(frame.totemBar:GetHeight())
+		totem:SetWidth(barWidth)
+		totem:SetOrientation(ShadowUF.db.profile.units[frame.unitType].totemBar.vertical and "VERTICAL" or "HORIZONTAL")
+		totem:SetReverseFill(ShadowUF.db.profile.units[frame.unitType].totemBar.reverse and true or false)
+		totem:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
+		totem:GetStatusBarTexture():SetHorizTile(false)
+
+		totem.background:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
+
+		if( config.background or config.invert ) then
+			totem.background:Show()
+		else
+			totem.background:Hide()
+		end
+
+		frame:SetBlockColor(totem, "totemBar", totemColors[totem.id].r, totemColors[totem.id].g, totemColors[totem.id].b)
+
+		if( config.secure ) then
+			totem.secure = totem.secure or CreateFrame("Button", frame:GetName() .. "Secure" .. totem.id, totem, "SecureUnitButtonTemplate")
+			totem.secure:RegisterForClicks("RightButtonUp")
+			totem.secure:SetAllPoints(totem)
+			totem.secure:SetAttribute("type2", "macro")
+			totem.secure:SetAttribute("macrotext2", "/click TotemFrameTotem" .. totem.id .. " RightButton")
+			totem.secure:Show()
+
+		elseif( totem.secure ) then
+			totem.secure:Hide()
+		end
+	end
+
+	self:Update(frame)
 end
 
 local function totemMonitor(self, elapsed)
