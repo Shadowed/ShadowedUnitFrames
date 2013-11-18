@@ -1013,6 +1013,14 @@ Tags.defaultTags = {
 	    local absorb = UnitGetTotalAbsorbs(unit)
 		return absorb and absorb > 0 and string.format("+%d", absorb) or ShadowUF.tagFunc.name(unit, unitOwner, fontString)
 	end]],
+	["abs:healabsorb"] = [[function(unit, unitOwner, fontString)
+	    local absorb = UnitGetTotalHealAbsorbs(unit) 
+		return absorb and absorb > 0 and string.format("%d", absorb)
+	end]],
+	["healabsorb"] = [[function(unit, unitOwner, fontString)
+	    local absorb = UnitGetTotalHealAbsorbs(unit)
+		return absorb and absorb > 0 and ShadowUF:FormatLargeNumber(absorb)
+	end]],
 	["unit:raid:targeting"] = [[function(unit, unitOwner, fontString)
 		if( GetNumGroupMembers() == 0 ) then return nil end
 		local guid = UnitGUID(unit)
@@ -1056,6 +1064,8 @@ Tags.defaultEvents = {
 	["abs:incabsorb"]			= "UNIT_ABSORB_AMOUNT_CHANGED",
 	["incabsorb"]				= "UNIT_ABSORB_AMOUNT_CHANGED",
 	["incabsorb:name"]			= "UNIT_ABSORB_AMOUNT_CHANGED",
+	["abs:healabsorb"]			= "UNIT_HEAL_ABSORB_AMOUNT_CHANGED",
+	["healabsorb"]				= "UNIT_HEAL_ABSORB_AMOUNT_CHANGED",
 	-- ["crtabs"]				= "CRTABS",
 	-- ["abs:crtabs"]			= "CRTABS",
 	-- ["crtabs:name"]			= "CRTABS",
@@ -1240,6 +1250,8 @@ Tags.defaultHelp = {
 	["per:incheal"]				= L["Percent of the players current health that's being healed, if they have 100,000 total health and 15,000 is incoming then 15% is shown."],
 	["abs:incheal"]				= L["Absolute incoming heal value, if 10,000 healing is incoming it will show 10,000."],
 	["incheal"]					= L["Shorten incoming heal value, if 13,000 healing is incoming it will show 13k."],
+	["abs:healabsorb"]			= L["Absolute heal absorb value, if 16,000 healing will be absorbed, it will show 16,000."],
+	["healabsorb"]				= L["Shorten heal absorb value, if 17,000 healing will be absorbed, it will show 17k."],
 	["incheal:name"]			= L["If the unit has heals incoming, it will show the absolute incoming heal value, otherwise it will show the units name."],
 	["smart:curmaxhp"]			= L["Smart number formating for [curmaxhp], numbers below 1,000,000 are left as is, numbers above 1,000,000 will use the short version such as 1m."],
 	["smart:curmaxpp"]			= L["Smart number formating for [curmaxpp], numbers below 1,000,000 are left as is, numbers above 1,000,000 will use the short version such as 1m."],
@@ -1325,6 +1337,8 @@ Tags.defaultNames = {
 	["incabsorb:name"]			= L["Damage absorption/Name"],
 	["per:incheal"]				= L["Incoming heal (Percent)"],
 	["incheal:name"]			= L["Incoming heal/Name"],
+	["abs:healabsorb"]			= L["Heal Absorb (Absolute)"],
+	["healabsorb"]				= L["Heal Absorb (Short)"],
 	["unit:scaled:threat"]		= L["Unit scaled threat"],
 	["unit:color:sit"]			= L["Unit colored situation"],
 	["unit:situation"]			= L["Unit situation name"],

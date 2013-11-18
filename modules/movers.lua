@@ -55,6 +55,9 @@ local function createConfigEnv()
 
 			return getValue("UnitPower", unit, math.random(20000, 50000))
 		end,
+		UnitGetTotalHealAbsorbs = function(unit)
+			return getValue("UnitGetTotalHealAbsorbs", unit, math.random(5000, 10000))
+		end,
 		UnitGetIncomingHeals = function(unit)
 			return getValue("UnitGetIncomingHeals", unit, math.random(10000, 15000))
 		end,

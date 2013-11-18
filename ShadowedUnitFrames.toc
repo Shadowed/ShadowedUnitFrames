@@ -44,6 +44,7 @@ modules\fader.lua
 modules\combopoints.lua
 modules\incheal.lua
 modules\incabsorb.lua
+modules\healabsorb.lua
 modules\range.lua
 modules\empty.lua
 modules\druid.lua

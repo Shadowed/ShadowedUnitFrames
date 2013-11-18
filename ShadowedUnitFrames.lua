@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 35
+ShadowUF.dbRevision = 37
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -102,6 +102,10 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 37 ) then
+		self.db.profile.healthColors.healAbsorb = {r = 0.68, g = 0.47, b = 1}
+	end
+
 	if( revision <= 34 ) then
 		self.db.profile.units.player.staggerBar = {enabled = true, background = true, height = 0.30, order = 70}
 		self.db.profile.powerColors.STAGGER_GREEN = {r = 0.52, g = 1.0, b = 0.52}
@@ -369,6 +373,7 @@ function ShadowUF:LoadUnitDefaults()
 			emptyBar = {enabled = false},
 			portrait = {enabled = false},
 			castBar = {enabled = false, name = {}, time = {}},
+			healAbsorb = {enabled = true, cap = 1.30},
 			text = {
 				{enabled = true, name = L["Left text"], text = "[name]", anchorPoint = "C", anchorTo = "$healthBar", size = 0},
 				{enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorPoint = "C", anchorTo = "$healthBar", size = 0},

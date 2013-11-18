@@ -218,7 +218,7 @@ local function setVariable(unit, moduleKey, moduleSubKey, key, value)
 end
 
 local function specialRestricted(unit, moduleKey, moduleSubKey, key)
-	if( ShadowUF.fakeUnits[unit] and ( key == "colorAggro" or key == "aggro" or moduleKey == "incHeal" or moduleKey == "incAbsorb" or moduleKey == "castBar" ) ) then
+	if( ShadowUF.fakeUnits[unit] and ( key == "colorAggro" or key == "aggro" or moduleKey == "incHeal" or moduleKey == "healAbsorb" or moduleKey == "incAbsorb" or moduleKey == "castBar" ) ) then
 		return true
 	elseif( moduleKey == "healthBar" and unit == "player" and key == "reaction" ) then
 		return true
@@ -295,7 +295,7 @@ local function hideRestrictedOption(info)
 	local key = info[#(info)]
 	if( ShadowUF.modules[key] and ShadowUF.modules[key].moduleClass and ShadowUF.modules[key].moduleClass ~= playerClass ) then
 		return true
-	elseif( ( key == "incHeal" and not ShadowUF.modules.incHeal ) or ( key == "incAbsorb" and not ShadowUF.modules.incAbsorb  ) )  then
+	elseif( ( key == "incHeal" and not ShadowUF.modules.incHeal ) or ( key == "incAbsorb" and not ShadowUF.modules.incAbsorb ) or ( key == "healAbsorb" and not ShadowUF.modules.healAbsorb ) )  then
 		return true
 	-- Non-standard units do not support color by aggro or incoming heal
 	elseif( key == "colorAggro" or key == "incHeal" or key == "incAbsorb" or key == "aggro" ) then
@@ -575,7 +575,7 @@ local function loadGeneralOptions()
 							
 							-- Strip module settings that aren't with SUF by default
 							if( not layoutData.modules ) then
-								local validModules = {["healthBar"] = true, ["powerBar"] = true, ["portrait"] = true, ["range"] = true, ["text"] = true, ["indicators"] = true, ["auras"] = true, ["incAbsorb"] = true, ["incHeal"] = true, ["castBar"] = true, ["combatText"] = true, ["highlight"] = true, ["runeBar"] = true, ["totemBar"] = true, ["xpBar"] = true, ["fader"] = true, ["comboPoints"] = true, ["eclipseBar"] = true, ["soulShards"] = true, ["holyPower"] = true, ["altPowerBar"] = true, ["demonicFuryBar"] = true, ["burningEmbersBar"] = true, ["chi"] = true, ["shadowOrbs"] = true, ["auraPoints"] = true, ["staggerBar"] = true}
+								local validModules = {["healthBar"] = true, ["powerBar"] = true, ["portrait"] = true, ["range"] = true, ["text"] = true, ["indicators"] = true, ["auras"] = true, ["incAbsorb"] = true, ["healAbsorb"] = true, ["incHeal"] = true, ["castBar"] = true, ["combatText"] = true, ["highlight"] = true, ["runeBar"] = true, ["totemBar"] = true, ["xpBar"] = true, ["fader"] = true, ["comboPoints"] = true, ["eclipseBar"] = true, ["soulShards"] = true, ["holyPower"] = true, ["altPowerBar"] = true, ["demonicFuryBar"] = true, ["burningEmbersBar"] = true, ["chi"] = true, ["shadowOrbs"] = true, ["auraPoints"] = true, ["staggerBar"] = true}
 								for _, unitData in pairs(layout.units) do
 									for key, data in pairs(unitData) do
 										if( type(data) == "table" and not validModules[key] and ShadowUF.modules[key] ) then
@@ -1046,8 +1046,15 @@ local function loadGeneralOptions()
 								desc = L["Color to use to show how much damage will be absorbed."],
 								arg = "healthColors.incAbsorb",
 							},
-							enemyUnattack = {
+							healAbsorb = {
 								order = 10,
+								type = "color",
+								name = L["Heal absorb"],
+								desc = L["Color to use to show how much healing will e absorbed."],
+								arg = "healthColors.healAbsorb",
+							},
+							enemyUnattack = {
+								order = 11,
 								type = "color",
 								name = L["Unattackable hostile"],
 								desc = L["Health bar color to use for hostile units who you cannot attack, used for reaction coloring."],
@@ -3956,6 +3963,37 @@ local function loadUnitOptions()
 								desc = L["Changes the health bar to the set hostile color (Red by default) when the unit takes aggro."],
 								arg = "healthBar.colorAggro",
 								hidden = hideRestrictedOption,
+							},
+						},
+					},
+					healAbsorb = {
+						order = 2.5,
+						type = "group",
+						inline = true,
+						name = L["Heal absorbs"],
+						hidden = function(info) return ShadowUF.Units.zoneUnits[info[2]] or hideRestrictedOption(info) end,
+						disabled = function(info) return not getVariable(info[2], "healthBar", nil, "enabled") end,
+						args = {
+							heals = {
+								order = 1,
+								type = "toggle",
+								name = L["Show Heal Absorbs"],
+								desc = L["Adds a bar inside the health bar indicating how much healing will be absorbed and not applied to the player."],
+								arg = "healAbsorb.enabled",
+								hidden = false,
+								set = function(info, value)
+									setUnit(info, value)
+									setDirectUnit(info[2], "healAbsorb", nil, "enabled", getVariable(info[2], "healAbsorb", nil, "enabled"))
+								end
+							},
+							cap = {
+								order = 3,
+								type = "range",
+								name = L["Outside bar limit"],
+								desc = L["Percentage value of how far outside the unit frame the absorbed health bar can go. 130% means it will go 30% outside the frame, 100% means it will not go outside."],
+								min = 1, max = 1.50, step = 0.05, isPercent = true,
+								arg = "healAbsorb.cap",
+								hidden = false,
 							},
 						},
 					},

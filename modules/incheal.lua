@@ -1,4 +1,4 @@
-local IncHeal = {["frameKey"] = "incHeal", ["colorKey"] = "inc", ["frameLevelMod"] = 1}
+local IncHeal = {["frameKey"] = "incHeal", ["colorKey"] = "inc", ["frameLevelMod"] = 2}
 ShadowUF.IncHeal = IncHeal
 ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUF.L["Incoming heals"])
 
@@ -9,7 +9,7 @@ function IncHeal:OnEnable(frame)
 	frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
 	frame:RegisterUnitEvent("UNIT_HEALTH_FREQUENT", self, "UpdateFrame")
 	frame:RegisterUnitEvent("UNIT_HEAL_PREDICTION", self, "UpdateFrame")
-	
+
 	frame:RegisterUpdateFunc(self, "UpdateFrame")
 end
 
@@ -21,6 +21,12 @@ end
 function IncHeal:OnLayoutApplied(frame)
 	local bar = frame[self.frameKey]
 	if( not frame.visibility[self.frameKey] or not frame.visibility.healthBar ) then return end
+
+	if( frame.visibility.healAbsorb ) then
+		frame:RegisterUnitEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", self, "UpdateFrame")
+	else
+		frame:UnregisterSingleEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", self, "UpdateFrame")
+	end
 
 	-- Since we're hiding, reset state
 	bar.total = nil
@@ -126,5 +132,11 @@ end
 
 function IncHeal:UpdateFrame(frame)
 	if( not frame.visibility[self.frameKey] or not frame.visibility.healthBar ) then return end
-	self:PositionBar(frame, UnitGetIncomingHeals(frame.unit) or 0)
+	
+	local amount = UnitGetIncomingHeals(frame.unit) or 0
+	if( amount > 0 and frame.visibility.healAbsorb ) then
+		amount = amount + (UnitGetTotalHealAbsorbs(frame.unit) or 0)
+	end
+
+	self:PositionBar(frame, amount)
 end
