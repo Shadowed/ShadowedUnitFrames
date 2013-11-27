@@ -101,7 +101,9 @@ function Totems:OnLayoutApplied(frame)
 			totem.background:Hide()
 		end
 
-		frame:SetBlockColor(totem, "totemBar", totemColors[totem.id].r, totemColors[totem.id].g, totemColors[totem.id].b)
+		if( not ShadowUF.db.profile.units[frame.unitType].totemBar.icon ) then
+			frame:SetBlockColor(totem, "totemBar", totemColors[totem.id].r, totemColors[totem.id].g, totemColors[totem.id].b)
+		end
 
 		if( config.secure ) then
 			totem.secure = totem.secure or CreateFrame("Button", frame:GetName() .. "Secure" .. totem.id, totem, "SecureUnitButtonTemplate")
