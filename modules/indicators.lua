@@ -122,7 +122,7 @@ function Indicators:UpdateLeader(frame)
 
 		frame.indicators.leader:Show()
 
-	elseif( UnitIsGroupAssistant(frame.unit) or IsEveryoneAssistant() ) then
+	elseif( UnitIsGroupAssistant(frame.unit) or ( UnitInRaid(frame.unit) and IsEveryoneAssistant() ) ) then
 		frame.indicators.leader:SetTexture("Interface\\GroupFrame\\UI-Group-AssistantIcon")
 		frame.indicators.leader:SetTexCoord(0, 1, 0, 1)
 		frame.indicators.leader:Show()
