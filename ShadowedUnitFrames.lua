@@ -50,7 +50,10 @@ function ShadowUF:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileChanged", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnProfileCopied", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "ProfileReset")
-		
+
+	local LibDualSpec = LibStub("LibDualSpec-1.0")
+	LibDualSpec:EnhanceDatabase(self.db, "ShadowedUnitFrames")
+
 	-- Setup tag cache
 	self.tagFunc = setmetatable({}, {
 		__index = function(tbl, index)
@@ -818,11 +821,11 @@ local infoMessages = {
 		L["As of SUF v3.9, a bunch of new features and units have been added.|n"],
 		L["- Totem/Rune bars now have timers indicating time to refres/expire"],
 		L["- Monk Stagger now shows the amount of staggered damage"],
-		L["- Boss ToT, Main Assist ToT, Main Tank ToT, Party ToT, Battleground ToT, Arena ToT units have been added!"],
+		L["- Boss ToT, Main Assist ToT, Main Tank ToT, Party ToT, Battleground ToT and Arena ToT units have been added!"],
 		L["- Added absorb shield tags"],
 		L["- Added Ancient Kings bar for Paladins"],
 		L["- And more! See the change log for everything that has changed."],
-		L["You can disable the new text for Monk Stagger, Totem and Rune timers through /suf -> Unit configuration -> Text/Tags"]
+		L["|nYou can disable the new text for Monk Stagger, Totem and Rune timers through /suf -> Unit configuration -> Text/Tags"]
 	}
 }
 

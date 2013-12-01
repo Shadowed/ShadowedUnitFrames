@@ -1482,6 +1482,9 @@ local function loadGeneralOptions()
 	options.args.general.args.color.args.classColors.args.VEHICLE = Config.classTable
 	
 	options.args.general.args.profile.order = 4
+
+	local LibDualSpec = LibStub("LibDualSpec-1.0")
+	LibDualSpec:EnhanceOptions(options.args.general.args.profile, ShadowUF.db)
 end
 
 ---------------------
