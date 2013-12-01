@@ -49,7 +49,7 @@ local INDICATOR_DESC = {
 		["raidTarget"] = L["Raid target indicator."], ["ready"] = L["Ready status of group members."], ["phase"] = L["Shows when a party member is in a different phase or another group."],
 		["questBoss"] = L["Shows that a NPC is a boss for a quest."], ["petBattle"] = L["Shows what kind of pet the unit is for pet battles."],
 		["role"] = L["Raid role indicator, adds a shield indicator for main tanks and a sword icon for main assists."], ["status"] = L["Status indicator, shows if the unit is currently in combat. For the player it will also show if you are rested."], ["class"] = L["Class icon for players."]}
-local TAG_GROUPS = {["classification"] = L["Classifications"], ["health"] = L["Health"], ["misc"] = L["Miscellaneous"], ["playerthreat"] = L["Player threat"], ["power"] = L["Power"], ["status"] = L["Status"], ["threat"] = L["Threat"], ["raid"] = L["Raid"], ["classspec"] = L["Class Specific"]}
+local TAG_GROUPS = {["classification"] = L["Classifications"], ["health"] = L["Health"], ["misc"] = L["Miscellaneous"], ["playerthreat"] = L["Player threat"], ["power"] = L["Power"], ["status"] = L["Status"], ["threat"] = L["Threat"], ["raid"] = L["Raid"], ["classspec"] = L["Class Specific"], ["classtimer"] = L["Class Timer"]}
 
 local pointPositions = {["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["TOPLEFT"] = L["Top Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["CENTER"] = L["Center"]}
 local positionList = {["C"] = L["Center"], ["RT"] = L["Right Top"], ["RC"] = L["Right Center"], ["RB"] = L["Right Bottom"], ["LT"] = L["Left Top"], ["LC"] = L["Left Center"], ["LB"] = L["Left Bottom"], ["BL"] = L["Bottom Left"], ["BC"] = L["Bottom Center"], ["BR"] = L["Bottom Right"], ["TR"] = L["Top Right"], ["TC"] = L["Top Center"], ["TL"] = L["Top Left"]}
@@ -419,7 +419,16 @@ local function loadGeneralOptions()
 			if( not getVariable("player", "text", nil, id) ) then return true end
 			return getVariable("player", "text", id, "anchorTo") ~= info[#(info) - 1]
 		end,
-		disabled = function(info) return tonumber(info[#(info)]) <= 5 end,
+		disabled = function(info)
+			local id = tonumber(info[#(info)])
+			for _, unit in pairs(ShadowUF.unitList) do
+				if( ShadowUF.db.profile.units[unit].text[id] and ShadowUF.db.profile.units[unit].text[id].default ) then
+					return true
+				end
+			end
+
+			return false
+		end,		
 		confirmText = L["Are you sure you want to delete this text? All settings for it will be deleted."],
 		confirm = true,
 		func = function(info)
@@ -1444,7 +1453,7 @@ local function loadGeneralOptions()
 	
 	-- Load text
 	for id, text in pairs(ShadowUF.db.profile.units.player.text) do
-		if( text.anchorTo ~= "" ) then
+		if( text.anchorTo ~= "" and not text.default ) then
 			addTextParent.args[id .. ":label"] = addTextLabel
 			addTextParent.args[tostring(id)] = addText
 			addTextParent.args[id .. ":sep"] = addTextSep
@@ -1646,7 +1655,7 @@ local function loadUnitOptions()
 		-- Load tag list
 		Config.advanceTextTable = {
 			order = 1,
-			name = function(info) return getVariable(info[2], "text", quickIDMap[info[#(info)]], "name")  end,
+			name = function(info) return getVariable(info[2], "text", quickIDMap[info[#(info)]], "name") end,
 			type = "group",
 			inline = true,
 			hidden = function(info)
@@ -1682,7 +1691,9 @@ local function loadUnitOptions()
 					desc = L["How much weight this should use when figuring out the total text width."],
 					type = "range",
 					min = 0, max = 10, step = 0.1,
-					hidden = false,
+					hidden = function(info)
+						return hideAdvancedOption(info) or getVariable(info[2], "text", quickIDMap[info[#(info) - 1]], "block")
+					end,
 				},
 				size = {
 					order = 4,
@@ -1691,6 +1702,15 @@ local function loadUnitOptions()
 					type = "range",
 					min = -20, max = 20, step = 1, softMin = -5, softMax = 5,
 					hidden = false,
+				},
+				sep2 = {
+					order = 4.5,
+					type = "description",
+					name = "",
+					width = "full",
+					hidden = function(info)
+						return hideAdvancedOption(info) or not getVariable(info[2], "text", quickIDMap[info[#(info) - 1]], "block")
+					end
 				},
 				x = {
 					order = 5,
@@ -1720,7 +1740,9 @@ local function loadUnitOptions()
 		
 		local function hideBlacklistedTag(info)
 			local unit = info[2]
+			local id = tonumber(info[#(info) - 2])
 			local tag = info[#(info)]
+			local cat = info[#(info) - 1]
 			
 			if( unit == "global" ) then
 				for unit in pairs(modifyUnits) do
@@ -1729,9 +1751,16 @@ local function loadUnitOptions()
 					end
 				end
 			end
-			
+
 			if( ShadowUF.Tags.unitRestrictions[tag] and ShadowUF.Tags.unitRestrictions[tag] ~= unit ) then
 				return true
+			
+			elseif( ShadowUF.Tags.anchorRestriction[tag] ) then
+				if( ShadowUF.Tags.anchorRestriction[tag] ~= getVariable(unit, "text", id, "anchorTo") ) then
+					return true
+				else
+					return false
+				end
 			end
 
 			return false
@@ -1739,7 +1768,9 @@ local function loadUnitOptions()
 		
 		local function hideBlacklistedGroup(info)
 			local unit = info[2]
+			local id = tonumber(info[#(info) - 1])
 			local tagGroup = info[#(info)]
+
 			if( unit ~= "global" ) then
 				if( ShadowUF.Tags.unitBlacklist[tagGroup] and string.match(unit, ShadowUF.Tags.unitBlacklist[tagGroup]) ) then
 					return true
@@ -1751,6 +1782,11 @@ local function loadUnitOptions()
 						return false
 					end
 				end
+			end
+
+			local block = getVariable(unit, "text", id, "block")
+			if( ( block and tagGroup ~= "classtimer" ) or ( not block and tagGroup == "classtimer" ) ) then
+				return true
 			end
 			
 			return false

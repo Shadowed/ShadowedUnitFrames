@@ -397,6 +397,14 @@ Druid.FlightForm = GetSpellInfo(33943)
 ShadowUF.Druid = Druid
 
 Tags.defaultTags = {
+	["rune:timer"] = [[function(unit, unitOwner, fontString)
+		local endTime = fontString.block.endTime
+		return endTime and string.format("%.1f", endTime - GetTime()) or nil
+	end]],
+	["totem:timer"] = [[function(unit, unitOwner, fontString)
+		local endTime = fontString.block.endTime
+		return endTime and string.format("%.1f", endTime - GetTime()) or nil
+	end]],
 	["hp:color"] = [[function(unit, unitOwner)
 		return ShadowUF:Hex(ShadowUF.modules.healthBar.getGradientColor(unit))
 	end]],
@@ -1053,6 +1061,8 @@ Tags.defaultTags = {
 
 -- Default tag events
 Tags.defaultEvents = {
+	["totem:timer"]				= "SUF_TOTEM_TIMER",
+	["rune:timer"]				= "SUF_RUNE_TIMER",
 	["hp:color"]				= "UNIT_HEALTH UNIT_HEALTH_FREQUENT UNIT_MAXHEALTH",
 	["short:druidform"]			= "UNIT_AURA",
 	["druidform"]				= "UNIT_AURA",
@@ -1144,11 +1154,13 @@ Tags.defaultFrequents = {
 	["scaled:threat"] = 1,
 	["unit:scaled:threat"] = 1,
 	["unit:raid:targeting"] = 0.50,
-	["unit:raid:assist"] = 0.50,
+	["unit:raid:assist"] = 0.50
 }
 
 -- Default tag categories
 Tags.defaultCategories = {
+	["totem:timer"]				= "classtimer",
+	["rune:timer"]				= "classtimer",
 	["hp:color"]				= "health",
 	["abs:incabsorb"]			= "health",
 	["incabsorb"]				= "health",
@@ -1240,6 +1252,8 @@ Tags.defaultCategories = {
 	
 -- Default tag help
 Tags.defaultHelp = {
+	["totem:timer"]				= L["How many seconds a totem has left before disappearing."],
+	["rune:timer"]				= L["How many seconds before a rune recharges."],
 	["abs:incabsorb"]			= L["Absolute damage absorption value on the unit, if 10,000 damage will be absorbed, it will show 10,000."],
 	["incabsorb"]				= L["Shorten damage absorption, if 13,000 damage will e absorbed, it will show 13k."],
 	["incabsorb:name"]			= L["If the unit has a damage absorption shield on them, it will show the absolute absorb value, otherwise the units name."],
@@ -1332,6 +1346,8 @@ Tags.defaultHelp = {
 }
 
 Tags.defaultNames = {
+	["totem:timer"]				= L["Totem Timer"],
+	["rune:timer"]				= L["Rune Timer"],
 	["abs:incabsorb"]			= L["Damage absorption (Absolute)"],
 	["incabsorb"]				= L["Damage absorption (Short)"],
 	["incabsorb:name"]			= L["Damage absorption/Name"],
@@ -1452,6 +1468,13 @@ Tags.unitBlacklist = {
 -- Single tags that can only be used on a single unit
 Tags.unitRestrictions = {
 	["pvp:time"] = "player",	
+	["totem:timer"] = "player",
+	["rune:timer"] = "player"
+}
+
+Tags.anchorRestriction = {
+	["totem:timer"] = "$totemBar",
+	["rune:timer"] = "$runeBar"
 }
 
 -- Event scanner to automatically figure out what events a tag will need

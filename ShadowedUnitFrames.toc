@@ -24,6 +24,7 @@ localization\zhCN.lua
 localization\zhTW.lua
 
 ShadowedUnitFrames.lua
+modules\helpers.lua
 modules\units.lua
 modules\layout.lua
 modules\movers.lua

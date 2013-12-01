@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 37
+ShadowUF.dbRevision = 39
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -89,19 +89,26 @@ function ShadowUF:CheckBuild()
 	local build = select(4, GetBuildInfo())
 	if( self.db.profile.wowBuild == build ) then return end
 
-	if( build == 50200 ) then
-		self:Print("NOTE! As of 5.2.0, you can now use menus to perform secure actions such as Set/Clear Focus or reporting.")
-		self:Print("SUF has been tested and confirmed to work with this setup. If menus do not show up, you may need to update Clique.")
-		self:Print("If you still get action blocked issues, it is another addons fault and you should yell at that author for doing something bad.")
-		self:Print("Raid dropdowns will still cause action blocked issues due to a bug with the toggle system unfortunately.")
-	end
+	-- Nothing to add here right now
 
 	self.db.profile.wowBuild = build
 end
 
-
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 38 ) then
+		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Timer Text"], text = "", anchorTo = "$runeBar", anchorPoint = "C", size = 0, x = 0, y = 0, default = true, block = true})
+		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Timer Text"], text = "", anchorTo = "$totemBar", anchorPoint = "C", size = 0, x = 0, y = 0, default = true, block = true})
+
+		for _, config in pairs(self.db.profile.units) do
+			for id, text in pairs(config.text) do
+				if( id <= 5 ) then
+					text.default = true
+				end
+			end
+		end
+	end
+
 	if( revision <= 37 ) then
 		self.db.profile.healthColors.healAbsorb = {r = 0.68, g = 0.47, b = 1}
 	end
@@ -191,7 +198,7 @@ function ShadowUF:CheckUpgrade()
 	end
 
 	if( revision <= 25 ) then
-		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Text"], text = "[druid:eclipse]", anchorTo = "$eclipseBar", anchorPoint = "CLI", size = -1, x = 0, y = 0})
+		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Text"], text = "[druid:eclipse]", anchorTo = "$eclipseBar", anchorPoint = "CLI", size = -1, x = 0, y = 0, default = true})
 	end
 
 	if( revision <= 24 ) then
@@ -231,7 +238,7 @@ function ShadowUF:CheckUpgrade()
 	
 	if( revision <= 19 ) then
 		self.db.profile.units.pet.altPowerBar.enabled = true
-		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Text"], text = "[warlock:demonic:curpp]", anchorTo = "$demonicFuryBar", anchorPoint = "C", size = -1, x = 0, y = 0})
+		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Text"], text = "[warlock:demonic:curpp]", anchorTo = "$demonicFuryBar", anchorPoint = "C", size = -1, x = 0, y = 0, default = true})
 	end
 
 	if( revision <= 18 ) then
@@ -447,8 +454,10 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.chi = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.indicators.lfdRole = {enabled = true, size = 0, x = 0, y = 0}
 	self.defaults.profile.units.player.auraPoints = {enabled = false, isBar = true}
-	table.insert(self.defaults.profile.units.player.text, {enabled = false, text = "", anchorTo = "", anchorPoint = "C", size = 0, x = 0, y = 0})
-	table.insert(self.defaults.profile.units.player.text, {enabled = false, text = "", anchorTo = "", anchorPoint = "C", size = 0, x = 0, y = 0})
+	table.insert(self.defaults.profile.units.player.text, {enabled = true, text = "", anchorTo = "", anchorPoint = "C", size = 0, x = 0, y = 0, default = true})
+	table.insert(self.defaults.profile.units.player.text, {enabled = true, text = "", anchorTo = "", anchorPoint = "C", size = 0, x = 0, y = 0, default = true})
+	table.insert(self.defaults.profile.units.player.text, {enabled = true, text = "", anchorTo = "", anchorPoint = "C", size = 0, x = 0, y = 0, default = true})
+	table.insert(self.defaults.profile.units.player.text, {enabled = true, text = "", anchorTo = "", anchorPoint = "C", size = 0, x = 0, y = 0, default = true})
 
     -- PET
 	self.defaults.profile.units.pet.enabled = true

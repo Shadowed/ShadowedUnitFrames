@@ -295,6 +295,10 @@ function Layout:AnchorFrame(parent, frame, config)
 			return
 		end
 	end
+
+	if( config.block ) then
+		anchorTo = anchorTo.blocks[frame.blockID]
+	end
 	
 	-- Figure out where it's anchored
 	local point = config.point and config.point ~= "" and config.point or preDefPoint[config.anchorPoint] or "CENTER"
@@ -410,6 +414,38 @@ function Layout:SetupFontString(fontString, extraSize)
 end
 
 local totalWeight = {}
+function Layout:InitFontString(parent, frame, id, config, blockID)
+	local rowID = blockID and tonumber(id .. "." .. blockID) or id
+
+	local fontString = frame.fontStrings[rowID] or frame.highFrame:CreateFontString(nil, "ARTWORK")
+	fontString.configID = id
+	if( blockID ) then
+		fontString.blockID = blockID
+		fontString.block = parent.blocks[blockID]
+	end
+
+	self:SetupFontString(fontString, config.size)
+	fontString:SetTextColor(ShadowUF.db.profile.font.color.r, ShadowUF.db.profile.font.color.g, ShadowUF.db.profile.font.color.b, ShadowUF.db.profile.font.color.a)
+	fontString:SetText(config.text)
+	fontString:SetJustifyH(self:GetJustify(config))
+	self:AnchorFrame(frame, fontString, config)
+
+	-- We figure out the anchor point so we can put text in the same area with the same width requirements
+	local anchorPoint = columnDirection[config.anchorPoint]
+	if( string.len(config.anchorPoint) == 3 ) then anchorPoint = anchorPoint .. "I" end
+
+	fontString.parentBar = parent
+	fontString.availableWidth = parent:GetWidth() - config.x
+	fontString.widthID = config.anchorTo .. anchorPoint .. config.y
+	totalWeight[fontString.widthID] = (totalWeight[fontString.widthID] or 0) + config.width
+
+	ShadowUF.Tags:Register(frame, fontString, config.text)
+	fontString:UpdateTags()
+	fontString:Show()
+
+	frame.fontStrings[rowID] = fontString
+end	
+
 function Layout:SetupText(frame, config)
 	-- Update tag text
 	frame.fontStrings = frame.fontStrings or {}
@@ -425,32 +461,19 @@ function Layout:SetupText(frame, config)
 		local module = string.sub(row.anchorTo, 2)
 		local parent = row.anchorTo == "$parent" and frame or frame[module]
 		if( parent and ( ShadowUF.modules[module].defaultVisibility == false or parent:IsShown() ) and row.enabled and row.text ~= "" ) then
-			local fontString = frame.fontStrings[id] or frame.highFrame:CreateFontString(nil, "ARTWORK")
-			self:SetupFontString(fontString, row.size)
-			fontString:SetTextColor(ShadowUF.db.profile.font.color.r, ShadowUF.db.profile.font.color.g, ShadowUF.db.profile.font.color.b, ShadowUF.db.profile.font.color.a)
-			fontString:SetText(row.text)
-			fontString:SetJustifyH(self:GetJustify(row))
-			self:AnchorFrame(frame, fontString, row)
-			
-			-- We figure out the anchor point so we can put text in the same area with the same width requirements
-			local anchorPoint = columnDirection[row.anchorPoint]
-			if( string.len(row.anchorPoint) == 3 ) then anchorPoint = anchorPoint .. "I" end
-			
-			fontString.parentBar = parent
-			fontString.availableWidth = parent:GetWidth() - row.x
-			fontString.widthID = row.anchorTo .. anchorPoint .. row.y
-			totalWeight[fontString.widthID] = (totalWeight[fontString.widthID] or 0) + row.width
-			
-			ShadowUF.Tags:Register(frame, fontString, row.text)
-			fontString:UpdateTags()
-			fontString:Show()
-			
-			frame.fontStrings[id] = fontString
+			if( not row.block ) then
+				self:InitFontString(parent, frame, id, row, nil)
+			else
+				for blockID, block in pairs(parent.blocks) do
+					self:InitFontString(parent, frame, id, row, blockID)
+				end
+			end
 		end
 	end
 
 	-- Now set all of the width using our weightings
-	for id, fontString in pairs(frame.fontStrings) do
+	for _, fontString in pairs(frame.fontStrings) do
+		local id = fontString.configID
 		if( fontString:IsShown() ) then
 			fontString:SetWidth(fontString.availableWidth * (config.text[id].width / totalWeight[fontString.widthID]))
 			fontString:SetHeight(ShadowUF.db.profile.font.size + 1)

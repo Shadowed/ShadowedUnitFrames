@@ -23,10 +23,15 @@ else
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Totem bar"], true, "SHAMAN")
 end
 
+ShadowUF.BlockTimers:Inject(Totems, "TOTEM_TIMER")
+ShadowUF.DynamicBlocks:Inject(Totems)
+
+
 function Totems:OnEnable(frame)
 	if( not frame.totemBar ) then
 		frame.totemBar = CreateFrame("Frame", nil, frame)
 		frame.totemBar.totems = {}
+		frame.totemBar.blocks = frame.totemBar.totems
 
 		local priorities = (select(2, UnitClass("player")) == "SHAMAN") and SHAMAN_TOTEM_PRIORITIES or STANDARD_TOTEM_PRIORITIES
 		
@@ -35,6 +40,7 @@ function Totems:OnEnable(frame)
 			totem:SetMinMaxValues(0, 1)
 			totem:SetValue(0)
 			totem.id = MAX_TOTEMS == 1 and 1 or priorities[id]
+			totem.parent = frame
 			
 			if( id > 1 ) then
 				totem:SetPoint("TOPLEFT", frame.totemBar.totems[id - 1], "TOPRIGHT", 1, 0)
@@ -128,6 +134,15 @@ local function totemMonitor(self, elapsed)
 	if( time >= self.endTime ) then
 		self:SetValue(0)
 		self:SetScript("OnUpdate", nil)
+		self.endTime = nil
+
+		if( not self.parent.inVehicle and MAX_TOTEMS == 1 ) then
+			ShadowUF.Layout:SetBarVisibility(self.parent, "totemBar", false)
+		end
+	end
+
+	if( self.fontString ) then
+		self.fontString:UpdateTags()
 	end
 end
 
@@ -147,7 +162,6 @@ function Totems:Update(frame)
 	local totalActive = 0
 	for _, indicator in pairs(frame.totemBar.totems) do
 		local have, name, start, duration, icon = GetTotemInfo(indicator.id)
-
 		if( have and start > 0 ) then
 			if( ShadowUF.db.profile.units[frame.unitType].totemBar.icon ) then
 				indicator:SetStatusBarTexture(icon)
@@ -167,12 +181,16 @@ function Totems:Update(frame)
 			indicator:SetScript("OnUpdate", nil)
 			indicator:SetMinMaxValues(0, 1)
 			indicator:SetValue(0)
+			indicator.endTime = nil
+		end
+
+		if( self.fontString ) then
+			self.fontString:UpdateTags()
 		end
 	end
 	
 	if( not frame.inVehicle ) then
-		-- Guardian timers always auto hide
-		-- or if it's flagged to not always be shown
+		-- Guardian timers always auto hide or if it's flagged to not always be shown
 		if( MAX_TOTEMS == 1 or not ShadowUF.db.profile.units[frame.unitType].totemBar.showAlways ) then
 			ShadowUF.Layout:SetBarVisibility(frame, "totemBar", totalActive > 0)
 		end

@@ -2,6 +2,8 @@ local Runes = {}
 local RUNE_MAP = {[1] = 1, [2] = 2, [3] = 5, [4] = 6, [5] = 3, [6] = 4}
 local runeColors = {{r = 1, g = 0, b = 0.4}, {r = 0, g = 1, b = 0.4}, {r = 0, g = 0.4, b = 1}, {r = 0.7, g = 0.5, b = 1}}
 ShadowUF:RegisterModule(Runes, "runeBar", ShadowUF.L["Rune bar"], true, "DEATHKNIGHT")
+ShadowUF.BlockTimers:Inject(Runes, "RUNE_TIMER")
+ShadowUF.DynamicBlocks:Inject(Runes)
 
 function Runes:OnEnable(frame)
 	if( not frame.runeBar ) then
@@ -9,10 +11,12 @@ function Runes:OnEnable(frame)
 		frame.runeBar:SetMinMaxValues(0, 1)
 		frame.runeBar:SetValue(0)
 		frame.runeBar.runes = {}
+		frame.runeBar.blocks = frame.runeBar.runes
 		
 		for id=1, 6 do
 			local rune = ShadowUF.Units:CreateBar(frame.runeBar)
-			
+			rune.id = id
+
 			if( id > 1 ) then
 				rune:SetPoint("TOPLEFT", frame.runeBar.runes[RUNE_MAP[id - 1]], "TOPRIGHT", 1, 0)
 			else
@@ -34,34 +38,37 @@ function Runes:OnDisable(frame)
 end
 
 function Runes:OnLayoutApplied(frame)
-	if( frame.visibility.runeBar ) then
-		local barWidth = (frame.runeBar:GetWidth() - 5) / 6
-		
-		for id, rune in pairs(frame.runeBar.runes) do
-			if( ShadowUF.db.profile.units[frame.unitType].runeBar.background ) then
-				rune.background:Show()
-			else
-				rune.background:Hide()
-			end
-			
-			rune.background:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
-			rune.background:SetHorizTile(false)
-			rune:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
-			rune:GetStatusBarTexture():SetHorizTile(false)
-			rune:SetHeight(frame.runeBar:GetHeight())
-			rune:SetWidth(barWidth)
+	if( not frame.visibility.runeBar ) then return end
+
+	local barWidth = (frame.runeBar:GetWidth() - 5) / 6
+	for id, rune in pairs(frame.runeBar.runes) do
+		if( ShadowUF.db.profile.units[frame.unitType].runeBar.background ) then
+			rune.background:Show()
+		else
+			rune.background:Hide()
 		end
+		
+		rune.background:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
+		rune.background:SetHorizTile(false)
+		rune:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
+		rune:GetStatusBarTexture():SetHorizTile(false)
+		rune:SetWidth(barWidth)
 	end
 end
 
 local function runeMonitor(self, elapsed)
 	local time = GetTime()
 	self:SetValue(time)
-	
+
 	if( time >= self.endTime ) then
 		self:SetValue(self.endTime)
 		self:SetAlpha(1.0)
 		self:SetScript("OnUpdate", nil)
+		self.endTime = nil
+	end
+
+	if( self.fontString ) then
+		self.fontString:UpdateTags()
 	end
 end
 
@@ -87,6 +94,11 @@ function Runes:UpdateUsable(frame, event, id, usable)
 		rune:SetValue(1)
 		rune:SetAlpha(1.0)
 		rune:SetScript("OnUpdate", nil)
+		rune.endTime = nil
+	end
+
+	if( rune.fontString ) then
+		rune.fontString:UpdateTags()
 	end
 end
 
