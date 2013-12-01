@@ -209,20 +209,26 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		pettarget = {anchorPoint = "C", anchorTo = "UIParent", x = 0, y = 0}, 
 		partypet = {anchorPoint = "RB", anchorTo = "$parent", x = 0, y = 0},
 		partytarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
+		partytargettarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
 		raid = {anchorPoint = "C", anchorTo = "UIParent", x = 0, y = 0},
 		raidpet = {anchorPoint = "C", anchorTo = "UIParent", x = 0, y = 0},
 		maintank = {anchorPoint = "C", anchorTo = "UIParent", x = 0, y = 0},
 		maintanktarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
+		maintanktargettarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
 		mainassist = {anchorPoint = "C", anchorTo = "UIParent", x = 0, y = 0},
 		mainassisttarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
+		mainassisttargettarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
 		arena = {anchorPoint = "C", anchorTo = "UIParent", point = "", relativePoint = "", x = 0, y = 0},
 		arenapet = {anchorPoint = "RB", anchorTo = "$parent", x = 0, y = 0},
 		arenatarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
+		arenatargettarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
 		battleground = {anchorPoint = "C", anchorTo = "UIParent", point = "", relativePoint = "", x = 0, y = 0},
 		battlegroundpet = {anchorPoint = "RB", anchorTo = "$parent", x = 0, y = 0},
 		battlegroundtarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
+		battlegroundtargettarget = {anchorPoint = "RT", anchorTo = "$parent", x = 0, y = 0},
 		boss = {anchorPoint = "C", anchorTo = "UIParent", point = "", relativePoint = "", x = 0, y = 0},
 		bosstarget = {anchorPoint = "RB", anchorTo = "$parent", x = 0, y = 0},
+		bosstargettarget = {anchorPoint = "RB", anchorTo = "$parent", x = 0, y = 0},
 	}
 	
 	-- Parent unit options that all the children will inherit unless they override it
@@ -435,6 +441,20 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[name]"},
 			},
 		},
+		bosstargettarget = {
+			width = 90,
+			height = 25,
+			scale = 1.0,
+			healAbsorb = {cap = 1},
+			powerBar = {height = 0.60},
+			text = {
+				{text = "[name]"},
+				{text = "[curhp]"},
+				{text = ""},
+				{text = ""},
+				{text = "[name]"},
+			},
+		},
 		arena = {
 			width = 170,
 			height = 45,
@@ -491,6 +511,24 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[name]"},
 			},
 		},
+		arenatargettarget = {
+			width = 90,
+			height = 25,
+			scale = 1.0,
+			powerBar = {height = 0.60},
+			altPower = {enabled = false},
+			healAbsorb = {cap = 1},
+			indicators = {
+				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+			},
+			text = {
+				{text = "[name]"},
+				{text = "[curhp]"},
+				{text = ""},
+				{text = ""},
+				{text = "[name]"},
+			},
+		},		
 		battleground = {
 			width = 140,
 			height = 35,
@@ -534,6 +572,24 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			},
 		},
 		battlegroundtarget = {
+			width = 90,
+			height = 25,
+			scale = 1.0,
+			powerBar = {height = 0.60},
+			altPower = {enabled = false},
+			healAbsorb = {cap = 1},
+			indicators = {
+				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+			},
+			text = {
+				{text = "[name]"},
+				{text = "[curhp]"},
+				{text = ""},
+				{text = ""},
+				{text = "[name]"},
+			},
+		},
+		battlegroundtargettarget = {
 			width = 90,
 			height = 25,
 			scale = 1.0,
@@ -597,6 +653,22 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[(()afk() )][name]"},
 			},
 		},
+		maintanktargettarget = {
+			width = 150,
+			height = 40,
+			scale = 1.0,
+			auras = {
+				buffs = {enabled = false},
+				debuffs = {enabled = false},
+			},
+			text = {
+				{text = "[(()afk() )][name]"},
+				{text = "[curmaxhp]"},
+				{text = "[classification( )][perpp]", width = 0.50},
+				{text = "[curmaxpp]", anchorTo = "$powerBar", width = 0.60},
+				{text = "[(()afk() )][name]"},
+			},
+		},
 		mainassist = {
 			width = 150,
 			height = 40,
@@ -645,6 +717,23 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[(()afk() )][name]"},
 			},
 		},
+		mainassisttargettarget = {
+			width = 150,
+			height = 40,
+			scale = 1.0,
+			healAbsorb = {cap = 1},
+			auras = {
+				buffs = {enabled = false},
+				debuffs = {enabled = false},
+			},
+			text = {
+				{text = "[(()afk() )][name]"},
+				{text = "[curmaxhp]"},
+				{text = "[level( )][classification( )][perpp]", width = 0.50},
+				{text = "[curmaxpp]", anchorTo = "$powerBar", width = 0.60},
+				{text = "[(()afk() )][name]"},
+			},
+		},
 		partypet = {
 			width = 90,
 			height = 25,
@@ -676,6 +765,23 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[name]"},
 			},
 		},
+		partytargettarget = {
+			width = 90,
+			height = 25,
+			scale = 1.0,
+			powerBar = {height = 0.60},
+			healAbsorb = {cap = 1},
+			indicators = {
+				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+			},
+			text = {
+				{text = "[name]"},
+				{text = "[curhp]"},
+				{text = ""},
+				{text = ""},
+				{text = "[name]"},
+			},
+		},		
 		target = {
 			width = 190,
 			height = 45,

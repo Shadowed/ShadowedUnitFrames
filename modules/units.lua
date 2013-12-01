@@ -1,7 +1,7 @@
 local Units = {headerFrames = {}, unitFrames = {}, frameList = {}, unitEvents = {}, remappedUnits = {}, canCure = {}}
-Units.childUnits = {["partytarget"] = "party", ["partypet"] = "party", ["maintanktarget"] = "maintank", ["mainassisttarget"] = "mainassist", ["bosstarget"] = "boss", ["arenatarget"] = "arena", ["arenapet"] = "arena", ["battlegroundpet"] = "battleground", ["battlegroundtarget"] = "battleground"}
-Units.zoneUnits = {["arena"] = "arena", ["arenapet"] = "arena", ["arenatarget"] = "arena", ["boss"] = "raid", ["bosstarget"] = "raid", ["battleground"] = "pvp", ["battlegroundtarget"] = "pvp", ["battlegroundpet"] = "pvp"}
-Units.remappedUnits = {["battleground"] = "arena", ["battlegroundpet"] = "arenapet", ["battlegroundtarget"] = "arenatarget"}
+Units.childUnits = {["partytarget"] = "party", ["partytargettarget"] = "party", ["partypet"] = "party", ["maintanktarget"] = "maintank", ["mainassisttarget"] = "mainassist", ["bosstarget"] = "boss", ["arenatarget"] = "arena", ["arenatargettarget"] = "arena", ["arenapet"] = "arena", ["battlegroundpet"] = "battleground", ["battlegroundtarget"] = "battleground", ["battlegroundtargettarget"] = "battleground", ["maintanktargettarget"] = "maintank", ["mainassisttargettarget"] = "mainassist", ["bosstargettarget"] = "boss"}
+Units.zoneUnits = {["arena"] = "arena", ["arenapet"] = "arena", ["arenatarget"] = "arena", ["arenatargettarget"] = true, ["boss"] = "raid", ["bosstarget"] = "raid", ["battleground"] = "pvp", ["battlegroundtarget"] = "pvp", ["battlegroundtargettarget"] = true, ["battlegroundpet"] = "pvp", ["bosstargettarget"] = "raid"}
+Units.remappedUnits = {["battleground"] = "arena", ["battlegroundpet"] = "arenapet", ["battlegroundtarget"] = "arenatarget", ["battlegroundtargettarget"] = "arenatargettarget"}
 Units.headerUnits = {["raid"] = true, ["party"] = true, ["maintank"] = true, ["mainassist"] = true, ["raidpet"] = true, ["partypet"] = true}
 
 local stateMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
@@ -567,10 +567,14 @@ OnAttributeChanged = function(self, name, unit)
 		-- then targettarget and targettargettarget are also force updated
 		if( self.unitRealType == "partytarget" ) then
 			self.unitRealOwner = ShadowUF.partyUnits[self.unitID]
+		elseif( self.unitRealType == "partytargettarget" ) then
+			self.unitRealOwner = ShadowUF.partyUnits[self.unitID] .. "target"
 		elseif( self.unitRealType == "raid" ) then
 			self.unitRealOwner = ShadowUF.raidUnits[self.unitID]
 		elseif( self.unitRealType == "arenatarget" ) then
 			self.unitRealOwner = ShadowUF.arenaUnits[self.unitID]
+		elseif( self.unitRealType == "arenatargettarget" ) then
+			self.unitRealOwner = ShadowUF.arenaUnits[self.unitID] .. "target"
 		elseif( self.unit == "focustarget" ) then
 			self.unitRealOwner = "focus"
 			self:RegisterNormalEvent("PLAYER_FOCUS_CHANGED", Units, "CheckUnitStatus")

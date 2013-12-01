@@ -5,15 +5,15 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 40
+ShadowUF.dbRevision = 41
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
 ShadowUF.moduleOrder = {}
-ShadowUF.unitList = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "raid", "raidpet", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet", "battleground", "battlegroundtarget", "battlegroundpet"}
-ShadowUF.fakeUnits = {["targettarget"] = true, ["targettargettarget"] = true, ["pettarget"] = true, ["arenatarget"] = true, ["focustarget"] = true, ["focustargettarget"] = true, ["partytarget"] = true, ["raidtarget"] = true, ["bosstarget"] = true, ["maintanktarget"] = true, ["mainassisttarget"] = true, ["battlegroundtarget"] = true}
-L.units = {["raidpet"] = L["Raid pet"], ["PET"] = L["Pet"], ["VEHICLE"] = L["Vehicle"], ["arena"] = L["Arena"], ["arenapet"] = L["Arena Pet"], ["arenatarget"] = L["Arena Target"], ["boss"] = L["Boss"], ["bosstarget"] = L["Boss Target"], ["focus"] = L["Focus"], ["focustarget"] = L["Focus Target"], ["mainassist"] = L["Main Assist"], ["mainassisttarget"] = L["Main Assist Target"], ["maintank"] = L["Main Tank"], ["maintanktarget"] = L["Main Tank Target"], ["party"] = L["Party"], ["partypet"] = L["Party Pet"], ["partytarget"] = L["Party Target"], ["pet"] = L["Pet"], ["pettarget"] = L["Pet Target"], ["player"] = L["Player"],["raid"] = L["Raid"], ["target"] = L["Target"], ["targettarget"] = L["Target of Target"], ["targettargettarget"] = L["Target of Target of Target"], ["battleground"] = L["Battleground"], ["battlegroundpet"] = L["Battleground Pet"], ["battlegroundtarget"] = L["Battleground Target"]}
-L.shortUnits = {["battleground"] = L["BG"], ["battlegroundtarget"] = L["BG Target"], ["battlegroundpet"] = L["BG Pet"]}
+ShadowUF.unitList = {"player", "pet", "pettarget", "target", "targettarget", "targettargettarget", "focus", "focustarget", "party", "partypet", "partytarget", "partytargettarget", "raid", "raidpet", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget", "arena", "arenatarget", "arenapet", "battleground", "battlegroundtarget", "battlegroundpet", "arenatargettarget", "battlegroundtargettarget", "maintanktargettarget", "mainassisttargettarget", "bosstargettarget"}
+ShadowUF.fakeUnits = {["targettarget"] = true, ["targettargettarget"] = true, ["pettarget"] = true, ["arenatarget"] = true, ["arenatargettarget"] = true, ["focustarget"] = true, ["focustargettarget"] = true, ["partytarget"] = true, ["raidtarget"] = true, ["bosstarget"] = true, ["maintanktarget"] = true, ["mainassisttarget"] = true, ["battlegroundtarget"] = true, ["partytargettarget"] = true, ["battlegroundtargettarget"] = true, ["maintanktargettarget"] = true, ["mainassisttargettarget"] = true, ["bosstargettarget"] = true}
+L.units = {["raidpet"] = L["Raid pet"], ["PET"] = L["Pet"], ["VEHICLE"] = L["Vehicle"], ["arena"] = L["Arena"], ["arenapet"] = L["Arena Pet"], ["arenatarget"] = L["Arena Target"], ["arenatargettarget"] = L["Arena Target of Target"], ["boss"] = L["Boss"], ["bosstarget"] = L["Boss Target"], ["focus"] = L["Focus"], ["focustarget"] = L["Focus Target"], ["mainassist"] = L["Main Assist"], ["mainassisttarget"] = L["Main Assist Target"], ["maintank"] = L["Main Tank"], ["maintanktarget"] = L["Main Tank Target"], ["party"] = L["Party"], ["partypet"] = L["Party Pet"], ["partytarget"] = L["Party Target"], ["pet"] = L["Pet"], ["pettarget"] = L["Pet Target"], ["player"] = L["Player"],["raid"] = L["Raid"], ["target"] = L["Target"], ["targettarget"] = L["Target of Target"], ["targettargettarget"] = L["Target of Target of Target"], ["battleground"] = L["Battleground"], ["battlegroundpet"] = L["Battleground Pet"], ["battlegroundtarget"] = L["Battleground Target"], ["partytargettarget"] = L["Party Target of Target"], ["battlegroundtargettarget"] = L["Battleground Target of Target"], ["maintanktargettarget"] = L["Main Tank Target of Target"], ["mainassisttargettarget"] = L["Main Assist Target of Target"], ["bosstargettarget"] = L["Boss Target of Target"]}
+L.shortUnits = {["battleground"] = L["BG"], ["battlegroundtarget"] = L["BG Target"], ["battlegroundpet"] = L["BG Pet"], ["battlegroundtargettarget"] = L["BG ToT"], ["arenatargettarget"] = L["Arena ToT"], ["partytargettarget"] = L["Party ToT"], ["bosstargettarget"] = L["Boss ToT"], ["maintanktargettarget"] = L["MT ToT"], ["mainassisttargettarget"] = L["MA ToT"]}
 
 -- Cache the units so we don't have to concat every time it updates
 ShadowUF.unitTarget = setmetatable({}, {__index = function(tbl, unit) rawset(tbl, unit, unit .. "target"); return unit .. "target" end})
@@ -75,6 +75,7 @@ function ShadowUF:OnInitialize()
 	else
 		self:CheckUpgrade()
 		self:CheckBuild()
+		self:ShowInfoPanel()
 	end
 
 	self.db.profile.revision = self.dbRevision
@@ -96,12 +97,18 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 40 ) then
+		ShadowUF:LoadDefaultLayout(true)
+
+		for unit, config in pairs(self.db.profile.units) do
+			if( config.healAbsorb and not self.defaults.profile.units[unit].healAbsorb ) then
+				config.healAbsorb = nil
+			end
+		end
+	end
+
 	if( revision <= 39 ) then
 		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Text"], text = "[monk:abs:stagger]", anchorTo = "$staggerBar", anchorPoint = "C", size = 0, x = 0, y = 0, default = true})
-
-		self:Print("NOTE! As of this version of SUF, tags have been added to the Monk Stagger bar, as well as Rune and Totem bars.")
-		self:Print("If you do not want to see these text tags, go to /suf -> Unit Configuration -> Player -> Text/Tag")
-		self:Print("And remove the text for the Totem Bar, Rune Bar and Stagger Bar options.")
 	end
 
 	if( revision <= 38 ) then
@@ -388,7 +395,6 @@ function ShadowUF:LoadUnitDefaults()
 			emptyBar = {enabled = false},
 			portrait = {enabled = false},
 			castBar = {enabled = false, name = {}, time = {}},
-			healAbsorb = {enabled = true, cap = 1.30},
 			text = {
 				{enabled = true, name = L["Left text"], text = "[name]", anchorPoint = "C", anchorTo = "$healthBar", size = 0},
 				{enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorPoint = "C", anchorTo = "$healthBar", size = 0},
@@ -410,6 +416,7 @@ function ShadowUF:LoadUnitDefaults()
 			if( unit ~= "battleground" and unit ~= "battlegroundpet" and unit ~= "arena" and unit ~= "arenapet" and unit ~= "boss" ) then
 				self.defaults.profile.units[unit].incHeal = {enabled = true, cap = 1.20}
 				self.defaults.profile.units[unit].incAbsorb = {enabled = true, cap = 1.30}
+				self.defaults.profile.units[unit].healAbsorb = {enabled = true, cap = 1.30}
 			end
 		end
 		
@@ -561,6 +568,10 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.positions.partypet.anchorPoint = "RB"
 	self.defaults.profile.units.partypet.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	-- PARTYTARGET
+	self.defaults.profile.positions.partytarget.anchorTo = "$parent"
+	self.defaults.profile.positions.partytarget.anchorPoint = "RT"
+	self.defaults.profile.units.partytarget.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
+	-- PARTYTARGETTARGET
 	self.defaults.profile.positions.partytarget.anchorTo = "$parent"
 	self.defaults.profile.positions.partytarget.anchorPoint = "RT"
 	self.defaults.profile.units.partytarget.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
@@ -800,6 +811,68 @@ function ShadowUF:HideBlizzardFrames()
 		end
 	end
 end
+
+-- Upgrade info
+local infoMessages = {
+	{
+		L["As of SUF v3.9, a bunch of new features and units have been added.|n"],
+		L["- Totem/Rune bars now have timers indicating time to refres/expire"],
+		L["- Monk Stagger now shows the amount of staggered damage"],
+		L["- Boss ToT, Main Assist ToT, Main Tank ToT, Party ToT, Battleground ToT, Arena ToT units have been added!"],
+		L["- Added absorb shield tags"],
+		L["- Added Ancient Kings bar for Paladins"],
+		L["- And more! See the change log for everything that has changed."],
+		L["You can disable the new text for Monk Stagger, Totem and Rune timers through /suf -> Unit configuration -> Text/Tags"]
+	}
+}
+
+function ShadowUF:ShowInfoPanel()
+	local infoID = ShadowUF.db.global.infoID or 0
+	ShadowUF.db.global.infoID = #(infoMessages)
+	if( infoID < 0 or infoID >= #(infoMessages) ) then return end
+	
+	local frame = CreateFrame("Frame", nil, UIParent)
+	frame:SetClampedToScreen(true)
+	frame:SetFrameStrata("HIGH")
+	frame:SetToplevel(true)
+	frame:SetWidth(500)
+	frame:SetHeight(285)
+	frame:SetBackdrop({
+		  bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
+		  edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+		  edgeSize = 26,
+		  insets = {left = 9, right = 9, top = 9, bottom = 9},
+	})
+	frame:SetBackdropColor(0, 0, 0, 0.85)
+	frame:SetPoint("CENTER", UIParent, "CENTER", 0, 100)
+
+	frame.titleBar = frame:CreateTexture(nil, "ARTWORK")
+	frame.titleBar:SetTexture("Interface\\DialogFrame\\UI-DialogBox-Header")
+	frame.titleBar:SetPoint("TOP", 0, 8)
+	frame.titleBar:SetWidth(350)
+	frame.titleBar:SetHeight(45)
+
+	frame.title = frame:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	frame.title:SetPoint("TOP", 0, 0)
+	frame.title:SetText("Shadowed Unit Frames")
+
+	frame.text = frame:CreateFontString(nil, "ARTWORK", "GameFontHighlight")
+	frame.text:SetText(table.concat(infoMessages[ShadowUF.db.global.infoID], "\n"))
+	frame.text:SetPoint("TOPLEFT", 12, -22)
+	frame.text:SetWidth(frame:GetWidth() - 20)
+	frame.text:SetJustifyH("LEFT")
+	frame:SetHeight(frame.text:GetHeight() + 70)
+
+	frame.hide = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+	frame.hide:SetText(L["Ok"])
+	frame.hide:SetHeight(20)
+	frame.hide:SetWidth(100)
+	frame.hide:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 8, 8)
+	frame.hide:SetScript("OnClick", function(self)
+		self:GetParent():Hide()
+	end)
+end
+
 
 function ShadowUF:Print(msg)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99Shadow UF|r: " .. msg)

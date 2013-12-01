@@ -17,10 +17,12 @@ ShadowUF.Config = Config
 local unitCategories = {
 	player = {"player", "pet"},
 	general = {"target", "targettarget", "targettargettarget", "focus", "focustarget", "pettarget"},
-	party = {"party", "partypet", "partytarget"},
-	raid = {"raid", "raidpet", "boss", "bosstarget", "maintank", "maintanktarget", "mainassist", "mainassisttarget"},
-	arena = {"arena", "arenapet", "arenatarget"},
-	battleground = {"battleground", "battlegroundpet", "battlegroundtarget"}
+	party = {"party", "partypet", "partytarget", "partytargettarget", "party"},
+	raid = {"raid", "raidpet"},
+	raidmisc = {"maintank", "maintanktarget", "maintanktargettarget", "mainassist", "mainassisttarget", "mainassisttargettarget"},
+	boss = {"boss", "bosstarget", "bosstargettarget"},
+	arena = {"arena", "arenapet", "arenatarget", "arenatargettarget"},
+	battleground = {"battleground", "battlegroundpet", "battlegroundtarget", "battlegroundtargettarget"}
 }
 
 local UNIT_DESC = {
@@ -29,7 +31,8 @@ local UNIT_DESC = {
 	["maintank"] = L["Main Tank's are set by the Blizzard Main Tank system or mods that use them such as oRA3."],
 	["battleground"] = L["Currently used in battlegrounds for showing flag carriers."],
 	["battlegroundpet"] = L["Current pet used by a battleground unit"],
-	["battlegroundtarget"] = L["Current target of a battleground unit"]
+	["battlegroundtarget"] = L["Current target of a battleground unit"],
+	["battlegroundtargettarget"] = L["Current target of target of a battleground unit"]
 }
 
 local PAGE_DESC = {
@@ -4527,7 +4530,7 @@ local function loadUnitOptions()
 					help = {
 						order = 0,
 						type = "description",
-						name = L["The check boxes below will allow you to enable or disable units."],
+						name = L["The check boxes below will allow you to enable or disable units.|n|n|cffff2020Warning!|r Target of Target units have a higher performance cost compared to other units. If you have performance issues, please disable those units or reduce the features enabled for those units."],
 					},
 				},
 			},
@@ -4796,12 +4799,12 @@ local function loadUnitOptions()
 	local unitCategory = {
 		order = function(info)
 			local cat = info[#(info)]
-			return cat == "playercat" and 50 or cat == "generalcat" and 100 or cat == "partycat" and 200 or cat == "raidcat" and 300 or cat == "arenacat" and 400 or 500
+			return cat == "playercat" and 50 or cat == "generalcat" and 100 or cat == "partycat" and 200 or cat == "raidcat" and 300 or cat == "raidmisccat" and 400 or cat == "bosscat" and 500 or cat == "arenacat" and 600 or 700
 		end,
 		type = "header",
 		name = function(info)
 			local cat = info[#(info)]
-			return cat == "playercat" and L["Player"] or cat == "generalcat" and L["General"] or cat == "raidcat" and L["Raid"] or cat == "partycat" and L["Party"] or cat == "arenacat" and L["Arena"] or cat == "battlegroundcat" and L["Battlegrounds"]
+			return cat == "playercat" and L["Player"] or cat == "generalcat" and L["General"] or cat == "raidcat" and L["Raid"] or cat == "partycat" and L["Party"] or cat == "arenacat" and L["Arena"] or cat == "battlegroundcat" and L["Battlegrounds"] or cat == "raidmisccat" and L["Raid Misc"] or cat == "bosscat" and L["Boss"]
 		end,
 		width = "full",
 	}
@@ -4810,7 +4813,7 @@ local function loadUnitOptions()
 		options.args.enableUnits.args.enabled.args[cat .. "cat"] = unitCategory
 
 		for _, unit in pairs(list) do
-			unitCatOrder[unit] = cat == "player" and 50 or cat == "general" and 100 or cat == "party" and 200 or cat == "raid" and 300 or cat == "arena" and 400 or 500
+			unitCatOrder[unit] = cat == "player" and 50 or cat == "general" and 100 or cat == "party" and 200 or cat == "raid" and 300 or cat == "raidmisc" and 400 or cat == "boss" and 500 or cat == "arena" and 600 or 700
 		end
 	end
 
