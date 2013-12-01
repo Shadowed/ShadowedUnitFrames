@@ -7,8 +7,8 @@ function Stagger:OnEnable(frame)
 	frame.staggerBar.parent = frame
 	frame.staggerBar:SetScript("OnUpdate", function(self, elapsed)
 		self.timeElapsed = self.timeElapsed + elapsed
-		if( self.timeElapsed < 0.50 ) then return end
-		self.timeElapsed = self.timeElapsed - 0.50
+		if( self.timeElapsed < 0.25 ) then return end
+		self.timeElapsed = self.timeElapsed - 0.25
 
 		Stagger:Update(self.parent)
 	end)

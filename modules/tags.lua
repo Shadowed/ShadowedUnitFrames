@@ -1009,9 +1009,17 @@ Tags.defaultTags = {
 	    local heal = UnitGetIncomingHeals(unit)
 		return heal and heal > 0 and string.format("+%d", heal) or ShadowUF.tagFunc.name(unit, unitOwner, fontString)
 	end]],
+	["monk:abs:stagger"] = [[function(unit, unitOwner)
+		local stagger = UnitStagger(unit)
+		return stagger and stagger > 0 and stagger
+	end]],
+	["monk:stagger"] = [[function(unit, unitOwner)
+		local stagger = UnitStagger(unit)
+		return stagger and stagger > 0 and ShadowUF:FormatLargeNumber(stagger)
+	end]],
 	["abs:incabsorb"] = [[function(unit, unitOwner, fontString)
 	    local absorb = UnitGetTotalAbsorbs(unit) 
-		return absorb and absorb > 0 and string.format("%d", absorb)
+		return absorb and absorb > 0 and absorb
 	end]],
 	["incabsorb"] = [[function(unit, unitOwner, fontString)
 	    local absorb = UnitGetTotalAbsorbs(unit)
@@ -1023,7 +1031,7 @@ Tags.defaultTags = {
 	end]],
 	["abs:healabsorb"] = [[function(unit, unitOwner, fontString)
 	    local absorb = UnitGetTotalHealAbsorbs(unit) 
-		return absorb and absorb > 0 and string.format("%d", absorb)
+		return absorb and absorb > 0 and absorb
 	end]],
 	["healabsorb"] = [[function(unit, unitOwner, fontString)
 	    local absorb = UnitGetTotalHealAbsorbs(unit)
@@ -1154,7 +1162,9 @@ Tags.defaultFrequents = {
 	["scaled:threat"] = 1,
 	["unit:scaled:threat"] = 1,
 	["unit:raid:targeting"] = 0.50,
-	["unit:raid:assist"] = 0.50
+	["unit:raid:assist"] = 0.50,
+	["monk:stagger"] = 0.25,
+	["monk:abs:stagger"] = 0.25
 }
 
 -- Default tag categories
@@ -1248,6 +1258,8 @@ Tags.defaultCategories = {
 	["warlock:demonic:perpp"] 	= "classspec",
 	["monk:chipoints"]			= "classspec",
 	["priest:shadoworbs"]		= "classspec",
+	["monk:stagger"]			= "classspec",
+	["monk:abs:stagger"]		= "classspec"
 }
 	
 -- Default tag help
@@ -1343,6 +1355,8 @@ Tags.defaultHelp = {
 	["warlock:demonic:perpp"] 	= string.format(L["Works the same as [%s], but this is usedd to show Demonic Fury power for Demonology Warlocks."], "perpp"),
 	["monk:chipoints"]			= L["How many Chi points you currently have."],
 	["priest:shadoworbs"]		= L["How many Shadow Orbs you have if you're Shadow"],
+	["monk:stagger"]			= L["Shows the current staggered damage, if 12,000 damage is staggered, shows 12k."],
+	["monk:abs:stagger"]		= L["Shows the absolute staggered damage, if 16,000 damage is staggered, shows 16,000."]
 }
 
 Tags.defaultNames = {
@@ -1436,7 +1450,9 @@ Tags.defaultNames = {
 	["warlock:demonic:maxpp"] 	= L["Max Demonic Fury (Short)"],
 	["warlock:demonic:perpp"] 	= L["Percent Demonic Fury"],
 	["monk:chipoints"]			= L["Chi Points"],
-	["priest:shadoworbs"]		= L["Shadow Orbs"]
+	["priest:shadoworbs"]		= L["Shadow Orbs"],
+	["monk:stagger"]			= L["Stagger (Monk)"],
+	["monk:abs:stagger"]		= L["Stagger (Monk/Absolute)"]
 }
 
 -- List of event types
