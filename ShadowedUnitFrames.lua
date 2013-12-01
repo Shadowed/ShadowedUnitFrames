@@ -822,6 +822,8 @@ local infoMessages = {
 		L["- Totem/Rune bars now have timers indicating time to refres/expire"],
 		L["- Monk Stagger now shows the amount of staggered damage"],
 		L["- Boss ToT, Main Assist ToT, Main Tank ToT, Party ToT, Battleground ToT and Arena ToT units have been added!"],
+		L["- Auto profile switching based on dual spec is available in /suf -> Profile"],
+		L["- Highlight based on unit rare/elite is now available"],
 		L["- Added absorb shield tags"],
 		L["- Added Ancient Kings bar for Paladins"],
 		L["- And more! See the change log for everything that has changed."],

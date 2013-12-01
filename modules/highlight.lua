@@ -1,5 +1,7 @@
 local Highlight = {}
 local goldColor, mouseColor = {r = 0.75, g = 0.75, b = 0.35}, {r = 0.75, g = 0.75, b = 0.50}
+local rareColor, eliteColor = {r = 0, g = 0.63, b = 1}, {r = 1, g = 0.81, b = 0}
+
 local canCure = ShadowUF.Units.canCure
 ShadowUF:RegisterModule(Highlight, "highlight", ShadowUF.L["Highlight"])
 
@@ -88,13 +90,18 @@ function Highlight:OnEnable(frame)
 		frame:RegisterNormalEvent("UNIT_AURA", self, "UpdateAura")
 		frame:RegisterUpdateFunc(self, "UpdateAura")
 	end
-	
+
 	if( ShadowUF.db.profile.units[frame.unitType].highlight.mouseover and not frame.highlight.OnEnter ) then
 		frame.highlight.OnEnter = frame.OnEnter
 		frame.highlight.OnLeave = frame.OnLeave
 		
 		frame.OnEnter = OnEnter
 		frame.OnLeave = OnLeave
+	end
+
+	if( ShadowUF.db.profile.units[frame.unitType].highlight.rareMob or ShadowUF.db.profile.units[frame.unitType].highlight.eliteMob ) then
+		frame:RegisterUnitEvent("UNIT_CLASSIFICATION_CHANGED", self, "UpdateClassification")
+		frame:RegisterUpdateFunc(self, "UpdateClassification")
 	end
 end
 
@@ -115,7 +122,7 @@ function Highlight:OnDisable(frame)
 
 	frame.highlight:Hide()
 
-	if frame.highlight.OnEnter then
+	if( frame.highlight.OnEnter ) then
 		frame.OnEnter = frame.highlight.OnEnter
 		frame.OnLeave = frame.highlight.OnLeave
 
@@ -134,8 +141,12 @@ function Highlight:Update(frame)
 		color = goldColor
 	elseif( frame.highlight.hasMouseover ) then
 		color = mouseColor
+	elseif( ShadowUF.db.profile.units[frame.unitType].highlight.rareMob and ( frame.highlight.hasClassification == "rareelite" or frame.highlight.hasClassification == "rare" ) ) then
+		color = rareColor
+	elseif( ShadowUF.db.profile.units[frame.unitType].highlight.eliteMob and frame.highlight.hasClassification == "elite" ) then
+		color = eliteColor
 	end
-		
+
 	if( color ) then
 		frame.highlight.top:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.units[frame.unitType].highlight.alpha)
 		frame.highlight.left:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.units[frame.unitType].highlight.alpha)
@@ -154,6 +165,11 @@ end
 
 function Highlight:UpdateAttention(frame)
 	frame.highlight.hasAttention = UnitIsUnit(frame.unit, "target") or UnitIsUnit(frame.unit, "focus") or nil
+	self:Update(frame)
+end
+
+function Highlight:UpdateClassification(frame)
+	frame.highlight.hasClassification = UnitClassification(frame.unit)
 	self:Update(frame)
 end
 
