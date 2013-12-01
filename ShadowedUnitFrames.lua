@@ -98,6 +98,10 @@ function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
 	if( revision <= 39 ) then
 		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Text"], text = "[monk:abs:stagger]", anchorTo = "$staggerBar", anchorPoint = "C", size = 0, x = 0, y = 0, default = true})
+
+		self:Print("NOTE! As of this version of SUF, tags have been added to the Monk Stagger bar, as well as Rune and Totem bars.")
+		self:Print("If you do not want to see these text tags, go to /suf -> Unit Configuration -> Player -> Text/Tag")
+		self:Print("And remove the text for the Totem Bar, Rune Bar and Stagger Bar options.")
 	end
 
 	if( revision <= 38 ) then
