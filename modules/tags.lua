@@ -1,5 +1,5 @@
 -- Thanks to haste for the original tagging code, which I then mostly ripped apart and stole!
-local Tags = {afkStatus = {}, offlineStatus = {}, customEvents = {}, powerMap = {}}
+local Tags = {afkStatus = {}, offlineStatus = {}, customEvents = {}, powerMap = {}, moduleKey = "tags"}
 local tagPool, functionPool, temp, regFontStrings, frequentUpdates, frequencyCache, powerMap = {}, {}, {}, {}, {}, {}, Tags.powerMap
 local L = ShadowUF.L
 

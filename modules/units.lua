@@ -28,11 +28,91 @@ petBattleFrame:WrapScript(petBattleFrame, "OnAttributeChanged", [[
 
 RegisterStateDriver(petBattleFrame, "petbattle", "[petbattle] active; none")
 
+--[[
+local perf = {}
+local function logPerformance(module, func, started, unit, event)
+	local taken = debugprofilestop() - started
+	local prefix = (event and "event" or "update") .. ":" .. (module.moduleKey or "UNKNOWN")
+
+	-- Log per module/function
+	local id = prefix .. ":" .. func .. ":global"
+	if( not perf[id] ) then perf[id] = {calls = 0, time = 0} end
+	perf[id].calls = perf[id].calls + 1
+	perf[id].time = perf[id].time + taken
+
+	-- Log per module/function/unit
+	if( unit ) then
+		id = prefix .. ":" .. func .. ":" .. unit
+
+		if( not perf[id] ) then perf[id] = {calls = 0, time = 0} end
+		perf[id].calls = perf[id].calls + 1
+		perf[id].time = perf[id].time + taken
+	end
+
+	-- Log per module
+	if( not perf[prefix] ) then perf[prefix] = {calls = 0, time = 0} end
+	perf[prefix].calls = perf[prefix].calls + 1
+	perf[prefix].time = perf[prefix].time + taken
+
+	-- Log per module/unit
+	if( unit ) then
+		id = prefix .. ":" .. unit
+
+		if( not perf[id] ) then perf[id] = {calls = 0, time = 0} end
+		perf[id].calls = perf[id].calls + 1
+		perf[id].time = perf[id].time + taken
+	end
+end
+
+function ShadowUF:DumpPerf()
+	local temp = {}
+	for id, stats in pairs(perf) do
+		stats.id = id
+		table.insert(temp, stats)
+	end
+
+	table.sort(temp, function(a, b) return a.id < b.id end)
+
+	local metrics = {}
+	for _, stats in pairs(temp) do
+		local type, module, func, unit = string.split(":", stats.id)
+
+		local data = {}
+		data.id = nil
+		data.type = type
+		data.module = module
+		if( func ) then data.func = func end
+		if( unit ) then data.unit = unit end
+
+		data.total_time = tonumber(string.format("%.4f", stats.time))
+		data.calls = stats.calls
+		data.avg_time = tonumber((stats.calls > 0 and stats.time > 0) and string.format("%.4f", stats.time / stats.calls) or 0)
+
+		if( data.calls > 0 and data.total_time > 0 ) then
+			table.insert(metrics, data)
+		end
+	end
+
+	table.sort(metrics, function(a, b)
+		return a.avg_time > b.avg_time
+	end)
+
+	LoadAddOn("Spew")
+	Spew("", metrics)
+
+	ShadowUF.db.global.metrics = metrics
+end
+]]
+
 -- Frame shown, do a full update
 local function FullUpdate(self)
 	for i=1, #(self.fullUpdates), 2 do
+		--local start = debugprofilestop()
+		
 		local handler = self.fullUpdates[i]
 		handler[self.fullUpdates[i + 1]](handler, self)
+		
+		--logPerformance(handler, self.fullUpdates[i + 1], start, self.unitType, false)
 	end
 end
 
@@ -155,8 +235,6 @@ local function UnregisterAll(self, handler)
 			end
 		end
 	end
-
-
 end
 
 -- Handles setting alphas in a way so combat fader and range checker don't override each other
@@ -203,7 +281,11 @@ end
 local function OnEvent(self, event, unit, ...)
 	if( not unitEvents[event] or self.unit == unit ) then
 		for handler, func in pairs(self.registeredEvents[event]) do
+			--local start = debugprofilestop()
+			
 			handler[func](handler, self, event, unit, ...)
+			
+			--logPerformance(handler, func, start, self.unitType, true)
 		end
 	end
 end
