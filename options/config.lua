@@ -191,13 +191,13 @@ local function get(info)
 end
 
 local function setColor(info, r, g, b, a)
-	local color = get(info)
+	local color = get(info) or {}
 	color.r, color.g, color.b, color.a = r, g, b, a
 	set(info, color)
 end
 
 local function getColor(info)
-	local color = get(info)
+	local color = get(info) or {}
 	return color.r, color.g, color.b, color.a
 end
 
