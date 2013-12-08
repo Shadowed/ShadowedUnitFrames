@@ -829,6 +829,7 @@ end
 local infoMessages = {
 	{
 		L["As of SUF v3.9, a bunch of new features and units have been added.|n"],
+		L["- Config UI now opens instantly, and does not take 5 seconds++ to show up!"],
 		L["- Totem/Rune bars now have timers indicating time to refres/expire"],
 		L["- Monk Stagger now shows the amount of staggered damage"],
 		L["- Boss ToT, Main Assist ToT, Main Tank ToT, Party ToT, Battleground ToT and Arena ToT units have been added!"],
