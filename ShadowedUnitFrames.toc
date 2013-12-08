@@ -1,6 +1,6 @@
 ## Interface: 50400
 ## Title: Shadowed Unit Frames
-## Notes: Now with 99% more shadows than the leading competitors
+## Notes: Now with 200% more shadows than the leading competitors
 ## Author: Shadowed
 ## Version: @project-version@
 ## SavedVariables: ShadowedUFDB
