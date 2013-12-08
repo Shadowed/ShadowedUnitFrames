@@ -390,7 +390,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			healAbsorb = {cap = 1},
 			indicators = {
                 resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
-                phase = {enabled = true, anchorPoint = "RC", size = 26, x = -17, y = 0, anchorTo = "$parent"}
+                phase = {enabled = true, anchorPoint = "RC", size = 14, x = -11, y = 0, anchorTo = "$parent"}
 			},
 			auras = {
 				buffs = {enabled = true, maxRows = 1},

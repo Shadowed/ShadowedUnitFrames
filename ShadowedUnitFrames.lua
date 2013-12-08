@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 41
+ShadowUF.dbRevision = 42
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -100,6 +100,15 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 41 ) then
+		local phase = self.db.profile.units.party.indicators.phase
+		phase.anchorPoint = phase.anchorPoint or "RC"
+		phase.size = phase.size or 14
+		phase.x = phase.x or -11
+		phase.y = phase.y or 0
+		phase.anchorTo = phase.anchorTo or "$parent"
+	end
+
 	if( revision <= 40 ) then
 		ShadowUF:LoadDefaultLayout(true)
 
@@ -505,6 +514,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.party.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.party.combatText.enabled = false
 	self.defaults.profile.units.party.indicators.lfdRole = {enabled = true, size = 0, x = 0, y = 0}
+	self.defaults.profile.units.party.indicators.phase = {enabled = true, size = 0, x = 0, y = 0}
 	-- ARENA
 	self.defaults.profile.units.arena.enabled = false
 	self.defaults.profile.units.arena.attribPoint = "TOP"

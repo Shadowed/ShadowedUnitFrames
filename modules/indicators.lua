@@ -19,11 +19,13 @@ end
 function Indicators:UpdatePhase(frame)
     if( not frame.indicators.phase or not frame.indicators.phase.enabled ) then return end
 
-    if( not select(2, UnitInOtherParty(frame.unit)) ) then
-	    frame.indicators.phase:SetTexture("Interface\\PlayerFrame\\whisper-only")
+    if( not UnitInOtherParty(frame.unit) ) then
+		frame.indicators.phase:SetTexture("Interface\\LFGFrame\\LFG-Eye")
+		frame.indicators.phase:SetTexCoord(0.125, 0.25, 0.25, 0.5)
         frame.indicators.phase:Show()
-    elseif( UnitExists(frame.unit) and not UnitInPhase(frame.unit) ) then
+    elseif( UnitIsConnected(frame.unit) and not UnitInPhase(frame.unit) ) then
 	    frame.indicators.phase:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon")
+	    frame.indicators.phase:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375)
         frame.indicators.phase:Show()
     else
         frame.indicators.phase:Hide()
