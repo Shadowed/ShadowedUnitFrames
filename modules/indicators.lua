@@ -19,11 +19,7 @@ end
 function Indicators:UpdatePhase(frame)
     if( not frame.indicators.phase or not frame.indicators.phase.enabled ) then return end
 
-    if( not UnitInOtherParty(frame.unit) ) then
-		frame.indicators.phase:SetTexture("Interface\\LFGFrame\\LFG-Eye")
-		frame.indicators.phase:SetTexCoord(0.125, 0.25, 0.25, 0.5)
-        frame.indicators.phase:Show()
-    elseif( UnitIsConnected(frame.unit) and not UnitInPhase(frame.unit) ) then
+    if( UnitIsConnected(frame.unit) and not UnitInPhase(frame.unit) ) then
 	    frame.indicators.phase:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon")
 	    frame.indicators.phase:SetTexCoord(0.15625, 0.84375, 0.15625, 0.84375)
         frame.indicators.phase:Show()
