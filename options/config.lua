@@ -2457,7 +2457,7 @@ local function loadUnitOptions()
 					vehicle = {
 						order = 1,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Vehicles"],
 						hidden = function(info) return info[2] ~= "player" and info[2] ~= "party" or not ShadowUF.db.profile.advanced end,
 						args = {
@@ -2494,7 +2494,7 @@ local function loadUnitOptions()
 					portrait = {
 						order = 2,
 						type = "group",
-						inline = false,
+						inline = true,
 						hidden = false,
 						name = L["Portrait"],
 						args = {
@@ -2503,7 +2503,6 @@ local function loadUnitOptions()
 								type = "toggle",
 								name = string.format(L["Enable %s"], L["Portrait"]),
 								arg = "portrait.enabled",
-								width = "full"
 							},
 							portraitType = {
 								order = 1,
@@ -2524,7 +2523,7 @@ local function loadUnitOptions()
 					fader = {
 						order = 3,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Combat fader"],
 						hidden = hideRestrictedOption,
 						args = {
@@ -2534,8 +2533,7 @@ local function loadUnitOptions()
 								name = string.format(L["Enable %s"], L["Combat fader"]),
 								desc = L["Combat fader will fade out all your frames while they are inactive and fade them back in once you are in combat or active."],
 								hidden = false,
-								arg = "fader.enabled",
-								width = "full"
+								arg = "fader.enabled"
 							},
 							combatAlpha = {
 								order = 1,
@@ -2562,7 +2560,7 @@ local function loadUnitOptions()
 					range = {
 						order = 3,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Range indicator"],
 						hidden = hideRestrictedOption,
 						args = {
@@ -2573,7 +2571,6 @@ local function loadUnitOptions()
 								desc = L["Fades out the unit frames of people who are not within range of you."],
 								arg = "range.enabled",
 								hidden = false,
-								width = "full"
 							},
 							inAlpha = {
 								order = 1,
@@ -2599,7 +2596,7 @@ local function loadUnitOptions()
 					highlight = {
 						order = 3.5,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Border highlighting"],
 						hidden = hideRestrictedOption,
 						args = {
@@ -2681,7 +2678,7 @@ local function loadUnitOptions()
 					barSouls = {
 						order = 4,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Soul Shards"],
 						hidden = function(info) return playerClass ~= "WARLOCK" or not getVariable(info[2], "soulShards", nil, "isBar") or not getVariable(info[2], nil, nil, "soulShards") end,
 						args = {
@@ -2712,7 +2709,7 @@ local function loadUnitOptions()
 					soulShards = {
 						order = 4,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Soul Shards"],
 						hidden = function(info) if( info[2] == "global" or getVariable(info[2], "soulShards", nil, "isBar") ) then return true end return hideRestrictedOption(info) end,
 						args = {
@@ -2791,7 +2788,7 @@ local function loadUnitOptions()
 					barHolyPower = {
 						order = 4,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Holy Power"],
 						hidden = function(info) return playerClass ~= "PALADIN" or not getVariable(info[2], "holyPower", nil, "isBar") or not getVariable(info[2], nil, nil, "holyPower") end,
 						args = {
@@ -2822,7 +2819,7 @@ local function loadUnitOptions()
 					holyPower = {
 						order = 4,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Holy Power"],
 						hidden = function(info) if( info[2] == "global" or getVariable(info[2], "holyPower", nil, "isBar") ) then return true end return hideRestrictedOption(info) end,
 						args = {
@@ -2901,7 +2898,7 @@ local function loadUnitOptions()
 					barShadowOrbs = {
 						order = 4,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Shadow Orbs"],
 						hidden = function(info) return playerClass ~= "PRIEST" or not getVariable(info[2], "shadowOrbs", nil, "isBar") or not getVariable(info[2], nil, nil, "shadowOrbs") end,
 						args = {
@@ -2932,7 +2929,7 @@ local function loadUnitOptions()
 					shadowOrbs = {
 						order = 4,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Holy Power"],
 						hidden = function(info) if( info[2] == "global" or getVariable(info[2], "shadowOrbs", nil, "isBar") ) then return true end return hideRestrictedOption(info) end,
 						args = {
@@ -3011,7 +3008,7 @@ local function loadUnitOptions()
 					barChi = {
 						order = 4,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Chi"],
 						hidden = function(info) return playerClass ~= "MONK" or not getVariable(info[2], "chi", nil, "isBar") or not getVariable(info[2], nil, nil, "chi") end,
 						args = {
@@ -3042,7 +3039,7 @@ local function loadUnitOptions()
 					chi = {
 						order = 4,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Chi"],
 						hidden = function(info) if( info[2] == "global" or getVariable(info[2], "chi", nil, "isBar") ) then return true end return hideRestrictedOption(info) end,
 						args = {
@@ -3121,7 +3118,7 @@ local function loadUnitOptions()
 					barComboPoints = {
 						order = 4,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Combo points"],
 						hidden = function(info) return not getVariable(info[2], "comboPoints", nil, "isBar") or not getVariable(info[2], nil, nil, "comboPoints") end,
 						args = {
@@ -3131,7 +3128,6 @@ local function loadUnitOptions()
 								name = string.format(L["Enable %s"], L["Combo points"]),
 								hidden = false,
 								arg = "comboPoints.enabled",
-								width = "full"
 							},
 							growth = {
 								order = 2,
@@ -3153,7 +3149,7 @@ local function loadUnitOptions()
 					comboPoints = {
 						order = 4,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Combo points"],
 						hidden = function(info) if( info[2] == "global" or getVariable(info[2], "comboPoints", nil, "isBar") ) then return true end return hideRestrictedOption(info) end,
 						args = {
@@ -3232,7 +3228,7 @@ local function loadUnitOptions()
 					barAuraPoints = {
 						order = 4,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Aura Combo Points"],
 						hidden = function(info) return not ShadowUF.modules.auraPoints or not getVariable(info[2], "auraPoints", nil, "isBar") or not getVariable(info[2], nil, nil, "auraPoints") end,
 						args = {
@@ -3242,7 +3238,6 @@ local function loadUnitOptions()
 								name = string.format(L["Enable %s"], L["Aura Combo Points"]),
 								hidden = false,
 								arg = "auraPoints.enabled",
-								width = "full"
 							},
 							growth = {
 								order = 2,
@@ -3264,7 +3259,7 @@ local function loadUnitOptions()
 					auraPoints = {
 						order = 4,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Aura Combo Points"],
 						hidden = function(info) if( info[2] == "global" or getVariable(info[2], "auraPoints", nil, "isBar") ) then return true end return not ShadowUF.modules.auraPoints or hideRestrictedOption(info) end,
 						args = {
@@ -3342,7 +3337,7 @@ local function loadUnitOptions()
 					combatText = {
 						order = 5,
 						type = "group",
-						inline = false,
+						inline = true,
 						name = L["Combat text"],
 						hidden = hideRestrictedOption,
 						args = {
@@ -3353,6 +3348,13 @@ local function loadUnitOptions()
 								desc = L["Shows combat feedback, last healing the unit received, last hit did it miss, resist, dodged and so on."],
 								arg = "combatText.enabled",
 								hidden = false,
+							},
+							sep = {
+								order = 1,
+								type = "description",
+								name = "",
+								width = "full",
+								hidden = hideAdvancedOption,
 							},
 							anchorPoint = {
 								order = 3,
