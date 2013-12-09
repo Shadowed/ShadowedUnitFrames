@@ -4519,7 +4519,7 @@ local function loadUnitOptions()
 	
 	options.args.enableUnits = {
 		type = "group",
-		name = L["Enabled units"],
+		name = L["Enabled Units"],
 		desc = getPageDescription,
 		args = {
 			help = {
@@ -4605,7 +4605,7 @@ local function loadUnitOptions()
 	
 	options.args.units = {
 		type = "group",
-		name = L["Unit configuration"],
+		name = L["Unit Configuration"],
 		desc = getPageDescription,
 		args = {
 			help = {
@@ -5276,7 +5276,7 @@ local function loadFilterOptions()
 	
 	options.args.filter = {
 		type = "group",
-		name = L["Aura filters"],
+		name = L["Aura Filters"],
 		childGroups = "tab",
 		desc = getPageDescription,
 		args = {
@@ -5522,7 +5522,7 @@ local function loadTagOptions()
 	options.args.tags = {
 		type = "group",
 		childGroups = "tab",
-		name = L["Add tags"],
+		name = L["Add Tags"],
 		desc = getPageDescription,
 		hidden = hideAdvancedOption,
 		args = {
