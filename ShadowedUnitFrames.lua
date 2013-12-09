@@ -1,5 +1,5 @@
 --[[ 
-	Shadowed Unit Frames, Shadow of Mal'Ganis (US) PvP
+	Shadowed Unit Frames, Shadowed of Mal'Ganis (US) PvP
 ]]
 
 ShadowUF = select(2, ...)
