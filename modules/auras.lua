@@ -439,9 +439,22 @@ end
 
 -- Unfortunately, temporary enchants have basically no support beyond hacks. So we will hack!
 tempEnchantScan = function(self, elapsed)
+	if( self.parent.unit == self.parent.vehicleUnit and self.lastTemporary > 0 ) then
+		mainHand.has = false
+		offHand.has = false
+		ranged.has = false
+
+		self.temporaryEnchants = 0
+		self.lastTemporary = 0
+
+		Auras:Update(self.parent)
+		return
+	end
+
 	timeElapsed = timeElapsed + elapsed
 	if( timeElapsed < 0.50 ) then return end
 	timeElapsed = timeElapsed - 0.50
+
 
 	local hasMain, mainTimeLeft, mainCharges, hasOff, offTimeLeft, offCharges, hasRanged, rangedTimeLeft, rangedCharges = GetWeaponEnchantInfo()
 	self.temporaryEnchants = 0
