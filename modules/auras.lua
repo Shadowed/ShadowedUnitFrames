@@ -500,14 +500,10 @@ local function scan(parent, frame, type, config, displayConfig, filter)
 	local isFriendly = UnitIsFriend(frame.parent.unit, "player")
 	local curable = (isFriendly and type == "debuffs" and config.raid)
 	local index = 0
-	local cureType
 	while( true ) do
 		index = index + 1
 		local name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID = UnitAura(frame.parent.unit, index, filter)
 		if( not name ) then break end
-		
-		-- Blizzard bug, Enrage is an empty string.
-		cureType = auraType == "" and "Enrage" or auraType
 
 		if( ( not config.player or playerUnits[caster] ) and ( not parent.whitelist[type] and not parent.blacklist[type] or parent.whitelist[type] and ( parent.whitelist[name] or parent.whitelist[spellID] ) or parent.blacklist[type] and ( not parent.blacklist[name] and not parent.blacklist[spellID] ) ) and ( not curable or canCure[auraType] ) ) then
 			-- Create any buttons we need
