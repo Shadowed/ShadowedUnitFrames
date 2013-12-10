@@ -207,7 +207,7 @@ local function hideTooltip(self)
 end
 
 local function cancelAura(self, mouse)
-	if( mouse ~= "RightButton" or not UnitIsUnit(self.parent.unit, "player") or not UnitIsUnit(self.parent.unit, "vehicle") or InCombatLockdown() or self.filter == "TEMP" ) then
+	if( mouse ~= "RightButton" or ( not UnitIsUnit(self.parent.unit, "player") and not UnitIsUnit(self.parent.unit, "vehicle") ) or InCombatLockdown() or self.filter == "TEMP" ) then
 		return
 	end
 
