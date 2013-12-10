@@ -302,6 +302,9 @@ function Indicators:OnEnable(frame)
 	end
 
     if( config.indicators.phase and config.indicators.phase.enabled ) then
+		frame:RegisterUnitEvent("UNIT_PHASE", self, "UpdatePhase")
+		frame:RegisterNormalEvent("PARTY_MEMBER_ENABLE", self, "UpdatePhase")
+		frame:RegisterNormalEvent("PARTY_MEMBER_DISABLE", self, "UpdatePhase")
         frame:RegisterUpdateFunc(self, "UpdatePhase")
         frame.indicators.phase = frame.indicators.phase or frame.indicators:CreateTexture(nil, "OVERLAY")
     end
