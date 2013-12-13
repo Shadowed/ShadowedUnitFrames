@@ -305,6 +305,7 @@ function Indicators:OnEnable(frame)
 
 	if( config.indicators.phase and config.indicators.phase.enabled ) then
 		frame:RegisterNormalEvent("UNIT_PHASE", self, "UpdatePhase")
+		frame:RegisterNormalEvent("PLAYER_ENTERING_WORLD", self, "UpdatePhase")
         frame:RegisterUpdateFunc(self, "UpdatePhase")
         frame.indicators.phase = frame.indicators.phase or frame.indicators:CreateTexture(nil, "OVERLAY")
     end
