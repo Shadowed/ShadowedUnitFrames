@@ -187,7 +187,7 @@ end
 -- Register a function to be called in an OnUpdate if it's an invalid unit (targettarget/etc)
 local function RegisterUpdateFunc(self, handler, func)
 	if( not handler[func] ) then
-		error(string.format("Invalid handler/function passed to RegisterUpdateFunc for %s, the function %s does not exist.", self:GetName() or tostring(self), event, func), 3)
+		error(string.format("Invalid handler/function passed to RegisterUpdateFunc for %s, the function %s does not exist.", self:GetName() or tostring(self), func), 3)
 		return
 	end
 
@@ -476,7 +476,7 @@ function Units:CheckGroupedUnitStatus(frame)
 	if( frame.inVehicle and not UnitExists(frame.unit) and UnitExists(frame.unitOwner) ) then
 		frame.inVehicle = false
 		frame.unit = frame.unitOwner
-		frame.unitGUID = guid
+		frame.unitGUID = UnitGUID(frame.unit)
 		frame:FullUpdate()
 	else
 		frame.unitGUID = UnitGUID(frame.unit)

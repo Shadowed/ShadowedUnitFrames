@@ -484,8 +484,6 @@ function Movers:CreateInfoFrame()
 			DEFAULT_CHAT_FRAME:AddMessage(L["You have entered combat, unit frames have been locked. Once you leave combat you will need to unlock them again through /shadowuf."])
 		end
 	end)
-	frame:SetScript("OnShow", OnShow)
-	frame:SetScript("OnHide", OnHide)
 	frame:SetScript("OnDragStart", function(self)
 		self:StartMoving()
 	end)
