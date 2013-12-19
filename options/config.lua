@@ -1833,29 +1833,6 @@ local function loadUnitOptions()
 						text = string.format("%s[( )%s]", text, tag)
 					end
 				end
-			-- Removing a tag from global config, need to make sure we can do it
-			-- Hack, clean up later
-			elseif( unit == "global" ) then
-				table.wipe(savedTagTexts)
-				for unit in pairs(modifyUnits) do
-					if( not ShadowUF.Tags.unitBlacklist[tagGroup] or not string.match(unit, ShadowUF.Tags.unitBlacklist[tagGroup]) ) then
-						if( not ShadowUF.Tags.unitRestrictions[tag] or ShadowUF.Tags.unitRestrictions[tag] == unit ) then
-							local text = getVariable(unit, "text", id, "text")
-							for matchedTag in string.gmatch(text, "%[(.-)%]") do
-								local safeTag = "[" .. matchedTag .. "]"
-								if( string.match(safeTag, "%[" .. tag .. "%]") or string.match(safeTag, "%)" .. tag .. "%]") or string.match(safeTag, "%[" .. tag .. "%(") or string.match(safeTag, "%)" .. tag .. "%(") ) then
-									text = string.gsub(text, "%[" .. string.gsub(string.gsub(matchedTag, "%)", "%%)"), "%(", "%%(") .. "%]", "")
-									text = string.gsub(text, "  ", "")
-									text = string.trim(text)
-									break
-								end
-							end
-							
-							savedTagTexts[unit] = text
-							savedTagTexts.global = text
-						end
-					end
-				end
 				
 			-- Removing a tag from a single unit, super easy :<
 			else

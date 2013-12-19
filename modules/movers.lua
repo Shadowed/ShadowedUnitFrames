@@ -34,7 +34,7 @@ local function createConfigEnv()
 		UnitIsWildBattlePet = function(unit) return unit == "target" or unit == "focus" end,
 		UnitBattlePetType = function(unit)
 			if( unit == "target" or unit == "focus" ) then
-				return getValue("UnitBattlePetType", unit, random(#(PET_TYPE_SUFFIX)))
+				return getValue("UnitBattlePetType", unit, math.random(#(PET_TYPE_SUFFIX)))
 			end
 		end,
 		UnitHealthMax = function(unit) return 50000 end,

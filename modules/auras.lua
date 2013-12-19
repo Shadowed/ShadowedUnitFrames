@@ -412,7 +412,7 @@ local function updateTemporaryEnchant(frame, slot, tempData, hasEnchant, timeLef
 	end
 
 	-- Enlarge our own auras
-	if( config.enlargeSelf and caster == ShadowUF.playerUnit ) then
+	if( config.enlargeSelf ) then
 		button.isSelfScaled = true
 		button:SetScale(config.selfScale)
 	else
