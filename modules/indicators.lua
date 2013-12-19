@@ -16,10 +16,8 @@ function Indicators:UpdateClass(frame)
 	end
 end
 
-function Indicators:UpdatePhase(frame, event, unit)
+function Indicators:UpdatePhase(frame)
     if( not frame.indicators.phase or not frame.indicators.phase.enabled ) then return end
-    -- When the player phases, we need to update any phase indicators for other non-player units
-    if( event and unit ~= "player" ) then return end
 
     if( UnitIsConnected(frame.unit) and not UnitInPhase(frame.unit) ) then
 	    frame.indicators.phase:SetTexture("Interface\\TargetingFrame\\UI-PhasingIcon")
@@ -304,8 +302,8 @@ function Indicators:OnEnable(frame)
 	end
 
 	if( config.indicators.phase and config.indicators.phase.enabled ) then
-		frame:RegisterNormalEvent("UNIT_PHASE", self, "UpdatePhase")
-		frame:RegisterNormalEvent("PLAYER_ENTERING_WORLD", self, "UpdatePhase")
+		-- Player phase changes do not generate a phase change event. This seems to be the best
+		frame:RegisterNormalEvent("UPDATE_WORLD_STATES", self, "UpdatePhase")
         frame:RegisterUpdateFunc(self, "UpdatePhase")
         frame.indicators.phase = frame.indicators.phase or frame.indicators:CreateTexture(nil, "OVERLAY")
     end
