@@ -29,5 +29,5 @@ externals:
         tag: latest
 
 ignore:
-  - globalcheck.lua
+  - globalcheck.rb
   - localcheck.lua
