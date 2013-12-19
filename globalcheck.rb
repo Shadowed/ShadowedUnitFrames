@@ -37,7 +37,6 @@ def filtered?(target)
 end
 
 # Check all files for leaked globals
-
 total = 0
 Dir["./**/*.lua"].each do |file|
 	next if file =~ /localcheck/
