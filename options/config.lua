@@ -2114,7 +2114,7 @@ local function loadUnitOptions()
 				desc = L["Scale for auras that you casted or can Spellsteal, any number above 100% is bigger than default, any number below 100% is smaller than default."],
 				min = 1, max = 3, step = 0.10,
 				isPercent = true,
-				disabled = function(info) return not getVariable(info[2], "auras", info[#(info) - 1], "enlargeSelf") end,
+				disabled = function(info) return not getVariable(info[2], "auras", info[#(info) - 1], "enlargeSelf") and not getVariable(info[2], "auras", info[#(info) - 1], "enlargeStealable") end,
 				hidden = hideAdvancedOption,
 				arg = "auras.$parent.selfScale",
 			},
