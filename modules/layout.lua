@@ -506,6 +506,8 @@ function Layout:PositionWidgets(frame, config)
 			totalBars = totalBars + 1
 						
 			table.insert(barOrder, key)
+
+			config[key].order = config[key].order or 99
 			
 			-- Decide whats full sized
 			if( not frame.visibility.portrait or config.portrait.isBar or config[key].order < config.portrait.fullBefore or config[key].order > config.portrait.fullAfter ) then
