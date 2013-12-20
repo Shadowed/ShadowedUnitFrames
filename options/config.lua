@@ -1374,7 +1374,7 @@ local function loadGeneralOptions()
 			text = {
 				type = "group",
 				order = 6,
-				name = L["Text management"],
+				name = L["Text Management"],
 				hidden = false,
 				args = {
 					help = {
@@ -4338,7 +4338,7 @@ local function loadUnitOptions()
 			},
 			widgetSize = {
 				order = 4,
-				name = L["Widget size"],
+				name = L["Widget Size"],
 				type = "group",
 				hidden = isModifiersSet,
 				set = setUnit,
@@ -5260,7 +5260,7 @@ local function loadFilterOptions()
 			groups = {
 				order = 1,
 				type = "group",
-				name = L["Set filter zones"],
+				name = L["Set Filter Zones"],
 				args = {
 					help = {
 						order = 0,
@@ -5280,7 +5280,7 @@ local function loadFilterOptions()
 			filters = {
 				order = 2,
 				type = "group",
-				name = L["Manage aura filters"],
+				name = L["Manage Aura Filters"],
 				childGroups = "tree",
 				args = {
 					manage = {
@@ -6092,7 +6092,7 @@ local function loadVisibilityOptions()
 	options.args.visibility = {
 		type = "group",
 		childGroups = "tab",
-		name = L["Zone configuration"],
+		name = L["Zone Configuration"],
 		desc = getPageDescription,
 		args = {
 			start = {
