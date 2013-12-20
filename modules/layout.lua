@@ -499,6 +499,8 @@ function Layout:PositionWidgets(frame, config)
 	-- Figure out total weighting as well as what bars are full sized
 	for i=#(barOrder), 1, -1 do table.remove(barOrder, i) end
 	for key, module in pairs(ShadowUF.modules) do
+		if( config[key] and not config[key].height ) then config[key].height = 0.50 end
+
 		if( ( module.moduleHasBar or config[key] and config[key].isBar ) and frame[key] and frame[key]:IsShown() and config[key].height > 0 ) then
 			totalWeight = totalWeight + config[key].height
 			totalBars = totalBars + 1
