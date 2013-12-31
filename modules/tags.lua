@@ -141,6 +141,8 @@ end
 
 -- This is for bars that can be shown or hidden often, like druid power
 function Tags:FastRegister(frame, parent)
+	if( not frame.fontStrings ) then return end
+
 	for _, fontString in pairs(frame.fontStrings) do
 		-- Re-register anything that was already registered and is part of the parent
 		if( regFontStrings[fontString] and fontString.parentBar == parent ) then
@@ -151,6 +153,8 @@ function Tags:FastRegister(frame, parent)
 end
 
 function Tags:FastUnregister(frame, parent)
+	if( not frame.fontStrings ) then return end
+
 	for _, fontString in pairs(frame.fontStrings) do
 		-- Redirect the updates to not do anything and hide it
 		if( regFontStrings[fontString] and fontString.parentBar == parent ) then
