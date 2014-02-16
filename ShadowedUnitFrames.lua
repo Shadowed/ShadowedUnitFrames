@@ -559,6 +559,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.raidpet.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	self.defaults.profile.units.raidpet.combatText.enabled = false
 	-- MAINTANK
+	self.defaults.profile.units.maintank.roleFilter = "TANK"
 	self.defaults.profile.units.maintank.groupFilter = "MAINTANK"
 	self.defaults.profile.units.maintank.groupBy = "GROUP"
 	self.defaults.profile.units.maintank.sortOrder = "ASC"

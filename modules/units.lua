@@ -921,6 +921,7 @@ function Units:SetHeaderAttributes(frame, type)
 		frame:SetAttribute("columnSpacing", config.columnSpacing)
 		frame:SetAttribute("columnAnchorPoint", config.attribAnchorPoint)
 		frame:SetAttribute("groupFilter", filter or "1,2,3,4,5,6,7,8")
+		frame:SetAttribute("roleFilter", config.roleFilter)
 		
 		if( config.groupBy == "CLASS" ) then
 			frame:SetAttribute("groupingOrder", "DEATHKNIGHT,DRUID,HUNTER,MAGE,PALADIN,PRIEST,ROGUE,SHAMAN,WARLOCK,WARRIOR,MONK")
@@ -932,7 +933,7 @@ function Units:SetHeaderAttributes(frame, type)
 			frame:SetAttribute("groupingOrder", "1,2,3,4,5,6,7,8")
 			frame:SetAttribute("groupBy", "GROUP")
 		end
-	
+
 	-- Need to position the fake units
 	elseif( type == "boss" or type == "arena" or type == "battleground" ) then
 		frame:SetWidth(config.width)
