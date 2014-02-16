@@ -198,6 +198,8 @@ local function setupUnits(childrenOnly)
 			-- Unit's not visible and it's enabled so it should
 			elseif( not frame:IsVisible() and ShadowUF.db.profile.units[frame.unitType].enabled ) then
 				UnregisterUnitWatch(frame)
+
+				frame:SetAttribute("state-unitexists", true)
 				frame:FullUpdate()
 				frame:Show()
 			end
@@ -304,6 +306,14 @@ function Movers:Enable()
 	-- so the first call gets all the parent units, the second call gets the child units
 	setupUnits()
 	setupUnits(true)
+
+	for unitType in pairs(ShadowUF.Units.zoneUnits) do
+		local header = ShadowUF.Units.headerFrames[unitType]
+		if( ShadowUF.db.profile.units[unitType].enabled and header ) then
+			header:SetAttribute("childChanged", 1)
+		end
+	end
+
 
 	-- Don't show the dialog if the configuration is opened through the configmode spec
 	if( not self.isConfigModeSpec ) then

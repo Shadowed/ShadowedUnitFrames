@@ -922,7 +922,7 @@ function Units:SetHeaderAttributes(frame, type)
 		frame:SetAttribute("columnAnchorPoint", config.attribAnchorPoint)
 		frame:SetAttribute("groupFilter", filter or "1,2,3,4,5,6,7,8")
 		frame:SetAttribute("roleFilter", config.roleFilter)
-		
+
 		if( config.groupBy == "CLASS" ) then
 			frame:SetAttribute("groupingOrder", "DEATHKNIGHT,DRUID,HUNTER,MAGE,PALADIN,PRIEST,ROGUE,SHAMAN,WARLOCK,WARRIOR,MONK")
 			frame:SetAttribute("groupBy", "CLASS")
@@ -936,7 +936,10 @@ function Units:SetHeaderAttributes(frame, type)
 
 	-- Need to position the fake units
 	elseif( type == "boss" or type == "arena" or type == "battleground" ) then
-		frame:SetWidth(config.width)
+		frame:SetAttribute("attribPoint", config.attribPoint)
+		frame:SetAttribute("baseOffset", config.offset)
+		frame:SetAttribute("childChanged", 1)
+
 		self:PositionHeaderChildren(frame)
 	
 	-- Update party frames to not show anyone if they should be in raids
@@ -1189,14 +1192,16 @@ function Units:LoadZoneHeader(type)
 		return
 	end
 	
-	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, petBattleFrame)
+	local headerFrame = CreateFrame("Frame", "SUFHeader" .. type, petBattleFrame, "SecureHandlerBaseTemplate")
 	headerFrame.isHeaderFrame = true
 	headerFrame.unitType = type
 	headerFrame.unitMappedType = remappedUnits[type] or type
 	headerFrame:SetClampedToScreen(true)
 	headerFrame:SetMovable(true)
 	headerFrame:SetHeight(0.1)
+ 	headerFrame:SetAttribute("totalChildren", #(ShadowUF[type .. "Units"]))
 	headerFrame.children = {}
+
 	headerFrames[type] = headerFrame
 	
 	if( type == "arena" ) then
@@ -1206,23 +1211,22 @@ function Units:LoadZoneHeader(type)
 			end
 		end)
 	end
-
+	
 	for id, unit in pairs(ShadowUF[type .. "Units"]) do
 		local frame = self:CreateUnit("Button", "SUFHeader" .. type .. "UnitButton" .. id, headerFrame, "SecureUnitButtonTemplate")
 		frame.ignoreAnchor = true
+		frame.hasStateWatch = true
 		frame.unitUnmapped = type .. id
 		frame:SetAttribute("unit", unit)
+		frame:SetAttribute("unitID", id)
 		frame:Hide()
 		
 		headerFrame.children[id] = frame
-		
+		headerFrame:SetFrameRef("child" .. id, frame)
+
 		-- Arena frames are only allowed to be shown not hidden from the unit existing, or else when a Rogue
 		-- stealths the frame will hide which looks bad. Instead force it to stay open and it has to be manually hidden when the player leaves an arena.
 		if( type == "arena" ) then
-			frame:SetAttribute("unitID", id)
-			-- frame:SetFrameRef("prepframe", _G["ArenaPrepFrame" .. id])
-			frame.hasStateWatch = true
-
 			stateMonitor:WrapScript(frame, "OnAttributeChanged", [[
 				if( name == "state-unitexists" ) then
 					local parent = self:GetParent()
@@ -1234,21 +1238,56 @@ function Units:LoadZoneHeader(type)
 					end
 					
 					if( value ) then
-						-- self:GetFrameRef("prepframe"):Hide()
 						self:Show()
 					end
 				end
 			]])
-		
-			RegisterUnitWatch(frame, frame.hasStateWatch)
 		else
-			RegisterUnitWatch(frame)
+			stateMonitor:WrapScript(frame, "OnAttributeChanged", [[
+				if( name == "state-unitexists" ) then
+					local parent = self:GetParent()
+					parent:SetAttribute("childChanged", self:GetAttribute("unitID"))
+
+					if( value ) then
+						self:Show()
+					else
+						self:Hide()
+					end
+				end
+			]])
  		end
+
+		RegisterUnitWatch(frame, frame.hasStateWatch)
  	end
-	
+
+ 	-- Dynamic height/width adjustment
+	stateMonitor:WrapScript(headerFrame, "OnAttributeChanged", [[
+		if( name ~= "childchanged" ) then return end
+
+		local visible = 0
+		for i=1, self:GetAttribute("totalChildren") do
+			if( self:GetFrameRef("child" .. i):IsShown() ) then
+				visible = visible + 1
+			end
+		end
+
+		if( visible == 0 ) then
+			self:Hide()
+			return
+		end
+
+		local child = self:GetFrameRef("child1")
+		local xMod = math.abs(self:GetAttribute("xMod"))
+		local yMod = math.abs(self:GetAttribute("yMod"))
+		local offset = self:GetAttribute("baseOffset")
+
+		self:SetWidth(xMod * ((child:GetWidth() * (visible - 1)) + (offset * (visible - 1))) + child:GetWidth())
+		self:SetHeight(yMod * ((child:GetHeight() * (visible - 1)) + (offset * (visible - 1))) + child:GetHeight())
+		self:Show()
+	]])
+
 
 	self:SetHeaderAttributes(headerFrame, type)
-	
 	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, ShadowUF.db.profile.positions[type])	
 end
 
