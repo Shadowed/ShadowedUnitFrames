@@ -1245,14 +1245,14 @@ function Units:LoadZoneHeader(type)
 		else
 			stateMonitor:WrapScript(frame, "OnAttributeChanged", [[
 				if( name == "state-unitexists" ) then
-					local parent = self:GetParent()
-					parent:SetAttribute("childChanged", self:GetAttribute("unitID"))
-
 					if( value ) then
 						self:Show()
 					else
 						self:Hide()
 					end
+
+					local parent = self:GetParent()
+					parent:SetAttribute("childChanged", self:GetAttribute("unitID"))
 				end
 			]])
  		end
