@@ -1257,7 +1257,7 @@ function Units:LoadZoneHeader(type)
 					end
 
 					local parent = self:GetParent()
-					parent:SetAttribute("childChanged", self:GetAttribute("unitID"))
+					parent:SetAttribute("childstate", self:GetAttribute("unitID") .. (value and 20 or 10))
 				end
 			]])
  		end
@@ -1267,7 +1267,7 @@ function Units:LoadZoneHeader(type)
 
  	-- Dynamic height/width adjustment
 	stateMonitor:WrapScript(headerFrame, "OnAttributeChanged", [[
-		if( name ~= "childchanged" ) then return end
+		if( name ~= "childchanged" and name ~= "childstate" ) then return end
 
 		local visible = 0
 		for i=1, self:GetAttribute("totalChildren") do
