@@ -895,7 +895,6 @@ function ShadowUF:ShowInfoPanel()
 	end)
 end
 
-
 function ShadowUF:Print(msg)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99Shadow UF|r: " .. msg)
 end

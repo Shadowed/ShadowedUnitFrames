@@ -9,10 +9,6 @@ local friendlySpell = Range.friendly[playerClass]
 local hostileSpell = Range.hostile[playerClass]
 
 local function checkRange(self, elapsed)
-	self.timeElapsed = self.timeElapsed + elapsed
-	if( self.timeElapsed <= 0.50 ) then return end
-	self.timeElapsed = 0
-
 	local frame = self.parent
 	local spell
 
@@ -40,16 +36,16 @@ function Range:ForceUpdate(frame)
 		frame.range:Hide()
 	else
 		frame.range:Show()
-		checkRange(frame.range, 1)
+		checkRange(frame.range.timer)
 	end
 end
 
 function Range:OnEnable(frame)
 	if( not frame.range ) then
 		frame.range = CreateFrame("Frame", nil, frame)
-		frame.range:SetScript("OnUpdate", checkRange)
-		frame.range.timeElapsed = 0
-		frame.range.parent = frame
+
+		frame.range.timer = frame:CreateOnUpdate(0.50, checkRange)
+		frame.range.timer.parent = frame
 	end
 
 	frame.range:Show()

@@ -210,33 +210,22 @@ Units.OnEvent = OnEvent
 
 -- Do a full update OnShow, and stop watching for events when it's not visible
 local function OnShow(self)
+	ShadowUF.Tags:FastRegister(self)
+
 	-- Reset the event handler
 	self:SetScript("OnEvent", OnEvent)
 	Units:CheckUnitStatus(self)
 end
 
 local function OnHide(self)
+	ShadowUF.Tags:FastUnregister(self)
 	self:SetScript("OnEvent", nil)
-	
+
 	-- If it's a volatile such as target or focus, next time it's shown it has to do an update
 	-- OR if the unit is still shown, but it's been hidden because our parent (Basically UIParent)
 	-- we want to flag it as having changed so it can be updated
 	if( self.isUnitVolatile or self:IsShown() ) then
 		self.unitGUID = nil
-	end
-end
-
--- *target units do not give events, polling is necessary here
-local function TargetUnitUpdate(self, elapsed)
-	self.timeElapsed = self.timeElapsed + elapsed
-	
-	if( self.timeElapsed >= 0.50 ) then
-		self.timeElapsed = self.timeElapsed - 0.50
-		
-		-- Have to make sure the unit exists or else the frame will flash offline for a second until it hides
-		if( UnitExists(self.unit) ) then
-			self:FullUpdate()
-		end
 	end
 end
 
@@ -563,8 +552,13 @@ OnAttributeChanged = function(self, name, unit)
 	
 	-- *target units are not real units, thus they do not receive events and must be polled for data
 	elseif( ShadowUF.fakeUnits[self.unitRealType] ) then
-		self.timeElapsed = 0
-		self:SetScript("OnUpdate", TargetUnitUpdate)
+		if( not self.updateTimer ) then
+			self.updateTimer = self:CreateOnUpdate(0.50, function() 
+				if( UnitExists(self.unit) ) then
+					self:FullUpdate()
+				end
+			end)
+		end
 		
 		-- Speeds up updating units when their owner changes target, if party1 changes target then party1target is force updated, if target changes target
 		-- then targettarget and targettargettarget are also force updated
@@ -633,6 +627,20 @@ local function initializeUnit(header, frameName)
 	Units:CreateUnit(frame)
 end
 
+-- Update helper
+local function CreateOnUpdate(self, timer, callback)
+	local group = self:CreateAnimationGroup()
+	group:SetLooping("REPEAT")
+	group:SetScript("OnLoop", callback)
+
+	local animation = group:CreateAnimation("Animation")
+	animation:SetOrder(1)
+	animation:SetDuration(0.50)
+
+	group:Play()
+	return group
+end
+
 -- Show tooltip
 local function OnEnter(self)
 	if( self.OnEnter ) then
@@ -668,6 +676,7 @@ function Units:CreateUnit(...)
 	frame.DisableRangeAlpha = DisableRangeAlpha
 	frame.UnregisterUpdateFunc = UnregisterUpdateFunc
 	frame.ReregisterUnitEvents = ReregisterUnitEvents
+	frame.CreateOnUpdate = CreateOnUpdate
 	frame.SetBarColor = SetBarColor
 	frame.SetBlockColor = SetBlockColor
 	frame.FullUpdate = FullUpdate

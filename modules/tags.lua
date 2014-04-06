@@ -103,40 +103,46 @@ function Tags:Reload()
 end
 
 -- Frequent updates
-local freqFrame = CreateFrame("Frame")
-freqFrame.timeToUpdate = 0
-freqFrame:SetScript("OnUpdate", function(self, elapsed)
-	freqFrame.timeToUpdate = freqFrame.timeToUpdate - elapsed
-	if( freqFrame.timeToUpdate > 0 ) then return end
-	freqFrame.timeToUpdate = freqFrame.timeToUpdate + freqFrame.minInterval
+local freqGroups = {}
+local freqTriggers = {}
 
-	for fontString, timeLeft in pairs(frequentUpdates) do
-		if( fontString.parent:IsVisible() ) then
-			frequentUpdates[fontString] = timeLeft - freqFrame.minInterval
-			if( frequentUpdates[fontString] <= 0 ) then
-				fontString:UpdateTags()
-			end
-		end
-	end
-end)
-freqFrame:Hide()
-
-local function updateMinimumFrequency()
-	local min
-	for fontString, pollTime in pairs(frequentUpdates) do
-		if( not min or min > pollTime ) then
-			min = pollTime
-		end
-	end
-
-	if( not min ) then
-		freqFrame:Hide()
+local groupFrame = CreateFrame("Frame")
+local function setupGroupInterval(interval)
+	if( freqGroups[interval] ) then
+		freqGroups[interval]:Play()
 		return
 	end
 
-	freqFrame.timeToUpdate = min
-	freqFrame.minInterval = min
-	freqFrame:Show()
+	local group = groupFrame:CreateAnimationGroup()
+	group:SetLooping("REPEAT")
+	group:SetScript("OnLoop", function(self)
+		for _, fontString in pairs(freqTriggers[interval]) do
+			fontString:UpdateTags()
+		end
+	end)
+
+	local animation = group:CreateAnimation("Animation")
+	animation:SetOrder(1)
+	animation:SetDuration(interval)
+
+	freqGroups[interval] = group
+end
+
+local function updateMinimumFrequency()
+	for interval, _ in pairs(freqTriggers) do
+		table.wipe(freqTriggers[interval])
+
+		if( freqGroups[interval] ) then
+			freqGroups[interval]:Stop()
+		end
+	end
+
+	for fontString, interval in pairs(frequentUpdates) do
+		if( not freqTriggers[interval] ) then freqTriggers[interval] = {} end
+		table.insert(freqTriggers[interval], fontString)
+
+		setupGroupInterval(interval)
+	end
 end
 
 -- This is for bars that can be shown or hidden often, like druid power
@@ -145,7 +151,7 @@ function Tags:FastRegister(frame, parent)
 
 	for _, fontString in pairs(frame.fontStrings) do
 		-- Re-register anything that was already registered and is part of the parent
-		if( regFontStrings[fontString] and fontString.parentBar == parent ) then
+		if( regFontStrings[fontString] and ( not parent or fontString.parentBar == parent ) ) then
 			fontString.UpdateTags = tagPool[regFontStrings[fontString]]
 			fontString:Show()
 		end
@@ -157,7 +163,7 @@ function Tags:FastUnregister(frame, parent)
 
 	for _, fontString in pairs(frame.fontStrings) do
 		-- Redirect the updates to not do anything and hide it
-		if( regFontStrings[fontString] and fontString.parentBar == parent ) then
+		if( regFontStrings[fontString] and ( not parent or fontString.parentBar == parent ) ) then
 			fontString.UpdateTags = ShadowUF.noop
 			fontString:Hide()
 		end
@@ -177,12 +183,13 @@ function Tags:Register(parent, fontString, tags, resetCache)
 	
 	-- Use the cached polling time if we already saved it
 	-- as we won't be rececking everything next call
+	local freqUpdateRequired
 	local pollTime = frequencyCache[tags]
 	if( pollTime ) then
 		frequentUpdates[fontString] = pollTime
 		fontString.frequentStart = pollTime
 		
-		updateMinimumFrequency()
+		freqUpdateRequired = true
 	end
 	
 	local updateFunc = not resetCache and tagPool[tags]
@@ -205,6 +212,7 @@ function Tags:Register(parent, fontString, tags, resetCache)
 				if( not tagKey ) then hasPre, hasAp = false, true tagKey = string.match(tag, "([%w%p]+)(%b())") end
 				
 				frequencyCache[tag] = tagKey and (self.defaultFrequents[tagKey] or ShadowUF.db.profile.tags[tagKey] and ShadowUF.db.profile.tags[tagKey].frequency)
+
 				local tagFunc = tagKey and ShadowUF.tagFunc[tagKey]
 				if( tagFunc ) then
 					local startOff, endOff = string.find(tag, tagKey)
@@ -242,7 +250,7 @@ function Tags:Register(parent, fontString, tags, resetCache)
 				frequencyCache[tags] = pollTime
 				frequentUpdates[fontString] = pollTime
 				fontString.frequentStart = pollTime
-				updateMinimumFrequency()
+				freqUpdateRequired = true
 			end
 			
 			-- It's an invalid tag, simply return the tag itself wrapped in brackets
@@ -265,9 +273,6 @@ function Tags:Register(parent, fontString, tags, resetCache)
 				end
 			end
 
-			if( frequentUpdates[fontString] ) then
-				frequentUpdates[fontString] = fontString.frequentStart + 0.01
-			end
 
 			for id, func in pairs(args) do
 				temp[id] = func(fontString.parent.unit, fontString.parent.unitOwner, fontString) or ""
@@ -284,6 +289,10 @@ function Tags:Register(parent, fontString, tags, resetCache)
 
 	-- Register any needed event
 	self:RegisterEvents(parent, fontString, tags)
+
+	if( freqUpdateRequired ) then
+		updateMinimumFrequency()
+	end
 end
 
 function Tags:Unregister(fontString)
