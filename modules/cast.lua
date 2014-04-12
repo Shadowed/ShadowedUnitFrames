@@ -1,16 +1,11 @@
 local Cast = {}
 local L = ShadowUF.L
 local FADE_TIME = 0.30
-local FAKE_UPDATE_TIME = 0.10
 
 ShadowUF:RegisterModule(Cast, "castBar", L["Cast bar"], true)
 
 -- I'm not really thrilled with this method of detecting fake unit casts, mostly because it's inefficient and ugly
-local function monitorFakeCast(self, elapsed)
-	self.timeElapsed = self.timeElapsed + elapsed
-	if( self.timeElapsed <= FAKE_UPDATE_TIME ) then return end
-	self.timeElapsed = self.timeElapsed - FAKE_UPDATE_TIME
-
+local function monitorFakeCast(self)
 	local spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(self.parent.unit)
 	local isChannelled
 	if( not spell ) then
@@ -53,14 +48,6 @@ local function monitorFakeCast(self, elapsed)
 	end
 end
 
-local function updateFakeUnitCast(self)
-	self.endTime = nil
-	self.notInterruptible = nil
-	self.spellName = nil
-	
-	monitorFakeCast(self, FAKE_UPDATE_TIME)
-end
-
 function Cast:OnEnable(frame)
 	if( not frame.castBar ) then
 		frame.castBar = CreateFrame("Frame", nil, frame)
@@ -75,12 +62,9 @@ function Cast:OnEnable(frame)
 	end
 	
 	if( ShadowUF.fakeUnits[frame.unitType] ) then
-		frame.castBar.monitor = frame.castBar.monitor or CreateFrame("Frame", nil, frame)
-		frame.castBar.monitor.timeElapsed = 0
+		frame.castBar.monitor = frame:CreateOnUpdate(0.10, monitorFakeCast)
 		frame.castBar.monitor.parent = frame
-		frame.castBar.monitor:SetScript("OnUpdate", monitorFakeCast)
-		frame.castBar.monitor:SetScript("OnShow", updateFakeUnitCast)
-		frame.castBar.monitor:Show()
+		frame:RegisterUpdateFunc(self, "UpdateFakeCast")
 		return
 	end
 	
@@ -462,4 +446,13 @@ function Cast:UpdateCast(frame, unit, channelled, spell, rank, displayName, icon
 	else
 		setBarColor(cast, ShadowUF.db.profile.castColors.cast.r, ShadowUF.db.profile.castColors.cast.g, ShadowUF.db.profile.castColors.cast.b)
 	end
+end
+
+-- Trigger checks on fake cast
+function Cast:UpdateFakeCast(self)
+	local monitor = self.castBar.monitor
+	monitor.endTime = nil
+	monitor.notInterruptible = nil
+	monitor.spellName = nil
+	monitorFakeCast(monitor)
 end

@@ -210,15 +210,12 @@ Units.OnEvent = OnEvent
 
 -- Do a full update OnShow, and stop watching for events when it's not visible
 local function OnShow(self)
-	ShadowUF.Tags:FastRegister(self)
-
 	-- Reset the event handler
 	self:SetScript("OnEvent", OnEvent)
 	Units:CheckUnitStatus(self)
 end
 
 local function OnHide(self)
-	ShadowUF.Tags:FastUnregister(self)
 	self:SetScript("OnEvent", nil)
 
 	-- If it's a volatile such as target or focus, next time it's shown it has to do an update
@@ -628,16 +625,24 @@ local function initializeUnit(header, frameName)
 end
 
 -- Update helper
-local function CreateOnUpdate(self, timer, callback)
+local function SetTimer(self, seconds)
+	self.animation:SetDuration(seconds)
+	self:Play()
+end
+
+local function CreateOnUpdate(self, seconds, callback)
 	local group = self:CreateAnimationGroup()
 	group:SetLooping("REPEAT")
 	group:SetScript("OnLoop", callback)
 
 	local animation = group:CreateAnimation("Animation")
 	animation:SetOrder(1)
-	animation:SetDuration(0.50)
 
-	group:Play()
+	group.animation = animation
+	group.SetTimer = SetTimer
+
+	group:SetTimer(seconds)
+
 	return group
 end
 

@@ -1,6 +1,6 @@
 -- Thanks to haste for the original tagging code, which I then mostly ripped apart and stole!
 local Tags = {afkStatus = {}, offlineStatus = {}, customEvents = {}, powerMap = {}, moduleKey = "tags"}
-local tagPool, functionPool, temp, regFontStrings, frequentUpdates, frequencyCache, powerMap = {}, {}, {}, {}, {}, {}, Tags.powerMap
+local tagPool, functionPool, temp, regFontStrings, powerMap = {}, {}, {}, {}, Tags.powerMap
 local L = ShadowUF.L
 
 ShadowUF.Tags = Tags
@@ -102,49 +102,6 @@ function Tags:Reload()
 	end
 end
 
--- Frequent updates
-local freqGroups = {}
-local freqTriggers = {}
-
-local groupFrame = CreateFrame("Frame")
-local function setupGroupInterval(interval)
-	if( freqGroups[interval] ) then
-		freqGroups[interval]:Play()
-		return
-	end
-
-	local group = groupFrame:CreateAnimationGroup()
-	group:SetLooping("REPEAT")
-	group:SetScript("OnLoop", function(self)
-		for _, fontString in pairs(freqTriggers[interval]) do
-			fontString:UpdateTags()
-		end
-	end)
-
-	local animation = group:CreateAnimation("Animation")
-	animation:SetOrder(1)
-	animation:SetDuration(interval)
-
-	freqGroups[interval] = group
-end
-
-local function updateMinimumFrequency()
-	for interval, _ in pairs(freqTriggers) do
-		table.wipe(freqTriggers[interval])
-
-		if( freqGroups[interval] ) then
-			freqGroups[interval]:Stop()
-		end
-	end
-
-	for fontString, interval in pairs(frequentUpdates) do
-		if( not freqTriggers[interval] ) then freqTriggers[interval] = {} end
-		table.insert(freqTriggers[interval], fontString)
-
-		setupGroupInterval(interval)
-	end
-end
-
 -- This is for bars that can be shown or hidden often, like druid power
 function Tags:FastRegister(frame, parent)
 	if( not frame.fontStrings ) then return end
@@ -172,6 +129,92 @@ end
 
 
 -- Register a font string with the tag system
+local powerEvents = {["UNIT_POWER"] = true, ["UNIT_POWER_FREQUENT"] = true, ["UNIT_MAXPOWER"] = true}
+local frequencyCache = {}
+local function createTagFunction(tags, resetCache)
+	if( tagPool[tags] and not resetCache ) then
+		return tagPool[tags], frequencyCache[tags]
+	end
+
+	-- Using .- prevents supporting tags such as [foo ([)]. Supporting that and having a single pattern
+	local formattedText = string.gsub(string.gsub(tags, "%%", "%%%%"), "[[].-[]]", "%%s")
+	formattedText = string.gsub(formattedText, "|", "||")
+	formattedText = string.gsub(formattedText, "||c", "|c")
+	formattedText = string.gsub(formattedText, "||r", "|r")
+
+	local args = {}
+	local lowestFrequency = 9999
+
+	for tag in string.gmatch(tags, "%[(.-)%]") do
+		-- Tags that use pre or appends "foo(|)" etc need special matching, which is what this will handle
+		local cachedFunc = not resetCache and functionPool[tag] or ShadowUF.tagFunc[tag]
+		if( not cachedFunc ) then
+			local hasPre, hasAp = true, true
+			local tagKey = select(2, string.match(tag, "(%b())([%w%p]+)(%b())"))
+			if( not tagKey ) then hasPre, hasAp = true, false tagKey = select(2, string.match(tag, "(%b())([%w%p]+)")) end
+			if( not tagKey ) then hasPre, hasAp = false, true tagKey = string.match(tag, "([%w%p]+)(%b())") end
+			
+			frequencyCache[tag] = tagKey and (Tags.defaultFrequents[tagKey] or ShadowUF.db.profile.tags[tagKey] and ShadowUF.db.profile.tags[tagKey].frequency)
+
+			local tagFunc = tagKey and ShadowUF.tagFunc[tagKey]
+			if( tagFunc ) then
+				local startOff, endOff = string.find(tag, tagKey)
+				local pre = hasPre and string.sub(tag, 2, startOff - 2)
+				local ap = hasAp and string.sub(tag, endOff + 2, -2)
+				
+				if( pre and ap ) then
+					cachedFunc = function(...)
+						local str = tagFunc(...)
+						if( str ) then return pre .. str .. ap end
+					end
+				elseif( pre ) then
+					cachedFunc = function(...)
+						local str = tagFunc(...)
+						if( str ) then return pre .. str end
+					end
+				elseif( ap ) then
+					cachedFunc = function(...)
+						local str = tagFunc(...)
+						if( str ) then return str .. ap end
+					end
+				end
+				
+				functionPool[tag] = cachedFunc
+			end
+		end
+
+		-- Figure out the lowest frequency rate we update at
+		if( frequencyCache[tag] ) then
+			lowestFrequency = math.min(lowestFrequency, frequencyCache[tag])
+		end
+		
+		-- It's an invalid tag, simply return the tag itself wrapped in brackets
+		if( not cachedFunc ) then
+			functionPool[tag] = functionPool[tag] or function() return string.format("[%s-error]", tag) end
+			cachedFunc = functionPool[tag]
+		end
+		
+		table.insert(args, cachedFunc)
+	end
+	
+	frequencyCache[tags] = lowestFrequency < 9999 and lowestFrequency or nil
+	tagPool[tags] = function(fontString, frame, event, unit, powerType)
+		if( event and powerType and fontString.powerFilters and powerEvents[event] ) then
+			if( not fontString.powerFilters[powerType] and ( not fontString.powerFilters.CURRENT or fontString.powerType ~= powerType ) ) then
+				return
+			end
+		end
+
+		for id, func in pairs(args) do
+			temp[id] = func(fontString.parent.unit, fontString.parent.unitOwner, fontString) or ""
+		end
+
+		fontString:SetFormattedText(formattedText, unpack(temp))
+	end
+
+	return tagPool[tags], frequencyCache[tags]
+end
+
 function Tags:Register(parent, fontString, tags, resetCache)
 	-- Unregister the font string first if we did register it already
 	if( fontString.UpdateTags ) then
@@ -180,125 +223,27 @@ function Tags:Register(parent, fontString, tags, resetCache)
 	
 	fontString.parent = parent
 	regFontStrings[fontString] = tags
-	
-	-- Use the cached polling time if we already saved it
-	-- as we won't be rececking everything next call
-	local freqUpdateRequired
-	local pollTime = frequencyCache[tags]
-	if( pollTime ) then
-		frequentUpdates[fontString] = pollTime
-		fontString.frequentStart = pollTime
-		
-		freqUpdateRequired = true
-	end
-	
-	local updateFunc = not resetCache and tagPool[tags]
-	if( not updateFunc ) then
-		-- Using .- prevents supporting tags such as [foo ([)]. Supporting that and having a single pattern
-		local formattedText = string.gsub(string.gsub(tags, "%%", "%%%%"), "[[].-[]]", "%%s")
-		formattedText = string.gsub(formattedText, "|", "||")
-		formattedText = string.gsub(formattedText, "||c", "|c")
-		formattedText = string.gsub(formattedText, "||r", "|r")
-
-		local args = {}
-		
-		for tag in string.gmatch(tags, "%[(.-)%]") do
-			-- Tags that use pre or appends "foo(|)" etc need special matching, which is what this will handle
-			local cachedFunc = not resetCache and functionPool[tag] or ShadowUF.tagFunc[tag]
-			if( not cachedFunc ) then
-				local hasPre, hasAp = true, true
-				local tagKey = select(2, string.match(tag, "(%b())([%w%p]+)(%b())"))
-				if( not tagKey ) then hasPre, hasAp = true, false tagKey = select(2, string.match(tag, "(%b())([%w%p]+)")) end
-				if( not tagKey ) then hasPre, hasAp = false, true tagKey = string.match(tag, "([%w%p]+)(%b())") end
-				
-				frequencyCache[tag] = tagKey and (self.defaultFrequents[tagKey] or ShadowUF.db.profile.tags[tagKey] and ShadowUF.db.profile.tags[tagKey].frequency)
-
-				local tagFunc = tagKey and ShadowUF.tagFunc[tagKey]
-				if( tagFunc ) then
-					local startOff, endOff = string.find(tag, tagKey)
-					local pre = hasPre and string.sub(tag, 2, startOff - 2)
-					local ap = hasAp and string.sub(tag, endOff + 2, -2)
-					
-					if( pre and ap ) then
-						cachedFunc = function(...)
-							local str = tagFunc(...)
-							if( str ) then return pre .. str .. ap end
-						end
-					elseif( pre ) then
-						cachedFunc = function(...)
-							local str = tagFunc(...)
-							if( str ) then return pre .. str end
-						end
-					elseif( ap ) then
-						cachedFunc = function(...)
-							local str = tagFunc(...)
-							if( str ) then return str .. ap end
-						end
-					end
-					
-					functionPool[tag] = cachedFunc
-				end
-			end
-			
-			-- Figure out what the lowest update frequency for this font string and use it
-			local pollTime = self.defaultFrequents[tag] or frequencyCache[tag]
-			if( ShadowUF.db.profile.tags[tag] and ShadowUF.db.profile.tags[tag].frequency ) then
-				pollTime = ShadowUF.db.profile.tags[tag].frequency
-			end
-			
-			if( pollTime and ( not fontString.frequentStart or fontString.frequentStart > pollTime ) ) then
-				frequencyCache[tags] = pollTime
-				frequentUpdates[fontString] = pollTime
-				fontString.frequentStart = pollTime
-				freqUpdateRequired = true
-			end
-			
-			-- It's an invalid tag, simply return the tag itself wrapped in brackets
-			if( not cachedFunc ) then
-				functionPool[tag] = functionPool[tag] or function() return string.format("[%s-error]", tag) end
-				cachedFunc = functionPool[tag]
-			end
-			
-			table.insert(args, cachedFunc)
-		end
-		
-		-- Create our update function now
-		updateFunc = function(fontString, frame, event, unit, powerType)
-			if( event and powerType and fontString.powerFilters ) then
-				-- Check if we can filter out the update 
-				if( event == "UNIT_POWER" or event == "UNIT_POWER_FREQUENT" or event == "UNIT_MAXPOWER" ) then
-					if( not fontString.powerFilters[powerType] and ( not fontString.powerFilters.CURRENT or fontString.powerType ~= powerType ) ) then
-						return
-					end
-				end
-			end
-
-
-			for id, func in pairs(args) do
-				temp[id] = func(fontString.parent.unit, fontString.parent.unitOwner, fontString) or ""
-			end
-
-			fontString:SetFormattedText(formattedText, unpack(temp))
-		end
-
-		tagPool[tags] = updateFunc
-	end
 		
 	-- And give other frames an easy way to force an update
-	fontString.UpdateTags = updateFunc
+	local frequency
+	fontString.UpdateTags, frequency = createTagFunction(tags, resetCache)
+
+	if( frequency ) then
+		fontString.monitor = fontString.monitor or parent:CreateOnUpdate(frequency, function()
+			fontString:UpdateTags()
+		end)
+
+		fontString.monitor:SetTimer(frequency)
+	elseif( fontString.monitor ) then
+		fontString.monitor:Stop()
+	end
 
 	-- Register any needed event
 	self:RegisterEvents(parent, fontString, tags)
-
-	if( freqUpdateRequired ) then
-		updateMinimumFrequency()
-	end
 end
 
 function Tags:Unregister(fontString)
 	regFontStrings[fontString] = nil
-	frequentUpdates[fontString] = nil
-	updateMinimumFrequency()
 	
 	-- Unregister it as using HC
 	for key, module in pairs(self.customEvents) do
@@ -309,9 +254,9 @@ function Tags:Unregister(fontString)
 	end
 	
 	-- Kill any tag data
+	if( fontString.monitor ) then fontString.monitor:Stop() end
 	fontString.parent:UnregisterAll(fontString)
 	fontString.powerFilters = nil
-	fontString.frequentStart = nil
 	fontString.UpdateTags = nil
 	fontString:SetText("")
 
