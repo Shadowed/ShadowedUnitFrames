@@ -22,5 +22,5 @@ function AuraPoints:OnEnable(frame)
 end
 
 function AuraPoints:GetPoints(unit)
-	return select(4, UnitAura("player", trackSpell.name, trackSpell.filter)) or 0
+	return select(4, UnitAura("player", trackSpell.name, nil, trackSpell.filter)) or 0
 end
