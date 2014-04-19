@@ -1,8 +1,8 @@
 local AuraPoints = setmetatable({
 	isComboPoints = true,
 	spells = {
-		["MAGE"] = {max = 4, name = GetSpellInfo(114664)},
-		["ROGUE"] = {max = 5, name = GetSpellInfo(115189)}
+		["MAGE"] = {max = 4, name = GetSpellInfo(114664), filter = "HARMFUL"},
+		["ROGUE"] = {max = 5, name = GetSpellInfo(115189), filter = "HELPFUL"}
 	}
 }, {__index = ShadowUF.ComboPoints})
 
@@ -22,5 +22,5 @@ function AuraPoints:OnEnable(frame)
 end
 
 function AuraPoints:GetPoints(unit)
-	return select(4, UnitAura("player", trackSpell.name)) or 0
+	return select(4, UnitAura("player", trackSpell.name, trackSpell.filter)) or 0
 end
