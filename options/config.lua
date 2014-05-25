@@ -12,6 +12,12 @@ ShadowUF.Config = Config
 	
 	I'm going to have to split it out into separate files for each type to clean everything up but that takes time and I have other things
 	I want to get done with first.
+
+	-- dated 2009
+
+	In reality, this will never be cleaned up because jesus christ, I am not refactoring 7,000 lines of configuration.
+
+	*** HERE BE DRAGONS ***
 ]]
 
 local unitCategories = {
@@ -250,6 +256,8 @@ local function setUnit(info, value)
 	if( moduleSubKey and not key ) then key = moduleSubKey moduleSubKey = nil end
 	if( moduleSubKey == "$parent" ) then moduleSubKey = info[#(info) - 1] end
 	if( moduleKey == "$parent" ) then moduleKey = info[#(info) - 1] end
+	if( moduleSubKey == "$parentparent" ) then moduleSubKey = info[#(info) - 2] end
+	if( moduleKey == "$parentparent" ) then moduleKey = info[#(info) - 2] end
 	if( tonumber(moduleSubKey) ) then moduleSubKey = tonumber(moduleSubKey) end
 	
 	setDirectUnit(unit, moduleKey, moduleSubKey, key, value)
@@ -272,6 +280,8 @@ local function getUnit(info)
 	if( moduleSubKey and not key ) then key = moduleSubKey moduleSubKey = nil end
 	if( moduleSubKey == "$parent" ) then moduleSubKey = info[#(info) - 1] end
 	if( moduleKey == "$parent" ) then moduleKey = info[#(info) - 1] end
+	if( moduleSubKey == "$parentparent" ) then moduleSubKey = info[#(info) - 2] end
+	if( moduleKey == "$parentparent" ) then moduleKey = info[#(info) - 2] end
 	if( tonumber(moduleSubKey) ) then moduleSubKey = tonumber(moduleSubKey) end
 	
 	return getVariable(info[2], moduleKey, moduleSubKey, key)
@@ -1968,7 +1978,7 @@ local function loadUnitOptions()
 	end
 		
 	local function disableAnchoredTo(info)
-		local auras = getVariable(info[2], "auras", nil, info[#(info) - 1])
+		local auras = getVariable(info[2], "auras", nil, info[#(info) - 2])
 		
 		return auras.anchorOn or not auras.enabled
 	end
@@ -1978,15 +1988,15 @@ local function loadUnitOptions()
 		local debuffs = getVariable(info[2], "auras", nil, "debuffs")
 		local anchor = buffs.enabled and buffs.prioritize and "buffs" or "debuffs"
 		
-		if( not getVariable(info[2], "auras", info[#(info) - 1], "enabled") ) then
+		if( not getVariable(info[2], "auras", info[#(info) - 2], "enabled") ) then
 			return true
 		end
 		
-		if( ( info[#(info)] == "x" or info[#(info)] == "y" ) and ( info[#(info) - 1] == "buffs" and buffs.anchorOn or info[#(info) - 1] == "debuffs" and debuffs.anchorOn ) ) then
+		if( ( info[#(info)] == "x" or info[#(info)] == "y" ) and ( info[#(info) - 2] == "buffs" and buffs.anchorOn or info[#(info) - 2] == "debuffs" and debuffs.anchorOn ) ) then
 			return true
 		end
 		
-		if( anchor == info[#(info) - 1] or buffs.anchorOn or debuffs.anchorOn ) then
+		if( anchor == info[#(info) - 2] or buffs.anchorOn or debuffs.anchorOn ) then
 			return false
 		end	
 		
@@ -2001,229 +2011,310 @@ local function loadUnitOptions()
 	
 	local function hideStealable(info)
 		if( not ShadowUF.db.profile.advanced ) then return true end
-		if( info[2] == "player" or info[2] == "pet" or info[#(info) - 1] == "debuffs" ) then return true end
+		if( info[2] == "player" or info[2] == "pet" or info[#(info) - 2] == "debuffs" ) then return true end
 		
 		return false
 	end
+
+	local function hideBuffOption(info)
+		return info[#(info) - 2] ~= "buffs"
+	end
+
+	local function hideDebuffOption(info)
+		return info[#(info) - 2] ~= "debuffs"
+	end
+
+	local function reloadUnitAuras()
+		for _, frame in pairs(ShadowUF.Units.unitFrames) do
+			if( UnitExists(frame.unit) and frame.visibility.auras ) then
+				ShadowUF.modules.auras:UpdateFilter(frame)
+				frame:FullUpdate()
+			end
+		end
+	end
 	
+	local aurasDisabled = function(info) return not getVariable(info[2], "auras", info[#(info) - 2], "enabled") end
+
 	Config.auraTable = {
 		type = "group",
-		inline = true,
 		hidden = false,
 		name = function(info) return info[#(info)] == "buffs" and L["Buffs"] or L["Debuffs"] end,
 		order = function(info) return info[#(info)] == "buffs" and 1 or 2 end,
-		disabled = function(info) return not getVariable(info[2], "auras", info[#(info) - 1], "enabled") end,
+		disabled = false,
 		args = {
-			enabled = {
+			general = {
+				type = "group",
+				name = L["General"],
+				order = 0,
+				args = {
+					enabled = {
+						order = 1,
+						type = "toggle",
+						name = function(info) if( info[#(info) - 2] == "buffs" ) then return L["Enable buffs"] end return L["Enable debuffs"] end,
+						disabled = false,
+						width = "full",
+						arg = "auras.$parentparent.enabled",
+					},
+					temporary = {
+						order = 2,
+						type = "toggle",
+						name = L["Enable temporary enchants"],
+						desc = L["Adds temporary enchants to the buffs for the player."],
+						width = "full",
+						hidden = function(info) return info[2] ~= "player" end,
+						disabled = function(info) return not getVariable(info[2], "auras", "buffs", "enabled") end,
+						arg = "auras.buffs.temporary",
+					}
+				}
+			},
+			filters = {
+				type = "group",
+				name = L["Filters"],
 				order = 1,
-				type = "toggle",
-				name = function(info) if( info[#(info) - 1] == "buffs" ) then return L["Enable buffs"] end return L["Enable debuffs"] end,
-				disabled = false,
-				arg = "auras.$parent.enabled",
-			},
-			anchorOn = {
-				order = 2,
-				type = "toggle",
-				name = function(info) return info[#(info) - 1] == "buffs" and L["Anchor to debuffs"] or L["Anchor to buffs"] end,
-				desc = L["Allows you to anchor the aura group to another, you can then choose where it will be anchored using the position.|n|nUse this if you want to duplicate the default ui style where buffs and debuffs are separate groups."],
 				set = function(info, value)
-					setVariable(info[2], "auras", info[#(info) - 1] == "buffs" and "debuffs" or "buffs", "anchorOn", false)
-					setUnit(info, value)
+					getVariable(info[2], "auras", info[#(info) - 2], "show")[info[#(info)]] = value
+					reloadUnitAuras()
 				end,
-				arg = "auras.$parent.anchorOn",
-			},
-			prioritize = {
-				order = 2.25,
-				type = "toggle",
-				name = L["Prioritize buffs"],
-				desc = L["Show buffs before debuffs when sharing the same anchor point."],
-				hidden = function(info) return info[#(info) - 1] == "debuffs" end,
-				disabled = function(info) 
-					if( not getVariable(info[2], "auras", info[#(info) - 1], "enabled") ) then return true end
-					
-					local buffs = getVariable(info[2], "auras", nil, "buffs")
-					local debuffs = getVariable(info[2], "auras", nil, "debuffs")
-					
-					return buffs.anchorOn or debuffs.anchorOn or buffs.anchorPoint ~= debuffs.anchorPoint
+				get = function(info)
+					return getVariable(info[2], "auras", info[#(info) - 2], "show")[info[#(info)]]
 				end,
-				arg = "auras.$parent.prioritize",
+				args = {
+					player = {
+						order = 1,
+						type = "toggle",
+						name = L["Show your auras"],
+						desc = L["Whether auras you casted should be shown"],
+						width = "full"
+					},
+					raid = {
+						order = 2,
+						type = "toggle",
+						name = function(info) return info[#(info) - 2] == "buffs" and L["Show castable on other auras"] or L["Show curable/removable auras"] end,
+						desc = function(info) return info[#(info) - 2] == "buffs" and L["Whether to show buffs that you cannot cast."] or L["Whether to show any debuffs you can remove, cure or steal."] end,
+						width = "full"
+					},
+					boss = {
+						order = 3,
+						type = "toggle",
+						name = L["Show casted by boss"],
+						desc = L["Whether to show any debuffs casted by the boss"],
+						hidden = hideDebuffOption,
+						width = "full"
+					},
+					consolidated = {
+						order = 4,
+						type = "toggle",
+						name = L["Show consolidable auras"],
+						desc = L["Whether to show any auras that would be consolidated by the default UI."],
+						width = "full",
+						arg = "auras.$parentparent.show.consolidated"
+					},
+					misc = {
+						order = 5,
+						type = "toggle",
+						name = L["Show any other auras"],
+						desc = L["Whether to show auras that do not fall into the above categories."],
+						width = "full"
+					}
+				}
 			},
-			sep2 = {
-				order = 6,
-				type = "description",
-				name = "",
-				width = "full",
+			display = {
+				type = "group",
+				name = L["Display"],
+				order = 2,
+				args = {
+					prioritize = {
+						order = 1,
+						type = "toggle",
+						name = L["Prioritize buffs"],
+						desc = L["Show buffs before debuffs when sharing the same anchor point."],
+						hidden = hideBuffOption,
+						disabled = function(info) 
+							if( not getVariable(info[2], "auras", info[#(info) - 2], "enabled") ) then return true end
+							
+							local buffs = getVariable(info[2], "auras", nil, "buffs")
+							local debuffs = getVariable(info[2], "auras", nil, "debuffs")
+							
+							return buffs.anchorOn or debuffs.anchorOn or buffs.anchorPoint ~= debuffs.anchorPoint
+						end,
+						arg = "auras.$parentparent.prioritize"
+					},
+					sep1 = {order = 1.5, type = "description", name = "", width = "full"},
+					selfScale = {
+						order = 2,
+						type = "range",
+						name = L["Scaled aura size"],
+						desc = L["Scale for auras that you casted or can Spellsteal, any number above 100% is bigger than default, any number below 100% is smaller than default."],
+						min = 1, max = 3, step = 0.10,
+						isPercent = true,
+						hidden = hideAdvancedOption,
+						arg = "auras.$parentparent.selfScale",
+					},
+					sep12 = {order = 2.5, type = "description", name = "", width = "full"},
+					timers = {
+						order = 3,
+						type = "multiselect",
+						name = L["Cooldown rings for"],
+						desc = L["When to show cooldown rings on auras"],
+						hidden = hideAdvancedOption,
+						values = function(info)
+							local tbl = {["ALL"] = L["All Auras"], ["SELF"] = L["Your Auras"]}
+							local type = info[#(info) - 2]
+							if( type == "debuffs" ) then
+								tbl["BOSS"] = L["Boss Debuffs"]
+							end
+
+							return tbl;
+						end,
+						set = function(info, key, value)
+							local tbl = getVariable(info[2], "auras", info[#(info) - 2], "timers")
+							if( key == "ALL" and value ) then
+								tbl = {["ALL"] = true}
+							elseif( key ~= "ALL" and value ) then
+								tbl["ALL"] = nil
+								tbl[key] = value
+							else
+								tbl[key] = value
+							end
+
+							setVariable(info[2], "auras", info[#(info) - 2], "timers", tbl)
+							reloadUnitAuras()
+						end,
+						get = function(info, key)
+							return getVariable(info[2], "auras", info[#(info) - 2], "timers")[key]
+						end
+					},
+					sep3 = {order = 3.5, type = "description", name = "", width = "full"},
+					enlarge = {
+						order = 4,
+						type = "multiselect",
+						name = L["Enlarge auras for"],
+						desc = L["What type of auras should be enlarged, use the scaled aura size option to change the size."],
+						values = function(info)
+							local tbl = {["SELF"] = L["Your Auras"]}
+							local type = info[#(info) - 2]
+							if( type == "debuffs" ) then
+								tbl["BOSS"] = L["Boss Debuffs"]
+							end
+
+							if( info[2] ~= "player" ) then
+								tbl["REMOVABLE"] = L["Removable/Stealable"]
+							else
+								tbl["REMOVABLE"] = L["Removable"]
+							end
+
+							return tbl;
+						end,
+						set = function(info, key, value)
+							local tbl = getVariable(info[2], "auras", info[#(info) - 2], "enlarge")
+							tbl[key] = value
+							
+							setVariable(info[2], "auras", info[#(info) - 2], "enlarge", tbl)
+							reloadUnitAuras()
+						end,
+						get = function(info, key)
+							return getVariable(info[2], "auras", info[#(info) - 2], "enlarge")[key]
+						end
+					}
+				}
 			},
-			enlargeStealable = {
-				order = 6.5,
-				type = "toggle",
-				name = L["Enlarge removable auras"],
-				desc = L["If you can Spellsteal or remove an aura, then it will be shown scaled using the scaled aura size option."],
-				arg = "auras.$parent.enlargeStealable",
-				hidden = hideStealable,
-			},
-			player = {
-				order = 7,
-				type = "toggle",
-				name = L["Show your auras only"],
-				desc = L["Filter out any auras that you did not cast yourself."],
-				arg = "auras.$parent.player",
-			},
-			raid = {
-				order = 8,
-				type = "toggle",
-				name = function(info) return info[#(info) - 1] == "buffs" and L["Show castable on other auras only"] or L["Show curable only"] end,
-				desc = function(info) return info[#(info) - 1] == "buffs" and L["Filter out any auras that you cannot cast on another player, or yourself."] or L["Filter out any aura that you cannot cure."] end,
-				width = "double",
-				arg = "auras.$parent.raid",
-				hidden = function(info) return not hideStealable(info) end,
-			},
-			raid2 = {
-				order = 8,
-				type = "toggle",
-				name = function(info) return info[#(info) - 1] == "buffs" and L["Show castable on other auras only"] or L["Show curable only"] end,
-				desc = function(info) return info[#(info) - 1] == "buffs" and L["Filter out any auras that you cannot cast on another player, or yourself."] or L["Filter out any aura that you cannot cure."] end,
-				arg = "auras.$parent.raid",
-				hidden = hideStealable,
-			},
-			sep3 = {
-				order = 9,
-				type = "description",
-				name = "",
-				width = "full",
-			},
-			selfTimers = {
-				order = 9.5,
-				type = "toggle",
-				name = L["Timers for self auras only"],
-				desc = L["Hides the cooldown ring for any auras that you did not cast."],
-				hidden = hideAdvancedOption,
-				arg = "auras.$parent.selfTimers",
-			},
-			enlargeSelf = {
-				order = 10,
-				type = "toggle",
-				name = L["Enlarge your auras"],
-				desc = L["If you casted the aura, then the buff icon will be increased in size to make it more visible."],
-				arg = "auras.$parent.enlargeSelf",
-			},
-			selfScale = {
-				order = 11,
-				type = "range",
-				name = L["Scaled aura size"],
-				desc = L["Scale for auras that you casted or can Spellsteal, any number above 100% is bigger than default, any number below 100% is smaller than default."],
-				min = 1, max = 3, step = 0.10,
-				isPercent = true,
-				disabled = function(info) return not getVariable(info[2], "auras", info[#(info) - 1], "enlargeSelf") and not getVariable(info[2], "auras", info[#(info) - 1], "enlargeStealable") end,
-				hidden = hideAdvancedOption,
-				arg = "auras.$parent.selfScale",
-			},
-			selfTimersDouble = {
-				order = 11,
-				type = "toggle",
-				name = L["Timers for self auras only"],
-				desc = L["Hides the cooldown ring for any auras that you did not cast."],
-				hidden = hideBasicOption,
-				arg = "auras.$parent.selfTimers",
-				width = "double",
-			},
-			sep4 = {
-				order = 12,
-				type = "description",
-				name = "",
-				width = "full",
-			},
-			perRow = {
-				order = 13,
-				type = "range",
-				name = function(info)
-					local anchorPoint = getVariable(info[2], "auras", info[#(info) - 1], "anchorPoint")
-					if( ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "LEFT" or ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "RIGHT" ) then
-						return L["Per column"]
-					end
-					
-					return L["Per row"]
-				end,
-				desc = L["How many auras to show in a single row."],
-				min = 1, max = 100, step = 1, softMin = 1, softMax = 50,
-				disabled = disableSameAnchor,
-				arg = "auras.$parent.perRow",
-			},
-			maxRows = {
-				order = 14,
-				type = "range",
-				name = L["Max rows"],
-				desc = L["How many rows total should be used, rows will be however long the per row value is set at."],
-				min = 1, max = 10, step = 1, softMin = 1, softMax = 5,
-				disabled = disableSameAnchor,
-				hidden = function(info)
-					local anchorPoint = getVariable(info[2], "auras", info[#(info) - 1], "anchorPoint")
-					if( ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "LEFT" or ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "RIGHT" ) then
-						return true
-					end
-					
-					return false
-				end,
-				arg = "auras.$parent.maxRows",
-			},
-			maxColumns = {
-				order = 14,
-				type = "range",
-				name = L["Max columns"],
-				desc = L["How many auras per a column for example, entering two her will create two rows that are filled up to whatever per row is set as."],
-				min = 1, max = 100, step = 1, softMin = 1, softMax = 50,
-				hidden = function(info)
-					local anchorPoint = getVariable(info[2], "auras", info[#(info) - 1], "anchorPoint")
-					if( ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "LEFT" or ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "RIGHT" ) then
-						return false
-					end
-					
-					return true
-				end,
-				disabled = disableSameAnchor,
-				arg = "auras.$parent.maxRows",
-			},
-			size = {
-				order = 15,
-				type = "range",
-				name = L["Size"],
-				min = 1, max = 30, step = 1,
-				arg = "auras.$parent.size",
-			},
-			sep5 = {
-				order = 16,
-				type = "description",
-				name = "",
-				width = "full",
-			},
-			anchorPoint = {
-				order = 17,
-				type = "select",
-				name = L["Position"],
-				desc = L["How you want this aura to be anchored to the unit frame."],
-				values = getAuraAnchors,
-				disabled = disableAnchoredTo,
-				arg = "auras.$parent.anchorPoint",
-			},
-			x = {
-				order = 18,
-				type = "range",
-				name = L["X Offset"],
-				min = -1000, max = 1000, step = 1, softMin = -100, softMax = 100,
-				disabled = disableSameAnchor,
-				hidden = hideAdvancedOption,
-				arg = "auras.$parent.x",
-			},
-			y = {
-				order = 19,
-				type = "range",
-				name = L["Y Offset"],
-				min = -1000, max = 1000, step = 1, softMin = -100, softMax = 100,
-				disabled = disableSameAnchor,
-				hidden = hideAdvancedOption,
-				arg = "auras.$parent.y",
-			},
-		},
+			positioning = {
+				type = "group",
+				name = L["Positioning"],
+				order = 3,
+				args = {
+					anchorOn = {
+						order = 1,
+						type = "toggle",
+						name = function(info) return info[#(info) - 2] == "buffs" and L["Anchor to debuffs"] or L["Anchor to buffs"] end,
+						desc = L["Allows you to anchor the aura group to another, you can then choose where it will be anchored using the position.|n|nUse this if you want to duplicate the default ui style where buffs and debuffs are separate groups."],
+						set = function(info, value)
+							setVariable(info[2], "auras", info[#(info) - 2] == "buffs" and "debuffs" or "buffs", "anchorOn", false)
+							setUnit(info, value)
+						end,
+						width = "full",
+						arg = "auras.$parentparent.anchorOn",
+					},
+					size = {
+						order = 2,
+						type = "range",
+						name = L["Icon Size"],
+						min = 1, max = 30, step = 1,
+						arg = "auras.$parentparent.size",
+					},
+					sep1 = {order = 3, type = "description", name = "", width = "full"},
+					perRow = {
+						order = 13,
+						type = "range",
+						name = function(info)
+							local anchorPoint = getVariable(info[2], "auras", info[#(info) - 2], "anchorPoint")
+							if( ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "LEFT" or ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "RIGHT" ) then
+								return L["Per column"]
+							end
+							
+							return L["Per row"]
+						end,
+						desc = L["How many auras to show in a single row."],
+						min = 1, max = 100, step = 1, softMin = 1, softMax = 50,
+						disabled = disableSameAnchor,
+						arg = "auras.$parent.perRow",
+					},
+					maxRows = {
+						order = 14,
+						type = "range",
+						name = L["Max rows"],
+						desc = L["How many rows total should be used, rows will be however long the per row value is set at."],
+						min = 1, max = 10, step = 1, softMin = 1, softMax = 5,
+						disabled = disableSameAnchor,
+						hidden = function(info)
+							local anchorPoint = getVariable(info[2], "auras", info[#(info) - 2], "anchorPoint")
+							if( ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "LEFT" or ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "RIGHT" ) then
+								return true
+							end
+							
+							return false
+						end,
+						arg = "auras.$parentparent.maxRows",
+					},
+					maxColumns = {
+						order = 14,
+						type = "range",
+						name = L["Max columns"],
+						desc = L["How many auras per a column for example, entering two her will create two rows that are filled up to whatever per row is set as."],
+						min = 1, max = 100, step = 1, softMin = 1, softMax = 50,
+						hidden = function(info)
+							local anchorPoint = getVariable(info[2], "auras", info[#(info) - 2], "anchorPoint")
+							if( ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "LEFT" or ShadowUF.Layout:GetColumnGrowth(anchorPoint) == "RIGHT" ) then
+								return false
+							end
+							
+							return true
+						end,
+						disabled = disableSameAnchor,
+						arg = "auras.$parentparent.maxRows",
+					},
+					x = {
+						order = 18,
+						type = "range",
+						name = L["X Offset"],
+						min = -1000, max = 1000, step = 1, softMin = -100, softMax = 100,
+						disabled = disableSameAnchor,
+						hidden = hideAdvancedOption,
+						arg = "auras.$parentparent.x",
+					},
+					y = {
+						order = 19,
+						type = "range",
+						name = L["Y Offset"],
+						min = -1000, max = 1000, step = 1, softMin = -100, softMax = 100,
+						disabled = disableSameAnchor,
+						hidden = hideAdvancedOption,
+						arg = "auras.$parentparent.y",
+					},
+
+				}
+			}
+		}
 	}
 	
 	local function hideBarOption(info)
@@ -4432,25 +4523,8 @@ local function loadUnitOptions()
 				hidden = isModifiersSet,
 				set = setUnit,
 				get = getUnit,
+				childGroups = "tree",
 				args = {
-					temp = {
-						order = 0,
-						type = "group",
-						inline = true,
-						name = L["Temporary enchants"],
-						hidden = function(info) return info[2] ~= "player" end,
-						args = {
-							temporary = {
-								order = 0,
-								type = "toggle",
-								name = L["Enable temporary enchants"],
-								desc = L["Adds temporary enchants to the buffs for the player."],
-								disabled = function(info) return not getVariable(info[2], "auras", "buffs", "enabled") end,
-								arg = "auras.buffs.temporary",
-								width = "double",
-							},
-						},
-					},
 					buffs = Config.auraTable,
 					debuffs = Config.auraTable,
 				},

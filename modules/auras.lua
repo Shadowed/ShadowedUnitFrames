@@ -313,13 +313,6 @@ local function updateGroup(self, type, config, reverseConfig)
 	
 	-- Update filters used for the anchor
 	group.filter = group.type == "buffs" and "HELPFUL" or group.type == "debuffs" and "HARMFUL" or ""
-
-	-- This is a bit of an odd filter, when used with a HELPFUL filter, it will only return buffs you can cast on group members
-	-- When used with HARMFUL it will only return debuffs you can cure
-	-- As of 5.0.5, this is still broken and won't account for talents or symbiosis
-	if( config.raid and group.type == "buffs" ) then
-        group.filter = group.filter .. "|RAID"
-	end
 	
 	for id, button in pairs(group.buttons) do
 		updateButton(id, group, config)
@@ -412,7 +405,7 @@ local function updateTemporaryEnchant(frame, slot, tempData, hasEnchant, timeLef
 	end
 
 	-- Enlarge our own auras
-	if( config.enlargeSelf ) then
+	if( config.enlarge.SELF ) then
 		button.isSelfScaled = true
 		button:SetScale(config.selfScale)
 	else
@@ -506,6 +499,82 @@ function Auras:UpdateFilter(frame)
 	frame.auras.blacklist = black and ShadowUF.db.profile.filters.blacklists[black] or filterDefault
 end
 
+local function categorizeAura(type, curable, auraType, caster, isRemovable, shouldConsolidate, canApplyAura, isBossDebuff)
+	if( playerUnits[caster] ) then
+		return "player"
+	elseif( isBossDebuff ) then
+		return "boss"
+	elseif( type == "buffs" and canApplyAura ) then
+		return "raid"
+	elseif( type == "debuffs" and ( isRemovable or ( curable and canCure[auraType] ) ) ) then
+		return "raid"
+	elseif( shouldConsolidate ) then
+		return "consolidated"
+	else
+		return "misc"
+	end
+end
+
+local function renderAura(parent, frame, type, config, displayConfig, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+	-- Do our initial list check to see if we can quick filter it out
+	if( parent.whitelist[type] and not parent.whitelist[name] and not parent.whitelist[spellID] ) then return end
+	if( parent.blacklist[type] and not parent.blacklist[name] and not parent.blacklist[spellID] ) then return end
+
+	-- Now do our type filter
+	local category = categorizeAura(type, curable, auraType, caster, isRemovable, shouldConsolidate, canApplyAura, isBossDebuff)
+	if( not config.show[category] ) then return end
+
+	-- Create any buttons we need
+	frame.totalAuras = frame.totalAuras + 1
+	if( #(frame.buttons) < frame.totalAuras ) then
+		updateButton(frame.totalAuras, frame, ShadowUF.db.profile.units[frame.parent.unitType].auras[frame.type])
+	end
+		
+	-- Show debuff border, or a special colored border if it's stealable
+	local button = frame.buttons[frame.totalAuras]
+	if( isRemovable and not isFriendly and not ShadowUF.db.profile.auras.disableColor ) then
+		button.border:SetVertexColor(ShadowUF.db.profile.auraColors.removable.r, ShadowUF.db.profile.auraColors.removable.g, ShadowUF.db.profile.auraColors.removable.b)
+	elseif( ( not isFriendly or type == "debuffs" ) and not ShadowUF.db.profile.auras.disableColor ) then
+		local color = auraType and DebuffTypeColor[auraType] or DebuffTypeColor.none
+		button.border:SetVertexColor(color.r, color.g, color.b)
+	else
+		button.border:SetVertexColor(0.60, 0.60, 0.60)
+	end
+	
+	-- Show the cooldown ring
+	if( not ShadowUF.db.profile.auras.disableCooldown and duration > 0 and endTime > 0 and ( config.timers.ALL or ( category == "player" and config.timers.SELF ) or ( category == "boss" and config.timers.BOSS ) ) ) then
+		button.cooldown:SetCooldown(endTime - duration, duration)
+		button.cooldown:Show()
+	else
+		button.cooldown:Hide()
+	end
+	
+	-- Enlarge our own auras
+	if( ( category == "player" and config.enlarge.SELF ) or ( category == "boss" and config.enlarge.BOSS ) or ( category == "raid" and type == "debuffs" and config.enlarge.REMOVABLE ) ) then
+		button.isSelfScaled = true
+		button:SetScale(config.selfScale)
+	else
+		button.isSelfScaled = nil
+		button:SetScale(1)
+	end
+
+	-- Size it
+	button:SetHeight(config.size)
+	button:SetWidth(config.size)
+	button.border:SetHeight(config.size + 1)
+	button.border:SetWidth(config.size + 1)
+	
+	-- Stack + icon + show! Never understood why, auras sometimes return 1 for stack even if they don't stack
+	button.auraID = index
+	button.filter = filter
+	button.unit = frame.parent.unit
+	button.columnHasScaled = nil
+	button.previousHasScale = nil
+	button.icon:SetTexture(texture)
+	button.stack:SetText(count > 1 and count or "")
+	button:Show()
+end
+
 -- Scan for auras
 local function scan(parent, frame, type, config, displayConfig, filter)
 	if( frame.totalAuras >= frame.maxAuras or not config.enabled ) then return end
@@ -516,70 +585,20 @@ local function scan(parent, frame, type, config, displayConfig, filter)
 	local index = 0
 	while( true ) do
 		index = index + 1
-		local name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID = UnitAura(frame.parent.unit, index, filter)
+		local name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff = UnitAura(frame.parent.unit, index, filter)
 		if( not name ) then break end
 
-		if( ( not config.player or playerUnits[caster] ) and ( not parent.whitelist[type] and not parent.blacklist[type] or parent.whitelist[type] and ( parent.whitelist[name] or parent.whitelist[spellID] ) or parent.blacklist[type] and ( not parent.blacklist[name] and not parent.blacklist[spellID] ) ) and ( not curable or canCure[auraType] ) ) then
-			-- Create any buttons we need
-			frame.totalAuras = frame.totalAuras + 1
-			if( #(frame.buttons) < frame.totalAuras ) then
-				updateButton(frame.totalAuras, frame, ShadowUF.db.profile.units[frame.parent.unitType].auras[frame.type])
-			end
-				
-			-- Show debuff border, or a special colored border if it's stealable
-			local button = frame.buttons[frame.totalAuras]
-			if( isRemovable and not isFriendly and not ShadowUF.db.profile.auras.disableColor ) then
-				button.border:SetVertexColor(ShadowUF.db.profile.auraColors.removable.r, ShadowUF.db.profile.auraColors.removable.g, ShadowUF.db.profile.auraColors.removable.b)
-			elseif( ( not isFriendly or type == "debuffs" ) and not ShadowUF.db.profile.auras.disableColor ) then
-				local color = auraType and DebuffTypeColor[auraType] or DebuffTypeColor.none
-				button.border:SetVertexColor(color.r, color.g, color.b)
-			else
-				button.border:SetVertexColor(0.60, 0.60, 0.60)
-			end
-			
-			-- Show the cooldown ring
-			if( not ShadowUF.db.profile.auras.disableCooldown and duration > 0 and endTime > 0 and ( not config.selfTimers or ( config.selfTimers and playerUnits[caster] ) ) ) then
-				button.cooldown:SetCooldown(endTime - duration, duration)
-				button.cooldown:Show()
-			else
-				button.cooldown:Hide()
-			end
-			
-			-- Enlarge our own auras
-			if( config.enlargeSelf and playerUnits[caster] or ( isRemovable and not isFriendly and config.enlargeStealable ) ) then
-				button.isSelfScaled = true
-				button:SetScale(config.selfScale)
-			else
-				button.isSelfScaled = nil
-				button:SetScale(1)
-			end
+		renderAura(parent, frame, type, config, displayConfig, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
 
-			-- Size it
-			button:SetHeight(config.size)
-			button:SetWidth(config.size)
-			button.border:SetHeight(config.size + 1)
-			button.border:SetWidth(config.size + 1)
-			
-			-- Stack + icon + show! Never understood why, auras sometimes return 1 for stack even if they don't stack
-			button.auraID = index
-			button.filter = filter
-			button.unit = frame.parent.unit
-			button.columnHasScaled = nil
-			button.previousHasScale = nil
-			button.icon:SetTexture(texture)
-			button.stack:SetText(count > 1 and count or "")
-			button:Show()
-			
-			-- Too many auras shown break out
-			-- Get down
-			if( frame.totalAuras >= frame.maxAuras ) then break end
-		end
+		-- Too many auras shown, break out
+		-- Get down
+		if( frame.totalAuras >= frame.maxAuras ) then break end
 	end
 	
 	for i=frame.totalAuras + 1, #(frame.buttons) do frame.buttons[i]:Hide() end
 
 	-- The default 1.30 scale doesn't need special handling, after that it does
-	if( config.enlargeSelf ) then
+	if( config.selfScale > 1.30 ) then
 		positionAllButtons(frame, displayConfig)
 	end
 end

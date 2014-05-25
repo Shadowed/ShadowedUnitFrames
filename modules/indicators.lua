@@ -310,6 +310,7 @@ function Indicators:OnEnable(frame)
 	
 	if( config.indicators.resurrect and config.indicators.resurrect.enabled ) then
 	    frame:RegisterNormalEvent("INCOMING_RESURRECT_CHANGED", self, "UpdateResurrect")
+	    frame:RegisterNormalEvent("UNIT_OTHER_PARTY_CHANGED", self, "UpdateResurrect")
 	    frame:RegisterUpdateFunc(self, "UpdateResurrect")
 	    
 	    frame.indicators.resurrect = frame.indicators.resurrect or frame.indicators:CreateTexture(nil, "OVERLAY")

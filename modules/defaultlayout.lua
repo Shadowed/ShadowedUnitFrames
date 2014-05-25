@@ -235,8 +235,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 	config.parentUnit = {
 		portrait = {enabled = false, type = "3D", alignment = "LEFT", width = 0.22, height = 0.50, order = 15, fullBefore = 0, fullAfter = 100},
 		auras = {
-			buffs = {enabled = false, anchorPoint = "BL", size = 16, perRow = 10, x = 0, y = 0},
-			debuffs = {enabled = false, anchorPoint = "BL", size = 16, perRow = 10, x = 0, y = 0},
+			buffs = {enabled = false, anchorPoint = "BL", size = 16, perRow = 10, x = 0, y = 0, show = {misc = true, player = true, raid = true, consolidated = true}, enlarge = {}, timers = {ALL = true}},
+			debuffs = {enabled = false, anchorPoint = "BL", size = 16, perRow = 10, x = 0, y = 0, show = {misc = true, player = true, raid = true, boss = true}, enlarge = {SELF = true}, timers = {ALL = true}},
 		},
 		text = {
 			{width = 0.50, name = L["Left text"], anchorTo = "$healthBar", anchorPoint = "CLI", x = 3, y = 0, size = 0, default = true},
@@ -358,7 +358,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
                 resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
 			},
 			auras = {
-				buffs = {enabled = false, maxRows = 1, temporary = playerClass == "ROGUE" or playerClass == "SHAMAN"},
+				buffs = {enabled = false, maxRows = 1},
 				debuffs = {enabled = false, maxRows = 1},
 			},
 			text = {

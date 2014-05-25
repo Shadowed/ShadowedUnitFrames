@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 42
+ShadowUF.dbRevision = 43
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -100,6 +100,38 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 42 ) then
+		for unit, config in pairs(self.db.profile.units) do
+			config.auras.height = nil
+
+			for type, auraConfig in pairs(config.auras) do
+				auraConfig.show = {misc = true}
+				auraConfig.show.player = auraConfig.player
+				auraConfig.show.raid = auraConfig.raid
+
+				auraConfig.enlarge = {}
+				auraConfig.enlarge["SELF"] = auraConfig.enlargeSelf
+				auraConfig.enlarge["REMOVABLE"] = auraConfig.enlargeStealable
+
+				auraConfig.timers = {}
+				if( auraConfig.selfTimers ) then
+					auraConfig.timers["SELF"] = true
+				else
+					auraConfig.timers["ALL"] = true
+				end
+
+				auraConfig.selfTimers = nil
+				auraConfig.player = nil
+				auraConfig.raid = nil
+				auraConfig.enlargeSelf = nil
+				auraConfig.enlargeStealable = nil
+			end
+
+			config.auras.buffs.show.consolidated = true
+			config.auras.debuffs.show.boss = true
+		end
+	end
+
 	if( revision <= 41 ) then
 		local phase = self.db.profile.units.party.indicators.phase
 		phase.anchorPoint = phase.anchorPoint or "RC"
@@ -425,8 +457,8 @@ function ShadowUF:LoadUnitDefaults()
 			indicators = {raidTarget = {enabled = true, size = 0}}, 
 			highlight = {},
 			auras = {
-				buffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, prioritize = true, enlargeSelf = false},
-				debuffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, enlargeSelf = true},
+				buffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, prioritize = true, show = {misc = true, player = true, raid = true, consolidated = true}, enlarge = {}, timers = {ALL = true}},
+				debuffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, show = {misc = true, player = true, raid = true, boss = true}, enlarge = {SELF = true}, timers = {ALL = true}},
 			},
 		}
 		
