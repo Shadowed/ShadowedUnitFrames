@@ -535,7 +535,7 @@ OnAttributeChanged = function(self, name, unit)
 		self:RegisterUnitEvent("UNIT_NAME_UPDATE", Units, "CheckUnitStatus")
 
 		if( self.unitType == "arena" ) then
-			self:RegisterUnitEvent("ARENA_OPPONENT_UPDATE", Units, "FullUpdate")
+			self:RegisterUnitEvent("ARENA_OPPONENT_UPDATE", self, "FullUpdate")
 		end
 
 	-- Check for a unit guid to do a full update
