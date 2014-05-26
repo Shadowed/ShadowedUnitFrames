@@ -6198,6 +6198,8 @@ local function loadAuraIndicatorsOptions()
 	local Indicators = ShadowUF.modules.auraIndicators
 	local auraFilters = Indicators.auraFilters
 
+	local unitTable
+
 	local groupList = {}
 	local function getAuraGroup(info)
 		for k in pairs(groupList) do groupList[k] = nil end
@@ -6214,7 +6216,7 @@ local function loadAuraIndicatorsOptions()
 		for k in pairs(auraList) do auraList[k] = nil end
 		for name in pairs(ShadowUF.db.profile.auraIndicators.auras) do
 			if( tonumber(name) ) then
-				spellID = name
+				local spellID = name
 				name = GetSpellInfo(name) or L["Unknown"]
 				auraList[name] = string.format("%s (#%i)", name, spellID)
 			else
@@ -6742,7 +6744,7 @@ local function loadAuraIndicatorsOptions()
 	local addAura, addLink, setGlobalUnits, globalConfig = {}, {}, {}, {}
 	
 	-- Per unit enabled status
-	local unitTable = {
+	unitTable = {
 		order = ShadowUF.Config.getUnitOrder or 1,
 		type = "group",
 		name = function(info) return L.units[info[3]] end,

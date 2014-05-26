@@ -106,6 +106,8 @@ function ShadowUF:CheckUpgrade()
 		for unit, config in pairs(self.defaults.profile.units) do
 			if( config.indicators and config.indicators.resurrect ) then
 				local db = self.db.profile.units[unit]
+				
+				local options
 				if( unit == "target" ) then
 					options = {enabled = true, anchorPoint = "RC", size = 28, x = -39, y = -1, anchorTo = "$parent"}
 				else
@@ -684,13 +686,17 @@ function ShadowUF:LoadUnitDefaults()
 			[GetSpellInfo(33763)] = [[{indicator = '', group = "Druid", priority = 10, r = 0.07, g = 1.0, b = 0.01}]], -- Lifebloom
 			[GetSpellInfo(48438)] = [[{indicator = '', group = "Druid", priority = 10, r = 0.51, g = 0.72, b = 0.77}]], -- Wild Growth
 			[GetSpellInfo(1126)] = [[{indicator = '', group = "Druid", priority = 10, r = 1.0, g = 0.33, b = 0.90}]], -- Mark of the Wild
+
 			[GetSpellInfo(139)] = [[{indicator = '', group = "Priest", priority = 10, r = 1, g = 0.62, b = 0.88}]], -- Renew
 			[GetSpellInfo(17)] = [[{indicator = '', group = "Priest", priority = 10, r = 0.55, g = 0.69, b = 1.0}]], -- Power Word: Shield
 			[GetSpellInfo(21562)] = [[{indicator = '', group = "Priest", priority = 10, r = 0.58, g = 1.0, b = 0.50}]], -- Power Word: Fortitude
+
+			[GetSpellInfo(20707)] = [[{indicator = '', group = "Warlock", priority = 10, r = 0.42, g = 0.21, b = 0.65}]], -- Soulstone Resurrection,
+
 			[GetSpellInfo(974)] = [[{indicator = '', group = "Shaman", priority = 10, r = 0.26, g = 1.0, b = 0.26}]], -- Earth Shield
 			[GetSpellInfo(61295)] = [[{indicator = '', group = "Shaman", priority = 10, r = 0.30, g = 0.24, b = 1.0}]], -- Riptide
+
 			[GetSpellInfo(1459)] = [[{indicator = '', group = "Mage", priority = 10, r = 0.10, g = 0.68, b = 0.88}]], -- Arcane Brilliance
-			[GetSpellInfo(20707)] = [[{indicator = '', group = "Warlock", priority = 10, r = 0.42, g = 0.21, b = 0.65}]], -- Soulstone Resurrection
 		}
 	}
 
