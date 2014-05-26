@@ -7027,12 +7027,12 @@ local function loadAuraIndicatorsOptions()
 					},
 				},
 			},
-			--[[
 			linked = {
 				order = 3,
 				type = "group",
 				name = L["Linked spells"],
 				childGroups = "tree",
+				hidden = true,
 				args = {
 					help = {
 						order = 0,
@@ -7111,7 +7111,6 @@ local function loadAuraIndicatorsOptions()
 					},
 				},
 			},
-			]]
 			units = {
 				order = 4,
 				type = "group",
