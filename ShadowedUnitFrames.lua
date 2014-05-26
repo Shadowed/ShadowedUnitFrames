@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 43
+ShadowUF.dbRevision = 44
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -100,6 +100,13 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 43 ) then
+		for key, _ in pairs(self.db.profile.auraIndicators.indicators) do
+			self.db.profile.auraIndicators.height = nil
+			self.db.profile.auraIndicators.filters[key] = {boss = {priority = 100}, curable = {priority = 100}}
+		end
+	end
+
 	if( revision <= 42 ) then
 		for unit, config in pairs(self.db.profile.units) do
 			config.auras.height = nil
@@ -456,6 +463,7 @@ function ShadowUF:LoadUnitDefaults()
 			},
 			indicators = {raidTarget = {enabled = true, size = 0}}, 
 			highlight = {},
+			auraIndicators = {enabled = false},
 			auras = {
 				buffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, prioritize = true, show = {misc = true, player = true, raid = true, consolidated = true}, enlarge = {}, timers = {ALL = true}},
 				debuffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, show = {misc = true, player = true, raid = true, boss = true}, enlarge = {SELF = true}, timers = {ALL = true}},
@@ -629,10 +637,55 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.positions.partytarget.anchorTo = "$parent"
 	self.defaults.profile.positions.partytarget.anchorPoint = "RT"
 	self.defaults.profile.units.partytarget.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
+
+	-- Aura indicators
+	self.defaults.profile.auraIndicators = {
+		disabled = {},
+		missing = {},
+		linked = {},
+		indicators = {
+			["tl"] = {name = L["Top Left"], anchorPoint = "TLI", anchorTo = "$parent", height = 8, width = 8, alpha = 1.0, x = 4, y = -4, friendly = true, hostile = true},
+			["tr"] = {name = L["Top Right"], anchorPoint = "TRI", anchorTo = "$parent", height = 8, width = 8, alpha = 1.0, x = -3, y = -3, friendly = true, hostile = true},
+			["bl"] = {name = L["Bottom Left"], anchorPoint = "BLI", anchorTo = "$parent", height = 8, width = 8, alpha = 1.0, x = 4, y = 4, friendly = true, hostile = true},
+			["br"] = {name = L["Bottom Right"], anchorPoint = "BRI", anchorTo = "$parent", height = 8, width = 8, alpha = 1.0, x = -4, y = -4, friendly = true, hostile = true},
+			["c"] = {name = L["Center"], anchorPoint = "C", anchorTo = "$parent", height = 20, width = 20, alpha = 1.0, x = 0, y = 0, friendly = true, hostile = true},
+		},
+		filters = {
+			["tl"] = {boss = {priority = 100}, curable = {priority = 100}},
+			["tr"] = {boss = {priority = 100}, curable = {priority = 100}},
+			["bl"] = {boss = {priority = 100}, curable = {priority = 100}},
+			["br"] = {boss = {priority = 100}, curable = {priority = 100}},
+			["c"] = {boss = {priority = 100}, curable = {priority = 100}},
+		},
+		auras = {
+			[GetSpellInfo(774)] = [[{indicator = '', group = "Druid", priority = 10, r = 0.66, g = 0.66, b = 1.0}]], -- Rejuvenation
+			[GetSpellInfo(8936)] = [[{indicator = '', group = "Druid", priority = 10, r = 0.50, g = 1.0, b = 0.63}]], -- Regrowth
+			[GetSpellInfo(33763)] = [[{indicator = '', group = "Druid", priority = 10, r = 0.07, g = 1.0, b = 0.01}]], -- Lifebloom
+			[GetSpellInfo(48438)] = [[{indicator = '', group = "Druid", priority = 10, r = 0.51, g = 0.72, b = 0.77}]], -- Wild Growth
+			[GetSpellInfo(1126)] = [[{indicator = '', group = "Druid", priority = 10, r = 1.0, g = 0.33, b = 0.90}]], -- Mark of the Wild
+			[GetSpellInfo(139)] = [[{indicator = '', group = "Priest", priority = 10, r = 1, g = 0.62, b = 0.88}]], -- Renew
+			[GetSpellInfo(17)] = [[{indicator = '', group = "Priest", priority = 10, r = 0.55, g = 0.69, b = 1.0}]], -- Power Word: Shield
+			[GetSpellInfo(21562)] = [[{indicator = '', group = "Priest", priority = 10, r = 0.58, g = 1.0, b = 0.50}]], -- Power Word: Fortitude
+			[GetSpellInfo(974)] = [[{indicator = '', group = "Shaman", priority = 10, r = 0.26, g = 1.0, b = 0.26}]], -- Earth Shield
+			[GetSpellInfo(61295)] = [[{indicator = '', group = "Shaman", priority = 10, r = 0.30, g = 0.24, b = 1.0}]], -- Riptide
+			[GetSpellInfo(1459)] = [[{indicator = '', group = "Mage", priority = 10, r = 0.10, g = 0.68, b = 0.88}]], -- Arcane Brilliance
+			[GetSpellInfo(20707)] = [[{indicator = '', group = "Warlock", priority = 10, r = 0.42, g = 0.21, b = 0.65}]], -- Soulstone Resurrection
+		}
+	}
+
+	for classToken in pairs(RAID_CLASS_COLORS) do
+		self.defaults.profile.auraIndicators.disabled[classToken] = {}
+	end
 end
 
 -- Module APIs
 function ShadowUF:RegisterModule(module, key, name, isBar, class, spec, level)
+	-- Prevent duplicate registration for deprecated plugin
+	if( key == "auraIndicators" and IsAddOnLoaded("ShadowedUF_Indicators") and self.modules.auraIndicators ) then
+		self:Print(L["WARNING! ShadowedUF_Indicators has been deprecated as v4 and is now built in. Please delete ShadowedUF_Indicators, your configuration will be saved."])
+		return
+	end
+
 	self.modules[key] = module
 
 	module.moduleKey = key
@@ -877,6 +930,14 @@ local infoMessages = {
 		L["- Added Ancient Kings bar for Paladins"],
 		L["- And more! See the change log for everything that has changed."],
 		L["|nYou can disable the new text for Monk Stagger, Totem and Rune timers through /suf -> Unit configuration -> Text/Tags"]
+	},
+	{
+		L["Welcome to Shadowed Unit Frames v4! Auras have been expanded in this release.|n"],
+		L["- Aura Indicators are now built in"],
+		L["- Auras can be filtered multiple criteria rather than just self casted"],
+		L["- Boss debuff filtering is in"],
+		L["- Cooldown rings and scaled auras are more configurable"],
+		L["- Aura config is no longer a bunch of clumped options"]
 	}
 }
 

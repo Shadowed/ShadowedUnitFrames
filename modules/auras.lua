@@ -515,7 +515,7 @@ local function categorizeAura(type, curable, auraType, caster, isRemovable, shou
 	end
 end
 
-local function renderAura(parent, frame, type, config, displayConfig, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+local function renderAura(parent, frame, type, config, displayConfig, index, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
 	-- Do our initial list check to see if we can quick filter it out
 	if( parent.whitelist[type] and not parent.whitelist[name] and not parent.whitelist[spellID] ) then return end
 	if( parent.blacklist[type] and not parent.blacklist[name] and not parent.blacklist[spellID] ) then return end
@@ -588,7 +588,7 @@ local function scan(parent, frame, type, config, displayConfig, filter)
 		local name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff = UnitAura(frame.parent.unit, index, filter)
 		if( not name ) then break end
 
-		renderAura(parent, frame, type, config, displayConfig, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+		renderAura(parent, frame, type, config, displayConfig, index, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
 
 		-- Too many auras shown, break out
 		-- Get down

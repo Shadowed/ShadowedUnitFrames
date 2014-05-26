@@ -1,6 +1,6 @@
 ## Interface: 50400
 ## Title: Shadowed Unit Frames
-## Notes: Now with 200% more shadows than the leading competitors
+## Notes: Now with 300% more shadows than the leading competitors
 ## Author: Shadowed
 ## Version: @project-version@
 ## SavedVariables: ShadowedUFDB
@@ -39,6 +39,7 @@ modules\indicators.lua
 modules\xp.lua
 modules\cast.lua
 modules\auras.lua
+modules\auraindicators.lua
 modules\combattext.lua
 modules\totems.lua
 modules\runes.lua
@@ -63,4 +64,6 @@ modules\monkstagger.lua
 modules\aurapoints.lua
 #@do-not-package@
 options\config.lua
+globalcheck.rb
+localcheck.rb
 #@end-do-not-package@
