@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 44
+ShadowUF.dbRevision = 45
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -100,6 +100,27 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 44 ) then
+		ShadowUF:LoadDefaultLayout(true)
+
+		for unit, config in pairs(self.defaults.profile.units) do
+			if( config.indicators and config.indicators.resurrect ) then
+				local db = self.db.profile.units[unit]
+				if( unit == "target" ) then
+					options = {enabled = true, anchorPoint = "RC", size = 28, x = -39, y = -1, anchorTo = "$parent"}
+				else
+					options = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"}
+				end
+
+				for key, value in pairs(options) do
+					if( db.indicators.resurrect[key] == nil ) then
+						db.indicators.resurrect[key] = value
+					end
+				end
+			end
+		end		
+	end
+
 	if( revision <= 43 ) then
 		for key, _ in pairs(self.db.profile.auraIndicators.indicators) do
 			self.db.profile.auraIndicators.height = nil
@@ -487,15 +508,15 @@ function ShadowUF:LoadUnitDefaults()
 				self.defaults.profile.units[unit].indicators.class = {enabled = false, size = 19}
 			end
 		end
-			
-		-- Want pvp/leader/ML enabled for these units
-		if( unit == "player" or unit == "party" or unit == "target" or unit == "raid" or unit == "focus" ) then
+
+		if( unit == "player" or unit == "party" or unit == "target" or unit == "raid" or unit == "focus" or unit == "mainassist" or unit == "maintank" ) then
 			self.defaults.profile.units[unit].indicators.leader = {enabled = true, size = 0}
 			self.defaults.profile.units[unit].indicators.masterLoot = {enabled = true, size = 0}
 			self.defaults.profile.units[unit].indicators.pvp = {enabled = true, size = 0}
 			self.defaults.profile.units[unit].indicators.role = {enabled = true, size = 0}
 			self.defaults.profile.units[unit].indicators.status = {enabled = false, size = 19}
-			
+			self.defaults.profile.units[unit].indicators.resurrect = {enabled = true}
+
 			if( unit ~= "focus" and unit ~= "target" ) then
 				self.defaults.profile.units[unit].indicators.ready = {enabled = true, size = 0}
 			end
@@ -507,7 +528,7 @@ function ShadowUF:LoadUnitDefaults()
 
 		self.defaults.profile.units[unit].altPowerBar = {enabled = not ShadowUF.fakeUnits[unit]}
 	end
-		
+
 	-- PLAYER
 	self.defaults.profile.units.player.enabled = true
 	self.defaults.profile.units.player.healthBar.predicted = true
