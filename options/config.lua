@@ -6448,7 +6448,9 @@ local function loadAuraIndicatorsOptions()
 				order = 10,
 				type = "execute",
 				name = L["Delete"],
-				hidden = false,
+				hidden = function(info)
+					return ShadowUF.db.defaults.profile.auraIndicators.auras[auraMap[info[#(info) - 1]]]
+				end,
 				confirm = true,
 				confirmText = L["Are you sure you want to delete this aura?"],
 				func = function(info)
