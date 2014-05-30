@@ -2061,7 +2061,7 @@ local function loadUnitOptions()
 						name = L["Enable temporary enchants"],
 						desc = L["Adds temporary enchants to the buffs for the player."],
 						width = "full",
-						hidden = function(info) return info[2] ~= "player" end,
+						hidden = function(info) return info[2] ~= "player" or info[#(info) - 2] ~= "buffs" end,
 						disabled = function(info) return not getVariable(info[2], "auras", "buffs", "enabled") end,
 						arg = "auras.buffs.temporary",
 					}
@@ -2106,8 +2106,7 @@ local function loadUnitOptions()
 						type = "toggle",
 						name = L["Show consolidable auras"],
 						desc = L["Whether to show any auras that would be consolidated by the default UI."],
-						width = "full",
-						arg = "auras.$parentparent.show.consolidated"
+						width = "full"
 					},
 					misc = {
 						order = 5,
@@ -2235,6 +2234,15 @@ local function loadUnitOptions()
 						width = "full",
 						arg = "auras.$parentparent.anchorOn",
 					},
+					anchorPoint = {
+						order = 1.5,
+						type = "select",
+						name = L["Position"],
+						desc = L["How you want this aura to be anchored to the unit frame."],
+						values = getAuraAnchors,
+						disabled = disableAnchoredTo,
+						arg = "auras.$parentparent.anchorPoint",
+					},					
 					size = {
 						order = 2,
 						type = "range",
@@ -2257,7 +2265,7 @@ local function loadUnitOptions()
 						desc = L["How many auras to show in a single row."],
 						min = 1, max = 100, step = 1, softMin = 1, softMax = 50,
 						disabled = disableSameAnchor,
-						arg = "auras.$parent.perRow",
+						arg = "auras.$parentparent.perRow",
 					},
 					maxRows = {
 						order = 14,
