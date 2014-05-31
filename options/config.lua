@@ -7346,6 +7346,7 @@ local function loadOptions()
 	ShadowUF:FireModuleEvent("OnConfigurationLoad")
 end
 
+local defaultToggles
 function Config:Open()
 	AceDialog = AceDialog or LibStub("AceConfigDialog-3.0")
 	AceRegistry = AceRegistry or LibStub("AceConfigRegistry-3.0")
@@ -7359,4 +7360,11 @@ function Config:Open()
 	end
 	
 	AceDialog:Open("ShadowedUF")
+
+	if( not defaultToggles ) then
+		defaultToggles = true
+
+		AceDialog.Status.ShadowedUF.status.groups.groups.units = true
+		AceRegistry:NotifyChange("ShadowedUF")
+	end
 end
