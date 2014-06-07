@@ -2106,6 +2106,7 @@ local function loadUnitOptions()
 						type = "toggle",
 						name = L["Show consolidable auras"],
 						desc = L["Whether to show any auras that would be consolidated by the default UI."],
+						hidden = hideBuffOption,
 						width = "full"
 					},
 					misc = {

@@ -508,7 +508,7 @@ local function categorizeAura(type, curable, auraType, caster, isRemovable, shou
 		return "raid"
 	elseif( type == "debuffs" and ( isRemovable or ( curable and canCure[auraType] ) ) ) then
 		return "raid"
-	elseif( shouldConsolidate ) then
+	elseif( type == "buffs" and shouldConsolidate ) then
 		return "consolidated"
 	else
 		return "misc"
