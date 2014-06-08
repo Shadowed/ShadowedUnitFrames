@@ -41,26 +41,6 @@ local UNIT_DESC = {
 	["battlegroundtargettarget"] = L["Current target of target of a battleground unit."]
 }
 
-local CLASSES = {
-	["HUNTER"] = L["Hunter"],
-	["WARRIOR"] = L["Warrior"],
-	["PALADIN"] = L["Paladin"],
-	["MAGE"] = L["Mage"],
-	["PRIEST"] = L["Priest"],
-	["WARLOCK"] = L["Warlock"],
-	["SHAMAN"] = L["Shaman"],
-	["DEATHKNIGHT"] = L["Death Knight"],
-	["DRUID"] = L["Druid"],
-	["MONK"] = L["Monk"],
-	["ROGUE"] = L["Rogue"]
-}
-
--- Just in case they add a class we don't have
-for classToken in pairs(RAID_CLASS_COLORS) do
-	CLASSES[classToken] = CLASSES[classToken] or classToken
-end
-
-
 local PAGE_DESC = {
 	["general"] = L["General configuration to all enabled units."],
 	["enableUnits"] = L["Various units can be enabled through this page, such as raid or party targets."],
@@ -7295,7 +7275,7 @@ local function loadAuraIndicatorsOptions()
 
 	-- Now create all of the parent stuff
 	for group in pairs(groups) do
-		local token = CLASSES[string.upper(string.gsub(group, " ", ""))]
+		local token = LOCALIZED_CLASS_NAMES_MALE[string.upper(string.gsub(group, " ", ""))]
 		groupMap[tostring(groupID)] = token or group
 		unitTable.args.groups.args[tostring(groupID)] = unitGroupTable
 
