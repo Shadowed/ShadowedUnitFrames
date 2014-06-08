@@ -681,22 +681,50 @@ function ShadowUF:LoadUnitDefaults()
 			["c"] = {boss = {priority = 100}, curable = {priority = 100}},
 		},
 		auras = {
-			[GetSpellInfo(774)] = [[{indicator = '', group = "Druid", priority = 10, r = 0.66, g = 0.66, b = 1.0}]], -- Rejuvenation
-			[GetSpellInfo(8936)] = [[{indicator = '', group = "Druid", priority = 10, r = 0.50, g = 1.0, b = 0.63}]], -- Regrowth
-			[GetSpellInfo(33763)] = [[{indicator = '', group = "Druid", priority = 10, r = 0.07, g = 1.0, b = 0.01}]], -- Lifebloom
-			[GetSpellInfo(48438)] = [[{indicator = '', group = "Druid", priority = 10, r = 0.51, g = 0.72, b = 0.77}]], -- Wild Growth
-			[GetSpellInfo(1126)] = [[{indicator = '', group = "Druid", priority = 10, r = 1.0, g = 0.33, b = 0.90}]], -- Mark of the Wild
-
-			[GetSpellInfo(139)] = [[{indicator = '', group = "Priest", priority = 10, r = 1, g = 0.62, b = 0.88}]], -- Renew
-			[GetSpellInfo(17)] = [[{indicator = '', group = "Priest", priority = 10, r = 0.55, g = 0.69, b = 1.0}]], -- Power Word: Shield
-			[GetSpellInfo(21562)] = [[{indicator = '', group = "Priest", priority = 10, r = 0.58, g = 1.0, b = 0.50}]], -- Power Word: Fortitude
-
-			[GetSpellInfo(20707)] = [[{indicator = '', group = "Warlock", priority = 10, r = 0.42, g = 0.21, b = 0.65}]], -- Soulstone Resurrection,
-
-			[GetSpellInfo(974)] = [[{indicator = '', group = "Shaman", priority = 10, r = 0.26, g = 1.0, b = 0.26}]], -- Earth Shield
-			[GetSpellInfo(61295)] = [[{indicator = '', group = "Shaman", priority = 10, r = 0.30, g = 0.24, b = 1.0}]], -- Riptide
-
-			[GetSpellInfo(1459)] = [[{indicator = '', group = "Mage", priority = 10, r = 0.10, g = 0.68, b = 0.88}]], -- Arcane Brilliance
+			["20707"] = [[{indicator = '', group = "Warlock", priority = 10, r = 0.42, g = 0.21, b = 0.65}]],
+			["1459"] = [[{indicator = '', group = "Mage", priority = 10, r = 0.10, g = 0.68, b = 0.88}]],
+			["116849"] = [[{r=0.19607843137255, group="Monk", indicator="c", g=1, player=false, duration=true, b=0.3843137254902, alpha=1, priority=0, icon=true, iconTexture="Interface\\Icons\\ability_monk_chicocoon"}]],
+			["1126"] = [[{r=0.47450980392157, group="Druid", indicator="", g=0.2156862745098, player=true, duration=true, missing=true, b=0.81960784313725, priority=0, alpha=1, iconTexture="Interface\\Icons\\Spell_Nature_Regeneration"}]],
+			["121176"] = [[{alpha=1, b=0, priority=0, r=0.062745098039216, group="PvP Flags", indicator="bl", g=1, iconTexture="Interface\\Icons\\INV_BannerPVP_03"}]],
+			["19705"] = [[{r=0.80392156862745, group="Food", indicator="", g=0.76470588235294, missing=true, duration=true, priority=0, alpha=1, b=0.24313725490196}]],
+			["19740"] = [[{r=0.93333333333333, group="Paladin", indicator="", g=0.84705882352941, selfColor={alpha=1, b=0.18823529411765, g=0.89411764705882, r=0.9843137254902, }, player=false, missing=true, duration=true, alpha=1, priority=0, b=0.15294117647059, iconTexture="Interface\\Icons\\Spell_Holy_GreaterBlessingofKings"}]],
+			["53563"] = [[{r=0.64313725490196, group="Paladin", indicator="tr", g=0.24705882352941, player=true, alpha=1, b=0.73333333333333, priority=100, duration=false, iconTexture="Interface\\Icons\\Ability_Paladin_BeaconofLight"}]],
+			["47753"] = [[{b=0, group="Priest", indicator="br", alpha=1, player=true, duration=true, r=0.8078431372549, priority=0, g=0.76862745098039, iconTexture="Interface\\Icons\\Spell_Holy_DevineAegis"}]],
+			["774"] = [[{r=0.57647058823529, group="Druid", indicator="tr", g=0.28235294117647, player=true, duration=true, b=0.6156862745098, priority=100, alpha=1, iconTexture="Interface\\Icons\\Spell_Nature_Rejuvenation"}]],
+			["33206"] = [[{r=0, group="Priest", indicator="c", g=0, b=0, duration=true, priority=0, icon=true, iconTexture="Interface\\Icons\\Spell_Holy_PainSupression"}]],
+			["974"] = [[{r=1, group="Shaman", indicator="tr", g=0.65882352941176, player=true, alpha=1, priority=10, b=0.27843137254902, iconTexture="Interface\\Icons\\Spell_Nature_SkinofEarth"}]],
+			["105284"] = [[{r=0.17647058823529, group="Shaman", indicator="br", g=0.50196078431373, player=true, duration=true, alpha=1, priority=0, b=0.78039215686275, iconTexture="INTERFACE\\ICONS\\spell_shaman_blessingoftheeternals"}]],
+			["6788"] = [[{b=0.29019607843137, group="Priest", indicator="tl", alpha=1, player=false, g=0.56862745098039, duration=true, r=0.83921568627451, priority=20, icon=false, iconTexture="Interface\\Icons\\Spell_Holy_AshesToAshes"}]],
+			["33763"] = [[{r=0.23137254901961, group="Druid", indicator="tl", g=1, player=true, duration=true, alpha=1, priority=0, b=0.2, iconTexture="Interface\\Icons\\INV_Misc_Herb_Felblossom"}]],
+			["61316"] = [[{alpha=1, b=1, priority=0, r=0, group="Mage", indicator="", g=0.96078431372549, iconTexture="Interface\\Icons\\Achievement_Dungeon_TheVioletHold_Heroic"}]],
+			["139"] = [[{r=0.23921568627451, group="Priest", indicator="tr", g=1, player=true, alpha=1, duration=true, b=0.39607843137255, priority=10, icon=false, iconTexture="Interface\\Icons\\Spell_Holy_Renew"}]],
+			["41635"] = [[{r=1, group="Priest", indicator="br", g=0.90196078431373, missing=false, player=true, duration=false, alpha=1, b=0, priority=50, icon=false, iconTexture="Interface\\Icons\\Spell_Holy_PrayerOfMendingtga"}]],
+			["64904"] = [[{r=0.23529411764706, group="Priest", indicator="31685", g=0.67843137254902, player=true, duration=false, b=0.67058823529412, priority=0, alpha=1, iconTexture="Interface\\Icons\\Spell_Holy_Rapture"}]],
+			["20217"] = [[{r=1, group="Paladin", indicator="", g=0.30196078431373, selfColor={alpha=1, b=0.91764705882353, g=0.058823529411765, r=1, }, player=false, duration=true, missing=true, alpha=1, priority=90, b=0.94117647058824, iconTexture="Interface\\Icons\\Spell_Magic_GreaterBlessingofKings"}]],
+			["47788"] = [[{r=0, group="Priest", indicator="c", g=0, b=0, duration=true, priority=0, icon=true, iconTexture="Interface\\Icons\\Spell_Holy_GuardianSpirit"}]],
+			["61295"] = [[{r=0.17647058823529, group="Shaman", indicator="tl", g=0.4, player=true, alpha=1, duration=true, b=1, priority=0, icon=false, iconTexture="Interface\\Icons\\spell_nature_riptide"}]],
+			["109773"] = [[{r=0.52941176470588, group="Warlock", indicator="", g=0.12941176470588, alpha=1, b=0.71372549019608, priority=0, missing=true, iconTexture="INTERFACE\\ICONS\\spell_warlock_focusshadow"}]],
+			["17"] = [[{r=1, group="Priest", indicator="tl", g=0.41960784313725, player=true, alpha=1, duration=true, b=0.5843137254902, priority=0, icon=false, iconTexture="Interface\\Icons\\Spell_Holy_PowerWordShield"}]],
+			["29166"] = [[{r=0, group="Druid", indicator="c", g=0, b=0, duration=true, priority=0, icon=true, iconTexture="Interface\\Icons\\Spell_Nature_Lightning"}]],
+			["23335"] = [[{r=0, group="PvP Flags", indicator="bl", g=0, duration=false, b=0, priority=0, icon=true, iconTexture="Interface\\Icons\\INV_BannerPVP_02"}]],
+			["102342"] = [[{r=0, group="Druid", indicator="c", g=0, duration=true, b=0, priority=0, icon=true, iconTexture="Interface\\Icons\\spell_druid_ironbark"}]],
+			["121177"] = [[{r=0.78039215686275, group="PvP Flags", indicator="bl", g=0.42352941176471, alpha=1, b=0, priority=0, icon=false, iconTexture="Interface\\Icons\\INV_BannerPVP_03"}]],
+			["586"] = [[{r=0, group="Priest", indicator="", g=0.85882352941176, selfColor={alpha=1, b=1, g=0.93725490196078, r=0, }, alpha=1, priority=0, b=1, iconTexture="Interface\\Icons\\Spell_Magic_LesserInvisibilty"}]],
+			["23333"] = [[{icon=true, b=0, priority=0, r=0, group="PvP Flags", indicator="bl", g=0, iconTexture="Interface\\Icons\\INV_BannerPVP_01"}]],
+			["119611"] = [[{r=0.26274509803922, group="Monk", indicator="tl", g=0.76078431372549, player=true, duration=true, alpha=1, b=0.53725490196078, priority=0, icon=false, iconTexture="Interface\\Icons\\ability_monk_renewingmists"}]],
+			["20925"] = [[{r=1, group="Paladin", indicator="tl", g=0.98823529411765, selfColor={b=0.56078431372549, alpha=1, g=0.93725490196078, r=1, }, player=true, duration=true, alpha=1, priority=100, b=0.47450980392157, iconTexture="Interface\\Icons\\Ability_Paladin_BlessedMending"}]],
+			["8936"] = [[{r=0.12156862745098, group="Druid", indicator="br", g=0.45882352941176, player=true, duration=true, b=0.12156862745098, priority=100, alpha=1, iconTexture="Interface\\Icons\\Spell_Nature_ResistNature"}]],
+			["86273"] = [[{b=0, group="Paladin", indicator="br", g=0.45882352941176, player=true, duration=true, r=1, priority=100, alpha=1, iconTexture="Interface\\Icons\\Spell_Holy_Absolution"}]],
+			["34976"] = [[{r=0, group="PvP Flags", indicator="bl", g=0, player=false, b=0, priority=0, icon=true, iconTexture="Interface\\Icons\\INV_BannerPVP_03"}]],
+			["121164"] = [[{alpha=1, b=1, priority=0, r=0, group="PvP Flags", indicator="bl", g=0.003921568627451, iconTexture="Interface\\Icons\\INV_BannerPVP_03"}]],
+			["48438"] = [[{r=0.55294117647059, group="Druid", indicator="31685", g=1, player=true, duration=true, b=0.3921568627451, priority=100, alpha=1, iconTexture="Interface\\Icons\\Ability_Druid_Flourish"}]],
+			["1022"] = [[{r=0, group="Paladin", indicator="c", g=0, player=false, duration=true, b=0, priority=0, icon=true, iconTexture="Interface\\Icons\\Spell_Holy_SealOfProtection"}]],
+			["132120"] = [[{b=0.25098039215686, group="Monk", indicator="tr", g=1, player=true, duration=true, r=0.83137254901961, priority=100, alpha=1, iconTexture="Interface\\Icons\\spell_monk_envelopingmist"}]],
+			["121175"] = [[{r=1, group="PvP Flags", indicator="bl", g=0.24705882352941, b=0.90196078431373, alpha=1, priority=0, icon=false, iconTexture="Interface\\Icons\\INV_BannerPVP_03"}]],
+			["64844"] = [[{r=0.67843137254902, group="Priest", indicator="31685", g=0.30588235294118, player=true, alpha=1, priority=0, b=0.14117647058824, iconTexture="Interface\\Icons\\Spell_Holy_DivineProvidence"}]],
+			["124081"] = [[{r=0.51372549019608, group="Monk", indicator="br", g=1, player=true, duration=true, b=0.90588235294118, alpha=1, priority=100, icon=false, iconTexture="Interface\\Icons\\ability_monk_forcesphere"}]],
+			["21562"] = [[{r=1, group="Priest", indicator="", g=1, alpha=1, missing=true, priority=0, b=1, iconTexture="Interface\\Icons\\Spell_Holy_WordFortitude"}]],
+			["115921"] = [[{r=0.30980392156863, group="Monk", indicator="", g=0.69411764705882, selfColor={alpha=1, b=0.36078431372549, g=0.71764705882353, r=0.29803921568627, }, missing=true, alpha=1, duration=true, priority=0, b=0.019607843137255, iconTexture="Interface\\Icons\\ability_monk_legacyoftheemperor"}]],
 		}
 	}
 
