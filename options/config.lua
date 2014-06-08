@@ -7009,6 +7009,7 @@ local function loadAuraIndicatorsOptions()
 												-- Odds are, if they are saying to show it only if a buff is missing it's cause they want to know when their own class buff is not there
 												-- so will cheat it, and jump start it by storing the texture if we find it from GetSpellInfo directly
 												Indicators.auraConfig[addAura.name] = {indicator = "", group = group, iconTexture = select(3, GetSpellInfo(addAura.name)), priority = 0, r = 0, g = 0, b = 0}
+												writeAuraTable(addAura.name)
 												
 												auraID = auraID + 1
 												auraMap[tostring(auraID)] = addAura.name
