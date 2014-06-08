@@ -6284,7 +6284,7 @@ local function loadAuraIndicatorsOptions()
 	local groupID, auraID, linkID = 0, 0, 0
 	
 	local reverseClassMap = {}
-	for token, text in pairs(CLASSES) do
+	for token, text in pairs(LOCALIZED_CLASS_NAMES_MALE) do
 		reverseClassMap[text] = token
 	end
 
@@ -6294,7 +6294,12 @@ local function loadAuraIndicatorsOptions()
 			return reverseClassMap[groupMap[info[#(info)]]] and 1 or 2
 		end,
 		type = "group",
-		name = function(info) return groupMap[info[#(info)]] end,
+		name = function(info)
+			local token = reverseClassMap[groupMap[info[#(info)]]]
+			if( not token ) then return groupMap[info[#(info)]] end
+
+			return ShadowUF:Hex(ShadowUF.db.profile.classColors[token]) .. LOCALIZED_CLASS_NAMES_MALE[token] .. "|r"
+		end,
 		desc = function(info)
 			local group = groupMap[info[#(info)]]
 			local totalInGroup = 0
@@ -6842,9 +6847,15 @@ local function loadAuraIndicatorsOptions()
 	}
 
 	local unitGroupTable = {
-		order = 1,
+		order = function(info)
+			return reverseClassMap[groupMap[info[#(info)]]] and 1 or 2
+		end,
 		type = "toggle",
-		name = function(info) return groupMap[info[#(info)]] end,
+		name = function(info)
+			local token = reverseClassMap[groupMap[info[#(info)]]]
+			if( not token ) then return groupMap[info[#(info)]] end
+			return ShadowUF:Hex(ShadowUF.db.profile.classColors[token]) .. LOCALIZED_CLASS_NAMES_MALE[token] .. "|r"
+		end,
 		desc = function(info)
 			local auraIndicators = ShadowUF.db.profile.units[info[3]].auraIndicators
 			local group = groupMap[info[#(info)]]
@@ -6860,7 +6871,11 @@ local function loadAuraIndicatorsOptions()
 		order = function(info)
 			return reverseClassMap[groupMap[info[#(info)]]] and 1 or 2
 		end,
-		name = function(info) return groupMap[info[#(info)]] end,
+		name = function(info)
+			local token = reverseClassMap[groupMap[info[#(info)]]]
+			if( not token ) then return groupMap[info[#(info)]] end
+			return ShadowUF:Hex(ShadowUF.db.profile.classColors[token]) .. LOCALIZED_CLASS_NAMES_MALE[token] .. "|r"
+		end,
 		disabled = function(info) for unit in pairs(setGlobalUnits) do return false end return true end,
 		set = function(info, value)
 			local auraGroup = groupMap[info[#(info)]]
@@ -7202,11 +7217,13 @@ local function loadAuraIndicatorsOptions()
 			},
 		},
 	}
-	
+
 	local classTable = {
 		order = 1,
 		type = "group",
-		name = function(info) return LOCALIZED_CLASS_NAMES_MALE[info[#(info)]] end,
+		name = function(info)
+			return ShadowUF:Hex(ShadowUF.db.profile.classColors[info[#(info)]]) .. LOCALIZED_CLASS_NAMES_MALE[info[#(info)]] .. "|r"
+		end,
 		args = {},
 	}
 	
@@ -7218,8 +7235,21 @@ local function loadAuraIndicatorsOptions()
 			return tonumber(aura) and (select(3, GetSpellInfo(aura))) or nil
 		end,
 		name = function(info)
+			local aura = tonumber(auraMap[info[#(info)]])
+			if( not aura ) then	return auraMap[info[#(info)]] end
+
+			local name, _, icon = GetSpellInfo(aura)
+			if( not name ) then return name end
+
+			return "|T" .. icon .. ":18:18:0:0|t " .. name
+		end,
+		desc = function(info)
 			local aura = auraMap[info[#(info)]]
-			return tonumber(aura) and string.format("%s (#%i)", GetSpellInfo(aura) or "Unknown", aura) or aura
+			if( tonumber(aura) ) then
+				return string.format(L["Spell ID %s"], aura)
+			else
+				return aura
+			end
 		end,
 		set = function(info, value)
 			local aura = auraMap[info[#(info)]]
