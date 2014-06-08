@@ -33,12 +33,12 @@ local unitCategories = {
 
 local UNIT_DESC = {
 	["boss"] = L["Boss units are for only certain fights, such as Blood Princes or the Gunship battle, you will not see them for every boss fight."],
-	["mainassist"] = L["Main Assists's are set by the Blizzard Main Assist system or mods that use them such as oRA3."],
+	["mainassist"] = L["Main Assists's are set by the Blizzard Main Assist system or mods that use it."],
 	["maintank"] = L["Main Tank's are set through the Raid frames, or through selecting the Tank role."],
 	["battleground"] = L["Currently used in battlegrounds for showing flag carriers."],
-	["battlegroundpet"] = L["Current pet used by a battleground unit"],
-	["battlegroundtarget"] = L["Current target of a battleground unit"],
-	["battlegroundtargettarget"] = L["Current target of target of a battleground unit"]
+	["battlegroundpet"] = L["Current pet used by a battleground unit."],
+	["battlegroundtarget"] = L["Current target of a battleground unit."],
+	["battlegroundtargettarget"] = L["Current target of target of a battleground unit."]
 }
 
 local CLASSES = {
@@ -6332,7 +6332,6 @@ local function loadAuraIndicatorsOptions()
 	local auraConfigTable = {
 		order = 0,
 		type = "group",
-		inline = true,
 		icon = function(info)
 			local aura = auraMap[info[#(info)]]
 			return tonumber(aura) and (select(3, GetSpellInfo(aura))) or nil
