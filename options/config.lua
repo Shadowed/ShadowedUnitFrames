@@ -41,6 +41,26 @@ local UNIT_DESC = {
 	["battlegroundtargettarget"] = L["Current target of target of a battleground unit"]
 }
 
+local CLASSES = {
+	["HUNTER"] = L["Hunter"],
+	["WARRIOR"] = L["Warrior"],
+	["PALADIN"] = L["Paladin"],
+	["MAGE"] = L["Mage"],
+	["PRIEST"] = L["Priest"],
+	["WARLOCK"] = L["Warlock"],
+	["SHAMAN"] = L["Shaman"],
+	["DEATHKNIGHT"] = L["Death Knight"],
+	["DRUID"] = L["Druid"],
+	["MONK"] = L["Monk"],
+	["ROGUE"] = L["Rogue"]
+}
+
+-- Just in case they add a class we don't have
+for classToken in pairs(RAID_CLASS_COLORS) do
+	CLASSES[classToken] = CLASSES[classToken] or classToken
+end
+
+
 local PAGE_DESC = {
 	["general"] = L["General configuration to all enabled units."],
 	["enableUnits"] = L["Various units can be enabled through this page, such as raid or party targets."],
@@ -6283,9 +6303,16 @@ local function loadAuraIndicatorsOptions()
 	local groupMap, auraMap, linkMap = {}, {}, {}
 	local groupID, auraID, linkID = 0, 0, 0
 	
+	local reverseClassMap = {}
+	for token, text in pairs(CLASSES) do
+		reverseClassMap[text] = token
+	end
+
 	-- Actual aura configuration
 	local auraGroupTable = {
-		order = 1,
+		order = function(info)
+			return reverseClassMap[groupMap[info[#(info)]]] and 1 or 2
+		end,
 		type = "group",
 		name = function(info) return groupMap[info[#(info)]] end,
 		desc = function(info)
@@ -6850,8 +6877,10 @@ local function loadAuraIndicatorsOptions()
 	}
 
 	local globalUnitGroupTable = {
-		order = 1,
 		type = "toggle",
+		order = function(info)
+			return reverseClassMap[groupMap[info[#(info)]]] and 1 or 2
+		end,
 		name = function(info) return groupMap[info[#(info)]] end,
 		disabled = function(info) for unit in pairs(setGlobalUnits) do return false end return true end,
 		set = function(info, value)
@@ -6971,20 +7000,15 @@ local function loadAuraIndicatorsOptions()
 										name = L["Add aura"],
 										disabled = function(info) return not addAura.name or (not addAura.group and not addAura.custom) end,
 										func = function(info)
-											addAura.custom = string.trim(addAura.custom or "")
-											addAura.custom = addAura.custom ~= "" and addAura.custom or nil
-											if( addAura.group and string.trim(addAura.group) == "" ) then
-												addAura.group = L["Miscellaneous"]
-											end
-											
-											local group = addAura.custom or addAura.group
-										
+											local group = string.trim(addAura.custom or "")
+											if( group == "" ) then group = string.trim(addAura.group or "") end
+											if( group == "" ) then group = L["Miscellaneous"] end
+
 											-- Don't overwrite an existing group, but don't tell them either, mostly because I don't want to add error reporting code
 											if( not ShadowUF.db.profile.auraIndicators.auras[addAura.name] ) then
 												-- Odds are, if they are saying to show it only if a buff is missing it's cause they want to know when their own class buff is not there
 												-- so will cheat it, and jump start it by storing the texture if we find it from GetSpellInfo directly
 												Indicators.auraConfig[addAura.name] = {indicator = "", group = group, iconTexture = select(3, GetSpellInfo(addAura.name)), priority = 0, r = 0, g = 0, b = 0}
-												ShadowUF.db.profile.auraIndicators.auras[addAura.name] = "{}"
 												
 												auraID = auraID + 1
 												auraMap[tostring(auraID)] = addAura.name
@@ -7002,7 +7026,7 @@ local function loadAuraIndicatorsOptions()
 													gID = id
 													break
 												end
-											end
+											end											
 											
 											if( not gID ) then
 												groupID = groupID + 1
@@ -7010,7 +7034,7 @@ local function loadAuraIndicatorsOptions()
 
 												unitTable.args.groups.args[tostring(groupID)] = unitGroupTable
 												options.args.auraIndicators.args.units.args.global.args.groups.args[tostring(groupID)] = globalUnitGroupTable
-												options.args.auraIndicators.args.auras.args[tostring(groupID)] = auraGroupTable
+												options.args.auraIndicators.args.auras.args.groups.args[tostring(groupID)] = auraGroupTable
 											end
 											
 											-- Shunt the user to the this groups page
@@ -7271,7 +7295,8 @@ local function loadAuraIndicatorsOptions()
 
 	-- Now create all of the parent stuff
 	for group in pairs(groups) do
-		groupMap[tostring(groupID)] = group
+		local token = CLASSES[string.upper(string.gsub(group, " ", ""))]
+		groupMap[tostring(groupID)] = token or group
 		unitTable.args.groups.args[tostring(groupID)] = unitGroupTable
 
 		options.args.auraIndicators.args.units.args.global.args.groups.args[tostring(groupID)] = globalUnitGroupTable
