@@ -6554,15 +6554,13 @@ local function loadAuraIndicatorsOptions()
 						order = 1,
 						type = "toggle",
 						name = L["Show boss debuffs"],
-						desc = L["Shows debuffs cast by a boss."],
-						width = "full"
+						desc = L["Shows debuffs cast by a boss."]
 					},
 					duration = {
 						order = 2,
 						type = "toggle",
 						name = L["Show aura duration"],
-						desc = L["Shows a cooldown wheel on the indicator with how much time is left on the aura."],
-						width = "full"
+						desc = L["Shows a cooldown wheel on the indicator with how much time is left on the aura."]
 					},
 					priority = {
 						order = 3,
@@ -6583,15 +6581,13 @@ local function loadAuraIndicatorsOptions()
 						order = 1,
 						type = "toggle",
 						name = L["Show curable debuffs"],
-						desc = L["Shows debuffs that you can cure."],
-						width = "full"
+						desc = L["Shows debuffs that you can cure."]
 					},
 					duration = {
 						order = 2,
 						type = "toggle",
 						name = L["Show aura duration"],
-						desc = L["Shows a cooldown wheel on the indicator with how much time is left on the aura."],
-						width = "full"
+						desc = L["Shows a cooldown wheel on the indicator with how much time is left on the aura."]
 					},
 					priority = {
 						order = 3,
@@ -6918,6 +6914,8 @@ local function loadAuraIndicatorsOptions()
 		
 		return enabledUnits
 	end
+
+	local widthReset
 			
 	-- Actual tab view thing
 	options.args.auraIndicators = {
@@ -6973,6 +6971,23 @@ local function loadAuraIndicatorsOptions()
 				order = 2,
 				type = "group",
 				name = L["Auras"],
+				hidden = function(info)
+					if( not widthReset and AceDialog.Status.ShadowedUF.children.auraIndicators ) then
+						if( AceDialog.Status.ShadowedUF.children.auraIndicators.children.auras ) then
+							widthReset = true
+
+							AceDialog.Status.ShadowedUF.children.auraIndicators.children.auras.status.groups.treewidth = 230
+
+							AceDialog.Status.ShadowedUF.children.auraIndicators.children.auras.status.groups.groups = {}
+							AceDialog.Status.ShadowedUF.children.auraIndicators.children.auras.status.groups.groups.filters = true
+							AceDialog.Status.ShadowedUF.children.auraIndicators.children.auras.status.groups.groups.groups = true
+
+							AceRegistry:NotifyChange("ShadowedUF")
+						end
+					end
+
+					return false
+				end,
 				args = {
 					add = {
 						order = 0,
@@ -6981,84 +6996,75 @@ local function loadAuraIndicatorsOptions()
 						set = function(info, value) addAura[info[#(info)]] = value end,
 						get = function(info) return addAura[info[#(info)]] end,
 						args = {
-							add = {
+							name = {
 								order = 0,
-								inline = true,
-								type = "group",
-								name = L["Add Aura"],
-								args = {
-									name = {
-										order = 0,
-										type = "input",
-										name = L["Spell Name/ID"],
-										desc = L["If name is entered, it must be exact as it is case sensitive. Alternatively, you can use spell id instead."],
-										width = "full",
-									},
-									group = {
-										order = 1,
-										type = "select",
-										name = L["Aura group"],
-										desc = L["What group this aura belongs to, this is where you will find it when configuring."],
-										values = getAuraGroup,
-									},
-									custom = {
-										order = 2,
-										type = "input",
-										name = L["New aura group"],
-										desc = L["Allows you to enter a new aura group."],
-									},
-									create = {
-										order = 3,
-										type = "execute",
-										name = L["Add aura"],
-										disabled = function(info) return not addAura.name or (not addAura.group and not addAura.custom) end,
-										func = function(info)
-											local group = string.trim(addAura.custom or "")
-											if( group == "" ) then group = string.trim(addAura.group or "") end
-											if( group == "" ) then group = L["Miscellaneous"] end
+								type = "input",
+								name = L["Spell Name/ID"],
+								desc = L["If name is entered, it must be exact as it is case sensitive. Alternatively, you can use spell id instead."]
+							},
+							group = {
+								order = 1,
+								type = "select",
+								name = L["Aura group"],
+								desc = L["What group this aura belongs to, this is where you will find it when configuring."],
+								values = getAuraGroup,
+							},
+							custom = {
+								order = 2,
+								type = "input",
+								name = L["New aura group"],
+								desc = L["Allows you to enter a new aura group."],
+							},
+							create = {
+								order = 3,
+								type = "execute",
+								name = L["Add aura"],
+								disabled = function(info) return not addAura.name or (not addAura.group and not addAura.custom) end,
+								func = function(info)
+									local group = string.trim(addAura.custom or "")
+									if( group == "" ) then group = string.trim(addAura.group or "") end
+									if( group == "" ) then group = L["Miscellaneous"] end
 
-											-- Don't overwrite an existing group, but don't tell them either, mostly because I don't want to add error reporting code
-											if( not ShadowUF.db.profile.auraIndicators.auras[addAura.name] ) then
-												-- Odds are, if they are saying to show it only if a buff is missing it's cause they want to know when their own class buff is not there
-												-- so will cheat it, and jump start it by storing the texture if we find it from GetSpellInfo directly
-												Indicators.auraConfig[addAura.name] = {indicator = "", group = group, iconTexture = select(3, GetSpellInfo(addAura.name)), priority = 0, r = 0, g = 0, b = 0}
-												writeAuraTable(addAura.name)
-												
-												auraID = auraID + 1
-												auraMap[tostring(auraID)] = addAura.name
-												auraGroupTable.args[tostring(auraID)] = auraConfigTable
-											end
-											
-											addAura.name = nil
-											addAura.custom = nil
-											addAura.group = nil
-											
-											-- Check if the group exists
-											local gID
-											for id, name in pairs(groupMap) do
-												if( name == group ) then
-													gID = id
-													break
-												end
-											end											
-											
-											if( not gID ) then
-												groupID = groupID + 1
-												groupMap[tostring(groupID)] = group
+									-- Don't overwrite an existing group, but don't tell them either, mostly because I don't want to add error reporting code
+									if( not ShadowUF.db.profile.auraIndicators.auras[addAura.name] ) then
+										-- Odds are, if they are saying to show it only if a buff is missing it's cause they want to know when their own class buff is not there
+										-- so will cheat it, and jump start it by storing the texture if we find it from GetSpellInfo directly
+										Indicators.auraConfig[addAura.name] = {indicator = "", group = group, iconTexture = select(3, GetSpellInfo(addAura.name)), priority = 0, r = 0, g = 0, b = 0}
+										writeAuraTable(addAura.name)
+										
+										auraID = auraID + 1
+										auraMap[tostring(auraID)] = addAura.name
+										auraGroupTable.args[tostring(auraID)] = auraConfigTable
+									end
+									
+									addAura.name = nil
+									addAura.custom = nil
+									addAura.group = nil
+									
+									-- Check if the group exists
+									local gID
+									for id, name in pairs(groupMap) do
+										if( name == group ) then
+											gID = id
+											break
+										end
+									end											
+									
+									if( not gID ) then
+										groupID = groupID + 1
+										groupMap[tostring(groupID)] = group
 
-												unitTable.args.groups.args[tostring(groupID)] = unitGroupTable
-												options.args.auraIndicators.args.units.args.global.args.groups.args[tostring(groupID)] = globalUnitGroupTable
-												options.args.auraIndicators.args.auras.args.groups.args[tostring(groupID)] = auraGroupTable
-											end
-											
-											-- Shunt the user to the this groups page
-											AceDialog.Status.ShadowedUF.children.auraIndicators.children.auras.status.groups.selected = tostring(gID or groupID)
-											AceRegistry:NotifyChange("ShadowedUF")
-											
-											ShadowUF.Layout:Reload()
-										end,
-									},
-								},
+										unitTable.args.groups.args[tostring(groupID)] = unitGroupTable
+										options.args.auraIndicators.args.units.args.global.args.groups.args[tostring(groupID)] = globalUnitGroupTable
+										options.args.auraIndicators.args.auras.args.groups.args[tostring(groupID)] = auraGroupTable
+									end
+									
+									-- Shunt the user to the this groups page
+									AceDialog.Status.ShadowedUF.children.auraIndicators.children.auras.status.groups.selected = tostring(gID or groupID)
+									AceRegistry:NotifyChange("ShadowedUF")
+									
+									ShadowUF.Layout:Reload()
+								end,
 							},
 						},
 					},
