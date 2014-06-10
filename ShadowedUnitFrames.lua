@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 45
+ShadowUF.dbRevision = 46
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -100,6 +100,22 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 45 ) then
+		for unit, config in pairs(self.db.profile.units) do
+			if( config.auras ) then
+				for _, key in pairs({"buffs", "debuffs"}) do
+					local aura = config.auras[key]
+					aura.show = aura.show or {}
+					aura.show.player = true
+					aura.show.boss = true
+					aura.show.raid = true
+					aura.show.consolidated = true
+					aura.show.misc = true
+				end
+			end
+		end
+	end
+
 	if( revision <= 44 ) then
 		ShadowUF:LoadDefaultLayout(true)
 
@@ -488,8 +504,8 @@ function ShadowUF:LoadUnitDefaults()
 			highlight = {},
 			auraIndicators = {enabled = false},
 			auras = {
-				buffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, prioritize = true, show = {misc = true, player = true, raid = true, consolidated = true}, enlarge = {}, timers = {ALL = true}},
-				debuffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, show = {misc = true, player = true, raid = true, boss = true}, enlarge = {SELF = true}, timers = {ALL = true}},
+				buffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, prioritize = true, show = {player = true, boss = true, raid = true, consolidated = true, misc = true}, enlarge = {}, timers = {ALL = true}},
+				debuffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, show = {player = true, boss = true, raid = true, consolidated = true, misc = true}, enlarge = {SELF = true}, timers = {ALL = true}},
 			},
 		}
 		

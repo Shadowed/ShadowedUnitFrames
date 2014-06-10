@@ -2097,8 +2097,7 @@ local function loadUnitOptions()
 						order = 3,
 						type = "toggle",
 						name = L["Show casted by boss"],
-						desc = L["Whether to show any debuffs casted by the boss"],
-						hidden = hideDebuffOption,
+						desc = L["Whether to show any auras casted by the boss"],
 						width = "full"
 					},
 					consolidated = {
@@ -6298,7 +6297,7 @@ local function loadAuraIndicatorsOptions()
 		reverseClassMap[text] = token
 	end
 
-	function groupName(name)
+	local function groupName(name)
 		local converted = string.lower(string.gsub(name, " ", ""))
 		return groupAliases[converted] or name
 	end
