@@ -6209,6 +6209,16 @@ local function loadAuraIndicatorsOptions()
 
 	local unitTable
 
+	local groupAliases = {
+		["pvpflags"] = L["PvP Flags"],
+		["food"] = L["Food"],
+		["miscellaneous"] = L["Miscellaneous"]
+	}
+
+	for token, name in pairs(LOCALIZED_CLASS_NAMES_MALE) do
+		groupAliases[string.lower(token)] = name
+	end
+
 	local groupList = {}
 	local function getAuraGroup(info)
 		for k in pairs(groupList) do groupList[k] = nil end
@@ -6288,17 +6298,24 @@ local function loadAuraIndicatorsOptions()
 		reverseClassMap[text] = token
 	end
 
+	function groupName(name)
+		local converted = string.lower(string.gsub(name, " ", ""))
+		return groupAliases[converted] or name
+	end
+
 	-- Actual aura configuration
 	local auraGroupTable = {
 		order = function(info)
-			return reverseClassMap[groupMap[info[#(info)]]] and 1 or 2
+			return reverseClassMap[groupName(groupMap[info[#(info)]])] and 1 or 2
 		end,
 		type = "group",
 		name = function(info)
-			local token = reverseClassMap[groupMap[info[#(info)]]]
-			if( not token ) then return groupMap[info[#(info)]] end
+			local name = groupName(groupMap[info[#(info)]])
 
-			return ShadowUF:Hex(ShadowUF.db.profile.classColors[token]) .. LOCALIZED_CLASS_NAMES_MALE[token] .. "|r"
+			local token = reverseClassMap[name]
+			if( not token ) then return name end
+
+			return ShadowUF:Hex(ShadowUF.db.profile.classColors[token]) .. name .. "|r"
 		end,
 		desc = function(info)
 			local group = groupMap[info[#(info)]]
@@ -6848,17 +6865,18 @@ local function loadAuraIndicatorsOptions()
 
 	local unitGroupTable = {
 		order = function(info)
-			return reverseClassMap[groupMap[info[#(info)]]] and 1 or 2
+			return reverseClassMap[groupName(groupMap[info[#(info)]])] and 1 or 2
 		end,
 		type = "toggle",
 		name = function(info)
-			local token = reverseClassMap[groupMap[info[#(info)]]]
-			if( not token ) then return groupMap[info[#(info)]] end
-			return ShadowUF:Hex(ShadowUF.db.profile.classColors[token]) .. LOCALIZED_CLASS_NAMES_MALE[token] .. "|r"
+			local name = groupName(groupMap[info[#(info)]])
+			local token = reverseClassMap[name]
+			if( not token ) then return name end
+			return ShadowUF:Hex(ShadowUF.db.profile.classColors[token]) .. name .. "|r"
 		end,
 		desc = function(info)
 			local auraIndicators = ShadowUF.db.profile.units[info[3]].auraIndicators
-			local group = groupMap[info[#(info)]]
+			local group = groupName(groupMap[info[#(info)]])
 			
 			return auraIndicators[group] and string.format(L["Disabled for %s."], L.units[info[3]]) or string.format(L["Enabled for %s."], L.units[info[3]])
 		end,
@@ -6869,12 +6887,13 @@ local function loadAuraIndicatorsOptions()
 	local globalUnitGroupTable = {
 		type = "toggle",
 		order = function(info)
-			return reverseClassMap[groupMap[info[#(info)]]] and 1 or 2
+			return reverseClassMap[groupName(groupMap[info[#(info)]])] and 1 or 2
 		end,
 		name = function(info)
-			local token = reverseClassMap[groupMap[info[#(info)]]]
-			if( not token ) then return groupMap[info[#(info)]] end
-			return ShadowUF:Hex(ShadowUF.db.profile.classColors[token]) .. LOCALIZED_CLASS_NAMES_MALE[token] .. "|r"
+			local name = groupName(groupMap[info[#(info)]])
+			local token = reverseClassMap[name]
+			if( not token ) then return name end
+			return ShadowUF:Hex(ShadowUF.db.profile.classColors[token]) .. name .. "|r"
 		end,
 		disabled = function(info) for unit in pairs(setGlobalUnits) do return false end return true end,
 		set = function(info, value)
@@ -7305,8 +7324,7 @@ local function loadAuraIndicatorsOptions()
 
 	-- Now create all of the parent stuff
 	for group in pairs(groups) do
-		local token = LOCALIZED_CLASS_NAMES_MALE[string.upper(string.gsub(group, " ", ""))]
-		groupMap[tostring(groupID)] = token or group
+		groupMap[tostring(groupID)] = group
 		unitTable.args.groups.args[tostring(groupID)] = unitGroupTable
 
 		options.args.auraIndicators.args.units.args.global.args.groups.args[tostring(groupID)] = globalUnitGroupTable

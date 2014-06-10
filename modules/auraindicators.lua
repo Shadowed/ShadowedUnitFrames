@@ -3,11 +3,6 @@ ShadowUF:RegisterModule(Indicators, "auraIndicators", ShadowUF.L["Aura indicator
 
 Indicators.auraFilters = {"boss", "curable"}
 
-local groups = {
-	["PvP Flags"] = ShadowUF.L["PvP Flags"],
-	["Food"] = ShadowUF.L["Food"]
-}
-
 Indicators.auraConfig = setmetatable({}, {
 	__index = function(tbl, index)
 		local aura = ShadowUF.db.profile.auraIndicators.auras[tostring(index)]
@@ -22,7 +17,7 @@ Indicators.auraConfig = setmetatable({}, {
 			end
 			
 			tbl[index] = func
-			tbl[index].group = groups[tbl[index].group] or tbl[index].group or ShadowUF.L["Miscellaneous"]
+			if( not tbl[index].group ) then tbl[index].group = "Miscellaneous" end
 		end
 		
 		return tbl[index]
