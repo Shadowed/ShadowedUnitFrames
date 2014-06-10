@@ -665,7 +665,9 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.auraIndicators = {
 		disabled = {},
 		missing = {},
-		linked = {},
+		linked = {
+			[GetSpellInfo(61316)] = GetSpellInfo(1459)
+		},
 		indicators = {
 			["tl"] = {name = L["Top Left"], anchorPoint = "TLI", anchorTo = "$parent", height = 8, width = 8, alpha = 1.0, x = 4, y = -4, friendly = true, hostile = true},
 			["tr"] = {name = L["Top Right"], anchorPoint = "TRI", anchorTo = "$parent", height = 8, width = 8, alpha = 1.0, x = -3, y = -3, friendly = true, hostile = true},
