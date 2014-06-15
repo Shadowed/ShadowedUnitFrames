@@ -549,8 +549,8 @@ local function renderAura(parent, frame, type, config, displayConfig, index, fil
 		button.cooldown:Hide()
 	end
 	
-	-- Enlarge our own auras
-	if( ( category == "player" and config.enlarge.SELF ) or ( category == "boss" and config.enlarge.BOSS ) or ( category == "raid" and type == "debuffs" and config.enlarge.REMOVABLE ) ) then
+	-- Enlarge auras
+	if( ( category == "player" and config.enlarge.SELF ) or ( category == "boss" and config.enlarge.BOSS ) or ( isRemovable and not isFriendly and config.enlarge.REMOVABLE ) ) then
 		button.isSelfScaled = true
 		button:SetScale(config.selfScale)
 	else
