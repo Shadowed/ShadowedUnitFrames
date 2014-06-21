@@ -1250,6 +1250,14 @@ function Units:LoadChildUnit(parent, type, id)
 	
 	parent.hasChildren = true
 
+	if( string.match(type, "pet$") ) then
+		suffix = "pet"
+	elseif( string.match(type, "targettarget$") ) then
+		suffix = "targettarget"
+	else
+		suffix = "target"
+	end
+
 	-- Now we can create the actual frame
 	local frame = self:CreateUnit("Button", "SUFChild" .. type .. string.match(parent:GetName(), "(%d+)"), parent, "SecureUnitButtonTemplate")
 	frame.unitType = type
@@ -1258,7 +1266,7 @@ function Units:LoadChildUnit(parent, type, id)
 	frame.hasStateWatch = type == "partypet"
 	frame:SetFrameStrata("LOW")
 	frame:SetAttribute("useparent-unit", true)
-	frame:SetAttribute("unitsuffix", string.match(type, "pet$") and "pet" or "target")
+	frame:SetAttribute("unitsuffix", suffix)
 	OnAttributeChanged(frame, "unit", SecureButton_GetModifiedUnit(frame))
 	frameList[frame] = true
 	
