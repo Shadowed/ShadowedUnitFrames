@@ -6287,6 +6287,12 @@ local function loadAuraIndicatorsOptions()
 
 	local function writeAuraTable(name)
 		ShadowUF.db.profile.auraIndicators.auras[name] = writeTable(Indicators.auraConfig[name])
+		Indicators.auraConfig[name] = nil
+
+		local spellID = tonumber(name)
+		if( spellID ) then
+			Indicators.auraConfig[spellID] = nil
+		end
 	end
 	
 	local groupMap, auraMap, linkMap = {}, {}, {}
