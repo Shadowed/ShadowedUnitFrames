@@ -581,7 +581,7 @@ local function scan(parent, frame, type, config, displayConfig, filter)
 	
 	-- UnitIsFriend returns true during a duel, which breaks stealable/curable detection
 	local isFriendly = not UnitIsEnemy(frame.parent.unit, "player")
-	local curable = (isFriendly and type == "debuffs" and config.raid)
+	local curable = (isFriendly and type == "debuffs")
 	local index = 0
 	while( true ) do
 		index = index + 1
