@@ -1250,6 +1250,7 @@ function Units:LoadChildUnit(parent, type, id)
 	
 	parent.hasChildren = true
 
+	local suffix
 	if( string.match(type, "pet$") ) then
 		suffix = "pet"
 	elseif( string.match(type, "targettarget$") ) then
