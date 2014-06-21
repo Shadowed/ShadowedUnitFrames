@@ -102,7 +102,7 @@ for _, key in pairs(Indicators.auraFilters) do filterMap[key] = "filter-" .. key
 
 local function checkFilterAura(frame, type, isFriendly, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
 	local category
-	if( isFriendly and isRemovable and canCure[auraType] and type == "debuffs" ) then
+	if( isFriendly and canCure[auraType] and type == "debuffs" ) then
 		category = "curable"
 	elseif( isBossDebuff ) then
 		category = "boss"
@@ -145,6 +145,7 @@ local function checkSpecificAura(frame, type, name, rank, texture, count, auraTy
 	if( auraConfig.player and not playerUnits[caster] ) then return end
 
 	local indicator = auraConfig and frame.auraIndicators[auraConfig.indicator]
+
 	-- No indicator or not enabled
 	if( not indicator or not indicator.enabled ) then return end
 	-- Missing aura only
