@@ -500,14 +500,22 @@ function Auras:UpdateFilter(frame)
 end
 
 local function categorizeAura(type, curable, auraType, caster, isRemovable, shouldConsolidate, canApplyAura, isBossDebuff)
-	if( playerUnits[caster] ) then
-		return "player"
-	elseif( isBossDebuff ) then
-		return "boss"
+	-- Can dispell, curable checks type already
+	if( curable and canCure[auraType] ) then
+		return "raid"
+	-- Can apply it ourselves
 	elseif( type == "buffs" and canApplyAura ) then
 		return "raid"
-	elseif( type == "debuffs" and ( isRemovable or ( curable and canCure[auraType] ) ) ) then
+	-- Can be stolen/purged (dispellable)
+	elseif( type == "debuffs" and isRemovable ) then
 		return "raid"
+	-- Boss aura
+	elseif( isBossDebuff ) then
+		return "boss"
+	-- Player casted it
+	elseif( playerUnits[caster] ) then
+		return "player"
+	-- Consolidatable buff
 	elseif( type == "buffs" and shouldConsolidate ) then
 		return "consolidated"
 	else
