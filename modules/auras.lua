@@ -503,8 +503,11 @@ local function categorizeAura(type, curable, auraType, caster, isRemovable, shou
 	-- Player casted it
 	if( playerUnits[caster] ) then
 		return "player"
+	-- Boss aura
+	elseif( isBossDebuff ) then
+		return "boss"
 	-- Can dispell, curable checks type already
-	if( curable and canCure[auraType] ) then
+	elseif( curable and canCure[auraType] ) then
 		return "raid"
 	-- Can apply it ourselves
 	elseif( type == "buffs" and canApplyAura ) then
@@ -512,9 +515,6 @@ local function categorizeAura(type, curable, auraType, caster, isRemovable, shou
 	-- Can be stolen/purged (dispellable)
 	elseif( type == "debuffs" and isRemovable ) then
 		return "raid"
-	-- Boss aura
-	elseif( isBossDebuff ) then
-		return "boss"
 	-- Consolidatable buff
 	elseif( type == "buffs" and shouldConsolidate ) then
 		return "consolidated"
