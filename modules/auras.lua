@@ -523,7 +523,48 @@ local function categorizeAura(type, curable, auraType, caster, isRemovable, shou
 	end
 end
 
+local monitor = false
+function ShadowUF:StartMonitor()
+	monitor = true
+	self.db.profile.auraDebug = {}
+	self:Print("Monitor started, WARNING. Make sure you type /script ShadowUF:StopMonitor(); once you've finished")
+end
+
+function ShadowUF:StopMonitor()
+	self:Print("Monitor stopped, do a /console reloadui then send your ShadowedUnitFrames.lua to Shadowed")
+	monitor = false
+end
+
 local function renderAura(parent, frame, type, config, displayConfig, index, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+	if( monitor ) then
+		ShadowUF.db.profile.auraDebug[spellID] = {}
+		ShadowUF.db.profile.auraDebug[spellID] = {
+			type = type,
+			category = categorizeAura(type, curable, auraType, caster, isRemovable, shouldConsolidate, canApplyAura, isBossDebuff),
+			isFriendly = isFriendly,
+			curable = curable,
+			name = name,
+			rank = rank,
+			texture = texture,
+			count = count,
+			auraType = auraType,
+			duration = duration,
+			endTime = endTime,
+			caster = caster,
+			isRemovable = isRemovable,
+			shouldConsolidate = shouldConsolidate,
+			canApplyAura = canApplyAura,
+			isBossDebuff = isBossDebuff,
+			canCureFlag = canCure[auraType],
+			isPlayer = playerUnits[caster],
+			whitelisted = parent.whitelist[type] and not parent.whitelist[name] and not parent.whitelist[spellID],
+			blacklisted = parent.blacklist[type] and ( parent.blacklist[name] or parent.blacklist[spellID] ),
+			enlargeRemovable = config.enlarge.REMOVABLE,
+			enlargeSelf = config.enlarge.SELF,
+			enlargeBoss = config.enlarge.BOSS
+		}
+	end
+
 	-- Do our initial list check to see if we can quick filter it out
 	if( parent.whitelist[type] and not parent.whitelist[name] and not parent.whitelist[spellID] ) then return end
 	if( parent.blacklist[type] and ( parent.blacklist[name] or parent.blacklist[spellID] ) ) then return end
@@ -582,6 +623,7 @@ local function renderAura(parent, frame, type, config, displayConfig, index, fil
 	button.stack:SetText(count > 1 and count or "")
 	button:Show()
 end
+
 
 -- Scan for auras
 local function scan(parent, frame, type, config, displayConfig, filter)
