@@ -526,8 +526,8 @@ end
 local monitor = false
 function ShadowUF:StartMonitor()
 	monitor = true
-	self.db.globla.auraDebug = {}
-	self.db.global.showConfig = {}	
+	self.db.global.auraDebug = {}
+	self.db.global.auraConfig = {}	
 	self:Print("Monitor started, WARNING. Make sure you type /script ShadowUF:StopMonitor(); once you've finished")
 end
 
