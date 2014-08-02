@@ -184,8 +184,8 @@ function Totems:Update(frame)
 			indicator.endTime = nil
 		end
 
-		if( self.fontString ) then
-			self.fontString:UpdateTags()
+		if( indicator.fontString ) then
+			indicator.fontString:UpdateTags()
 		end
 	end
 	
