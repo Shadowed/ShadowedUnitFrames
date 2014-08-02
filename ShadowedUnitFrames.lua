@@ -3,6 +3,7 @@
 ]]
 
 ShadowUF = select(2, ...)
+ShadowUF.IS_WOD = select(4, GetBuildInfo()) >= 60000
 
 local L = ShadowUF.L
 ShadowUF.dbRevision = 46
