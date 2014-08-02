@@ -350,7 +350,7 @@ function Movers:Disable()
 			frame:SetAttribute("unit", frame.originalUnit)
 			frame:SetScript("OnDragStop", nil)
 			frame:SetScript("OnDragStart", nil)
-			frame:SetScript("OnEvent", frame:IsVisible() and ShadowUF.Units.OnEvent)
+			frame:SetScript("OnEvent", frame:IsVisible() and ShadowUF.Units.OnEvent or nil)
 			frame:SetScript("OnUpdate", frame.originalOnUpdate)
 			frame.OnEnter = frame.originalOnEnter
 			frame.OnLeave = frame.originalOnLeave
