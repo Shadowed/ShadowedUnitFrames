@@ -527,7 +527,8 @@ OnAttributeChanged = function(self, name, unit)
 	
 	-- Update boss
 	elseif( self.unitType == "boss" ) then
-		self:RegisterNormalEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", Units, "CheckUnitStatus")
+		self:RegisterNormalEvent("INSTANCE_ENCOUNTER_ENGAGE_UNIT", Units, "FullUpdate")
+		self:RegisterUnitEvent("UNIT_TARGETABLE_CHANGED", Units, "FullUpdate")
 		self:RegisterUnitEvent("UNIT_NAME_UPDATE", Units, "CheckUnitStatus")
 
 	-- Update arena/battleground
