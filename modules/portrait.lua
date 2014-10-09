@@ -77,11 +77,14 @@ function Portrait:Update(frame, event)
 		SetPortraitTexture(frame.portrait, frame.unitOwner)
 	-- Using 3D portrait, but the players not in range so swap to question mark
 	elseif( not UnitIsVisible(frame.unitOwner) or not UnitIsConnected(frame.unitOwner) ) then
-		frame.portrait:SetModelScale(4.25)
-		frame.portrait:SetPosition(0, 0, -0.4)
-		frame.portrait:SetModel("Interface\\Buttons\\talktomequestionmark.mdx")
+		frame.portrait:ClearModel()
+		frame.portrait:SetModelScale(5.5)
+		frame.portrait:SetPosition(0, 0, -0.8)
+		frame.portrait:SetModel("Interface\\Buttons\\talktomequestionmark.m2")
+
 	-- Use animated 3D portrait
 	else
+		frame.portrait:ClearModel()
 		frame.portrait:SetUnit(frame.unitOwner)
 		frame.portrait:SetPortraitZoom(1)
 		frame.portrait:SetPosition(0, 0, 0)
