@@ -543,6 +543,7 @@ OnAttributeChanged = function(self, name, unit)
 	elseif( self.unitRealType == "raid" ) then
 		self:RegisterNormalEvent("GROUP_ROSTER_UPDATE", Units, "CheckGroupedUnitStatus")
 		self:RegisterUnitEvent("UNIT_NAME_UPDATE", Units, "CheckUnitStatus")
+		self:RegisterUnitEvent("UNIT_CONNECTION", self, "FullUpdate")
 		
 	-- Party members need to watch for changes
 	elseif( self.unitRealType == "party" ) then
@@ -551,6 +552,7 @@ OnAttributeChanged = function(self, name, unit)
 		self:RegisterNormalEvent("PARTY_MEMBER_DISABLE", Units, "CheckGroupedUnitStatus")
 		self:RegisterUnitEvent("UNIT_NAME_UPDATE", Units, "CheckUnitStatus")
 		self:RegisterUnitEvent("UNIT_OTHER_PARTY_CHANGED", self, "FullUpdate")
+		self:RegisterUnitEvent("UNIT_CONNECTION", self, "FullUpdate")
 	
 	-- *target units are not real units, thus they do not receive events and must be polled for data
 	elseif( ShadowUF.fakeUnits[self.unitRealType] ) then
