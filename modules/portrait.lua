@@ -61,10 +61,9 @@ end
 
 function Portrait:Update(frame, event)
 	local type = ShadowUF.db.profile.units[frame.unitType].portrait.type
-	
 	-- Use class thingy
 	if( type == "class" ) then
-		local classToken = select(2, UnitClass(frame.unitOwner))
+		local classToken = frame:UnitClassToken()
 		if( classToken ) then
 			frame.portrait:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
 			frame.portrait:SetTexCoord(CLASS_ICON_TCOORDS[classToken][1], CLASS_ICON_TCOORDS[classToken][2], CLASS_ICON_TCOORDS[classToken][3], CLASS_ICON_TCOORDS[classToken][4])

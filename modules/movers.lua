@@ -37,6 +37,9 @@ local function createConfigEnv()
 				return getValue("UnitBattlePetType", unit, math.random(#(PET_TYPE_SUFFIX)))
 			end
 		end,
+		GetArenaOpponentSpec = function(unitID)
+			return getValue("GetArenaOpponentSpec", unitID, math.random(250, 270))
+		end,
 		UnitHealthMax = function(unit) return 50000 end,
 		UnitPower = function(unit, powerType)
 			if( powerType == SPELL_POWER_HOLY_POWER or powerType == SPELL_POWER_SOUL_SHARDS ) then

@@ -31,7 +31,7 @@ function Power:UpdateColor(frame)
 	if( frame.powerBar.minusMob ) then
 		color = ShadowUF.db.profile.healthColors.offline
 	elseif( ShadowUF.db.profile.units[frame.unitType].powerBar.colorType == "class" and UnitIsPlayer(frame.unit) ) then
-		local class = select(2, UnitClass(frame.unit))
+		local class = frame:UnitClassToken()
 		color = class and ShadowUF.db.profile.classColors[class]
 	end
 	

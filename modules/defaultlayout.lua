@@ -470,6 +470,10 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				buffs = {enabled = true, maxRows = 1, perRow = 9},
 				debuffs = {enabled = true, maxRows = 1, perRow = 9},
 			},
+			indicators = {
+				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+				arenaSpec = {anchorTo = "$parent", anchorPoint = "LC", size = 28, x = 0, y = 0}
+			},
 			text = {
 				{text = "[name]"},
 				{text = "[curmaxhp]"},

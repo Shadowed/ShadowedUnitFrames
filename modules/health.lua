@@ -87,7 +87,7 @@ function Health:UpdateColor(frame)
 			end
 		end
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorType == "class" and ( UnitIsPlayer(unit) or UnitCreatureFamily(unit) ) ) then
-		local class = UnitCreatureFamily(frame.unit) or select(2, UnitClass(frame.unit))
+		local class = UnitCreatureFamily(frame.unit) or frame:UnitClassToken()
 		color = class and ShadowUF.db.profile.classColors[class]
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorType == "static" ) then
 		color = ShadowUF.db.profile.healthColors.static

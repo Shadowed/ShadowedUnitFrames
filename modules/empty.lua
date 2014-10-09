@@ -52,7 +52,7 @@ function Empty:UpdateColor(frame)
 			end
 		end
 	elseif( ShadowUF.db.profile.units[frame.unitType].emptyBar.class and ( UnitIsPlayer(frame.unit) or UnitCreatureFamily(frame.unit) ) ) then
-		local class = UnitCreatureFamily(frame.unit) or select(2, UnitClass(frame.unit))
+		local class = UnitCreatureFamily(frame.unit) or frame:UnitClassToken()
 		color = class and ShadowUF.db.profile.classColors[class]
 	end
 	
