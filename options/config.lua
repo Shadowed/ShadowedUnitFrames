@@ -1365,9 +1365,10 @@ local function loadGeneralOptions()
 							removableColor = {
 								order = 0,
 								type = "color",
-								name = L["Stealable or Removable"],
-								desc = L["Border coloring of stealable or removable auras."],
+								name = L["Stealable/Curable/Dispellable"],
+								desc = L["Border coloring of stealable, curable and dispellable auras."],
 								arg = "auraColors.removable",
+								width = "double"
 							}
 						}
 					},
@@ -2198,10 +2199,10 @@ local function loadUnitOptions()
 								tbl["BOSS"] = L["Boss Debuffs"]
 							end
 
-							if( info[2] ~= "player" ) then
-								tbl["REMOVABLE"] = L["Removable/Stealable"]
-							else
-								tbl["REMOVABLE"] = L["Removable"]
+							if( type == "debuffs" ) then
+								tbl["REMOVABLE"] = L["Curable"]
+							elseif( info[2] ~= "player" and info[2] ~= "pet" and info[2] ~= "party" and info[2] ~= "raid" and type == "buffs" ) then
+								tbl["REMOVABLE"] = L["Dispellable/Stealable"]
 							end
 
 							return tbl;

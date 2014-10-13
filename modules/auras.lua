@@ -1,5 +1,4 @@
 local Auras = {}
-local stealableColor = {r = 1, g = 1, b = 1}
 local playerUnits = {player = true, vehicle = true, pet = true}
 local mainHand, offHand, ranged, tempEnchantScan = {time = 0}, {time = 0}, {time = 0}
 local canCure = ShadowUF.Units.canCure
@@ -523,56 +522,7 @@ local function categorizeAura(type, curable, auraType, caster, isRemovable, shou
 	end
 end
 
-local monitor = false
-function ShadowUF:StartMonitor()
-	monitor = true
-	self.db.global.auraDebug = {}
-	self.db.global.auraConfig = {}	
-	self:Print("Monitor started, WARNING. Make sure you type /script ShadowUF:StopMonitor(); once you've finished")
-end
-
-function ShadowUF:StopMonitor()
-	self:Print("Monitor stopped, do a /console reloadui then send your ShadowedUnitFrames.lua to Shadowed")
-	monitor = false
-end
-
 local function renderAura(parent, frame, type, config, displayConfig, index, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
-	if( monitor ) then		
-		local unit = frame.parent.unit
-
-		ShadowUF.db.global.auraConfig[unit] = ShadowUF.db.global.auraConfig[unit] or {}
-		ShadowUF.db.global.auraConfig[unit][type] = config.show
-
-		ShadowUF.db.global.auraDebug[unit] = ShadowUF.db.global.auraDebug[unit] or {}
-
-		ShadowUF.db.global.auraDebug[unit][spellID] = {}
-		ShadowUF.db.global.auraDebug[unit][spellID] = {
-			type = type,
-			category = categorizeAura(type, curable, auraType, caster, isRemovable, shouldConsolidate, canApplyAura, isBossDebuff),
-			isFriendly = isFriendly,
-			curable = curable,
-			name = name,
-			rank = rank,
-			texture = texture,
-			count = count,
-			auraType = auraType,
-			duration = duration,
-			endTime = endTime,
-			caster = caster,
-			isRemovable = not not isRemovable,
-			shouldConsolidate = not not shouldConsolidate,
-			canApplyAura = not not canApplyAura,
-			isBossDebuff = not not isBossDebuff,
-			canCureFlag = not not canCure[auraType],
-			isPlayer = not not playerUnits[caster],
-			whitelisted = not not (parent.whitelist[type] and not parent.whitelist[name] and not parent.whitelist[spellID]),
-			blacklisted = not not (parent.blacklist[type] and ( parent.blacklist[name] or parent.blacklist[spellID] )),
-			enlargeRemovable = not not config.enlarge.REMOVABLE,
-			enlargeSelf = not not config.enlarge.SELF,
-			enlargeBoss = not not config.enlarge.BOSS
-		}
-	end
-
 	-- Do our initial list check to see if we can quick filter it out
 	if( parent.whitelist[type] and not parent.whitelist[name] and not parent.whitelist[spellID] ) then return end
 	if( parent.blacklist[type] and ( parent.blacklist[name] or parent.blacklist[spellID] ) ) then return end
