@@ -1,6 +1,6 @@
-## Interface: 50400
+## Interface: 60000
 ## Title: Shadowed Unit Frames
-## Notes: Now with 300% more shadows than the leading competitors
+## Notes: Does anyone read this? It's been totaly inane things for the last 5 years.
 ## Author: Shadowed
 ## Version: @project-version@
 ## SavedVariables: ShadowedUFDB
