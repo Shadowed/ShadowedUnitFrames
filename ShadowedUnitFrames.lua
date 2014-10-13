@@ -982,19 +982,6 @@ function ShadowUF:HideBlizzardFrames()
 		hideBlizzardFrames(false, PlayerPowerBarAlt)
 	end
 
-	-- fix LFD Cooldown Frame
-	-- this is technically not our problem, but due to having the frames on the same strata, it looks like this to the users
-	-- and the fix is simple enough
-	if( not active_hiddens.lfd ) then
-		active_hiddens.lfd = true
-		
-		LFDQueueFrameCooldownFrame:SetFrameLevel(QueueStatusFrame:GetFrameLevel() + 20)
-		LFDQueueFrameCooldownFrame:SetFrameStrata("TOOLTIP")
-		
-		QueueStatusFrame:SetFrameLevel(QueueStatusFrame:GetFrameLevel() + 20)
-		QueueStatusFrame:SetFrameStrata("TOOLTIP")
-	end
-
 	-- As a reload is required to reset the hidden hooks, we can just set this to true if anything is true
 	for type, flag in pairs(self.db.profile.hidden) do
 		if( flag ) then
