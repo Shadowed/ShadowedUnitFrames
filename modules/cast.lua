@@ -163,7 +163,8 @@ function Cast:OnDisable(frame, unit)
 	frame:UnregisterAll(self)
 
 	if( frame.castBar ) then
-		if( frame.castBar.monitor ) then frame.castBar.monitor:Hide() end
+		if( frame.castBar.monitor ) then frame.castBar.monitor:Stop() end
+
 		frame.castBar.bar.name:Hide()
 		frame.castBar.bar.time:Hide()
 		frame.castBar.bar:Hide()
