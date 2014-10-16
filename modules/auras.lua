@@ -223,10 +223,11 @@ local function updateButton(id, group, config)
 		button:SetScript("OnLeave", hideTooltip)
 		button:RegisterForClicks("RightButtonUp")
 		
-		button.cooldown = CreateFrame("Cooldown", group.parent:GetName() .. "Aura" .. group.type .. id .. "Cooldown", button)
+		button.cooldown = CreateFrame("Cooldown", group.parent:GetName() .. "Aura" .. group.type .. id .. "Cooldown", button, "CooldownFrameTemplate")
 		button.cooldown:SetAllPoints(button)
 		button.cooldown:SetReverse(true)
 		button.cooldown:SetFrameLevel(7)
+		button.cooldown:SetEdgeTexture("", 0, 0, 0, 0)
 		button.cooldown:Hide()
 		
 		button.stack = button:CreateFontString(nil, "OVERLAY")
