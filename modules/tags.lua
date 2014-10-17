@@ -181,7 +181,10 @@ local function createTagFunction(tags, resetCache)
 				
 				functionPool[tag] = cachedFunc
 			end
+		else
+			frequencyCache[tag] = Tags.defaultFrequents[tag] or ShadowUF.db.profile.tags[tag] and ShadowUF.db.profile.tags[tag].frequency
 		end
+
 
 		-- Figure out the lowest frequency rate we update at
 		if( frequencyCache[tag] ) then
