@@ -1,6 +1,6 @@
 ## Interface: 60000
 ## Title: Shadowed Unit Frames
-## Notes: Does anyone read this? It's been totaly inane things for the last 5 years.
+## Notes: "Debug" code free since '93!
 ## Author: Shadowed
 ## Version: @project-version@
 ## SavedVariables: ShadowedUFDB
