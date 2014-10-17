@@ -2,9 +2,28 @@ local Fader = {}
 local powerDepletes = {[SPELL_POWER_MANA] = true, [SPELL_POWER_ENERGY] = true, [SPELL_POWER_FOCUS] = true}
 ShadowUF:RegisterModule(Fader, "fader", ShadowUF.L["Combat fader"])
 
+-- TODO: Remove once Blizzard fixes cooldown wheels not taking parents alpha
+local function tempAuraFader(frame, alpha)
+	if( not frame.auras ) then return end
+
+	local childAlpha = 0.8 * alpha
+	if( frame.auras.buffs ) then
+		for id, button in pairs(frame.auras.buffs.buttons) do
+			button.cooldown:SetSwipeColor(0, 0, 0, childAlpha)
+		end
+	end
+
+	if( frame.auras.debuffs ) then
+		for id, button in pairs(frame.auras.debuffs.buttons) do
+			button.cooldown:SetSwipeColor(0, 0, 0, childAlpha)
+		end
+	end
+end
+
 local function faderUpdate(self, elapsed)
 	self.timeElapsed = self.timeElapsed + elapsed
 	if( self.timeElapsed >= self.fadeTime ) then
+		tempAuraFader(self.parent, self.alphaEnd)
 		self.parent:SetAlpha(self.alphaEnd)
 		self:Hide()
 		
@@ -19,6 +38,8 @@ local function faderUpdate(self, elapsed)
 	else
 		self.parent:SetAlpha(((self.fadeTime - self.timeElapsed) / self.fadeTime) * (self.alphaStart - self.alphaEnd) + self.alphaEnd)
 	end
+
+	tempAuraFader(self.parent, self.parent:GetAlpha())
 end
 
 local function startFading(self, type, alpha, speedyFade)
