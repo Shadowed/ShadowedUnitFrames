@@ -3,9 +3,78 @@ ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUF.L["Combo points"])
 ShadowUF.ComboPoints = Combo
 local cpConfig = {max = MAX_COMBO_POINTS, key = "comboPoints", colorKey = "COMBOPOINTS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
 
+local function createIcons(config, pointsFrame, max)
+	local point, relativePoint
+	local x, y = 0, 0
+	
+	local pointsConfig = pointsFrame.cpConfig
+
+	if( config.growth == "LEFT" ) then
+		point, relativePoint = "BOTTOMRIGHT", "BOTTOMLEFT"
+		x = config.spacing
+	elseif( config.growth == "RIGHT" ) then
+		point, relativePoint = "BOTTOMLEFT", "BOTTOMRIGHT"
+		x = config.spacing
+	elseif( config.growth == "UP" ) then
+		point, relativePoint = "BOTTOMLEFT", "TOPLEFT"
+		y = config.spacing
+	elseif( config.growth == "DOWN" ) then
+		point, relativePoint = "TOPLEFT", "BOTTOMLEFT"
+		y = config.spacing
+	end
+	
+	for id=1, max do
+		pointsFrame.icons[id] = pointsFrame.icons[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
+		local texture = pointsFrame.icons[id]
+		texture:SetTexture(pointsConfig.icon)
+		texture:SetSize(config.size, config.size)
+		
+		if( id > 1 ) then
+			texture:ClearAllPoints()
+			texture:SetPoint(point, pointsFrame.icons[id - 1], relativePoint, x, y)
+		else
+			texture:ClearAllPoints()
+			texture:SetPoint("CENTER", pointsFrame, "CENTER", 0, 0)
+		end
+	end
+end
+
+local function createBlocks(config, pointsFrame, max)
+	local pointsConfig = pointsFrame.cpConfig
+	pointsFrame.visibleBlocks = pointsConfig.max
+
+	-- Position bars, the 5 accounts for borders
+	local blockWidth = (pointsFrame:GetWidth() - (pointsConfig.max - 1)) / pointsConfig.max
+	for id=1, pointsConfig.max do
+		pointsFrame.blocks[id] = pointsFrame.blocks[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
+		local texture = pointsFrame.blocks[id]
+		local color = ShadowUF.db.profile.powerColors[pointsConfig.colorKey or "COMBOPOINTS"]
+		texture:SetVertexColor(color.r, color.g, color.b, color.a)
+		texture:SetHorizTile(false)
+		texture:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
+		texture:SetHeight(pointsFrame:GetHeight())
+		texture:SetWidth(blockWidth)
+		texture:ClearAllPoints()
+		
+		if( config.growth == "LEFT" ) then
+			if( id > 1 ) then
+				texture:SetPoint("TOPRIGHT", pointsFrame.blocks[id - 1], "TOPLEFT", -1, 0)
+			else
+				texture:SetPoint("TOPRIGHT", pointsFrame, "TOPRIGHT", 0, 0)
+			end
+		else
+			if( id > 1 ) then
+				texture:SetPoint("TOPLEFT", pointsFrame.blocks[id - 1], "TOPRIGHT", 1, 0)
+			else
+				texture:SetPoint("TOPLEFT", pointsFrame, "TOPLEFT", 0, 0)
+			end
+		end
+	end
+end
+
 function Combo:OnEnable(frame)
 	frame.comboPoints = frame.comboPoints or CreateFrame("Frame", nil, frame)
-	frame.comboPoints.config = cpConfig
+	frame.comboPoints.cpConfig = cpConfig
 	frame.comboPointType = cpConfig.key
 	frame:RegisterNormalEvent("UNIT_COMBO_POINTS", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
@@ -17,9 +86,10 @@ function Combo:OnLayoutApplied(frame, config)
 	if( not pointsFrame ) then return end
 
 	pointsFrame:SetFrameLevel(frame.topFrameLevel + 1)
-	
-	local pointsConfig = pointsFrame.config
+
+	local pointsConfig = pointsFrame.cpConfig
 	config = config[key]
+
 	-- Not a bar so set the containers frame configuration
 	if( config and not config.isBar ) then
 		ShadowUF.Layout:ToggleVisibility(pointsFrame, frame.visibility[key])
@@ -39,74 +109,15 @@ function Combo:OnLayoutApplied(frame, config)
 		pointsFrame.blocks = pointsFrame.blocks or {}
 		pointsFrame.points = pointsFrame.blocks
 
-		pointsFrame.visibleBlocks = pointsConfig.max
-	
-		-- Position bars, the 5 accounts for borders
-		local blockWidth = (pointsFrame:GetWidth() - (pointsConfig.max - 1)) / pointsConfig.max
-		for id=1, pointsConfig.max do
-			pointsFrame.blocks[id] = pointsFrame.blocks[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
-			local texture = pointsFrame.blocks[id]
-			local color = ShadowUF.db.profile.powerColors[pointsConfig.colorKey or "COMBOPOINTS"]
-			texture:SetVertexColor(color.r, color.g, color.b, color.a)
-			texture:SetHorizTile(false)
-			texture:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
-			texture:SetHeight(pointsFrame:GetHeight())
-			texture:SetWidth(blockWidth)
-			texture:ClearAllPoints()
-			
-			if( config.growth == "LEFT" ) then
-				if( id > 1 ) then
-					texture:SetPoint("TOPRIGHT", pointsFrame.blocks[id - 1], "TOPLEFT", -1, 0)
-				else
-					texture:SetPoint("TOPRIGHT", pointsFrame, "TOPRIGHT", 0, 0)
-				end
-			else
-				if( id > 1 ) then
-					texture:SetPoint("TOPLEFT", pointsFrame.blocks[id - 1], "TOPRIGHT", 1, 0)
-				else
-					texture:SetPoint("TOPLEFT", pointsFrame, "TOPLEFT", 0, 0)
-				end
-			end
-		end
+		createBlocks(config, pointsFrame, pointsConfig.max)
 
 	-- guess not, will have to do icons :(
 	else
-		local point, relativePoint
-		local x, y = 0, 0
-		
-		if( config.growth == "LEFT" ) then
-			point, relativePoint = "BOTTOMRIGHT", "BOTTOMLEFT"
-			x = config.spacing
-		elseif( config.growth == "RIGHT" ) then
-			point, relativePoint = "BOTTOMLEFT", "BOTTOMRIGHT"
-			x = config.spacing
-		elseif( config.growth == "UP" ) then
-			point, relativePoint = "BOTTOMLEFT", "TOPLEFT"
-			y = config.spacing
-		elseif( config.growth == "DOWN" ) then
-			point, relativePoint = "TOPLEFT", "BOTTOMLEFT"
-			y = config.spacing
-		end
-		
-
 		pointsFrame.icons = pointsFrame.icons or {}
 		pointsFrame.points = pointsFrame.icons
-	
-		for id=1, pointsConfig.max do
-			pointsFrame.icons[id] = pointsFrame.icons[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
-			local texture = pointsFrame.icons[id]
-			texture:SetTexture(pointsConfig.icon)
-			texture:SetSize(config.size, config.size)
-			
-			if( id > 1 ) then
-				texture:ClearAllPoints()
-				texture:SetPoint(point, pointsFrame.icons[id - 1], relativePoint, x, y)
-			else
-				texture:ClearAllPoints()
-				texture:SetPoint("CENTER", pointsFrame, "CENTER", 0, 0)
-			end
-		end
-		
+
+		createIcons(config, pointsFrame, pointsConfig.max)
+
 		-- Position the main frame
 		pointsFrame:SetSize(0.1, 0.1)
 		
@@ -121,15 +132,18 @@ end
 
 function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 	local pointsFrame = frame[frame.comboPointType]
-	if( not pointsFrame or not pointsFrame.config.eventType or not pointsFrame.blocks ) then return end
-	if( event and powerType ~= pointsFrame.config.eventType ) then return end
-
-	if( not ShadowUF.db.profile.units[frame.unitType][frame.comboPointType].isBar ) then
-		return
-	end
+	if( not pointsFrame or not pointsFrame.cpConfig.eventType or not pointsFrame.blocks ) then return end
+	if( event and powerType ~= pointsFrame.cpConfig.eventType ) then return end
 
 	local max = UnitPowerMax("player", pointsFrame.config.powerType)
 	if( max == 0 or pointsFrame.visibleBlocks == max ) then return end
+
+	if( not ShadowUF.db.profile.units[frame.unitType][frame.comboPointType].isBar ) then
+		createIcons(ShadowUF.db.profile.units[frame.unitType][frame.comboPointType], pointsFrame, max)
+		return
+	else
+		createBlocks(ShadowUF.db.profile.units[frame.unitType][frame.comboPointType], pointsFrame, max)
+	end
 
 	local blockWidth = (pointsFrame:GetWidth() - (max - 1)) / max
 	for id=1, max do
@@ -158,7 +172,7 @@ end
 function Combo:Update(frame, event, unit, powerType)
   	local key = frame.comboPointType
   	-- Anything power based will have an eventType to filter on
-	if( event and frame[key].config.eventType and frame[key].config.eventType ~= powerType ) then return end
+	if( event and frame[key].cpConfig.eventType and frame[key].cpConfig.eventType ~= powerType ) then return end
 
   	local points = self:GetPoints(unit)
 	
