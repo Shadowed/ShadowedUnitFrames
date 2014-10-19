@@ -1,6 +1,6 @@
 local ShadowOrbs = setmetatable({}, {__index = ShadowUF.ComboPoints})
 ShadowUF:RegisterModule(ShadowOrbs, "shadowOrbs", ShadowUF.L["Shadow Orbs"], nil, "PRIEST", SPEC_PRIEST_SHADOW, SHADOW_ORBS_SHOW_LEVEL)
-local shadowConfig = {max = ShadowUF.IS_WOD and 5 or PRIEST_BAR_NUM_ORBS, key = "shadowOrbs", colorKey = "SHADOWORBS", powerType = SPELL_POWER_SHADOW_ORBS, eventType = "SHADOW_ORBS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
+local shadowConfig = {max = 5, key = "shadowOrbs", colorKey = "SHADOWORBS", powerType = SPELL_POWER_SHADOW_ORBS, eventType = "SHADOW_ORBS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
 
 function ShadowOrbs:OnEnable(frame)
 	frame.shadowOrbs = frame.shadowOrbs or CreateFrame("Frame", nil, frame)

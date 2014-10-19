@@ -4230,7 +4230,6 @@ local function loadUnitOptions()
 								order = 3,
 								type = "toggle",
 								name = L["Dismissable Totem bars"],
-								hidden = function() return not ShadowUF.IS_WOD end,
 								desc = function(info)
 									return L["Allows you to disable the totem by right clicking it.|n|nWarning: Inner bars for this unit will not resize in combat if you enable this."]
 								end,
