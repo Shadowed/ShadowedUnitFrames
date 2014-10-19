@@ -30,4 +30,4 @@ externals:
 
 ignore:
   - globalcheck.rb
-  - localcheck.lua
+  - localcheck.rb
