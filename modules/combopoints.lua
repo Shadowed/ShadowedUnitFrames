@@ -135,7 +135,7 @@ function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 	if( not pointsFrame or not pointsFrame.cpConfig.eventType or not pointsFrame.blocks ) then return end
 	if( event and powerType ~= pointsFrame.cpConfig.eventType ) then return end
 
-	local max = UnitPowerMax("player", pointsFrame.config.powerType)
+	local max = UnitPowerMax("player", pointsFrame.cpConfig.powerType)
 	if( max == 0 or pointsFrame.visibleBlocks == max ) then return end
 
 	if( not ShadowUF.db.profile.units[frame.unitType][frame.comboPointType].isBar ) then
