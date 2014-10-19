@@ -4,7 +4,7 @@ local holyConfig = {max = HOLY_POWER_FULL, key = "holyPower", colorKey = "HOLYPO
 
 function HolyPower:OnEnable(frame)
 	frame.holyPower = frame.holyPower or CreateFrame("Frame", nil, frame)
-	frame.holyPower.config = holyConfig
+	frame.holyPower.cpConfig = holyConfig
 	frame.comboPointType = holyConfig.key
 
 	frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")

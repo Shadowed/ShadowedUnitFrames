@@ -4,7 +4,7 @@ local chiConfig = {max = 5, key = "chi", colorKey = "CHI", powerType = SPELL_POW
 
 function Chi:OnEnable(frame)
 	frame.chi = frame.chi or CreateFrame("Frame", nil, frame)
-	frame.chi.config = chiConfig
+	frame.chi.cpConfig = chiConfig
 	frame.comboPointType = chiConfig.key
 
 	frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")

@@ -4,7 +4,7 @@ local soulsConfig = {max = 4, key = "soulShards", colorKey = "SOULSHARDS", power
 
 function Souls:OnEnable(frame)
 	frame.soulShards = frame.soulShards or CreateFrame("Frame", nil, frame)
-	frame.soulShards.config = soulsConfig
+	frame.soulShards.cpConfig = soulsConfig
 	frame.comboPointType = soulsConfig.key
 
 	frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")

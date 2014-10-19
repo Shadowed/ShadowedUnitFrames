@@ -4,7 +4,7 @@ local shadowConfig = {max = 5, key = "shadowOrbs", colorKey = "SHADOWORBS", powe
 
 function ShadowOrbs:OnEnable(frame)
 	frame.shadowOrbs = frame.shadowOrbs or CreateFrame("Frame", nil, frame)
-	frame.shadowOrbs.config = shadowConfig
+	frame.shadowOrbs.cpConfig = shadowConfig
 	frame.comboPointType = shadowConfig.key
 	
 	frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")
