@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 47
+ShadowUF.dbRevision = 48
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -99,6 +99,12 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 47 ) then
+		local config = self.db.profile.units
+		config.player.comboPoints = config.target.comboPoints
+		config.target.comboPoints = nil
+	end
+
 	if( revision <= 46 ) then
 		local config = self.db.profile.units.arena
 		config.indicators.arenaSpec = {enabled = true, anchorPoint = "LC", size = 28, x = 0, y = 0, anchorTo = "$parent"}
