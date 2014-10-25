@@ -49,7 +49,7 @@ local function createConfigEnv()
 			elseif( powerType == SPELL_POWER_CHI) then
 				return 4
 			elseif( powerType == SPELL_POWER_SHADOW_ORBS ) then
-				return PRIEST_BAR_NUM_ORBS
+				return 5
 			elseif( powerType == SPELL_POWER_BURNING_EMBERS ) then
 				return math.floor(MAX_POWER_PER_EMBER + (MAX_POWER_PER_EMBER / 2))
 			elseif( powerType == SPELL_POWER_DEMONIC_FURY ) then
@@ -75,7 +75,7 @@ local function createConfigEnv()
 			elseif( powerType == SPELL_POWER_LIGHT_FORCE ) then
 				return 4
 			elseif( powerType == SPELL_POWER_SHADOW_ORBS ) then
-				return PRIEST_BAR_NUM_ORBS
+				return 5
 			elseif( powerType == SPELL_POWER_BURNING_EMBERS ) then
 				return MAX_POWER_PER_EMBER * 3
 			elseif( powerType == SPELL_POWER_DEMONIC_FURY ) then
