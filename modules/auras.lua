@@ -376,6 +376,7 @@ local function updateTemporaryEnchant(frame, slot, tempData, hasEnchant, timeLef
 	-- If there's less than a 750 millisecond differences in the times, we don't need to bother updating.
 	-- Any sort of enchant takes more than 0.750 seconds to cast so it's impossible for the user to have two
 	-- temporary enchants with that little difference, as totems don't really give pulsing auras anymore.
+	charges = charges or 0
 	if( tempData.has and ( timeLeft < tempData.time and ( tempData.time - timeLeft ) < 750 ) and charges == tempData.charges ) then return false end
 	
 	-- Some trickys magic, we can't get the start time of temporary enchants easily.
@@ -387,7 +388,7 @@ local function updateTemporaryEnchant(frame, slot, tempData, hasEnchant, timeLef
 	tempData.has = hasEnchant
 	tempData.time = timeLeft
 	tempData.charges = charges
-		
+
 	local config = ShadowUF.db.profile.units[frame.parent.unitType].auras[frame.type]
 	
 	-- Create any buttons we need
