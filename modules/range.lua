@@ -1,56 +1,83 @@
 local Range = {
 	friendly = {
-		["WARRIOR"] = GetSpellInfo(3411),
-		["PRIEST"] = GetSpellInfo(774),
-		["DRUID"] = GetSpellInfo(774),
-		["PALADIN"] = GetSpellInfo(85673),
-		["SHAMAN"] = GetSpellInfo(331),
-		["WARLOCK"] = GetSpellInfo(5697),
-		["DEATHKNIGHT"] = GetSpellInfo(49016),
-		["MAGE"] = GetSpellInfo(475),
-		["ROGUE"] = GetSpellInfo(57934),
-		["MONK"] = GetSpellInfo(115450)
+		["PRIEST"] = GetSpellInfo(2061), -- Flash Heal
+		["DRUID"] = GetSpellInfo(774), -- Rejuvenation
+		["PALADIN"] = GetSpellInfo(85673), -- Word of Glory
+		["SHAMAN"] = GetSpellInfo(8004), -- Healing Surge
+		["WARLOCK"] = GetSpellInfo(5697), -- Unending Breath
+		["DEATHKNIGHT"] = GetSpellInfo(47541), -- Death Coil
+		["MAGE"] = GetSpellInfo(475), -- Remove Curse
+		["MONK"] = GetSpellInfo(115450) -- Detox
 	},
 	hostile = {
-		["WARRIOR"] = GetSpellInfo(355),
-		["PRIEST"] = GetSpellInfo(589),
-		["DRUID"] = GetSpellInfo(5176), 
-		["PALADIN"] = GetSpellInfo(62124),
-		["SHAMAN"] = GetSpellInfo(403),
-		["HUNTER"] = GetSpellInfo(75),
-		["WARLOCK"] = GetSpellInfo(686),
-		["DEATHKNIGHT"] = GetSpellInfo(49576),
-		["MAGE"] = GetSpellInfo(44614),
-		["ROGUE"] = GetSpellInfo(2094),
-		["MONK"] = GetSpellInfo(115546)
+		["WARRIOR"] = GetSpellInfo(355), -- Taunt
+		["PRIEST"] = GetSpellInfo(589), -- Shadow Word: Pain
+		["DRUID"] = GetSpellInfo(5176),  -- Wrath
+		["PALADIN"] = GetSpellInfo(20271), -- Judgement
+		["SHAMAN"] = GetSpellInfo(403), -- Lightning Bolt
+		["HUNTER"] = GetSpellInfo(75), -- Auto Shot
+		["WARLOCK"] = GetSpellInfo(686), -- Shadow Bolt
+		["DEATHKNIGHT"] = GetSpellInfo(49576), -- Death Grip
+		["MAGE"] = GetSpellInfo(44614), -- Frostfire Bolt
+		["ROGUE"] = GetSpellInfo(1725), -- Distract
+		["MONK"] = GetSpellInfo(115546) -- Provoke
 	},
+	friendlyAlt = {},
+	hostileAlt = {
+		["MAGE"] = GetSpellInfo(30451) -- Arcane Blast
+	}
 }
 
 ShadowUF:RegisterModule(Range, "range", ShadowUF.L["Range indicator"])
 
 local playerClass = select(2, UnitClass("player"))
-local friendlySpell = Range.friendly[playerClass]
-local hostileSpell = Range.hostile[playerClass]
+local rangeSpells = {}
 
 local function checkRange(self, elapsed)
 	local frame = self.parent
-	local spell
+	local oorAlpha = ShadowUF.db.profile.units[frame.unitType].range.oorAlpha
+	local inAlpha = ShadowUF.db.profile.units[frame.unitType].range.inAlpha
 
-	-- Check which spell to use
-	if( UnitCanAssist("player", frame.unit) ) then
-		spell = friendlySpell
-	elseif( UnitCanAttack("player", frame.unit) ) then
-		spell = hostileSpell
+	-- Offline
+	if( not UnitIsConnected(frame.unit) ) then
+		frame:SetRangeAlpha(oorAlpha)
+		return
+	-- Hostile spell
+	elseif( rangeSpells.hostile and UnitCanAttack("player", frame.unit) and IsSpellInRange(rangeSpells.hostile) == 1 ) then
+		frame:SetRangeAlpha(inAlpha)
+		return
+	-- Friendly spell
+	elseif( rangeSpells.friendly and UnitCanAssist("player", frame.unit) and IsSpellInRange(rangeSpells.friendly, frame.unit) == 1 ) then
+		frame:SetRangeAlpha(inAlpha)
+		return
+	-- Use the built in UnitInRange
+	elseif( UnitInRaid(frame.unit) or UnitInParty(frame.unit) ) then
+		frame:SetRangeAlpha(UnitInRange(frame.unit, "player") and inAlpha or oorAlpha)
+		return
 	end
 
-	if( spell ) then
-		frame:SetRangeAlpha(IsSpellInRange(spell, frame.unit) == 1 and ShadowUF.db.profile.units[frame.unitType].range.inAlpha or ShadowUF.db.profile.units[frame.unitType].range.oorAlpha)
-	-- That didn't work, but they are grouped lets try the actual API for this, it's a bit flaky though and not that useful generally
-	elseif( UnitInRaid(frame.unit) or UnitInParty(frame.unit) ) then
-		frame:SetRangeAlpha(UnitInRange(frame.unit, "player") and ShadowUF.db.profile.units[frame.unitType].range.inAlpha or ShadowUF.db.profile.units[frame.unitType].range.oorAlpha)
-	-- Nope, fall back to interaction :(
-	else
-		frame:SetRangeAlpha(CheckInteractDistance(frame.unit, 4) and ShadowUF.db.profile.units[frame.unitType].range.inAlpha or ShadowUF.db.profile.units[frame.unitType].range.oorAlpha)
+	-- Interact
+	if( CheckInteractDistance(frame.unit, 2) ) then
+		frame:SetRangeAlpha(inAlpha)
+		return
+	end
+
+	frame:SetRangeAlpha(oorAlpha)
+end
+
+local function updateSpellCache(type)
+	rangeSpells[type] = nil
+	if( IsUsableSpell(ShadowUF.db.profile.range[type .. playerClass]) ) then
+		rangeSpells[type] = ShadowUF.db.profile.range[type .. playerClass]
+
+	elseif( IsUsableSpell(ShadowUF.db.profile.range[type .. "Alt" .. playerClass]) ) then
+		rangeSpells[type] = ShadowUF.db.profile.range[type .. "Alt" .. playerClass]
+
+	elseif( IsUsableSpell(Range[type][playerClass]) ) then
+		rangeSpells[type] = Range[type][playerClass]
+
+	elseif( IsUsableSpell(Range[type .. "Alt"][playerClass]) ) then
+		rangeSpells[type] = Range[type .. "Alt"][playerClass]
 	end
 end
 
@@ -72,17 +99,14 @@ function Range:OnEnable(frame)
 		frame.range.timer.parent = frame
 	end
 
-	frame.range:Show()
-
+	frame:RegisterNormalEvent("PLAYER_SPECIALIZATION_CHANGED", self, "SpellChecks")
 	frame:RegisterUpdateFunc(self, "ForceUpdate")
+
+	frame.range:Show()
 end
 
 function Range:OnLayoutApplied(frame)
-	hostileSpell = ShadowUF.db.profile.range["hostile" .. playerClass] or self.hostile[playerClass]
-	if( not GetSpellInfo(hostileSpell) ) then hostileSpell = nil end
-
-	friendlySpell = ShadowUF.db.profile.range["friendly" .. playerClass] or self.friendly[playerClass]
-	if( not GetSpellInfo(friendlySpell) ) then friendlySpell = nil end
+	self:SpellChecks()
 end
 
 function Range:OnDisable(frame)
@@ -92,4 +116,10 @@ function Range:OnDisable(frame)
 		frame.range:Hide()
 		frame:SetRangeAlpha(1.0)
 	end
+end
+
+
+function Range:SpellChecks(frame)
+	updateSpellCache("friendly")
+	updateSpellCache("hostile")
 end
