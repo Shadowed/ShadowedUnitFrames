@@ -561,7 +561,7 @@ local function renderAura(parent, frame, type, config, displayConfig, index, fil
 	end
 	
 	-- Enlarge auras
-	if( ( category == "player" and config.enlarge.SELF ) or ( category == "boss" and config.enlarge.BOSS ) or ( isRemovable and not isFriendly and config.enlarge.REMOVABLE ) ) then
+	if( ( category == "player" and config.enlarge.SELF ) or ( category == "boss" and config.enlarge.BOSS ) or ( config.enlarge.REMOVABLE and ( ( isRemovable and not isFriendly ) or ( curable and canCure[auraType]) ) ) ) then
 		button.isSelfScaled = true
 		button:SetScale(config.selfScale)
 	else
