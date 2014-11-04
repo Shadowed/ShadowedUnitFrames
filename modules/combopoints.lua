@@ -27,7 +27,7 @@ local function createIcons(config, pointsFrame, max)
 		pointsFrame.icons[id] = pointsFrame.icons[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 		local texture = pointsFrame.icons[id]
 		texture:SetTexture(pointsConfig.icon)
-		texture:SetSize(config.size, config.size)
+		texture:SetSize(config.size or 24, config.size or 24)
 		
 		if( id > 1 ) then
 			texture:ClearAllPoints()
