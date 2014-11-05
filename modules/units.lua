@@ -1478,11 +1478,9 @@ end
 
 -- Handle figuring out what auras players can cure
 local curableSpells = {
-	["DRUID"] = {[88423] = {"Magic", "Curse", "Poison"}, [2782] = {"Curse", "Poison"}, [2908] = {"Enrage"}},
-	["HUNTER"] = {[19801] = {"Magic", "Enrage"}},
-	["ROGUE"] = {[5938] = {"Enrage"}},
+	["DRUID"] = {[88423] = {"Magic", "Curse", "Poison"}, [2782] = {"Curse", "Poison"}}
 	["MAGE"] = {[475] = {"Curse"}},
-	["PRIEST"] = {[528] = {"Magic"}, [527] = {"Magic", "Disease"}},
+	["PRIEST"] = {[527] = {"Magic", "Disease"}},
 	["PALADIN"] = {[4987] = {"Poison", "Disease"}, [53551] = {"Magic"}},
 	["SHAMAN"] = {[77130] = {"Curse", "Magic"}, [51886] = {"Curse"}},
 	["MONK"] = {[115450] = {"Poison", "Disease"}, [115451] = {"Magic"}}
@@ -1496,9 +1494,9 @@ local function checkCurableSpells()
 	table.wipe(Units.canCure)
 
 	for spellID, cures in pairs(curableSpells) do
-		if( IsUsableSpell(spellID) ) then
-			for _, type in pairs(cures) do
-				Units.canCure[type] = true
+		if( IsPlayerSpell(spellID) ) then
+			for _, auraType in pairs(cures) do
+				Units.canCure[auraType] = true
 			end
 		end
 	end
