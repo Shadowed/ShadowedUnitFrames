@@ -1480,7 +1480,7 @@ end
 local curableSpells = {
 	["DRUID"] = {[88423] = {"Magic", "Curse", "Poison"}, [2782] = {"Curse", "Poison"}},
 	["MAGE"] = {[475] = {"Curse"}},
-	["PRIEST"] = {[527] = {"Magic", "Disease"}},
+	["PRIEST"] = {[527] = {"Magic", "Disease"}, [32375] = {"Magic"}},
 	["PALADIN"] = {[4987] = {"Poison", "Disease"}, [53551] = {"Magic"}},
 	["SHAMAN"] = {[77130] = {"Curse", "Magic"}, [51886] = {"Curse"}},
 	["MONK"] = {[115450] = {"Poison", "Disease"}, [115451] = {"Magic"}}
