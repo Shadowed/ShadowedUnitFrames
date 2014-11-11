@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 48
+ShadowUF.dbRevision = 49
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -99,6 +99,10 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 48 ) then
+		ShadowUF:LoadDefaultLayout(true)
+	end
+
 	if( revision <= 47 ) then
 		local config = self.db.profile.units
 		config.player.comboPoints = config.target.comboPoints
