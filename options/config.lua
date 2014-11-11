@@ -501,7 +501,7 @@ local function loadGeneralOptions()
 			if( type(key) == "number" ) then
 				key = string.format("[%s]", key)
 			-- Wrap the string with quotes if it has a space in it
-			elseif( string.match(key, "[%p%s%c]") ) then
+			elseif( string.match(key, "[%p%s%c]") or string.match(key, "^[0-9]+$") ) then
 				key = string.format("['%s']", string.gsub(key, "'", "\\'"))
 			end
 			
@@ -569,15 +569,6 @@ local function loadGeneralOptions()
 						get = function(info) return layoutData[info[#(info)]] end,
 						width = "double",
 					},
-					modules = {
-						order = 4,
-						type = "toggle",
-						name = L["Import non-standard module settings"],
-						desc = L["Will not import settings of modules that are not included with Shadowed Unit Frames by default."],
-						set = function(info, value) layoutData[info[#(info)]] = value end,
-						get = function(info) return layoutData[info[#(info)]] end,
-						width = "double",
-					},
 					import = {
 						order = 5,
 						type = "input",
@@ -609,18 +600,6 @@ local function loadGeneralOptions()
 							for unit in pairs(layout.units) do
 								if( not ShadowUF.defaults.profile.units[unit] ) then
 									layout.units[unit] = nil
-								end
-							end
-							
-							-- Strip module settings that aren't with SUF by default
-							if( not layoutData.modules ) then
-								local validModules = {["healthBar"] = true, ["powerBar"] = true, ["portrait"] = true, ["range"] = true, ["text"] = true, ["indicators"] = true, ["auras"] = true, ["incAbsorb"] = true, ["healAbsorb"] = true, ["incHeal"] = true, ["castBar"] = true, ["combatText"] = true, ["highlight"] = true, ["runeBar"] = true, ["totemBar"] = true, ["xpBar"] = true, ["fader"] = true, ["comboPoints"] = true, ["eclipseBar"] = true, ["soulShards"] = true, ["holyPower"] = true, ["altPowerBar"] = true, ["demonicFuryBar"] = true, ["burningEmbersBar"] = true, ["chi"] = true, ["shadowOrbs"] = true, ["auraPoints"] = true, ["staggerBar"] = true}
-								for _, unitData in pairs(layout.units) do
-									for key, data in pairs(unitData) do
-										if( type(data) == "table" and not validModules[key] and ShadowUF.modules[key] ) then
-											unitData[key] = nil
-										end
-									end
 								end
 							end
 							
@@ -6347,8 +6326,8 @@ local function loadAuraIndicatorsOptions()
 			-- Wrap the key in brackets if it's a number
 			if( type(key) == "number" ) then
 				key = string.format("[%s]", key)
-			-- Wrap the string with quotes if it has a space in it
-			elseif( string.match(key, " ") ) then
+			-- Wrap the string with quotes if it has a space or digits in it
+			elseif( string.match(key, " ") or string.match(key, "^[0-9]+$") ) then
 				key = string.format("[\"%s\"]", key)
 			end
 			
