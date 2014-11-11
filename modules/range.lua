@@ -57,7 +57,7 @@ local function checkRange(self, elapsed)
 	end
 
 	-- Interact
-	if( CheckInteractDistance(frame.unit, 2) ) then
+	if( CheckInteractDistance(frame.unit, 1) ) then
 		frame:SetRangeAlpha(inAlpha)
 		return
 	end
