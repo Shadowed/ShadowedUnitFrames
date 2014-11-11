@@ -703,7 +703,9 @@ function ShadowUF:LoadUnitDefaults()
 		disabled = {},
 		missing = {},
 		linked = {
-			[GetSpellInfo(61316)] = GetSpellInfo(1459)
+			[GetSpellInfo(61316)] = GetSpellInfo(1459), -- Dalarn Brilliance -> AB
+			[GetSpellInfo(109773)] = GetSpellInfo(1459), -- Dark Intent -> AB
+			[GetSpellInfo(126309)] = GetSpellInfo(1459) -- Waterstrider -> AB
 		},
 		indicators = {
 			["tl"] = {name = L["Top Left"], anchorPoint = "TLI", anchorTo = "$parent", height = 8, width = 8, alpha = 1.0, x = 4, y = -4, friendly = true, hostile = true},
