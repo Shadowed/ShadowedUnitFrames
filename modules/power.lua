@@ -27,6 +27,18 @@ function Power:UpdateColor(frame)
 	local powerID, currentType, altR, altG, altB = UnitPowerType(frame.unit)
 	frame.powerBar.currentType = currentType
 
+	-- Overridden power types like Warlock pets, or Ulduar vehicles use "POWER_TYPE_#####" but triggers power events with "ENERGY", so this fixes that
+	-- by using the powerID to figure out the event type
+	if( not powerMap[currentType] ) then
+		frame.powerBar.currentType = powerMap[powerID] or "ENERGY"
+	end
+
+	if( ShadowUF.db.profile.units[frame.unitType].powerBar.onlyMana ) then
+		ShadowUF.Layout:SetBarVisibility(frame, "powerBar", currentType == "MANA")
+		if( currentType ~= "MANA" ) then return end
+	end
+
+
 	local color
 	if( frame.powerBar.minusMob ) then
 		color = ShadowUF.db.profile.healthColors.offline
@@ -49,12 +61,6 @@ function Power:UpdateColor(frame)
 
 	frame:SetBarColor("powerBar", color.r, color.g, color.b)
 
-	-- Overridden power types like Warlock pets, or Ulduar vehicles use "POWER_TYPE_#####" but triggers power events with "ENERGY", so this fixes that
-	-- by using the powerID to figure out the event type
-	if( not powerMap[currentType] ) then
-		frame.powerBar.currentType = powerMap[powerID] or "ENERGY"
-	end
-	
 	self:Update(frame)
 end
 

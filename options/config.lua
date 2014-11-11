@@ -4007,13 +4007,6 @@ local function loadUnitOptions()
 								name = string.format(L["Enable %s"], L["Power bar"]),
 								arg = "powerBar.enabled",
 							},
-							--predictPower = {
-							--	order = 2,
-							--	type = "toggle",
-							--	name = L["Enable quick power"],
-							--	desc = L["Turns fast updating of the power bar on giving you more up to date power information than normal."],
-							--	arg = "powerBar.predicted",
-							--},
 							altPowerBar = {
 								order = 3,
 								type = "toggle",
@@ -4029,6 +4022,14 @@ local function loadUnitOptions()
 								desc = L["Primary means of coloring the power bar. Coloring by class only applies to players, for non-players it will default to the power type."],
 								values = {["class"] = L["Class"], ["type"] = L["Power Type"]},
 								arg = "powerBar.colorType",
+							},
+							onlyMana = {
+								order = 6,
+								type = "toggle",
+								name = L["Only show when mana"],
+								desc = L["Hides the power bar unless the class has mana."],
+								hidden = function(info) return not ShadowUF.Units.headerUnits[info[2]] end,
+								arg = "powerBar.onlyMana",
 							}
 						},
 					},
