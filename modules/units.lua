@@ -16,6 +16,7 @@ ShadowUF:RegisterModule(Units, "units")
 
 -- This is the wrapper frame that everything parents to so we can just hide it when we need to deal with pet battles
 local petBattleFrame = CreateFrame("Frame", "SUFWrapperFrame", UIParent, "SecureHandlerBaseTemplate")
+petBattleFrame:SetFrameStrata("BACKGROUND")
 petBattleFrame:SetAllPoints(UIParent)
 petBattleFrame:WrapScript(petBattleFrame, "OnAttributeChanged", [[
 	if( name ~= "state-petbattle" ) then return end
