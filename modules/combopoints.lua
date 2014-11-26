@@ -41,11 +41,11 @@ end
 
 local function createBlocks(config, pointsFrame, max)
 	local pointsConfig = pointsFrame.cpConfig
-	pointsFrame.visibleBlocks = pointsConfig.max
+	pointsFrame.visibleBlocks = max
 
 	-- Position bars, the 5 accounts for borders
-	local blockWidth = (pointsFrame:GetWidth() - (pointsConfig.max - 1)) / pointsConfig.max
-	for id=1, pointsConfig.max do
+	local blockWidth = (pointsFrame:GetWidth() - (max - 1)) / max
+	for id=1, max do
 		pointsFrame.blocks[id] = pointsFrame.blocks[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 		local texture = pointsFrame.blocks[id]
 		local color = ShadowUF.db.profile.powerColors[pointsConfig.colorKey or "COMBOPOINTS"]
