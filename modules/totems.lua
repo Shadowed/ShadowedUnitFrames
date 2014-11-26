@@ -26,6 +26,9 @@ end
 ShadowUF.BlockTimers:Inject(Totems, "TOTEM_TIMER")
 ShadowUF.DynamicBlocks:Inject(Totems)
 
+function Totems:SecureLockable()
+	return MAX_TOTEMS > 1
+end
 
 function Totems:OnEnable(frame)
 	if( not frame.totemBar ) then
@@ -83,13 +86,15 @@ function Totems:OnDisable(frame)
     end
 end
 
+function Totems:OnPreLayoutApply(frame)
+	if( frame.visibility.totemBar and playerClass == "DRUID" ) then
+		MAX_TOTEMS = GetSpecialization() == 4 and 1 or 3
+	end
+end
+
 function Totems:OnLayoutApplied(frame)
 	if( not frame.visibility.totemBar ) then return end
 
-	if( playerClass == "DRUID" ) then
-		MAX_TOTEMS = GetSpecialization() == 4 and 1 or 3
-	end
-	
 	local barWidth = (frame.totemBar:GetWidth() - (MAX_TOTEMS - 1)) / MAX_TOTEMS
 	local config = ShadowUF.db.profile.units[frame.unitType].totemBar
 

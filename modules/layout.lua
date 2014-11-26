@@ -124,17 +124,17 @@ end
 function Layout:Load(frame)
 	local unitConfig = ShadowUF.db.profile.units[frame.unitType]
 
+	-- About to set layout
+	ShadowUF:FireModuleEvent("OnPreLayoutApply", frame, unitConfig)
+
 	-- Figure out if we're secure locking
 	frame.secureLocked = nil
 	for _, module in pairs(ShadowUF.moduleOrder) do
-		if( frame.visibility[module.moduleKey] and ShadowUF.db.profile.units[frame.unitType][module.moduleKey].secure ) then
+		if( frame.visibility[module.moduleKey] and ShadowUF.db.profile.units[frame.unitType][module.moduleKey].secure and module:SecureLockable() ) then
 			frame.secureLocked = true
 			break
 		end
 	end
-
-	-- About to set layout
-	ShadowUF:FireModuleEvent("OnPreLayoutApply", frame, unitConfig)
 	
 	-- Load all of the layout things
 	self:SetupFrame(frame, unitConfig)
