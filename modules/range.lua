@@ -84,9 +84,9 @@ end
 function Range:ForceUpdate(frame)
 	if( UnitIsUnit(frame.unit, "player") ) then
 		frame:SetRangeAlpha(ShadowUF.db.profile.units[frame.unitType].range.inAlpha)
-		frame.range:Hide()
+		frame.range.timer:Stop()
 	else
-		frame.range:Show()
+		frame.range.timer:Play()
 		checkRange(frame.range.timer)
 	end
 end
@@ -102,7 +102,7 @@ function Range:OnEnable(frame)
 	frame:RegisterNormalEvent("PLAYER_SPECIALIZATION_CHANGED", self, "SpellChecks")
 	frame:RegisterUpdateFunc(self, "ForceUpdate")
 
-	frame.range:Show()
+	frame.range.timer:Play()
 end
 
 function Range:OnLayoutApplied(frame)
@@ -113,7 +113,7 @@ function Range:OnDisable(frame)
 	frame:UnregisterAll(self)
 	
 	if( frame.range ) then
-		frame.range:Hide()
+		frame.range.timer:Stop()
 		frame:SetRangeAlpha(1.0)
 	end
 end
