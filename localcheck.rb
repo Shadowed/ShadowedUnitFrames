@@ -1,5 +1,5 @@
-require "typhoeus"
 require "uri"
+require "net/http"
 
 skip = nil
 i18n = {}
@@ -45,20 +45,21 @@ i18n.each_key do |text|
 end
 
 # Onward!
-URL = "http://www.wowace.com/addons/shadowed-unit-frames/localization/import/"
+URL = URI.parse("http://www.wowace.com/addons/shadowed-unit-frames/localization/import/")
 
-res = Typhoeus.post(URL,
-	headers: {Referer: URL},
-	body: URI.encode_www_form(
-		"api-key" => File.read(File.expand_path("~/.curse-key")).strip,
-		format: :lua_additive_table,
-		language: 1,
-		delete_unimported: "y",
-		text: compiled
-	)
+http = Net::HTTP.new(URL.host, URL.port)
+
+request = Net::HTTP::Post.new(URL.request_uri)
+request.add_field("Referer", "http://www.wowace.com/addons/shadowed-unit-frames/localization/import/")
+request.set_form_data(
+	"api-key" => File.read(File.expand_path("~/.curse-key")).strip,
+	format: :lua_additive_table,
+	language: 1,
+	delete_unimported: "y",
+	text: compiled
 )
 
-
-puts res.headers.inspect
+res = http.request(request)
+puts res.header.inspect
 puts res.code
 puts res.body
