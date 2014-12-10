@@ -992,7 +992,26 @@ local function setupRaidStateMonitor(id, headerFrame)
 	stateMonitor.raids[id]:SetFrameRef("raidHeader", headerFrame)
 	stateMonitor.raids[id]:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.raid.hideSemiRaid)
 	stateMonitor.raids[id]:WrapScript(stateMonitor.raids[id], "OnAttributeChanged", [[
-		if( name ~= "state-raidmonitor" and name ~= "raiddisabled" and name ~= "hidesemiraid" ) then return end
+		if( name == "hasraid" or name == "hasparty" or name == "recheck" ) then
+			local header = self:GetFrameRef("raidHeader")
+			local raid = self:GetAttribute("hasraid")
+			local party = self:GetAttribute("hasparty")
+
+			if( header:GetAttribute("showParty") ) then
+				if( not party and not raid ) then
+					header:Hide()
+				elseif( party or raid ) then
+					header:Show()
+				end
+			elseif( not raid ) then
+				header:Hide()
+			elseif( raid ) then
+				header:Show()
+			end
+
+		elseif( name ~= "state-raidmonitor" and name ~= "raiddisabled" and name ~= "hidesemiraid" ) then
+			return
+		end
 
 		local header = self:GetFrameRef("raidHeader")
 		if( self:GetAttribute("raidDisabled") ) then
@@ -1008,6 +1027,8 @@ local function setupRaidStateMonitor(id, headerFrame)
 	]])
 	
 	RegisterStateDriver(stateMonitor.raids[id], "raidmonitor", "[target=raid6, exists] raid6; none")
+	RegisterStateDriver(stateMonitor.raids[id], "hasraid", "[target=raid1, exists] raid; none")
+	RegisterStateDriver(stateMonitor.raids[id], "hasparty", "[target=party1, exists] party; none")
 end
 
 function Units:LoadSplitGroupHeader(type)
@@ -1017,6 +1038,7 @@ function Units:LoadSplitGroupHeader(type)
 	for id, monitor in pairs(stateMonitor.raids) do
 		monitor:SetAttribute("hideSemiRaid", ShadowUF.db.profile.units.raid.hideSemiRaid)
 		monitor:SetAttribute("raidDisabled", id == -1 and true or nil)
+		monitor:SetAttribute("recheck", time())
 	end
 
 	local config = ShadowUF.db.profile.units[type]
