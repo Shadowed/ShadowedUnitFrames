@@ -1170,6 +1170,10 @@ end
 function Units:LoadZoneHeader(type)
 	if( headerFrames[type] ) then
 		headerFrames[type]:Show()
+
+		if( type == "arena" ) then
+			self:InitializeArena()
+		end
 		return
 	end
 	
@@ -1274,6 +1278,10 @@ function Units:LoadZoneHeader(type)
 
 	self:SetHeaderAttributes(headerFrame, type)
 	ShadowUF.Layout:AnchorFrame(UIParent, headerFrame, ShadowUF.db.profile.positions[type])	
+
+	if( type == "arena" ) then
+		self:InitializeArena()
+	end
 end
 
 -- Load a unit that is a child of another unit (party pet/party target)
@@ -1376,6 +1384,7 @@ function Units:UninitializeFrame(type)
 		for frame in pairs(frameList) do
 			if( frame.unitType == type ) then
 				UnregisterUnitWatch(frame)
+				frame:SetAttribute("state-unitexits", false)
 				frame:Hide()
 			end
 		end
