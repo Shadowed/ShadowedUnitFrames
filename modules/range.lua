@@ -33,36 +33,28 @@ ShadowUF:RegisterModule(Range, "range", ShadowUF.L["Range indicator"])
 local playerClass = select(2, UnitClass("player"))
 local rangeSpells = {}
 
-local function checkRange(self, elapsed)
+local function checkRange(self)
 	local frame = self.parent
-	local oorAlpha = ShadowUF.db.profile.units[frame.unitType].range.oorAlpha
-	local inAlpha = ShadowUF.db.profile.units[frame.unitType].range.inAlpha
 
-	-- Offline
+	-- Check which spell to use
+	local spell
+	if( UnitCanAssist("player", frame.unit) ) then
+		spell = rangeSpells.friendly
+	elseif( UnitCanAttack("player", frame.unit) ) then
+		spell = rangeSpells.hostile
+	end
+
 	if( not UnitIsConnected(frame.unit) ) then
-		frame:SetRangeAlpha(oorAlpha)
-		return
-	-- Hostile spell
-	elseif( rangeSpells.hostile and UnitCanAttack("player", frame.unit) and IsSpellInRange(rangeSpells.hostile) == 1 ) then
-		frame:SetRangeAlpha(inAlpha)
-		return
-	-- Friendly spell
-	elseif( rangeSpells.friendly and UnitCanAssist("player", frame.unit) and IsSpellInRange(rangeSpells.friendly, frame.unit) == 1 ) then
-		frame:SetRangeAlpha(inAlpha)
-		return
-	-- Use the built in UnitInRange
+		frame:SetRangeAlpha(ShadowUF.db.profile.units[frame.unitType].range.oorAlpha)
+	elseif( spell ) then
+		frame:SetRangeAlpha(IsSpellInRange(spell, frame.unit) == 1 and ShadowUF.db.profile.units[frame.unitType].range.inAlpha or ShadowUF.db.profile.units[frame.unitType].range.oorAlpha)
+	-- That didn't work, but they are grouped lets try the actual API for this, it's a bit flaky though and not that useful generally
 	elseif( UnitInRaid(frame.unit) or UnitInParty(frame.unit) ) then
-		frame:SetRangeAlpha(UnitInRange(frame.unit, "player") and inAlpha or oorAlpha)
-		return
+		frame:SetRangeAlpha(UnitInRange(frame.unit, "player") and ShadowUF.db.profile.units[frame.unitType].range.inAlpha or ShadowUF.db.profile.units[frame.unitType].range.oorAlpha)
+	-- Nope, fall back to interaction :(
+	else
+		frame:SetRangeAlpha(CheckInteractDistance(frame.unit, 1) and ShadowUF.db.profile.units[frame.unitType].range.inAlpha or ShadowUF.db.profile.units[frame.unitType].range.oorAlpha)
 	end
-
-	-- Interact
-	if( CheckInteractDistance(frame.unit, 1) ) then
-		frame:SetRangeAlpha(inAlpha)
-		return
-	end
-
-	frame:SetRangeAlpha(oorAlpha)
 end
 
 local function updateSpellCache(type)
@@ -106,7 +98,7 @@ function Range:OnEnable(frame)
 end
 
 function Range:OnLayoutApplied(frame)
-	self:SpellChecks()
+	self:SpellChecks(frame)
 end
 
 function Range:OnDisable(frame)
@@ -122,4 +114,7 @@ end
 function Range:SpellChecks(frame)
 	updateSpellCache("friendly")
 	updateSpellCache("hostile")
+	if( frame.range ) then
+		checkRange(frame.range.timer)
+	end
 end
