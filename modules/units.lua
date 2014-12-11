@@ -1193,7 +1193,7 @@ function Units:LoadZoneHeader(type)
 	if( headerFrames[type] ) then
 		headerFrames[type]:Show()
 		for _, child in pairs(headerFrames[type].children) do
-			RegisterUnitWatch(frame, frame.hasStateWatch)
+			RegisterUnitWatch(child, child.hasStateWatch)
 		end
 
 		if( type == "arena" ) then
