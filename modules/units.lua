@@ -7,7 +7,7 @@ Units.headerUnits = {["raid"] = true, ["party"] = true, ["maintank"] = true, ["m
 local stateMonitor = CreateFrame("Frame", nil, nil, "SecureHandlerBaseTemplate")
 stateMonitor.raids = {}
 local playerClass = select(2, UnitClass("player"))
-local unitFrames, headerFrames, frameList, unitEvents, childUnits, headerUnits, queuedCombat = Units.unitFrames, Units.headerFrames, Units.frameList, Units.unitEvents, Units.childUnits, Units.headerUnits, {}
+local unitFrames, headerFrames, frameList, unitEvents, childUnits, headerUnits, queuedCombat, zoneUnits = Units.unitFrames, Units.headerFrames, Units.frameList, Units.unitEvents, Units.childUnits, Units.headerUnits, {}, Units.zoneUnits
 local remappedUnits = Units.remappedUnits
 local _G = getfenv(0)
 
@@ -1401,7 +1401,7 @@ function Units:UninitializeFrame(type)
 		
 		if( headerFrames[type].children ) then
 			for _, frame in pairs(headerFrames[type].children) do
-				if( zoneUnits[type] ) then
+				if( self.zoneUnits[type] ) then
 					UnregisterUnitWatch(frame)
 					frame:SetAttribute("state-unitexists", false)
 				end
