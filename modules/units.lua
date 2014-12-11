@@ -1192,6 +1192,9 @@ end
 function Units:LoadZoneHeader(type)
 	if( headerFrames[type] ) then
 		headerFrames[type]:Show()
+		for _, child in pairs(headerFrames[type].children) do
+			RegisterUnitWatch(frame, frame.hasStateWatch)
+		end
 
 		if( type == "arena" ) then
 			self:InitializeArena()
@@ -1398,6 +1401,11 @@ function Units:UninitializeFrame(type)
 		
 		if( headerFrames[type].children ) then
 			for _, frame in pairs(headerFrames[type].children) do
+				if( zoneUnits[type] ) then
+					UnregisterUnitWatch(frame)
+					frame:SetAttribute("state-unitexists", false)
+				end
+
 				frame:Hide()
 			end
 		end
