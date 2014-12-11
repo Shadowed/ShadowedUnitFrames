@@ -372,13 +372,13 @@ end
 
 -- Temporary enchant support
 local timeElapsed = 0
-local function updateTemporaryEnchant(frame, slot, tempData, hasEnchant, timeLeft, charges)
+local function updateTemporaryEnchant(frame, slot, tempData, hasEnchant, enchantId, timeLeft, charges)
 	-- If there's less than a 750 millisecond differences in the times, we don't need to bother updating.
 	-- Any sort of enchant takes more than 0.750 seconds to cast so it's impossible for the user to have two
 	-- temporary enchants with that little difference, as totems don't really give pulsing auras anymore.
 	charges = charges or 0
-	if( tempData.has and ( timeLeft < tempData.time and ( tempData.time - timeLeft ) < 750 ) and charges == tempData.charges ) then return false end
-	
+	if( tempData.has and tempData.enchantId == enchantId and ( timeLeft < tempData.time and ( tempData.time - timeLeft ) < 750 ) ) then return false end
+
 	-- Some trickys magic, we can't get the start time of temporary enchants easily.
 	-- So will save the first time we find when a new enchant is added
 	if( timeLeft > tempData.time or not tempData.has ) then
@@ -388,6 +388,7 @@ local function updateTemporaryEnchant(frame, slot, tempData, hasEnchant, timeLef
 	tempData.has = hasEnchant
 	tempData.time = timeLeft
 	tempData.charges = charges
+	tempData.enchantId = enchantId
 
 	local config = ShadowUF.db.profile.units[frame.parent.unitType].auras[frame.type]
 	
@@ -452,12 +453,12 @@ tempEnchantScan = function(self, elapsed)
 	timeElapsed = timeElapsed - 0.50
 
 
-	local hasMain, mainTimeLeft, mainCharges, hasOff, offTimeLeft, offCharges, hasRanged, rangedTimeLeft, rangedCharges = GetWeaponEnchantInfo()
+	local hasMain, mainTimeLeft, mainCharges, mainEnchantId, hasOff, offTimeLeft, offCharges, offEnchantId = GetWeaponEnchantInfo()
 	self.temporaryEnchants = 0
 	
 	if( hasMain ) then
 		self.temporaryEnchants = self.temporaryEnchants + 1
-		updateTemporaryEnchant(self, 16, mainHand, hasMain, mainTimeLeft or 0, mainCharges)
+		updateTemporaryEnchant(self, 16, mainHand, hasMain, mainEnchantId, mainTimeLeft or 0, mainCharges)
 		mainHand.time = mainTimeLeft or 0
 	end
 
@@ -465,18 +466,11 @@ tempEnchantScan = function(self, elapsed)
 	
 	if( hasOff and self.temporaryEnchants < self.maxAuras ) then
 		self.temporaryEnchants = self.temporaryEnchants + 1
-		updateTemporaryEnchant(self, 17, offHand, hasOff, offTimeLeft or 0, offCharges)
+		updateTemporaryEnchant(self, 17, offHand, hasOff, offEnchantId, offTimeLeft or 0, offCharges)
 		offHand.time = offTimeLeft or 0
 	end
 	
 	offHand.has = hasOff
-	
-	if( hasRanged and self.temporaryEnchants < self.maxAuras ) then
-		self.temporaryEnchants = self.temporaryEnchants + 1
-		updateTemporaryEnchant(self, 18, ranged, hasRanged, rangedTimeLeft or 0, rangedCharges)
-	end
-	
-	ranged.has = hasRanged
 	
 	-- Update if totals changed
 	if( self.lastTemporary ~= self.temporaryEnchants ) then
