@@ -1,6 +1,6 @@
 local HolyPower = setmetatable({}, {__index = ShadowUF.ComboPoints})
 ShadowUF:RegisterModule(HolyPower, "holyPower", ShadowUF.L["Holy Power"], nil, "PALADIN", nil, PALADINPOWERBAR_SHOW_LEVEL)
-local holyConfig = {max = HOLY_POWER_FULL, key = "holyPower", colorKey = "HOLYPOWER", powerType = SPELL_POWER_HOLY_POWER, eventType = "HOLY_POWER", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
+local holyConfig = {max = 5, key = "holyPower", colorKey = "HOLYPOWER", powerType = SPELL_POWER_HOLY_POWER, eventType = "HOLY_POWER", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
 
 function HolyPower:OnEnable(frame)
 	frame.holyPower = frame.holyPower or CreateFrame("Frame", nil, frame)
@@ -32,8 +32,8 @@ function HolyPower:UpdateBarBlocks(frame, event, unit, powerType)
 	local color = ShadowUF.db.profile.powerColors["BANKEDHOLYPOWER"]
 
 	local max = UnitPowerMax("player", holyConfig.powerType)
-	if( max > 0 and max > HOLY_POWER_FULL ) then
-		for id=HOLY_POWER_FULL+1, max do
+	if( max == 5 ) then
+		for id=4, 5 do
 			if( config.isBar ) then
 				pointsFrame.blocks[id]:SetVertexColor(color.r, color.g, color.b)
 			else
