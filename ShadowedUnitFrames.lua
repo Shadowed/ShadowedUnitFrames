@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 50
+ShadowUF.dbRevision = 51
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -99,6 +99,10 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 49 ) then
+		ShadowUF:LoadDefaultLayout(true)
+	end
+
 	if( revision <= 49 ) then
 		if( ShadowUF.db.profile.font.extra == "MONOCHROME" ) then
 			ShadowUF.db.profile.font.extra = ""
@@ -582,6 +586,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.soulShards = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.staggerBar = {enabled = true}
 	self.defaults.profile.units.player.demonicFuryBar = {enabled = true}
+	self.defaults.profile.units.player.comboPoints = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.burningEmbersBar = {enabled = true}
 	self.defaults.profile.units.player.eclipseBar = {enabled = true}
 	self.defaults.profile.units.player.holyPower = {enabled = true, isBar = true}
@@ -609,7 +614,6 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.focustarget.fader = {enabled = false, combatAlpha = 1.0, inactiveAlpha = 0.60}
 	-- TARGET
 	self.defaults.profile.units.target.enabled = true
-	self.defaults.profile.units.target.comboPoints = {enabled = true, isBar = true}
 	self.defaults.profile.units.target.indicators.lfdRole = {enabled = false, size = 0, x = 0, y = 0}
 	self.defaults.profile.units.target.indicators.questBoss = {enabled = true, size = 0, x = 0, y = 0}
 	-- TARGETTARGET/TARGETTARGETTARGET
