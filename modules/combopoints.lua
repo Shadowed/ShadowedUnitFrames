@@ -3,7 +3,9 @@ ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUF.L["Combo points"])
 ShadowUF.ComboPoints = Combo
 local cpConfig = {max = MAX_COMBO_POINTS, key = "comboPoints", colorKey = "COMBOPOINTS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
 
-local function createIcons(config, pointsFrame, max)
+local function createIcons(config, pointsFrame, cpMax)
+	if( not cpMax ) then return end
+
 	local point, relativePoint
 	local x, y = 0, 0
 	
@@ -12,18 +14,18 @@ local function createIcons(config, pointsFrame, max)
 	if( config.growth == "LEFT" ) then
 		point, relativePoint = "BOTTOMRIGHT", "BOTTOMLEFT"
 		x = config.spacing
-	elseif( config.growth == "RIGHT" ) then
-		point, relativePoint = "BOTTOMLEFT", "BOTTOMRIGHT"
-		x = config.spacing
 	elseif( config.growth == "UP" ) then
 		point, relativePoint = "BOTTOMLEFT", "TOPLEFT"
 		y = config.spacing
 	elseif( config.growth == "DOWN" ) then
 		point, relativePoint = "TOPLEFT", "BOTTOMLEFT"
 		y = config.spacing
+	else
+		point, relativePoint = "BOTTOMLEFT", "BOTTOMRIGHT"
+		x = config.spacing
 	end
 	
-	for id=1, max do
+	for id=1, cpMax do
 		pointsFrame.icons[id] = pointsFrame.icons[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 		local texture = pointsFrame.icons[id]
 		texture:SetTexture(pointsConfig.icon)
@@ -39,13 +41,15 @@ local function createIcons(config, pointsFrame, max)
 	end
 end
 
-local function createBlocks(config, pointsFrame, max)
+local function createBlocks(config, pointsFrame, cpMax)
+	if( not cpMax ) then return end
+
 	local pointsConfig = pointsFrame.cpConfig
-	pointsFrame.visibleBlocks = max
+	pointsFrame.visibleBlocks = cpMax
 
 	-- Position bars, the 5 accounts for borders
-	local blockWidth = (pointsFrame:GetWidth() - (max - 1)) / max
-	for id=1, max do
+	local blockWidth = (pointsFrame:GetWidth() - (cpMax - 1)) / cpMax
+	for id=1, cpMax do
 		pointsFrame.blocks[id] = pointsFrame.blocks[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 		local texture = pointsFrame.blocks[id]
 		local color = ShadowUF.db.profile.powerColors[pointsConfig.colorKey or "COMBOPOINTS"]
