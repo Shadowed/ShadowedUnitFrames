@@ -6,8 +6,7 @@ local cpConfig = {max = MAX_COMBO_POINTS, key = "comboPoints", colorKey = "COMBO
 local function createIcons(config, pointsFrame, cpMax)
 	if( not cpMax ) then return end
 
-	local point, relativePoint
-	local x, y = 0, 0
+	local point, relativePoint, x, y
 	
 	local pointsConfig = pointsFrame.cpConfig
 
@@ -24,6 +23,9 @@ local function createIcons(config, pointsFrame, cpMax)
 		point, relativePoint = "BOTTOMLEFT", "BOTTOMRIGHT"
 		x = config.spacing
 	end
+
+	x = x or 0
+	y = y or 0
 	
 	for id=1, cpMax do
 		pointsFrame.icons[id] = pointsFrame.icons[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
