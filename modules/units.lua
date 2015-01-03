@@ -1102,13 +1102,6 @@ end
 
 -- Load a header unit, party or raid
 function Units:LoadGroupHeader(type)
-	-- Any frames that were split out in this group need to be hidden
-	for _, headerFrame in pairs(headerFrames) do
-		if( headerFrame.splitParent == type ) then
-			headerFrame:Hide()
-		end
-	end
-
 	-- Already created, so just reshow and we out
 	if( headerFrames[type] ) then
 		headerFrames[type]:Show()
@@ -1191,6 +1184,18 @@ function Units:LoadGroupHeader(type)
 	else
 		headerFrame:Show()
 	end
+
+	-- Any frames that were split out in this group need to be hidden
+	if( headerFrames.raidParent ) then
+		for _, headerFrame in pairs(headerFrames) do
+			if( headerFrame.splitParent == type ) then
+				headerFrame:Hide()
+			end
+		end
+
+		headerFrames.raidParent:Hide()
+		headerFrames.raidParent = nil
+	end	
 end
 
 -- Fake headers that are supposed to act like headers to the users, but are really not
