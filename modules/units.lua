@@ -839,7 +839,7 @@ function Units:SetHeaderAttributes(frame, type)
 		local lastHeader = frame
 		for id=1, 8 do
 			local childHeader = headerFrames["raid" .. id]
-			if( childHeader and childHeader:IsVisible() ) then
+			if( childHeader ) then
 				childHeader:SetAttribute("showRaid", ShadowUF.db.profile.locked and true)
 				
 				childHeader:SetAttribute("minWidth", config.width * widthMod)
@@ -876,6 +876,11 @@ function Units:SetHeaderAttributes(frame, type)
 
 					lastHeader = childHeader
 				end
+
+				-- There appears to be a bug where if you reloadui with a split raid frames the positions get messed up
+				-- if we force a repositioning through startingIndex it's fixed thought.
+				childHeader:SetAttribute("startingIndex", 10000)
+				childHeader:SetAttribute("startingIndex", 1)
 			end	
 		end
 		
