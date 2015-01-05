@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 52
+ShadowUF.dbRevision = 53
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -99,6 +99,15 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 53 ) then
+		for i=1, #(self.db.profile.units.player.text) do
+			if( self.db.profile.units.player.text[i].anchorTo == "$eclipseBar" ) then
+				table.remove(self.db.profile.units.player.text, i)
+				break
+			end
+		end
+	end
+
 	if( revision <= 49 ) then
 		ShadowUF:LoadDefaultLayout(true)
 	end
@@ -107,10 +116,6 @@ function ShadowUF:CheckUpgrade()
 		if( ShadowUF.db.profile.font.extra == "MONOCHROME" ) then
 			ShadowUF.db.profile.font.extra = ""
 		end
-	end
-
-	if( revision <= 48 ) then
-		ShadowUF:LoadDefaultLayout(true)
 	end
 
 	if( revision <= 47 ) then
@@ -137,328 +142,6 @@ function ShadowUF:CheckUpgrade()
 					aura.show.consolidated = true
 					aura.show.misc = true
 				end
-			end
-		end
-	end
-
-	if( revision <= 44 ) then
-		ShadowUF:LoadDefaultLayout(true)
-
-		for unit, config in pairs(self.defaults.profile.units) do
-			if( config.indicators and config.indicators.resurrect ) then
-				local db = self.db.profile.units[unit]
-				
-				local options
-				if( unit == "target" ) then
-					options = {enabled = true, anchorPoint = "RC", size = 28, x = -39, y = -1, anchorTo = "$parent"}
-				else
-					options = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"}
-				end
-
-				for key, value in pairs(options) do
-					if( db.indicators.resurrect[key] == nil ) then
-						db.indicators.resurrect[key] = value
-					end
-				end
-			end
-		end		
-	end
-
-	if( revision <= 43 ) then
-		for key, _ in pairs(self.db.profile.auraIndicators.indicators) do
-			self.db.profile.auraIndicators.height = nil
-			self.db.profile.auraIndicators.filters[key] = {boss = {priority = 100}, curable = {priority = 100}}
-		end
-	end
-
-	if( revision <= 42 ) then
-		for unit, config in pairs(self.db.profile.units) do
-			config.auras.height = nil
-
-			for type, auraConfig in pairs(config.auras) do
-				auraConfig.show = {misc = true}
-				auraConfig.show.player = auraConfig.player
-				auraConfig.show.raid = auraConfig.raid
-
-				auraConfig.enlarge = {}
-				auraConfig.enlarge["SELF"] = auraConfig.enlargeSelf
-				auraConfig.enlarge["REMOVABLE"] = auraConfig.enlargeStealable
-
-				auraConfig.timers = {}
-				if( auraConfig.selfTimers ) then
-					auraConfig.timers["SELF"] = true
-				else
-					auraConfig.timers["ALL"] = true
-				end
-
-				auraConfig.selfTimers = nil
-				auraConfig.player = nil
-				auraConfig.raid = nil
-				auraConfig.enlargeSelf = nil
-				auraConfig.enlargeStealable = nil
-			end
-
-			config.auras.buffs.show.consolidated = true
-			config.auras.debuffs.show.boss = true
-		end
-	end
-
-	if( revision <= 41 ) then
-		local phase = self.db.profile.units.party.indicators.phase
-		phase.anchorPoint = phase.anchorPoint or "RC"
-		phase.size = phase.size or 14
-		phase.x = phase.x or -11
-		phase.y = phase.y or 0
-		phase.anchorTo = phase.anchorTo or "$parent"
-	end
-
-	if( revision <= 40 ) then
-		ShadowUF:LoadDefaultLayout(true)
-
-		for unit, config in pairs(self.db.profile.units) do
-			if( config.healAbsorb and not self.defaults.profile.units[unit].healAbsorb ) then
-				config.healAbsorb = nil
-			end
-		end
-	end
-
-	if( revision <= 39 ) then
-		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Text"], text = "[monk:abs:stagger]", anchorTo = "$staggerBar", anchorPoint = "C", size = 0, x = 0, y = 0, default = true})
-	end
-
-	if( revision <= 38 ) then
-		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Timer Text"], text = "", anchorTo = "$runeBar", anchorPoint = "C", size = 0, x = 0, y = 0, default = true, block = true})
-		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Timer Text"], text = "", anchorTo = "$totemBar", anchorPoint = "C", size = 0, x = 0, y = 0, default = true, block = true})
-
-		for _, config in pairs(self.db.profile.units) do
-			for id, text in pairs(config.text) do
-				if( id <= 5 ) then
-					text.default = true
-				end
-			end
-		end
-	end
-
-	if( revision <= 37 ) then
-		self.db.profile.healthColors.healAbsorb = {r = 0.68, g = 0.47, b = 1}
-	end
-
-	if( revision <= 34 ) then
-		self.db.profile.units.player.staggerBar = {enabled = true, background = true, height = 0.30, order = 70}
-		self.db.profile.powerColors.STAGGER_GREEN = {r = 0.52, g = 1.0, b = 0.52}
-		self.db.profile.powerColors.STAGGER_YELLOW = {r = 1.0, g = 0.98, b = 0.72}
-		self.db.profile.powerColors.STAGGER_RED = {r = 1.0, g = 0.42, b = 0.42}
-	end
-
-	if( revision <= 33 ) then
-		for unit, config in pairs(self.db.profile.units) do
-			if( not self.defaults.profile.units[unit].incHeal and config.incHeal ) then
-				config.incHeal = nil
-			end
-
-			if( not self.defaults.profile.units[unit].incAbsorb and config.incAbsorb ) then
-				config.incAbsorb = nil
-			end
-
-			if( config.incAbsorb ) then
-				config.incAbsorb.cap = config.incAbsorb.cap or 1.30
-			end
-
-			if( config.incHeal ) then
-				config.incHeal.cap = config.incHeal.cap or 1.30
-			end
-		end
-	end
-
-	if( revision <= 32 ) then
-		for unit, config in pairs(self.db.profile.units) do
-			if( config.incAbsorb and not config.incAbsorb.cap ) then
-				config.incAbsorb.cap = 1.30
-			end
-		end
-	end
-
-	if( revision <= 31 or not self.db.profile.healthColors.incAbsorb ) then
-		self.db.profile.healthColors.incAbsorb = {r = 0.93, g = 0.75, b = 0.09}
-
-		for unit, config in pairs(self.db.profile.units) do
-			if( config.incHeal ) then
-				config.incHeal.enabled = config.incHeal.heals
-				config.incHeal.heals = nil
-				config.incAbsorb = {enabled = config.incHeal.enabled}
-			end
-		end
-	end
-
-	if( revision <= 30 ) then
-		self.db.profile.powerColors.RUNEOFPOWER = {r = 0.35, g = 0.45, b = 0.60}
-	end
-
-	if( revision <= 29 ) then
-		self.db.profile.units.player.totemBar.showAlways = true
-	end
-
-	if( revision <= 28 ) then
-		self.db.profile.units.target.indicators.questBoss = {enabled = true, anchorPoint = "BR", size = 22, x = 9, y = 24, anchorTo = "$parent"}
-		self.db.profile.units.focus.indicators.questBoss = {enabled = false, anchorPoint = "BR", size = 22, x = 7, y = 14, anchorTo = "$parent"}
-
-		for unit, config in pairs(self.db.profile.units) do
-			for key, module in pairs(ShadowUF.modules) do
-				if( config[key] and ( module.moduleHasBar or module.isComboPoints or config[key].isBar or config[key].order ) ) then
-					config[key].height = config[key].height or 0.40
-				end
-			end
-		end
-	end
-
-	if( revision <= 27 ) then
-		self.db.profile.healthColors.aggro = CopyTable(self.db.profile.healthColors.hostile)
-	end
-
-	if( revision <= 26 ) then
-		for _, unit in pairs(self.unitList) do
-			if( unit ~= "player" ) then
-				for id, text in pairs(self.db.profile.units[unit].text) do
-					if( text.anchorTo == "$demonicFuryBar" ) then
-						self.db.profile.units[unit].text[id] = nil
-					end
-				end
-			end
-		end
-	end
-
-	if( revision <= 25 ) then
-		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Text"], text = "[druid:eclipse]", anchorTo = "$eclipseBar", anchorPoint = "CLI", size = -1, x = 0, y = 0, default = true})
-	end
-
-	if( revision <= 24 ) then
-		self.db.profile.powerColors.AURAPOINTS = {r = 1.0, g = 0.80, b = 0}
-		self.db.profile.units.player.auraPoints = {enabled = false, showAlways = true, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true, height = 0.40}
-	end
-
-	if( revision <= 23 ) then
-		self.db.profile.hidden.playerAltPower = false
-		self.db.profile.powerColors.ALTERNATE = {r = 0.815, g = 0.941, b = 1}
-	end
-
-	if( revision <= 22 ) then
-		self:LoadDefaultLayout(true)
-
-		for _, unit in pairs(self.unitList) do
-			if( ShadowUF.fakeUnits[unit] ) then
-				self.db.profile.units[unit].altPowerBar.enabled = false
-			end
-		end
-	end
-
-	if( revision <= 21 ) then
-		self.db.profile.powerColors["POWER_TYPE_FEL_ENERGY"] = {r = 0.878, g = 0.980, b = 0}
-	end
-	
-	if( revision <= 20 ) then
-		self.db.profile.powerColors["ALTERNATE"] = {r = 0.71, g = 0.0, b = 1.0}
-		
-		for _, unit in pairs(self.unitList) do
-			self.db.profile.units[unit].altPowerBar.enabled = true
-			self.db.profile.units[unit].altPowerBar.background = true
-			self.db.profile.units[unit].altPowerBar.height = 0.40
-			self.db.profile.units[unit].altPowerBar.order = 100
-		end
-	end
-	
-	if( revision <= 19 ) then
-		self.db.profile.units.pet.altPowerBar.enabled = true
-		table.insert(self.db.profile.units.player.text, {enabled = true, width = 1, name = L["Text"], text = "[warlock:demonic:curpp]", anchorTo = "$demonicFuryBar", anchorPoint = "C", size = -1, x = 0, y = 0, default = true})
-	end
-
-	if( revision <= 18 ) then
-		self.db.profile.powerColors["MUSHROOMS"] = {r = 0.20, g = 0.90, b = 0.20}
-		self.db.profile.powerColors["STATUE"] = {r = 0.35, g = 0.45, b = 0.60}
-	end
-
-	if( revision <= 17 ) then
-		self.db.profile.units.target.indicators.petBattle = {enabled = true, anchorPoint = "BL", size = 18, x = -6, y = 14, anchorTo = "$parent"}
-		self.db.profile.units.focus.indicators.petBattle = {enabled = false, anchorPoint = "BL", size = 18, x = -6, y = 12, anchorTo = "$parent"}
-		self.db.profile.units.party.indicators.phase = {enabled = true}
-	end
-
-	if( revision <= 16 ) then
-		self.db.profile.units.target.indicators.questBoss = {enabled = true, anchorPoint = "BR", size = 22, x = 9, y = 24, anchorTo = "$parent"}
-		self.db.profile.units.focus.indicators.questBoss = {enabled = false, anchorPoint = "BR", size = 22, x = 7, y = 14, anchorTo = "$parent"}
-	end
-
-	if( revision <= 15 ) then
-		self.db.profile.powerColors["DEMONICFURY"] = {r = 0.58, g = 0.51, b = 0.79}
-		self.db.profile.powerColors["BURNINGEMBERS"] = {r = 0.58, g = 0.51, b = 0.79}
-		self.db.profile.powerColors["FULLBURNINGEMBER"] = {r = 0.88, g = 0.09, b = 0.062}
-		self.db.profile.powerColors["SHADOWORBS"] = {r = 0.58, g = 0.51, b = 0.79}
-
-		self.db.profile.units.player.shadowOrbs = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true}
-		self.db.profile.units.player.burningEmbersBar = {enabled = true, background = false, height = 0.40, order = 70}
-		self.db.profile.units.player.demonicFuryBar = {enabled = true, background = false, height = 0.40, order = 70}
-	end
-
-	if( revision <= 14 ) then
-		self.db.profile.powerColors["CHI"] = {r = 0.71, g = 1.0, b = 0.92}
-
-		self.db.profile.units.player.chi = {anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -3, y = 6, size = 14, spacing = -4, growth = "LEFT", isBar = true, showAlways = true}
-	end
-
-	if( revision <= 13 ) then
-		self.db.profile.powerColors["BANKEDHOLYPOWER"] = {r = 0.96, g = 0.61, b = 0.84}
-	end
-
-	if( revision <= 12 ) then
-		self.db.profile.classColors["MONK"] = {r = 0.0, g = 1.00, b = 0.59}
-	end
-
-	if( revision <= 11 ) then
-		for unit, config in pairs(self.db.profile.units) do
-			if( config.powerBar ) then
-				config.powerBar.colorType = "type"
-			end
-		end
-	end
-
-	if( revision <= 10 ) then
-		for unit, config in pairs(self.db.profile.units) do
-			if( config.healthBar ) then
-				config.healthBar.predicted = nil
-			end
-		end
-
-		for unit, config in pairs(self.db.profile.units) do
-			if( unit ~= "party" and config.indicators and config.indicators.phase ) then
-				config.indicators.phase = nil
-			end
-		end
-	end
-
-	if( revision <= 8 ) then
-		for unit, config in pairs(self.db.profile.units) do
-			if( config.incHeal ) then
-				config.incHeal.heals = config.incHeal.enabled
-			end
-		end
-	end
-
-	if( revision <= 7 ) then
-		self.db.profile.auraColors = {removable = {r = 1, g = 1, b = 1}}
-	end
-
-	if( revision <= 6 ) then
-		for _, unit in pairs({"player", "focus", "target", "raid", "party", "mainassist", "maintank"}) do
-			local db = self.db.profile.units[unit]
-			if( not db.indicators.resurrect ) then
-				if( unit == "target" ) then
-					db.indicators.resurrect = {enabled = true, anchorPoint = "RC", size = 28, x = -39, y = -1, anchorTo = "$parent"}
-				else
-					db.indicators.resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"}
-				end
-			end
-			
-			if( unit == "party" and not db.indicators.phase ) then
-			   db.indicators.phase = {enabled = false, anchorPoint = "BR", size = 23, x = 8, y = 36, anchorTo = "$parent"}
 			end
 		end
 	end
