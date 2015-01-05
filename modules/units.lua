@@ -504,6 +504,7 @@ OnAttributeChanged = function(self, name, unit)
 	-- Pet changed, going from pet -> vehicle for one
 	if( self.unit == "pet" or self.unitType == "partypet" ) then
 		self.unitRealOwner = self.unit == "pet" and "player" or ShadowUF.partyUnits[self.unitID]
+		self:SetAttribute("unitRealOwner", self.unitRealOwner)
 		self:RegisterNormalEvent("UNIT_PET", Units, "CheckPetUnitUpdated")
 		
 		if( self.unit == "pet" ) then
@@ -520,7 +521,8 @@ OnAttributeChanged = function(self, name, unit)
 		-- Hide any pet that became a vehicle, we detect this by the owner being untargetable but they have a pet out
 		stateMonitor:WrapScript(self, "OnAttributeChanged", [[
 			if( name == "state-vehicleupdated" ) then
-				self:SetAttribute("unitIsVehicle", value == "vehicle" and true or false)
+				print(self:GetName(), self:GetAttribute("unitRealOwner"), UnitHasVehicleUI(self:GetAttribute("unitRealOwner")), value)
+				self:SetAttribute("unitIsVehicle", UnitHasVehicleUI(self:GetAttribute("unitRealOwner")) and value == "vehicle" and true or false)
 			elseif( name == "disablevehicleswap" or name == "state-unitexists" or name == "unitisvehicle" ) then
 				-- Unit does not exist, OR unit is a vehicle and vehicle swap is not disabled, hide frame
 				if( not self:GetAttribute("state-unitexists") or ( self:GetAttribute("unitIsVehicle") and not self:GetAttribute("disableVehicleSwap") ) ) then
