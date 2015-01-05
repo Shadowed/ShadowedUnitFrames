@@ -1,3 +1,5 @@
+if( not ShadowUF.ComboPoints ) then return end
+
 local Chi = setmetatable({}, {__index = ShadowUF.ComboPoints})
 ShadowUF:RegisterModule(Chi, "chi", ShadowUF.L["Chi"], nil, "MONK")
 local chiConfig = {max = 6, key = "chi", colorKey = "CHI", powerType = SPELL_POWER_CHI, eventType = "CHI", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
@@ -5,7 +7,6 @@ local chiConfig = {max = 6, key = "chi", colorKey = "CHI", powerType = SPELL_POW
 function Chi:OnEnable(frame)
 	frame.chi = frame.chi or CreateFrame("Frame", nil, frame)
 	frame.chi.cpConfig = chiConfig
-	frame.comboPointType = chiConfig.key
 
 	frame:RegisterUnitEvent("UNIT_POWER_FREQUENT", self, "Update")
 	frame:RegisterUnitEvent("UNIT_MAXPOWER", self, "UpdateBarBlocks")
@@ -13,13 +14,13 @@ function Chi:OnEnable(frame)
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
-function Chi:OnDisable(frame)
-	frame:UnregisterAll(self)
+function Chi:OnLayoutApplied(frame, config)
+	ShadowUF.ComboPoints.OnLayoutApplied(self, frame, config)
+	self:UpdateBarBlocks(frame)
 end
 
-function Chi:OnLayoutApplied(frame, config)
-	ShadowUF.ComboPoints:OnLayoutApplied(frame, config)
-	self:UpdateBarBlocks(frame)
+function Chi:GetComboPointType()
+	return "chi"
 end
 
 function Chi:GetPoints(unit)

@@ -44,6 +44,7 @@ modules\combattext.lua
 modules\totems.lua
 modules\runes.lua
 modules\fader.lua
+modules\basecombopoints.lua
 modules\combopoints.lua
 modules\incheal.lua
 modules\incabsorb.lua

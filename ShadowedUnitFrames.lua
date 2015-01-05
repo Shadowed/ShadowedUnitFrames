@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 51
+ShadowUF.dbRevision = 52
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -1012,31 +1012,18 @@ end
 
 -- Upgrade info
 local infoMessages = {
+	-- Old messages we don't need anymore
+	{}, {},
 	{
-		L["As of SUF v3.10, a bunch of new features and units have been added.|n"],
-		L["- Config UI now opens instantly, and does not take 5 seconds++ to show up!"],
-		L["- Totem/Rune bars now have timers indicating time to refres/expire"],
-		L["- Monk Stagger now shows the amount of staggered damage"],
-		L["- Boss ToT, Main Assist ToT, Main Tank ToT, Party ToT, Battleground ToT and Arena ToT units have been added!"],
-		L["- Auto profile switching based on dual spec is available in /suf -> Profile"],
-		L["- Highlight based on unit rare/elite is now available"],
-		L["- Added absorb shield tags"],
-		L["- Added Ancient Kings bar for Paladins"],
-		L["- And more! See the change log for everything that has changed."],
-		L["|nYou can disable the new text for Monk Stagger, Totem and Rune timers through /suf -> Unit configuration -> Text/Tags"]
-	},
-	{
-		L["Welcome to Shadowed Unit Frames v4! Auras have been expanded in this release.|n"],
-		L["- Aura Indicators are now built in"],
-		L["- Auras can be filtered multiple criteria rather than just self casted"],
-		L["- Boss debuff filtering is in"],
-		L["- Cooldown rings and scaled auras are more configurable"],
-		L["- Aura config is no longer a bunch of clumped options"]
+		L["You must restart Shadowed Unit Frames."],
+		L["If you don't, you will be unable to use any combo point features (Chi, Holy Power, Combo Points, Aura Points, etc) until you do so."]
 	}
 }
 
 function ShadowUF:ShowInfoPanel()
 	local infoID = ShadowUF.db.global.infoID or 0
+	if( ShadowUF.ComboPoints and infoID < 3 ) then infoID = 3 end
+
 	ShadowUF.db.global.infoID = #(infoMessages)
 	if( infoID < 0 or infoID >= #(infoMessages) ) then return end
 	

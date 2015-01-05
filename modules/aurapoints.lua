@@ -21,6 +21,10 @@ function AuraPoints:OnEnable(frame)
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
+function Combo:GetComboPointType()
+	return "auraPoints"
+end
+
 function AuraPoints:GetPoints(unit)
 	return select(4, UnitAura("player", trackSpell.name, nil, trackSpell.filter)) or 0
 end
