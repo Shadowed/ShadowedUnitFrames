@@ -355,7 +355,6 @@ function Units:CheckVehicleStatus(frame, event, unit)
 
 	-- Not in a vehicle yet, and they entered one that has a UI or they were in a vehicle but the GUID changed (vehicle -> vehicle)
 	if( ( not frame.inVehicle or frame.unitGUID ~= UnitGUID(frame.vehicleUnit) ) and UnitHasVehicleUI(frame.unitOwner) and UnitHasVehiclePlayerFrameUI(frame.unitOwner) and not ShadowUF.db.profile.units[frame.unitType].disableVehicle ) then
-		
 		frame.inVehicle = true
 		frame.unit = frame.vehicleUnit
 

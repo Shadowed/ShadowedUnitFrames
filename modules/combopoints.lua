@@ -3,11 +3,8 @@ ShadowUF:RegisterModule(Combo, "comboPoints", ShadowUF.L["Combo points"])
 ShadowUF.ComboPoints = Combo
 local cpConfig = {max = MAX_COMBO_POINTS, key = "comboPoints", colorKey = "COMBOPOINTS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
 
-local function createIcons(config, pointsFrame, cpMax)
-	if( not cpMax ) then return end
-
+local function createIcons(config, pointsFrame)
 	local point, relativePoint, x, y
-	
 	local pointsConfig = pointsFrame.cpConfig
 
 	if( config.growth == "LEFT" ) then
@@ -27,7 +24,7 @@ local function createIcons(config, pointsFrame, cpMax)
 	x = x or 0
 	y = y or 0
 	
-	for id=1, cpMax do
+	for id=1, pointsConfig.max do
 		pointsFrame.icons[id] = pointsFrame.icons[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 		local texture = pointsFrame.icons[id]
 		texture:SetTexture(pointsConfig.icon)
@@ -43,15 +40,13 @@ local function createIcons(config, pointsFrame, cpMax)
 	end
 end
 
-local function createBlocks(config, pointsFrame, cpMax)
-	if( not cpMax ) then return end
-
+local function createBlocks(config, pointsFrame)
 	local pointsConfig = pointsFrame.cpConfig
-	pointsFrame.visibleBlocks = cpMax
+	pointsFrame.visibleBlocks = pointsConfig.max
 
 	-- Position bars, the 5 accounts for borders
-	local blockWidth = (pointsFrame:GetWidth() - (cpMax - 1)) / cpMax
-	for id=1, cpMax do
+	local blockWidth = (pointsFrame:GetWidth() - (pointsConfig.max - 1)) / pointsConfig.max
+	for id=1, pointsConfig.max do
 		pointsFrame.blocks[id] = pointsFrame.blocks[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 		local texture = pointsFrame.blocks[id]
 		local color = ShadowUF.db.profile.powerColors[pointsConfig.colorKey or "COMBOPOINTS"]
@@ -144,11 +139,15 @@ function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 	local max = UnitPowerMax("player", pointsFrame.cpConfig.powerType)
 	if( max == 0 or pointsFrame.visibleBlocks == max ) then return end
 
+	pointsConfig.max = max
+
 	if( not ShadowUF.db.profile.units[frame.unitType][frame.comboPointType].isBar ) then
-		createIcons(ShadowUF.db.profile.units[frame.unitType][frame.comboPointType], pointsFrame, max)
+		createIcons(ShadowUF.db.profile.units[frame.unitType][frame.comboPointType], pointsFrame)
+		pointsFrame.visibleBlocks = max
 		return
 	else
-		createBlocks(ShadowUF.db.profile.units[frame.unitType][frame.comboPointType], pointsFrame, max)
+		createBlocks(ShadowUF.db.profile.units[frame.unitType][frame.comboPointType], pointsFrame)
+		pointsFrame.visibleBlocks = max
 	end
 
 	local blockWidth = (pointsFrame:GetWidth() - (max - 1)) / max
@@ -161,7 +160,6 @@ function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 		pointsFrame.blocks[id]:Hide()
 	end
 
-	pointsFrame.visibleBlocks = max
 end
 
 function Combo:GetPoints(unit)
