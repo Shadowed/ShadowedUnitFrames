@@ -521,7 +521,6 @@ OnAttributeChanged = function(self, name, unit)
 		-- Hide any pet that became a vehicle, we detect this by the owner being untargetable but they have a pet out
 		stateMonitor:WrapScript(self, "OnAttributeChanged", [[
 			if( name == "state-vehicleupdated" ) then
-				print(self:GetName(), self:GetAttribute("unitRealOwner"), UnitHasVehicleUI(self:GetAttribute("unitRealOwner")), value)
 				self:SetAttribute("unitIsVehicle", UnitHasVehicleUI(self:GetAttribute("unitRealOwner")) and value == "vehicle" and true or false)
 			elseif( name == "disablevehicleswap" or name == "state-unitexists" or name == "unitisvehicle" ) then
 				-- Unit does not exist, OR unit is a vehicle and vehicle swap is not disabled, hide frame
