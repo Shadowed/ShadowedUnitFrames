@@ -21,7 +21,7 @@ function AuraPoints:OnEnable(frame)
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
-function Combo:GetComboPointType()
+function AuraPoints:GetComboPointType()
 	return "auraPoints"
 end
 
