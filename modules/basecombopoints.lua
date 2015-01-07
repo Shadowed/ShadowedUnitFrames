@@ -129,7 +129,7 @@ function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 	local max = UnitPowerMax("player", pointsFrame.cpConfig.powerType)
 	if( max == 0 or pointsFrame.visibleBlocks == max ) then return end
 
-	pointsConfig.max = max
+	pointsFrame.pointsConfig.max = max
 
 	if( not ShadowUF.db.profile.units[frame.unitType][key].isBar ) then
 		createIcons(ShadowUF.db.profile.units[frame.unitType][key], pointsFrame)
