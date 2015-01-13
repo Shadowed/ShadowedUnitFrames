@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 53
+ShadowUF.dbRevision = 55
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -99,6 +99,10 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 55 ) then
+		ShadowUF.db.profile.units.target.comboPoints = nil
+	end
+
 	if( revision <= 53 ) then
 		for i=1, #(self.db.profile.units.player.text) do
 			if( self.db.profile.units.player.text[i].anchorTo == "$eclipseBar" ) then
