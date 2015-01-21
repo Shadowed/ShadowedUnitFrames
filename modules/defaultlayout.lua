@@ -797,6 +797,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			incAbsorb = {cap = 1},
 			healAbsorb = {cap = 1},
 			castBar = {order = 60},
+			comboPoints = {enabled = false, anchorTo = "$parent", order = 60, anchorPoint = "BR", x = -3, y = 8, size = 14, spacing = -4, growth = "LEFT", isBar = true, height = 0.40},
 			indicators = {
 				lfdRole = {enabled = false},
                 resurrect = {enabled = true, anchorPoint = "RC", size = 28, x = -39, y = -1, anchorTo = "$parent"},

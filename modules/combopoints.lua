@@ -7,7 +7,7 @@ local cpConfig = {max = MAX_COMBO_POINTS, key = "comboPoints", colorKey = "COMBO
 function Combo:OnEnable(frame)
 	frame.comboPoints = frame.comboPoints or CreateFrame("Frame", nil, frame)
 	frame.comboPoints.cpConfig = cpConfig
-	frame:RegisterUnitEvent("UNIT_POWER", self, "Update")
+	frame:RegisterNormalEvent("UNIT_POWER", self, "Update")
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
@@ -32,7 +32,7 @@ end
 function Combo:Update(frame, event, unit, powerType)
 	if( event == "UNIT_COMBO_POINTS" ) then
 		ShadowUF.ComboPoints.Update(self, frame)
-	else
+	elseif( unit == frame.unit or unit == frame.vehicleUnit or unit == "player" or unit == "vehicle" ) then
 		ShadowUF.ComboPoints.Update(self, frame, event, unit, powerType)
 	end
 end

@@ -99,10 +99,6 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
-	if( revision <= 55 ) then
-		ShadowUF.db.profile.units.target.comboPoints = nil
-	end
-
 	if( revision <= 53 ) then
 		for i=1, #(self.db.profile.units.player.text) do
 			if( self.db.profile.units.player.text[i].anchorTo == "$eclipseBar" ) then
@@ -125,7 +121,6 @@ function ShadowUF:CheckUpgrade()
 	if( revision <= 47 ) then
 		local config = self.db.profile.units
 		config.player.comboPoints = config.target.comboPoints
-		config.target.comboPoints = nil
 	end
 
 	if( revision <= 46 ) then
@@ -303,6 +298,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.target.enabled = true
 	self.defaults.profile.units.target.indicators.lfdRole = {enabled = false, size = 0, x = 0, y = 0}
 	self.defaults.profile.units.target.indicators.questBoss = {enabled = true, size = 0, x = 0, y = 0}
+	self.defaults.profile.units.target.comboPoints = {enabled = false, isBar = true}
 	-- TARGETTARGET/TARGETTARGETTARGET
 	self.defaults.profile.units.targettarget.enabled = true
 	self.defaults.profile.units.targettargettarget.enabled = true
