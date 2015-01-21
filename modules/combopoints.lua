@@ -32,7 +32,7 @@ end
 function Combo:Update(frame, event, unit, powerType)
 	if( event == "UNIT_COMBO_POINTS" ) then
 		ShadowUF.ComboPoints.Update(self, frame)
-	elseif( unit == frame.unit or unit == frame.vehicleUnit or unit == "player" or unit == "vehicle" ) then
+	elseif( not event or ( unit == frame.unit or unit == frame.vehicleUnit or unit == "player" or unit == "vehicle" ) ) then
 		ShadowUF.ComboPoints.Update(self, frame, event, unit, powerType)
 	end
 end
