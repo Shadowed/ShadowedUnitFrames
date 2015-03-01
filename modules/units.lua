@@ -1173,9 +1173,6 @@ function Units:LoadGroupHeader(type)
 				headerFrame:Hide()
 			end
 		end
-
-		headerFrames.raidParent:Hide()
-		headerFrames.raidParent = nil
 	end	
 end
 
