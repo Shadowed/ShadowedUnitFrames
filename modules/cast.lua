@@ -454,7 +454,7 @@ function Cast:UpdateCast(frame, unit, channelled, spell, rank, displayName, icon
 		cast:SetScript("OnUpdate", castOnUpdate)
 	end
 	
-	if( notInterruptible ) then
+	if( notInterruptible and UnitIsEnemy("player", unit) ) then
 		setBarColor(cast, ShadowUF.db.profile.castColors.uninterruptible.r, ShadowUF.db.profile.castColors.uninterruptible.g, ShadowUF.db.profile.castColors.uninterruptible.b)
 	elseif( cast.isChannelled ) then
 		setBarColor(cast, ShadowUF.db.profile.castColors.channel.r, ShadowUF.db.profile.castColors.channel.g, ShadowUF.db.profile.castColors.channel.b)
