@@ -1,4 +1,4 @@
-## Interface: 60000
+## Interface: 60200
 ## Title: Shadowed Unit Frames
 ## Notes: "Debug" code free since '93!
 ## Author: Shadowed
