@@ -83,6 +83,9 @@ function Runes:UpdateUsable(frame, event, id, usable)
 	
 	local rune = frame.runeBar.runes[id]
 	local startTime, cooldown, cooled = GetRuneCooldown(id)
+	-- Blizzard changed something with this API apparently and now it can be true/false/nil
+	if( cooled == nil ) then return end
+	
 	if( not cooled ) then
 		rune.endTime = startTime + cooldown
 		rune:SetMinMaxValues(startTime, rune.endTime)
