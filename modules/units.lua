@@ -158,37 +158,17 @@ local function UnregisterAll(self, handler)
 	end
 end
 
--- TODO: Remove once Blizzard fixes cooldown wheels not taking parents alpha
-local function SetAuraAlpha(self, alpha)
-	if( not self.auras ) then return end
-
-	local childAlpha = 0.8 * alpha
-	if( self.auras.buffs ) then
-		for id, button in pairs(self.auras.buffs.buttons) do
-			button.cooldown:SetSwipeColor(0, 0, 0, childAlpha)
-		end
-	end
-
-	if( self.auras.debuffs ) then
-		for id, button in pairs(self.auras.debuffs.buttons) do
-			button.cooldown:SetSwipeColor(0, 0, 0, childAlpha)
-		end
-	end
-end
-
 -- Handles setting alphas in a way so combat fader and range checker don't override each other
 local function DisableRangeAlpha(self, toggle)
 	self.disableRangeAlpha = toggle
 	
 	if( not toggle and self.rangeAlpha ) then
-		self:SetAuraAlpha(self.rangeAlpha)
 		self:SetAlpha(self.rangeAlpha)
 	end
 end
 
 local function SetRangeAlpha(self, alpha)
 	if( not self.disableRangeAlpha ) then
-		self:SetAuraAlpha(alpha)
 		self:SetAlpha(alpha)
 	else
 		self.rangeAlpha = alpha
@@ -715,7 +695,6 @@ function Units:CreateUnit(...)
 	frame.fullUpdates = {}
 	frame.registeredEvents = {}
 	frame.visibility = {}
-	frame.SetAuraAlpha = SetAuraAlpha
 	frame.BlizzRegisterUnitEvent = frame.RegisterUnitEvent
 	frame.RegisterNormalEvent = RegisterNormalEvent
 	frame.RegisterUnitEvent = RegisterUnitEvent
