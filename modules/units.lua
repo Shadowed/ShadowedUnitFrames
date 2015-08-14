@@ -1096,7 +1096,6 @@ function Units:LoadGroupHeader(type)
 	headerFrame.isHeaderFrame = true
 	headerFrame.unitType = type
 	headerFrame.unitMappedType = type
-	headerFrame:UnregisterEvent("UNIT_NAME_UPDATE")
 
 	-- For securely managely the display
 	local config = ShadowUF.db.profile.units[type]
