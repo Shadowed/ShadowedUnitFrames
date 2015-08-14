@@ -1016,7 +1016,6 @@ function Units:LoadSplitGroupHeader(type)
 				frame:SetAttribute("initial-unitWatch", true)
 				frame:SetAttribute("showRaid", true)
 				frame:SetAttribute("groupFilter", id)
-				frame:UnregisterEvent("UNIT_NAME_UPDATE")
 				frame:SetAttribute("initialConfigFunction", secureInitializeUnit)
 				frame.initialConfigFunction = initializeUnit
 				frame.isHeaderFrame = true
