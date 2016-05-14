@@ -32,7 +32,7 @@ function Empty:UpdateColor(frame)
 	local color
 	local reactionType = ShadowUF.db.profile.units[frame.unitType].emptyBar.reactionType
 
-	if( ( reactionType == "npc" or reactionType == "both" ) and not UnitIsPlayer(frame.unit) and UnitIsTapDenied(frame.unit) and UnitCanAttack("player", frame.unit) ) then
+	if( ( reactionType == "npc" or reactionType == "both" ) and not UnitPlayerControlled(frame.unit) and UnitIsTapDenied(frame.unit) and UnitCanAttack("player", frame.unit) ) then
 		color = ShadowUF.db.profile.healthColors.tapped
 	elseif( not UnitPlayerOrPetInRaid(frame.unit) and not UnitPlayerOrPetInParty(frame.unit) and ( ( ( reactionType == "player" or reactionType == "both" ) and UnitIsPlayer(frame.unit) and not UnitIsFriend(frame.unit, "player") ) or ( ( reactionType == "npc" or reactionType == "both" ) and not UnitIsPlayer(frame.unit) ) ) ) then
 		if( not UnitIsFriend(frame.unit, "player") and UnitPlayerControlled(frame.unit) ) then
