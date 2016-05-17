@@ -136,6 +136,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		WARRIOR = {r = 0.78, g = 0.61, b = 0.43},
 		DEATHKNIGHT = {r = 0.77, g = 0.12 , b = 0.23},
 		MONK = {r = 0.0, g = 1.00 , b = 0.59},
+		DEMONHUNTER = {r = 0.64, g = 0.19, b = 0.79},
 		PET = {r = 0.20, g = 0.90, b = 0.20},
 		VEHICLE = {r = 0.23, g = 0.41, b = 0.23},
 	}
