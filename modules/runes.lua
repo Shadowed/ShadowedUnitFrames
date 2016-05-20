@@ -1,6 +1,5 @@
 local Runes = {}
 local RUNE_MAP = {[1] = 1, [2] = 2, [3] = 5, [4] = 6, [5] = 3, [6] = 4}
-local runeColors = {{r = 1, g = 0, b = 0.4}, {r = 0, g = 1, b = 0.4}, {r = 0, g = 0.4, b = 1}, {r = 0.7, g = 0.5, b = 1}}
 ShadowUF:RegisterModule(Runes, "runeBar", ShadowUF.L["Rune bar"], true, "DEATHKNIGHT")
 ShadowUF.BlockTimers:Inject(Runes, "RUNE_TIMER")
 ShadowUF.DynamicBlocks:Inject(Runes)
@@ -28,8 +27,6 @@ function Runes:OnEnable(frame)
 	end
 	
 	frame:RegisterNormalEvent("RUNE_POWER_UPDATE", self, "UpdateUsable")
-	frame:RegisterNormalEvent("RUNE_TYPE_UPDATE", self, "Update")
-	frame:RegisterUpdateFunc(self, "Update")
 	frame:RegisterUpdateFunc(self, "UpdateUsable")
 end
 
@@ -53,6 +50,9 @@ function Runes:OnLayoutApplied(frame)
 		rune:SetStatusBarTexture(ShadowUF.Layout.mediaPath.statusbar)
 		rune:GetStatusBarTexture():SetHorizTile(false)
 		rune:SetWidth(barWidth)
+
+		local color = ShadowUF.db.profile.powerColors.RUNES
+		frame:SetBlockColor(rune, "runeBar", color.r, color.g, color.b)
 	end
 end
 
@@ -74,10 +74,7 @@ end
 
 -- Updates the timers on runes
 function Runes:UpdateUsable(frame, event, id, usable)
-	if( not id ) then
-		self:UpdateColors(frame)
-		return
-	elseif( not frame.runeBar.runes[id] ) then
+	if( not id or not frame.runeBar.runes[id] ) then
 		return
 	end
 	
@@ -102,26 +99,5 @@ function Runes:UpdateUsable(frame, event, id, usable)
 
 	if( rune.fontString ) then
 		rune.fontString:UpdateTags()
-	end
-end
-
-function Runes:UpdateColors(frame)
-	for id, rune in pairs(frame.runeBar.runes) do
-		local colorType = GetRuneType(id)
-		if( frame.runeBar.runes[id].colorType ~= colorType ) then
-			local color = runeColors[colorType]
-			frame:SetBlockColor(frame.runeBar.runes[id], "runeBar", color.r, color.g, color.b)
-		end
-	end
-end
-
--- No rune is passed for full update (Login), a single rune is passed when a single rune type changes, such as Blood Tap
-function Runes:Update(frame, event, id)
-	if( not id ) then return end
-
-	local colorType = GetRuneType(id)
-	if( frame.runeBar.runes[id].colorType ~= colorType ) then
-		local color = runeColors[colorType]
-		frame:SetBlockColor(frame.runeBar.runes[id], "runeBar", color.r, color.g, color.b)
 	end
 end

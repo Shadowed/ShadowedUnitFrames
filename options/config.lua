@@ -1129,6 +1129,13 @@ local function loadGeneralOptions()
 								name = L["Runic Power"],
 								arg = "powerColors.RUNIC_POWER",
 							},
+							RUNES = {
+								order = 7,
+								type = "color",
+								name = L["Runes"],
+								arg = "powerColors.RUNES",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "DEATHKNIGHT" end,
+							},
 							AMMOSLOT = {
 								order = 9,
 								type = "color",
