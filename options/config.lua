@@ -4058,14 +4058,6 @@ local function loadUnitOptions()
 								hidden = hideRestrictedOption,
 								arg = "druidBar.enabled",
 							},
-							monkBar = {
-								order = 3,
-								type = "toggle",
-								name = string.format(L["Enable %s"], L["Monk mana bar"]),
-								desc = L["Shows the mana power bar for Mistweaver Monks."],
-								hidden = hideRestrictedOption,
-								arg = "monkBar.enabled",
-							},
 							xpBar = {
 								order = 4,
 								type = "toggle",
