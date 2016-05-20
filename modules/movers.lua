@@ -48,8 +48,6 @@ local function createConfigEnv()
 				return getValue("UnitPower", unit, math.random(-100, 100))
 			elseif( powerType == SPELL_POWER_CHI) then
 				return 4
-			elseif( powerType == SPELL_POWER_SHADOW_ORBS ) then
-				return 5
 			end
 
 			return getValue("UnitPower", unit, math.random(20000, 50000))

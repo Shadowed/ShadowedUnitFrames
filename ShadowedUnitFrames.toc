@@ -57,9 +57,9 @@ modules\soulshards.lua
 modules\holypower.lua
 modules\chi.lua
 modules\altpower.lua
-modules\shadoworbs.lua
 modules\monkstagger.lua
 modules\aurapoints.lua
+modules\priest.lua
 #@do-not-package@
 options\config.lua
 globalcheck.rb

@@ -4058,6 +4058,14 @@ local function loadUnitOptions()
 								hidden = hideRestrictedOption,
 								arg = "druidBar.enabled",
 							},
+							priestBar = {
+								order = 3,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Priest mana bar"]),
+								desc = L["Adds a mana bar to the player frame for shadow priests."],
+								hidden = hideRestrictedOption,
+								arg = "priestBar.enabled",
+							},
 							xpBar = {
 								order = 4,
 								type = "toggle",
