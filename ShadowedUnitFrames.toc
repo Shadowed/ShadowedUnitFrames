@@ -62,6 +62,4 @@ modules\priest.lua
 modules\shaman.lua
 #@do-not-package@
 options\config.lua
-globalcheck.rb
-localcheck.rb
 #@end-do-not-package@
