@@ -162,12 +162,10 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 		STATUE = {r = 0.35, g = 0.45, b = 0.60},
 		RUNEOFPOWER = {r = 0.35, g = 0.45, b = 0.60},
 		MUSHROOMS = {r = 0.20, g = 0.90, b = 0.20},
-		POWER_TYPE_FEL_ENERGY = {r = 0.878, g = 0.980, b = 0},
 		AURAPOINTS = {r = 1.0, g = 0.80, b = 0.0},
 		STAGGER_GREEN = {r = 0.52, g = 1.0, b = 0.52},
 		STAGGER_YELLOW = {r = 1.0, g = 0.98, b = 0.72},
 		STAGGER_RED = {r = 1.0, g = 0.42, b = 0.42},
-		LIGHTWELL = {r = 0.80, g = 0.80, b = 0.80}
 	}
 	config.healthColors = {
 		tapped = {r = 0.5, g = 0.5, b = 0.5},

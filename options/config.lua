@@ -1237,20 +1237,6 @@ local function loadGeneralOptions()
 								arg = "powerColors.RUNEOFPOWER",
 								hidden = function(info) return select(2, UnitClass("player")) ~= "MAGE" end,
 							},
-							LIGHTWELL = {
-								order = 17.6,
-								type = "color",
-								name = L["Lightwell"],
-								arg = "powerColors.LIGHTWELL",
-								hidden = function(info) return select(2, UnitClass("player")) ~= "PRIEST" end,
-							},
-							POWER_TYPE_FEL_ENERGY = {
-								order = 18,
-								type = "color",
-								name = L["Fel Energy"],
-								arg = "powerColors.POWER_TYPE_FEL_ENERGY",
-								hidden = function(info) return select(2, UnitClass("player")) ~= "WARLOCK" end,
-							},
 							ALTERNATE = {
 								order = 19,
 								type = "color",
