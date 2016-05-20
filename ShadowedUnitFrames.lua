@@ -266,14 +266,11 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.runeBar = {enabled = false}
 	self.defaults.profile.units.player.totemBar = {enabled = false}
 	self.defaults.profile.units.player.druidBar = {enabled = false}
-	self.defaults.profile.units.player.monkBar = {enabled = false}
 	self.defaults.profile.units.player.xpBar = {enabled = false}
 	self.defaults.profile.units.player.fader = {enabled = false}
 	self.defaults.profile.units.player.soulShards = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.staggerBar = {enabled = true}
-	self.defaults.profile.units.player.demonicFuryBar = {enabled = true}
 	self.defaults.profile.units.player.comboPoints = {enabled = true, isBar = true}
-	self.defaults.profile.units.player.burningEmbersBar = {enabled = true}
 	self.defaults.profile.units.player.eclipseBar = {enabled = true}
 	self.defaults.profile.units.player.holyPower = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.shadowOrbs = {enabled = true, isBar = true}

@@ -4020,7 +4020,7 @@ local function loadUnitOptions()
 						hidden = function(info) 
 							local unit = info[2]
 							if( unit == "global" ) then
-								return not globalConfig.runeBar and not globalConfig.eclipseBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.monkBar and not globalConfig.xpBar and not globalConfig.demonicFuryBar and not globalConfig.burningEmbersBar and not globalConfig.staggerBar
+								return not globalConfig.runeBar and not globalConfig.eclipseBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.priestBar and not globalConfig.xpBar and not globalConfig.staggerBar
 							else
 								return unit ~= "player" and unit ~= "pet"
 							end
