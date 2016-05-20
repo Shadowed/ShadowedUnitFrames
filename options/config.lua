@@ -1202,27 +1202,6 @@ local function loadGeneralOptions()
 								arg = "powerColors.SOULSHARDS",
 								hidden = function(info) return select(2, UnitClass("player")) ~= "WARLOCK" end,
 							},
-							DEMONICFURY = {
-								order = 15,
-								type = "color",
-								name = L["Demonic Fury"],
-								arg = "powerColors.DEMONICFURY",
-								hidden = function(info) return select(2, UnitClass("player")) ~= "WARLOCK" end,
-							},
-							BURNINGEMBERS = {
-								order = 16,
-								type = "color",
-								name = L["Burning Embers"],
-								arg = "powerColors.BURNINGEMBERS",
-								hidden = function(info) return select(2, UnitClass("player")) ~= "WARLOCK" end,
-							},
-							FULLBURNINGEMBER = {
-								order = 16,
-								type = "color",
-								name = L["Full Burning Ember"],
-								arg = "powerColors.FULLBURNINGEMBER",
-								hidden = function(info) return select(2, UnitClass("player")) ~= "WARLOCK" end,
-							},
 							CHI = {
 								order = 17,
 								type = "color",
@@ -4063,14 +4042,6 @@ local function loadUnitOptions()
 								hidden = hideRestrictedOption,
 								arg = "eclipseBar.enabled",
 							},
-							demonicFuryBar = {
-								order = 1.25,
-								type = "toggle",
-								name = string.format(L["Enable %s"], L["Demonic Fury bar"]),
-								desc = L["Adds a Demonic Fury bar for Demonology Warlocks."],
-								hidden = hideRestrictedOption,
-								arg = "demonicFuryBar.enabled",
-							},
 							staggerBar = {
 								order = 1.25,
 								type = "toggle",
@@ -4078,14 +4049,6 @@ local function loadUnitOptions()
 								desc = L["Adds a Stagger bar for Brewmaster Monks."],
 								hidden = hideRestrictedOption,
 								arg = "staggerBar.enabled",
-							},
-							burningEmbersBar = {
-								order = 1.25,
-								type = "toggle",
-								name = string.format(L["Enable %s"], L["Burning Embers bar"]),
-								desc = L["Adds a Burning Embers bar for Destruction Warlocks."],
-								hidden = hideRestrictedOption,
-								arg = "burningEmbersBar.enabled",
 							},
 							druidBar = {
 								order = 3,
