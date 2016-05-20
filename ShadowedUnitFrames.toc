@@ -52,7 +52,6 @@ modules\healabsorb.lua
 modules\range.lua
 modules\empty.lua
 modules\druid.lua
-modules\eclipse.lua
 modules\soulshards.lua
 modules\holypower.lua
 modules\chi.lua

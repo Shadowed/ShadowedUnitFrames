@@ -272,7 +272,6 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.soulShards = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.staggerBar = {enabled = true}
 	self.defaults.profile.units.player.comboPoints = {enabled = true, isBar = true}
-	self.defaults.profile.units.player.eclipseBar = {enabled = true}
 	self.defaults.profile.units.player.holyPower = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.chi = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.indicators.lfdRole = {enabled = true, size = 0, x = 0, y = 0}
@@ -684,7 +683,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	if( self.db.profile.hidden.playerPower and not active_hiddens.playerPower ) then
-		basicHideBlizzardFrames(PriestBarFrame, EclipseBarFrame, RuneFrame, WarlockPowerFrame)
+		basicHideBlizzardFrames(PriestBarFrame, RuneFrame, WarlockPowerFrame)
 	end
 
 	if( self.db.profile.hidden.pet and not active_hiddens.pet ) then

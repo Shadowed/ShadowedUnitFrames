@@ -1129,22 +1129,6 @@ local function loadGeneralOptions()
 								name = L["Runic Power"],
 								arg = "powerColors.RUNIC_POWER",
 							},
-							ECLIPSE_MOON = {
-								order = 7,
-								type = "color",
-								name = L["Eclipse (Moon)"],
-								desc = L["Bar coloring for the moon portion of the eclipse bar."],
-								hidden = function(info) return select(2, UnitClass("player")) ~= "DRUID" end,
-								arg = "powerColors.ECLIPSE_MOON",
-							},
-							ECLIPSE_SUN = {
-								order = 8,
-								type = "color",
-								name = L["Eclipse (Sun)"],
-								desc = L["Bar coloring for the moon portion of the eclipse bar."],
-								hidden = function(info) return select(2, UnitClass("player")) ~= "DRUID" end,
-								arg = "powerColors.ECLIPSE_SUN",
-							},
 							AMMOSLOT = {
 								order = 9,
 								type = "color",
@@ -2407,7 +2391,7 @@ local function loadUnitOptions()
 				hidden = hideBarOption,
 				arg = "$parent.background",
 			},
-			sep2 = {order = 1.55, type = "description", name = "", hidden = function(info) return not (not ShadowUF.modules[info[#(info) - 1]] or info[#(info) - 1] == "eclipseBar" or not ShadowUF.db.profile.advanced or ShadowUF.modules[info[#(info) - 1]].isComboPoints) end},
+			sep2 = {order = 1.55, type = "description", name = "", hidden = function(info) return not (not ShadowUF.modules[info[#(info) - 1]] or not ShadowUF.db.profile.advanced or ShadowUF.modules[info[#(info) - 1]].isComboPoints) end},
 			overrideBackground = {
 				order = 1.6,
 				type = "toggle",
@@ -2473,10 +2457,10 @@ local function loadUnitOptions()
 				type = "toggle",
 				name = L["Invert colors"],
 				desc = L["Flips coloring so the bar color is shown as the background color and the background as the bar"],
-				hidden = function(info) return not ShadowUF.modules[info[#(info) - 1]] or info[#(info) - 1] == "eclipseBar" or not ShadowUF.db.profile.advanced or ShadowUF.modules[info[#(info) - 1]].isComboPoints end,
+				hidden = function(info) return not ShadowUF.modules[info[#(info) - 1]] or not ShadowUF.db.profile.advanced or ShadowUF.modules[info[#(info) - 1]].isComboPoints end,
 				arg = "$parent.invert",
 			},
-			sep3 = {order = 3, type = "description", name = "", hidden = function(info) return not ShadowUF.modules[info[#(info) - 1]] or info[#(info) - 1] == "eclipseBar" or not ShadowUF.db.profile.advanced or ShadowUF.modules[info[#(info) - 1]].isComboPoints end,},
+			sep3 = {order = 3, type = "description", name = "", hidden = function(info) return not ShadowUF.modules[info[#(info) - 1]] or not ShadowUF.db.profile.advanced or ShadowUF.modules[info[#(info) - 1]].isComboPoints end,},
 			order = {
 				order = 4,
 				type = "range",
@@ -4027,7 +4011,7 @@ local function loadUnitOptions()
 						hidden = function(info) 
 							local unit = info[2]
 							if( unit == "global" ) then
-								return not globalConfig.runeBar and not globalConfig.eclipseBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.priestBar and not globalConfig.xpBar and not globalConfig.staggerBar
+								return not globalConfig.runeBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.priestBar and not globalConfig.xpBar and not globalConfig.staggerBar
 							else
 								return unit ~= "player" and unit ~= "pet"
 							end
@@ -4040,14 +4024,6 @@ local function loadUnitOptions()
 								desc = L["Adds rune bars and timers before runes refresh to the player frame."],
 								hidden = hideRestrictedOption,
 								arg = "runeBar.enabled",
-							},
-							eclipseBar = {
-								order = 1.25,
-								type = "toggle",
-								name = string.format(L["Enable %s"], L["Eclipse bar"]),
-								desc = L["Adds eclipse bars and how far into sun or moon eclipse is."],
-								hidden = hideRestrictedOption,
-								arg = "eclipseBar.enabled",
 							},
 							staggerBar = {
 								order = 1.25,
