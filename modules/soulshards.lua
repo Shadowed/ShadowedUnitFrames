@@ -1,8 +1,8 @@
 if( not ShadowUF.ComboPoints ) then return end
 
 local Souls = setmetatable({}, {__index = ShadowUF.ComboPoints})
-ShadowUF:RegisterModule(Souls, "soulShards", ShadowUF.L["Soul Shards"], nil, "WARLOCK", SPEC_WARLOCK_AFFLICTION)
-local soulsConfig = {max = 4, key = "soulShards", colorKey = "SOULSHARDS", powerType = SPELL_POWER_SOUL_SHARDS, eventType = "SOUL_SHARDS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\shard"}
+ShadowUF:RegisterModule(Souls, "soulShards", ShadowUF.L["Soul Shards"], nil, "WARLOCK")
+local soulsConfig = {max = 5, key = "soulShards", colorKey = "SOULSHARDS", powerType = SPELL_POWER_SOUL_SHARDS, eventType = "SOUL_SHARDS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\shard"}
 
 function Souls:OnEnable(frame)
 	frame.soulShards = frame.soulShards or CreateFrame("Frame", nil, frame)

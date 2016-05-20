@@ -57,7 +57,6 @@ modules\soulshards.lua
 modules\holypower.lua
 modules\chi.lua
 modules\demonicfury.lua
-modules\burningembers.lua
 modules\altpower.lua
 modules\shadoworbs.lua
 modules\monk.lua
