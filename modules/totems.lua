@@ -8,8 +8,8 @@ if( playerClass == "PALADIN" ) then
 	MAX_TOTEMS = 1
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Ancient Kings bar"], true, "PALADIN", 75)
 elseif( playerClass == "DRUID" ) then
-	MAX_TOTEMS = 3
-	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Mushroom bar"], true, "DRUID", {1, 4}, 84)
+	MAX_TOTEMS = 1
+	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Mushroom bar"], true, "DRUID", 4, 88)
 elseif( playerClass == "MONK" ) then
 	MAX_TOTEMS = 1
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Statue bar"], true, "MONK", {1, 2}, 70)
@@ -52,7 +52,7 @@ function Totems:OnEnable(frame)
 		end
 
 		if( playerClass == "DRUID" ) then
-			totemColors[1], totemColors[2], totemColors[3] = ShadowUF.db.profile.powerColors.MUSHROOMS, ShadowUF.db.profile.powerColors.MUSHROOMS, ShadowUF.db.profile.powerColors.MUSHROOMS
+			totemColors[1] = ShadowUF.db.profile.powerColors.MUSHROOMS
 		elseif( playerClass == "DEATHKNIGHT" ) then
 			totemColors[1] = ShadowUF.db.profile.classColors.PET
 		elseif( playerClass == "MONK" ) then
@@ -79,12 +79,6 @@ function Totems:OnDisable(frame)
 	for _, totem in pairs(frame.totemBar.totems) do
 	    totem:Hide()
     end
-end
-
-function Totems:OnPreLayoutApply(frame)
-	if( frame.visibility.totemBar and playerClass == "DRUID" ) then
-		MAX_TOTEMS = GetSpecialization() == 4 and 1 or 3
-	end
 end
 
 function Totems:OnLayoutApplied(frame)
