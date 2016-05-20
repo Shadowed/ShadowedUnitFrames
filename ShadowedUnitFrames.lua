@@ -100,7 +100,26 @@ end
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
 	if( revision <= 55 ) then
+		-- new classes
 		self.db.profile.classColors.DEMONHUNTER = {r = 0.64, g = 0.19, b = 0.79}
+
+		-- new power types
+		self.db.profile.powerColors.INSANITY = {r = 0.40, g = 0, b = 0.80}
+		self.db.profile.powerColors.MAELSTROM = {r = 0.00, g = 0.50, b = 1.00}
+		self.db.profile.powerColors.FURY = {r = 0.788, g = 0.259, b = 0.992}
+		self.db.profile.powerColors.PAIN = {r = 1, g = 0, b = 0}
+		self.db.profile.powerColors.LUNAR_POWER = {r = 0.30, g = 0.52, b = 0.90}
+
+		-- new bars
+		local config = self.db.profile.units
+		config.player.priestBar = {enabled = true, background = true, height = 0.40, order = 70}
+
+		-- clean out old bars
+		config.player.demonicFuryBar = nil
+		config.player.burningEmbersBar = nil
+		config.player.shadowOrbs = nil
+		config.player.eclipseBar = nil
+		config.player.monkBar = nil
 	end
 
 	if( revision <= 53 ) then
