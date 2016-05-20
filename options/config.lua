@@ -4025,7 +4025,7 @@ local function loadUnitOptions()
 						hidden = function(info) 
 							local unit = info[2]
 							if( unit == "global" ) then
-								return not globalConfig.runeBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.priestBar and not globalConfig.xpBar and not globalConfig.staggerBar
+								return not globalConfig.runeBar and not globalConfig.totemBar and not globalConfig.druidBar and not globalConfig.priestBar and not globalConfig.shamanBar and not globalConfig.xpBar and not globalConfig.staggerBar
 							else
 								return unit ~= "player" and unit ~= "pet"
 							end
@@ -4062,6 +4062,14 @@ local function loadUnitOptions()
 								desc = L["Adds a mana bar to the player frame for shadow priests."],
 								hidden = hideRestrictedOption,
 								arg = "priestBar.enabled",
+							},
+							shamanBar = {
+								order = 3,
+								type = "toggle",
+								name = string.format(L["Enable %s"], L["Shaman mana bar"]),
+								desc = L["Adds a mana bar to the player frame for elemental and enhancement shamans."],
+								hidden = hideRestrictedOption,
+								arg = "shamanBar.enabled",
 							},
 							xpBar = {
 								order = 4,

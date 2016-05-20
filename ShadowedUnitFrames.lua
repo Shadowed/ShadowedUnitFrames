@@ -113,6 +113,7 @@ function ShadowUF:CheckUpgrade()
 		-- new bars
 		local config = self.db.profile.units
 		config.player.priestBar = {enabled = true, background = true, height = 0.40, order = 70}
+		config.player.shamanBar = {enabled = true, background = true, height = 0.40, order = 70}
 
 		-- clean out old bars
 		config.player.demonicFuryBar = nil
@@ -286,6 +287,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.totemBar = {enabled = false}
 	self.defaults.profile.units.player.druidBar = {enabled = false}
 	self.defaults.profile.units.player.priestBar = {enabled = true}
+	self.defaults.profile.units.player.shamanBar = {enabled = true}
 	self.defaults.profile.units.player.xpBar = {enabled = false}
 	self.defaults.profile.units.player.fader = {enabled = false}
 	self.defaults.profile.units.player.soulShards = {enabled = true, isBar = true}

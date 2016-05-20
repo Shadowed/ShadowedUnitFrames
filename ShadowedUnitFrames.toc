@@ -59,6 +59,7 @@ modules\altpower.lua
 modules\monkstagger.lua
 modules\aurapoints.lua
 modules\priest.lua
+modules\shaman.lua
 #@do-not-package@
 options\config.lua
 globalcheck.rb
