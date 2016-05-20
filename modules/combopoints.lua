@@ -8,10 +8,6 @@ function Combo:OnEnable(frame)
 	frame.comboPoints = frame.comboPoints or CreateFrame("Frame", nil, frame)
 	frame.comboPoints.cpConfig = cpConfig
 	frame:RegisterNormalEvent("UNIT_POWER", self, "Update")
-	
-	if( frame.unitOwner == "target" ) then
-		frame:RegisterNormalEvent("UNIT_COMBO_POINTS", self, "Update")
-	end
 
 	frame:RegisterUpdateFunc(self, "Update")
 end
