@@ -1214,6 +1214,13 @@ local function loadGeneralOptions()
 								arg = "powerColors.PAIN",
 								hidden = function(info) return select(2, UnitClass("player")) ~= "DEMONHUNTER" end,
 							},
+							LUNAR_POWER = {
+								order = 17,
+								type = "color",
+								name = L["Astral Power"],
+								arg = "powerColors.LUNAR_POWER",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "DRUID" end,
+							},
 							MUSHROOMS = {
 								order = 17,
 								type = "color",
