@@ -99,7 +99,7 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
-	if( revision <= 55 ) then
+	if( revision <= 56 ) then
 		-- new classes
 		self.db.profile.classColors.DEMONHUNTER = {r = 0.64, g = 0.19, b = 0.79}
 
