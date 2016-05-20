@@ -1216,6 +1216,20 @@ local function loadGeneralOptions()
 								arg = "powerColors.CHI",
 								hidden = function(info) return select(2, UnitClass("player")) ~= "MONK" end,
 							},
+							FURY = {
+								order = 17,
+								type = "color",
+								name = L["Fury"],
+								arg = "powerColors.FURY",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "DEMONHUNTER" end,
+							},
+							PAIN = {
+								order = 17,
+								type = "color",
+								name = L["Pain"],
+								arg = "powerColors.PAIN",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "DEMONHUNTER" end,
+							},
 							MUSHROOMS = {
 								order = 17,
 								type = "color",
