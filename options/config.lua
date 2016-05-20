@@ -1172,12 +1172,19 @@ local function loadGeneralOptions()
 								arg = "powerColors.AURAPOINTS",
 								hidden = function() return not ShadowUF.modules.auraPoints end
 							},
-							SHADOWORBS = {
+							INSANITY = {
 								order = 12,
 								type = "color",
-								name = L["Shadow Orbs"],
-								arg = "powerColors.SHADOWORBS",
+								name = L["Insanity"],
+								arg = "powerColors.INSANITY",
 								hidden = function(info) return select(2, UnitClass("player")) ~= "PRIEST" end,
+							},
+							MAELSTROM = {
+								order = 12,
+								type = "color",
+								name = L["Maelstrom"],
+								arg = "powerColors.MAELSTROM",
+								hidden = function(info) return select(2, UnitClass("player")) ~= "SHAMAN" end,
 							},
 							HOLYPOWER = {
 								order = 12,
