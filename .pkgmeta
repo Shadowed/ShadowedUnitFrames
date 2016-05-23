@@ -29,5 +29,4 @@ externals:
         tag: latest
 
 ignore:
-  - globalcheck.rb
-  - localcheck.rb
+  - localcheck.lua
