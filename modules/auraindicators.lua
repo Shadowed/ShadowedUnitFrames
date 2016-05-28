@@ -63,6 +63,7 @@ function Indicators:OnLayoutApplied(frame)
 			indicator.cooldown = CreateFrame("Cooldown", nil, indicator, "CooldownFrameTemplate")
 			indicator.cooldown:SetReverse(true)
 			indicator.cooldown:SetPoint("CENTER", 0, -1)
+			indicator.cooldown:SetHideCountdownNumbers(true)
 
 			indicator.stack = indicator:CreateFontString(nil, "OVERLAY")
 			indicator.stack:SetFont("Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf", 12, "OUTLINE")
