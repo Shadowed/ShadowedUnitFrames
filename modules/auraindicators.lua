@@ -219,7 +219,7 @@ function Indicators:UpdateIndicators(frame)
 				indicator.texture:SetTexture(indicator.spellIcon)
 				indicator:SetBackdropColor(0, 0, 0, 0)
 			else
-				indicator.texture:SetTexture(indicator.colorR, indicator.colorG, indicator.colorB)
+				indicator.texture:SetColorTexture(indicator.colorR, indicator.colorG, indicator.colorB)
 				indicator:SetBackdropColor(0, 0, 0, 1)
 			end
 			
