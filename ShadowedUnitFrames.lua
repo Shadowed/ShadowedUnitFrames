@@ -686,7 +686,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	if( self.db.profile.hidden.buffs and not active_hiddens.buffs ) then
-		hideBlizzardFrames(false, BuffFrame, TemporaryEnchantFrame, ConsolidatedBuffs)
+		hideBlizzardFrames(false, BuffFrame, TemporaryEnchantFrame)
 	end
 	
 	if( self.db.profile.hidden.player and not active_hiddens.player ) then
@@ -704,7 +704,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	if( self.db.profile.hidden.playerPower and not active_hiddens.playerPower ) then
-		basicHideBlizzardFrames(PriestBarFrame, RuneFrame, WarlockPowerFrame)
+		basicHideBlizzardFrames(PriestBarFrame, RuneFrame, WarlockPowerFrame, MonkHarmonyBarFrame, PaladinPowerBarFrame, MageArcaneChargesFrame)
 	end
 
 	if( self.db.profile.hidden.pet and not active_hiddens.pet ) then
