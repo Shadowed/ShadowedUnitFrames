@@ -60,6 +60,7 @@ modules\monkstagger.lua
 modules\aurapoints.lua
 modules\priest.lua
 modules\shaman.lua
+modules\arcanecharges.lua
 #@do-not-package@
 options\config.lua
 #@end-do-not-package@

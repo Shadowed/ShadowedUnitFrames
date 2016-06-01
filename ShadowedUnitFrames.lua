@@ -109,11 +109,13 @@ function ShadowUF:CheckUpgrade()
 		self.db.profile.powerColors.FURY = {r = 0.788, g = 0.259, b = 0.992}
 		self.db.profile.powerColors.PAIN = {r = 1, g = 0, b = 0}
 		self.db.profile.powerColors.LUNAR_POWER = {r = 0.30, g = 0.52, b = 0.90}
+		self.db.profile.powerColors.ARCANECHARGES = {r = 0.1, g = 0.1, b = 0.98}
 
 		-- new bars
 		local config = self.db.profile.units
 		config.player.priestBar = {enabled = true, background = true, height = 0.40, order = 70}
 		config.player.shamanBar = {enabled = true, background = true, height = 0.40, order = 70}
+		config.player.arcaneCharges = {enabled = true, anchorTo = "$parent", order = 60, height = 0.40, anchorPoint = "BR", x = -8, y = 6, size = 12, spacing = -2, growth = "LEFT", isBar = true, showAlways = true}
 
 		-- clean out old bars
 		config.player.demonicFuryBar = nil
@@ -291,6 +293,7 @@ function ShadowUF:LoadUnitDefaults()
 	self.defaults.profile.units.player.xpBar = {enabled = false}
 	self.defaults.profile.units.player.fader = {enabled = false}
 	self.defaults.profile.units.player.soulShards = {enabled = true, isBar = true}
+	self.defaults.profile.units.player.arcaneCharges = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.staggerBar = {enabled = true}
 	self.defaults.profile.units.player.comboPoints = {enabled = true, isBar = true}
 	self.defaults.profile.units.player.holyPower = {enabled = true, isBar = true}
