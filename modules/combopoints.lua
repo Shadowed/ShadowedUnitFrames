@@ -8,6 +8,7 @@ function Combo:OnEnable(frame)
 	frame.comboPoints = frame.comboPoints or CreateFrame("Frame", nil, frame)
 	frame.comboPoints.cpConfig = cpConfig
 	frame:RegisterNormalEvent("UNIT_POWER", self, "Update")
+	frame:RegisterNormalEvent("UNIT_POWER_FREQUENT", self, "Update")
 
 	frame:RegisterUpdateFunc(self, "Update")
 end
@@ -31,9 +32,7 @@ function Combo:GetPoints(unit)
 end
 
 function Combo:Update(frame, event, unit, powerType)
-	if( event == "UNIT_COMBO_POINTS" ) then
-		ShadowUF.ComboPoints.Update(self, frame)
-	elseif( not event or ( unit == frame.unit or unit == frame.vehicleUnit or unit == "player" or unit == "vehicle" ) ) then
+	if( not event or ( unit == frame.unit or unit == frame.vehicleUnit or unit == "player" or unit == "vehicle" ) ) then
 		ShadowUF.ComboPoints.Update(self, frame, event, unit, powerType)
 	end
 end
