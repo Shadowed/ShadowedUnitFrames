@@ -164,7 +164,6 @@ function ShadowUF:CheckUpgrade()
 					aura.show.player = true
 					aura.show.boss = true
 					aura.show.raid = true
-					aura.show.consolidated = true
 					aura.show.misc = true
 				end
 			end
@@ -237,8 +236,8 @@ function ShadowUF:LoadUnitDefaults()
 			highlight = {},
 			auraIndicators = {enabled = false},
 			auras = {
-				buffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, prioritize = true, show = {player = true, boss = true, raid = true, consolidated = true, misc = true}, enlarge = {}, timers = {ALL = true}},
-				debuffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, show = {player = true, boss = true, raid = true, consolidated = true, misc = true}, enlarge = {SELF = true}, timers = {ALL = true}},
+				buffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, prioritize = true, show = {player = true, boss = true, raid = true, misc = true}, enlarge = {}, timers = {ALL = true}},
+				debuffs = {enabled = false, perRow = 10, maxRows = 4, selfScale = 1.30, show = {player = true, boss = true, raid = true, misc = true}, enlarge = {SELF = true}, timers = {ALL = true}},
 			},
 		}
 		

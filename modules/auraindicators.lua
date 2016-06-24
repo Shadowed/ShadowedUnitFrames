@@ -101,7 +101,7 @@ local filterMap = {}
 local canCure = ShadowUF.Units.canCure
 for _, key in pairs(Indicators.auraFilters) do filterMap[key] = "filter-" .. key end
 
-local function checkFilterAura(frame, type, isFriendly, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+local function checkFilterAura(frame, type, isFriendly, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff)
 	local category
 	if( isFriendly and canCure[auraType] and type == "debuffs" ) then
 		category = "curable"
@@ -136,7 +136,7 @@ local function checkFilterAura(frame, type, isFriendly, name, rank, texture, cou
 	return applied
 end
 
-local function checkSpecificAura(frame, type, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+local function checkSpecificAura(frame, type, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff)
 	-- Not relevant
 	if( not ShadowUF.db.profile.auraIndicators.auras[name] and not ShadowUF.db.profile.auraIndicators.auras[tostring(spellID)] ) then return end
 
@@ -191,12 +191,12 @@ local function scanAuras(frame, filter, type)
 	local index = 0
 	while( true ) do
 		index = index + 1
-		local name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff = UnitAura(frame.unit, index, filter)
+		local name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff = UnitAura(frame.unit, index, filter)
 		if( not name ) then return end
 
-		local result = checkFilterAura(frame, type, isFriendly, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+		local result = checkFilterAura(frame, type, isFriendly, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff)
 		if( not result ) then
-			checkSpecificAura(frame, type, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+			checkSpecificAura(frame, type, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff)
 		end
 
 		auraList[name] = true

@@ -496,7 +496,7 @@ function Auras:UpdateFilter(frame)
 	frame.auras.blacklist = black and ShadowUF.db.profile.filters.blacklists[black] or filterDefault
 end
 
-local function categorizeAura(type, curable, auraType, caster, isRemovable, shouldConsolidate, canApplyAura, isBossDebuff)
+local function categorizeAura(type, curable, auraType, caster, isRemovable, canApplyAura, isBossDebuff)
 	-- Player casted it
 	if( playerUnits[caster] ) then
 		return "player"
@@ -512,21 +512,18 @@ local function categorizeAura(type, curable, auraType, caster, isRemovable, shou
 	-- Can be stolen/purged (dispellable)
 	elseif( type == "debuffs" and isRemovable ) then
 		return "raid"
-	-- Consolidatable buff
-	elseif( type == "buffs" and shouldConsolidate ) then
-		return "consolidated"
 	else
 		return "misc"
 	end
 end
 
-local function renderAura(parent, frame, type, config, displayConfig, index, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+local function renderAura(parent, frame, type, config, displayConfig, index, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff)
 	-- Do our initial list check to see if we can quick filter it out
 	if( parent.whitelist[type] and not parent.whitelist[name] and not parent.whitelist[spellID] ) then return end
 	if( parent.blacklist[type] and ( parent.blacklist[name] or parent.blacklist[spellID] ) ) then return end
 
 	-- Now do our type filter
-	local category = categorizeAura(type, curable, auraType, caster, isRemovable, shouldConsolidate, canApplyAura, isBossDebuff)
+	local category = categorizeAura(type, curable, auraType, caster, isRemovable, canApplyAura, isBossDebuff)
 	if( not config.show[category] ) then return end
 
 	-- Create any buttons we need
@@ -591,10 +588,10 @@ local function scan(parent, frame, type, config, displayConfig, filter)
 	local index = 0
 	while( true ) do
 		index = index + 1
-		local name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff = UnitAura(frame.parent.unit, index, filter)
+		local name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff = UnitAura(frame.parent.unit, index, filter)
 		if( not name ) then break end
 
-		renderAura(parent, frame, type, config, displayConfig, index, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, shouldConsolidate, spellID, canApplyAura, isBossDebuff)
+		renderAura(parent, frame, type, config, displayConfig, index, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff)
 
 		-- Too many auras shown, break out
 		-- Get down

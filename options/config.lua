@@ -2150,14 +2150,6 @@ local function loadUnitOptions()
 						desc = L["Whether to show any auras casted by the boss"],
 						width = "full"
 					},
-					consolidated = {
-						order = 4,
-						type = "toggle",
-						name = L["Show consolidable auras"],
-						desc = L["Whether to show any auras that would be consolidated by the default UI."],
-						hidden = hideBuffOption,
-						width = "full"
-					},
 					misc = {
 						order = 5,
 						type = "toggle",
