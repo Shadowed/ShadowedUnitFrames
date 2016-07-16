@@ -1,31 +1,44 @@
 local Range = {
 	friendly = {
-		["PRIEST"] = GetSpellInfo(2061), -- Flash Heal
-		["DRUID"] = GetSpellInfo(774), -- Rejuvenation
-		["PALADIN"] = GetSpellInfo(85673), -- Word of Glory
+		["PRIEST"] = {
+			(GetSpellInfo(527)), -- Purify
+			(GetSpellInfo(17)), -- Power Word: Shield
+		},
+		["DRUID"] = {
+			(GetSpellInfo(774)), -- Rejuvenation
+			(GetSpellInfo(2782)), -- Remove Corruption
+		},
+		["PALADIN"] = GetSpellInfo(19750), -- Flash of Light
 		["SHAMAN"] = GetSpellInfo(8004), -- Healing Surge
 		["WARLOCK"] = GetSpellInfo(5697), -- Unending Breath
 		["DEATHKNIGHT"] = GetSpellInfo(47541), -- Death Coil
-		["MAGE"] = GetSpellInfo(475), -- Remove Curse
-		["MONK"] = GetSpellInfo(115450) -- Detox
+		["MONK"] = GetSpellInfo(115450), -- Detox
 	},
 	hostile = {
-		["WARRIOR"] = GetSpellInfo(355), -- Taunt
-		["PRIEST"] = GetSpellInfo(589), -- Shadow Word: Pain
-		["DRUID"] = GetSpellInfo(5176),  -- Wrath
+		["DEATHKNIGHT"] = {
+			(GetSpellInfo(47541)), -- Death Coil
+			(GetSpellInfo(49576)), -- Death Grip
+		},
+		["DEMONHUNTER"] = GetSpellInfo(185123), -- Throw Glaive
+		["DRUID"] = GetSpellInfo(8921),  -- Moonfire
+		["HUNTER"] = {
+			(GetSpellInfo(193455)), -- Cobra Shot
+			(GetSpellInfo(19434)), -- Aimed Short
+			(GetSpellInfo(193265)), -- Hatchet Toss
+		},
+		["MAGE"] = {
+			(GetSpellInfo(116)), -- Frostbolt
+			(GetSpellInfo(30451)), -- Arcane Blast
+			(GetSpellInfo(133)), -- Fireball
+		},
+		["MONK"] = GetSpellInfo(115546), -- Provoke
 		["PALADIN"] = GetSpellInfo(20271), -- Judgement
-		["SHAMAN"] = GetSpellInfo(403), -- Lightning Bolt
-		["HUNTER"] = GetSpellInfo(75), -- Auto Shot
-		["WARLOCK"] = GetSpellInfo(686), -- Shadow Bolt
-		["DEATHKNIGHT"] = GetSpellInfo(49576), -- Death Grip
-		["MAGE"] = GetSpellInfo(44614), -- Frostfire Bolt
+		["PRIEST"] = GetSpellInfo(585), -- Smite
 		["ROGUE"] = GetSpellInfo(1725), -- Distract
-		["MONK"] = GetSpellInfo(115546) -- Provoke
+		["SHAMAN"] = GetSpellInfo(403), -- Lightning Bolt
+		["WARLOCK"] = GetSpellInfo(689), -- Drain Life
+		["WARRIOR"] = GetSpellInfo(355), -- Taunt
 	},
-	friendlyAlt = {},
-	hostileAlt = {
-		["MAGE"] = GetSpellInfo(30451) -- Arcane Blast
-	}
 }
 
 ShadowUF:RegisterModule(Range, "range", ShadowUF.L["Range indicator"])
@@ -57,19 +70,26 @@ local function checkRange(self)
 	end
 end
 
-local function updateSpellCache(type)
-	rangeSpells[type] = nil
-	if( IsUsableSpell(ShadowUF.db.profile.range[type .. playerClass]) ) then
-		rangeSpells[type] = ShadowUF.db.profile.range[type .. playerClass]
+local function updateSpellCache(category)
+	rangeSpells[category] = nil
+	if( IsUsableSpell(ShadowUF.db.profile.range[category .. playerClass]) ) then
+		rangeSpells[category] = ShadowUF.db.profile.range[category .. playerClass]
 
-	elseif( IsUsableSpell(ShadowUF.db.profile.range[type .. "Alt" .. playerClass]) ) then
-		rangeSpells[type] = ShadowUF.db.profile.range[type .. "Alt" .. playerClass]
+	elseif( IsUsableSpell(ShadowUF.db.profile.range[category .. "Alt" .. playerClass]) ) then
+		rangeSpells[category] = ShadowUF.db.profile.range[category .. "Alt" .. playerClass]
 
-	elseif( IsUsableSpell(Range[type][playerClass]) ) then
-		rangeSpells[type] = Range[type][playerClass]
-
-	elseif( IsUsableSpell(Range[type .. "Alt"][playerClass]) ) then
-		rangeSpells[type] = Range[type .. "Alt"][playerClass]
+	elseif( Range[category][playerClass] ) then
+		if( type(Range[category][playerClass]) == "table" ) then
+			for i = 1, #Range[category][playerClass] do
+				local spell = Range[category][playerClass][i]
+				if( IsUsableSpell(spell) ) then
+					rangeSpells[category] = spell
+					break
+				end
+			end
+		elseif( IsUsableSpell(Range[category][playerClass]) ) then
+			rangeSpells[category] = Range[category][playerClass]
+		end
 	end
 end
 
