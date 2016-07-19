@@ -469,10 +469,9 @@ local function loadGeneralOptions()
 		ShadowUF.db.profile.range[info[#(info)] .. playerClass] = spell and spell ~= "" and spell or nil
 		ShadowUF.Layout:Reload()
 	end
-	
+
 	local function getRange(info)
-		local spell = ShadowUF.db.profile.range[info[#(info)] .. playerClass]
-		return spell and spell ~= "" and spell or ShadowUF.modules.range[info[#(info)]][playerClass]
+		return ShadowUF.db.profile.range[info[#(info)] .. playerClass]
 	end
 
 	local function rangeWithIcon(info)
@@ -1364,7 +1363,7 @@ local function loadGeneralOptions()
 							help = {
 								order = 0,
 								type = "description",
-								name = L["This will be set for your current class only."],
+								name = L["This will be set for your current class only.\nIf no custom spells are set, defaults appropriate for your class will be used."],
 							},
 						},
 					},
