@@ -40,6 +40,7 @@ end
 
 local function createBlocks(config, pointsFrame)
 	local pointsConfig = pointsFrame.cpConfig
+	if pointsConfig.max == 0 then return end
 	pointsFrame.visibleBlocks = pointsConfig.max
 
 	-- Position bars, the 5 accounts for borders
