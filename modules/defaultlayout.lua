@@ -686,7 +686,6 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			healAbsorb = {cap = 1},
 			portrait = {enabled = false, fullAfter = 50},
 			castBar = {order = 60},
-			healAbsorb = {cap = 1},
 			indicators = {
                 resurrect = {enabled = true, anchorPoint = "LC", size = 28, x = 37, y = -1, anchorTo = "$parent"},
 			},

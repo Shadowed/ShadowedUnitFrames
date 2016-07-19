@@ -90,7 +90,6 @@ local function createConfigEnv()
 		UnitAffectingCombat = function() return true end,
 		UnitThreatSituation = function() return 0 end,
 		UnitDetailedThreatSituation = function() return nil end,
-		UnitThreatSituation = function() return 0 end,
 		UnitCastingInfo = function(unit)
 			-- 1 -> 10: spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible
 			local data = unitConfig["UnitCastingInfo" .. unit] or {}
