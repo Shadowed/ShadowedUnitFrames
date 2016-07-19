@@ -460,6 +460,7 @@ function ShadowUF:LoadUnitDefaults()
 			["121175"] = [[{r=1, group="PvP Flags", indicator="bl", g=0.24705882352941, b=0.90196078431373, alpha=1, priority=0, icon=false, iconTexture="Interface\\Icons\\INV_BannerPVP_03"}]],
 			["64844"] = [[{r=0.67843137254902, group="Priest", indicator="31685", g=0.30588235294118, player=true, alpha=1, priority=0, b=0.14117647058824, iconTexture="Interface\\Icons\\Spell_Holy_DivineProvidence"}]],
 			["124081"] = [[{r=0.51372549019608, group="Monk", indicator="br", g=1, player=true, duration=true, b=0.90588235294118, alpha=1, priority=100, icon=false, iconTexture="Interface\\Icons\\ability_monk_forcesphere"}]],
+			["29166"] = [[{r=0, group="Druid", indicator="c", g=0, b=0, duration=true, priority=0, icon=true, iconTexture="Interface\\Icons\\Spell_Nature_Lightning"}]],
 			["189895"] = "{b=0;g=0;priority=0;r=0;group=\"Hellfire Citadel\";indicator=\"c\";icon=true;iconTexture=\"Interface\\\\Icons\\\\INV_Enchant_VoidSphere\";}",
 			["189627"] = "{b=0;g=0;priority=0;r=0;group=\"Hellfire Citadel\";indicator=\"c\";icon=true;iconTexture=\"Interface\\\\Icons\\\\achievement_zone_cataclysmgreen\";}",
 			["181306"] = "{b=0;g=0;priority=0;r=0;group=\"Hellfire Citadel\";indicator=\"c\";icon=true;iconTexture=\"Interface\\\\Icons\\\\Ability_Mage_LivingBomb\";}",
