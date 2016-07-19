@@ -20,7 +20,7 @@ function Indicators:UpdateClass(frame)
 	
 	local class = frame:UnitClassToken()
 	if( UnitIsPlayer(frame.unit) and class ) then
-		local coords = CLASS_BUTTONS[class]
+		local coords = CLASS_ICON_TCOORDS[class]
 		frame.indicators.class:SetTexture("Interface\\Glues\\CharacterCreate\\UI-CharacterCreate-Classes")
 		frame.indicators.class:SetTexCoord(coords[1], coords[2], coords[3], coords[4])
 		frame.indicators.class:Show()
