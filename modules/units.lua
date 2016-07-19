@@ -59,7 +59,7 @@ local function ReregisterUnitEvents(self)
 end
 
 -- Register an event that should always call the frame
-local function RegisterNormalEvent(self, event, handler, func)
+local function RegisterNormalEvent(self, event, handler, func, unitOverride)
 	-- Make sure the handler/func exists
 	if( not handler[func] ) then
 		error(string.format("Invalid handler/function passed for %s on event %s, the function %s does not exist.", self:GetName() or tostring(self), tostring(event), tostring(func)), 3)
@@ -67,7 +67,11 @@ local function RegisterNormalEvent(self, event, handler, func)
 	end
 
 	if( unitEvents[event] and not ShadowUF.fakeUnits[self.unitRealType] ) then
-		self:BlizzRegisterUnitEvent(event, self.unitOwner, self.vehicleUnit)
+		self:BlizzRegisterUnitEvent(event, unitOverride or self.unitOwner, self.vehicleUnit)
+		if unitOverride then
+			self.unitEventOverrides = self.unitEventOverrides or {}
+			self.unitEventOverrides[event] = unitOverride
+		end
 	else
 		self:RegisterEvent(event)
 	end
@@ -200,7 +204,7 @@ end
 
 -- Event handling
 local function OnEvent(self, event, unit, ...)
-	if( not unitEvents[event] or self.unit == unit ) then
+	if( not unitEvents[event] or self.unit == unit or (self.unitEventOverrides and self.unitEventOverrides[event] == unit)) then
 		for handler, func in pairs(self.registeredEvents[event]) do
 			handler[func](handler, self, event, unit, ...)
 		end

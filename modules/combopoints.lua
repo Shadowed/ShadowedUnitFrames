@@ -7,8 +7,8 @@ local cpConfig = {max = MAX_COMBO_POINTS, key = "comboPoints", colorKey = "COMBO
 function Combo:OnEnable(frame)
 	frame.comboPoints = frame.comboPoints or CreateFrame("Frame", nil, frame)
 	frame.comboPoints.cpConfig = cpConfig
-	frame:RegisterNormalEvent("UNIT_POWER", self, "Update")
-	frame:RegisterNormalEvent("UNIT_POWER_FREQUENT", self, "Update")
+	frame:RegisterNormalEvent("UNIT_POWER", self, "Update", "player")
+	frame:RegisterNormalEvent("UNIT_POWER_FREQUENT", self, "Update", "player")
 
 	frame:RegisterUpdateFunc(self, "Update")
 end
