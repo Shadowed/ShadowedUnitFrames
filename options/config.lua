@@ -5119,10 +5119,12 @@ local function loadFilterOptions()
 							ShadowUF.db.profile.filters[filterType][filter] = nil
 							
 							-- Delete anything that used this filter too
-							local filterList = filterType == "whitelist" and ShadowUF.db.profile.filters.zonewhite or filterType == "blacklist" and ShadowUF.db.profile.filters.zoneblack
-							for id, filterUsed in pairs(filterList) do
-								if( filterUsed == filter ) then
-									filterList[id] = nil
+							local filterList = filterType == "whitelists" and ShadowUF.db.profile.filters.zonewhite or filterType == "blacklists" and ShadowUF.db.profile.filters.zoneblack
+							if filterList then
+								for id, filterUsed in pairs(filterList) do
+									if( filterUsed == filter ) then
+										filterList[id] = nil
+									end
 								end
 							end
 							
