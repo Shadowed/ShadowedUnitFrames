@@ -1,7 +1,7 @@
 local AuraPoints = setmetatable({
 	isComboPoints = true,
 	spells = {
-		["MAGE"] = {max = 4, name = GetSpellInfo(36032), filter = "HARMFUL"},
+		--["MAGE"] = {max = 4, name = GetSpellInfo(36032), filter = "HARMFUL"},
 	}
 }, {__index = ShadowUF.ComboPoints})
 
