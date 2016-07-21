@@ -72,6 +72,8 @@ local function createConfigEnv()
 				return 5
 			elseif( powerType == SPELL_POWER_BURNING_EMBERS ) then
 				return MAX_POWER_PER_EMBER * 3
+			elseif( powerType == SPELL_POWER_COMBO_POINTS ) then
+				return 5
 			elseif( powerType == SPELL_POWER_DEMONIC_FURY ) then
 				return 100
 			end
