@@ -2,12 +2,11 @@ local AuraPoints = setmetatable({
 	isComboPoints = true,
 	spells = {
 		["MAGE"] = {max = 4, name = GetSpellInfo(36032), filter = "HARMFUL"},
-		["ROGUE"] = {max = 5, name = GetSpellInfo(115189), filter = "HELPFUL"}
 	}
 }, {__index = ShadowUF.ComboPoints})
 
 local trackSpell = AuraPoints.spells[select(2, UnitClass("player"))]
-if( not trackSpell ) then return end
+if( not trackSpell or not trackSpell.name ) then return end
 
 ShadowUF:RegisterModule(AuraPoints, "auraPoints", ShadowUF.L["Aura Combo Points"])
 local auraConfig = {max = trackSpell.max, key = "auraPoints", colorKey = "AURAPOINTS", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
