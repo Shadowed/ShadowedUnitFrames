@@ -62,20 +62,19 @@ local function createConfigEnv()
 			return getValue("UnitGetTotalAbsorbs", unit, math.random(2500, 5000))
 		end,
 		UnitPowerMax = function(unit, powerType)
-			if( powerType == SPELL_POWER_HOLY_POWER or powerType == SPELL_POWER_SOUL_SHARDS ) then
-				return 3
-			elseif( powerType == SPELL_POWER_ECLIPSE ) then
+			if( powerType == SPELL_POWER_RAGE or powerType == SPELL_POWER_ENERGY or powerType == SPELL_POWER_RUNIC_POWER
+			 or powerType == SPELL_POWER_LUNAR_POWER or powerType == SPELL_POWER_MAELSTROM or powerType == SPELL_POWER_INSANITY
+			 or powerType == SPELL_POWER_FURY or powerType == SPELL_POWER_PAIN ) then
 				return 100
-			elseif( powerType == SPELL_POWER_LIGHT_FORCE ) then
+			elseif( powerType == SPELL_POWER_FOCUS ) then
+				return 120
+			elseif( powerType == SPELL_POWER_COMBO_POINTS or powerType == SPELL_POWER_SOUL_SHARDS or powerType == SPELL_POWER_HOLY_POWER
+			     or powerType == SPELL_POWER_CHI ) then
+				return 5
+			elseif( powerType == SPELL_POWER_RUNES ) then
+				return 6
+			elseif( powerType == SPELL_POWER_ARCANE_CHARGES ) then
 				return 4
-			elseif( powerType == SPELL_POWER_SHADOW_ORBS ) then
-				return 5
-			elseif( powerType == SPELL_POWER_BURNING_EMBERS ) then
-				return MAX_POWER_PER_EMBER * 3
-			elseif( powerType == SPELL_POWER_COMBO_POINTS ) then
-				return 5
-			elseif( powerType == SPELL_POWER_DEMONIC_FURY ) then
-				return 100
 			end
 
 			return 50000
