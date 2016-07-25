@@ -355,6 +355,45 @@ Config.hideBasicOption = hideBasicOption
 --------------------
 -- GENERAL CONFIGURATION
 ---------------------
+
+local function writeTable(tbl)
+	local data = ""
+	for key, value in pairs(tbl) do
+		local valueType = type(value)
+
+		-- Wrap the key in brackets if it's a number
+		if( type(key) == "number" ) then
+			key = string.format("[%s]", key)
+		-- Wrap the string with quotes if it has a space in it
+		elseif( string.match(key, "[%p%s%c]") or string.match(key, "^[0-9]+$") ) then
+			key = string.format("['%s']", string.gsub(key, "'", "\\'"))
+		end
+
+		-- foo = {bar = 5}
+		if( valueType == "table" ) then
+			data = string.format("%s%s=%s;", data, key, writeTable(value))
+		-- foo = true / foo = 5
+		elseif( valueType == "number" or valueType == "boolean" ) then
+			data = string.format("%s%s=%s;", data, key, tostring(value))
+		-- foo = "bar"
+		else
+			value = tostring(value)
+			if value and string.match(value, "[\n]") then
+				local token = ""
+				while string.find(value, "%["..token.."%[") or string.find(value, "%]"..token.."%]") do
+					token = token .. "="
+				end
+				value = string.format("[%s[%s]%s]", token, value, token)
+			else
+				value = string.format("%q", value)
+			end
+			data = string.format("%s%s=%s;", data, key, value)
+		end
+	end
+
+	return "{" .. data .. "}"
+end
+
 local function loadGeneralOptions()
 	SML = SML or LibStub:GetLibrary("LibSharedMedia-3.0")
 	
@@ -490,35 +529,7 @@ local function loadGeneralOptions()
 	end
 
 	local textData = {}
-	
-	local function writeTable(tbl)
-		local data = ""
-		for key, value in pairs(tbl) do
-			local valueType = type(value)
-			
-			-- Wrap the key in brackets if it's a number
-			if( type(key) == "number" ) then
-				key = string.format("[%s]", key)
-			-- Wrap the string with quotes if it has a space in it
-			elseif( string.match(key, "[%p%s%c]") or string.match(key, "^[0-9]+$") ) then
-				key = string.format("['%s']", string.gsub(key, "'", "\\'"))
-			end
-			
-			-- foo = {bar = 5}
-			if( valueType == "table" ) then
-				data = string.format("%s%s=%s;", data, key, writeTable(value))
-			-- foo = true / foo = 5
-			elseif( valueType == "number" or valueType == "boolean" ) then
-				data = string.format("%s%s=%s;", data, key, tostring(value))
-			-- foo = "bar"
-			else
-				data = string.format("%s%s='%s';", data, key, string.gsub(tostring(value), "'", "\\'"))
-			end
-		end
-		
-		return "{" .. data .. "}"
-	end
-		
+
 	local layoutData = {positions = true, visibility = true, modules = false}
 	local layoutManager = {
 		type = "group",
@@ -6399,35 +6410,6 @@ local function loadAuraIndicatorsOptions()
 		end
 		
 		return indicatorList
-	end
-		
-	local function writeTable(tbl)
-		local data = ""
-
-		for key, value in pairs(tbl) do
-			local valueType = type(value)
-			
-			-- Wrap the key in brackets if it's a number
-			if( type(key) == "number" ) then
-				key = string.format("[%s]", key)
-			-- Wrap the string with quotes if it has a space or digits in it
-			elseif( string.match(key, " ") or string.match(key, "^[0-9]+$") ) then
-				key = string.format("[\"%s\"]", key)
-			end
-			
-			-- foo = {bar = 5}
-			if( valueType == "table" ) then
-				data = string.format("%s%s=%s;", data, key, writeTable(value))
-			-- foo = true / foo = 5
-			elseif( valueType == "number" or valueType == "boolean" ) then
-				data = string.format("%s%s=%s;", data, key, tostring(value))
-			-- foo = "bar"
-			else
-				data = string.format("%s%s=%q;", data, key, tostring(value))
-			end
-		end
-		
-		return "{" .. data .. "}"
 	end
 
 	local function writeAuraTable(name)
