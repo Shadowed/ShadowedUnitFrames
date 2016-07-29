@@ -206,7 +206,7 @@ end
 function Indicators:UpdateIndicators(frame)
 	for key, indicatorConfig in pairs(ShadowUF.db.profile.auraIndicators.indicators) do
 		local indicator = frame.auraIndicators[key]
-		if( indicator and indicator.enabled and indicator.priority > -1 ) then
+		if( indicator and indicator.enabled and indicator.priority and indicator.priority > -1 ) then
 			-- Show a cooldown ring
 			if( indicator.showDuration and indicator.spellDuration > 0 and indicator.spellEnd > 0 ) then
 				indicator.cooldown:SetCooldown(indicator.spellEnd - indicator.spellDuration, indicator.spellDuration)
