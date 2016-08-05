@@ -885,19 +885,19 @@ Tags.defaultTags = {
 	["druid:curpp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
-		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
+		if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
 		return ShadowUF:FormatLargeNumber(UnitPower(unit, SPELL_POWER_MANA))
 	end]],
 	["druid:abscurpp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
-		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
+		if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
 		return UnitPower(unit, SPELL_POWER_MANA)
 	end]],
 	["druid:curmaxpp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
-		if( powerType ~= 1 and powerType ~= 3 ) then return nil end
+		if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
 		
 		local maxPower = UnitPowerMax(unit, SPELL_POWER_MANA)
 		local power = UnitPower(unit, SPELL_POWER_MANA)
@@ -911,6 +911,8 @@ Tags.defaultTags = {
 	end]],
 	["druid:absolutepp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
+		local powerType = UnitPowerType(unit)
+		if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
 
 		return UnitPower(unit, SPELL_POWER_MANA)
 	end]],
