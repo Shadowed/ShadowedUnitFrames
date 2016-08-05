@@ -778,51 +778,21 @@ Tags.defaultTags = {
 		local points = UnitPower(ShadowUF.playerUnit, SPELL_POWER_HOLY_POWER)
 		return points and points > 0 and points
 	end]],
-	["priest:shadoworbs"] = [[function(unit, unitOwner)
-		local points = UnitPower(ShadowUF.playerUnit, SPELL_POWER_SHADOW_ORBS)
-		return points and points > 0 and points
-	end]],
 	["monk:chipoints"] = [[function(unit, unitOwner)
 		local points = UnitPower(ShadowUF.playerUnit, SPELL_POWER_CHI)
 		return points and points > 0 and points
 	end]],
-	["warlock:demonic:perpp"] = [[function(unit, unitOwner)
-		local maxPower = UnitPowerMax(unit, SPELL_POWER_DEMONIC_FURY)
-		if( maxPower <= 0 ) then
-			return nil
-		elseif( UnitIsDeadOrGhost(unit) or not UnitIsConnected(unit) ) then
-			return "0%"
-		end
-		
-		return string.format("%d%%", math.floor(UnitPower(unit, SPELL_POWER_DEMONIC_FURY) / maxPower * 100 + 0.5))
-	end]],
-	["warlock:demonic:maxpp"] = [[function(unit, unitOwner)
-		local power = UnitPowerMax(unit, SPELL_POWER_DEMONIC_FURY)
-		if( power <= 0 ) then
-			return nil
-		elseif( UnitIsDeadOrGhost(unit) ) then
-			return 0
-		end
-		
-		return ShadowUF:FormatLargeNumber(power)
-	end]],
-	["warlock:demonic:curpp"] = [[function(unit, unitOwner)
-		local power = UnitPower(unit, SPELL_POWER_DEMONIC_FURY)
-		if( power <= 0 ) then
-			return nil
-		elseif( UnitIsDeadOrGhost(unit) ) then
-			return 0
-		end
-		
-		return ShadowUF:FormatLargeNumber(power)
-	end]],
 	["cpoints"] = [[function(unit, unitOwner)
-		local points = GetComboPoints(ShadowUF.playerUnit)
-		if( points == 0 ) then
-			points = GetComboPoints(ShadowUF.playerUnit, ShadowUF.playerUnit)
+		if( UnitHasVehicleUI("player") and UnitHasVehiclePlayerFrameUI("player") ) then
+			local points = GetComboPoints("vehicle")
+			if( points == 0 ) then
+				points = GetComboPoints("vehicle", "vehicle")
+			end
+
+			return points
+		else
+			return UnitPower("player", SPELL_POWER_COMBO_POINTS)
 		end
-		
-		return points > 0 and points
 	end]],
 	["smartlevel"] = [[function(unit, unitOwner)
 		local classif = UnitClassification(unit)
@@ -1100,11 +1070,7 @@ Tags.defaultEvents = {
 	["unit:scaled:threat"]		= "UNIT_THREAT_SITUATION_UPDATE",
 	["unit:color:sit"]			= "UNIT_THREAT_SITUATION_UPDATE",
 	["unit:situation"]			= "UNIT_THREAT_SITUATION_UPDATE",
-	["warlock:demonic:curpp"]	= "SUF_POWERTYPE:DEMONIC_FURY UNIT_POWER_FREQUENT",
-	["warlock:demonic:maxpp"] 	= "SUF_POWERTYPE:DEMONIC_FURY UNIT_MAXPOWER",
-	["warlock:demonic:perpp"] 	= "SUF_POWERTYPE:DEMONIC_FURY UNIT_POWER_FREQUENT UNIT_MAXPOWER",
 	["monk:chipoints"]			= "SUF_POWERTYPE:LIGHT_FORCE UNIT_POWER_FREQUENT",
-	["priest:shadoworbs"]		= "SUF_POWERTYPE:SHADOW_ORBS UNIT_POWER_FREQUENT",
 }
 	
 -- Default update frequencies for tag updating, used if it's needed to override the update speed
@@ -1189,7 +1155,6 @@ Tags.defaultCategories = {
 	["druid:abscurpp"]  	    = "classspec",
 	["druid:curmaxpp"]			= "classspec",
 	["druid:absolutepp"]		= "classspec",
-	["druid:eclipse"]			= "classspec",
 	["monk:curpp"]     	   		= "classspec",
 	["monk:abscurpp"]  	  	 	= "classspec",
 	["monk:curmaxpp"]			= "classspec",
@@ -1208,11 +1173,7 @@ Tags.defaultCategories = {
 	["unit:color:aggro"]		= "threat",
 	["unit:raid:assist"]		= "raid",
 	["unit:raid:targeting"] 	= "raid",
-	["warlock:demonic:curpp"]	= "classspec",
-	["warlock:demonic:maxpp"] 	= "classspec",
-	["warlock:demonic:perpp"] 	= "classspec",
 	["monk:chipoints"]			= "classspec",
-	["priest:shadoworbs"]		= "classspec",
 	["monk:stagger"]			= "classspec",
 	["monk:abs:stagger"]		= "classspec"
 }
@@ -1304,11 +1265,7 @@ Tags.defaultHelp = {
 	["color:aggro"]				= L["Same as [color:sit] except it only returns red if you have aggro, rather than transiting from yellow -> orange -> red."],
 	["unit:raid:targeting"]		= L["How many people in your raid are targeting the unit, for example if you put this on yourself it will show how many people are targeting you. This includes you in the count!"],
 	["unit:raid:assist"]		= L["How many people are assisting the unit, for example if you put this on yourself it will show how many people are targeting your target. This includes you in the count!"],
-	["warlock:demonic:curpp"]	= string.format(L["Works the same as [%s], but this is usedd to show Demonic Fury power for Demonology Warlocks."], "curpp"),
-	["warlock:demonic:maxpp"] 	= string.format(L["Works the same as [%s], but this is usedd to show Demonic Fury power for Demonology Warlocks."], "maxpp"),
-	["warlock:demonic:perpp"] 	= string.format(L["Works the same as [%s], but this is usedd to show Demonic Fury power for Demonology Warlocks."], "perpp"),
 	["monk:chipoints"]			= L["How many Chi points you currently have."],
-	["priest:shadoworbs"]		= L["How many Shadow Orbs you have if you're Shadow"],
 	["monk:stagger"]			= L["Shows the current staggered damage, if 12,000 damage is staggered, shows 12k."],
 	["monk:abs:stagger"]		= L["Shows the absolute staggered damage, if 16,000 damage is staggered, shows 16,000."]
 }
@@ -1399,11 +1356,7 @@ Tags.defaultNames = {
 	["unit:color:aggro"]		= L["Unit color code on aggro"],
 	["unit:raid:targeting"]		= L["Raid targeting unit"],
 	["unit:raid:assist"]		= L["Raid assisting unit"],
-	["warlock:demonic:curpp"]	= L["Current Demonic Fury (Short)"],
-	["warlock:demonic:maxpp"] 	= L["Max Demonic Fury (Short)"],
-	["warlock:demonic:perpp"] 	= L["Percent Demonic Fury"],
 	["monk:chipoints"]			= L["Chi Points"],
-	["priest:shadoworbs"]		= L["Shadow Orbs"],
 	["monk:stagger"]			= L["Stagger (Monk)"],
 	["monk:abs:stagger"]		= L["Stagger (Monk/Absolute)"]
 }
