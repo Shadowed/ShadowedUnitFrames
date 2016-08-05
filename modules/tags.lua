@@ -911,7 +911,6 @@ Tags.defaultTags = {
 	end]],
 	["druid:absolutepp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
-		if( GetSpecialization() ~= SPEC_MONK_MISTWEAVER ) then return nil end
 
 		return UnitPower(unit, SPELL_POWER_MANA)
 	end]],
