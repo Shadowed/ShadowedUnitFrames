@@ -886,38 +886,6 @@ Tags.defaultTags = {
 
 		return UnitPower(unit, SPELL_POWER_MANA)
 	end]],
-	["monk:curpp"] = [[function(unit, unitOwner)
-		if( select(2, UnitClass(unit)) ~= "MONK" ) then return nil end
-		if( GetSpecialization() ~= SPEC_MONK_MISTWEAVER ) then return nil end
-
-		return ShadowUF:FormatLargeNumber(UnitPower(unit, SPELL_POWER_MANA))
-	end]],
-	["monk:abscurpp"] = [[function(unit, unitOwner)
-		if( select(2, UnitClass(unit)) ~= "MONK" ) then return nil end
-		if( GetSpecialization() ~= SPEC_MONK_MISTWEAVER ) then return nil end
-
-		return UnitPower(unit, SPELL_POWER_MANA)
-	end]],
-	["monk:curmaxpp"] = [[function(unit, unitOwner)
-		if( select(2, UnitClass(unit)) ~= "MONK" ) then return nil end
-		if( GetSpecialization() ~= SPEC_MONK_MISTWEAVER ) then return nil end
-		
-		local maxPower = UnitPowerMax(unit, SPELL_POWER_MANA)
-		local power = UnitPower(unit, SPELL_POWER_MANA)
-		if( UnitIsDeadOrGhost(unit) ) then
-			return string.format("0/%s", ShadowUF:FormatLargeNumber(maxPower))
-		elseif( maxPower == 0 and power == 0 ) then
-			return nil
-		end
-		
-		return string.format("%s/%s", ShadowUF:FormatLargeNumber(power), ShadowUF:FormatLargeNumber(maxPower))
-	end]],
-	["monk:absolutepp"] = [[function(unit, unitOwner)
-		if( select(2, UnitClass(unit)) ~= "MONK" ) then return nil end
-		if( GetSpecialization() ~= SPEC_MONK_MISTWEAVER ) then return nil end
-
-		return UnitPower(unit, SPELL_POWER_MANA)
-	end]],
 	["per:incheal"] = [[function(unit, unitOwner, fontString)
 		local heal = UnitGetIncomingHeals(unit)
 		local maxHealth = UnitHealthMax(unit)
@@ -1031,10 +999,6 @@ Tags.defaultEvents = {
 	["druid:abscurpp"]      	= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
 	["druid:curmaxpp"]			= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
 	["druid:absolutepp"]		= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
-	["monk:curpp"]  	    	= "SUF_POWERTYPE:LIGHT_FORCE UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
-	["monk:abscurpp"]      		= "SUF_POWERTYPE:LIGHT_FORCE UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
-	["monk:curmaxpp"]			= "SUF_POWERTYPE:LIGHT_FORCE UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
-	["monk:absolutepp"]			= "SUF_POWERTYPE:LIGHT_FORCE UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
 	["sshards"]					= "SUF_POWERTYPE:SOUL_SHARDS UNIT_POWER_FREQUENT",
 	["hpower"]					= "SUF_POWERTYPE:HOLY_POWER UNIT_POWER_FREQUENT",
 	["level"]               	= "UNIT_LEVEL UNIT_FACTION PLAYER_LEVEL_UP",
@@ -1155,10 +1119,6 @@ Tags.defaultCategories = {
 	["druid:abscurpp"]  	    = "classspec",
 	["druid:curmaxpp"]			= "classspec",
 	["druid:absolutepp"]		= "classspec",
-	["monk:curpp"]     	   		= "classspec",
-	["monk:abscurpp"]  	  	 	= "classspec",
-	["monk:curmaxpp"]			= "classspec",
-	["monk:absolutepp"]			= "classspec",
 	["sshards"]					= "classspec",
 	["hpower"]					= "classspec",
 	["situation"]				= "playerthreat",
@@ -1249,10 +1209,6 @@ Tags.defaultHelp = {
 	["druid:abscurpp"]      	= string.format(L["Works the same as [%s], but this is only shown if the unit is in Cat or Bear form."], "abscurpp"),
 	["druid:curmaxpp"]			= string.format(L["Works the same as [%s], but this is only shown if the unit is in Cat or Bear form."], "curmaxpp"),
 	["druid:absolutepp"]		= string.format(L["Works the same as [%s], but this is only shown if the unit is in Cat or Bear form."], "absolutepp"),
-	["monk:curpp"]         		= string.format(L["Works the same as [%s], but this is only shown if you are a Mistweaver Monk."], "currpp"),
-	["monk:abscurpp"]      		= string.format(L["Works the same as [%s], but this is only shown if you are a Mistweaver Monk."], "abscurpp"),
-	["monk:curmaxpp"]			= string.format(L["Works the same as [%s], but this is only shown if you are a Mistweaver Monk."], "curmaxpp"),
-	["monk:absolutepp"]			= string.format(L["Works the same as [%s], but this is only shown if you are a Mistweaver Monk."], "absolutepp"),
 	["situation"]				= L["Returns text based on your threat situation with your target: Aggro for Aggro, High for being close to taking aggro, and Medium as a general warning to be wary."],
 	["color:sit"]				= L["Returns a color code of the threat situation with your target: Red for Aggro, Orange for High threat and Yellow to be careful."],
 	["scaled:threat"]			= L["Returns a scaled threat percent of your aggro on your current target, always 0 - 100%."],
@@ -1342,11 +1298,7 @@ Tags.defaultNames = {
 	["druid:curpp"]         	= L["Current power (Druid)"],
 	["druid:abscurpp"]      	= L["Current power (Druid/Absolute)"],
 	["druid:curmaxpp"]			= L["Cur/Max power (Druid)"],
-	["druid:absolutepp"]		= L["Current health (Druid/Absolute)"],
-	["monk:curpp"]        	 	= L["Current power (Monk)"],
-	["monk:abscurpp"]   	   	= L["Current power (Monk/Absolute)"],
-	["monk:curmaxpp"]			= L["Cur/Max power (Monk)"],
-	["monk:absolutepp"]			= L["Current health (Monk/Absolute)"],
+	["druid:absolutepp"]		= L["Cur/Max power (Druid/Absolute)"],
 	["situation"]				= L["Threat situation"],
 	["color:sit"]				= L["Color code for situation"],
 	["scaled:threat"]			= L["Scaled threat percent"],
