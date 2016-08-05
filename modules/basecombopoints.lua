@@ -173,3 +173,13 @@ function Combo:Update(frame, event, unit, powerType)
 		end
 	end
 end
+
+function Combo:OnLayoutWidgets(frame)
+	local key = self:GetComboPointType()
+	if( not frame.visibility[key] or not ShadowUF.db.profile.units[frame.unitType][key].isBar or not frame[key].blocks) then return end
+
+	local height = frame[key]:GetHeight()
+	for _, block in pairs(frame[key].blocks) do
+		block:SetHeight(height)
+	end
+end
