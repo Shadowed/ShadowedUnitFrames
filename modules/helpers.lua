@@ -21,7 +21,7 @@ ShadowUF.BlockTimers = BlockTimers;
 local DynamicBlocks = {}
 function DynamicBlocks:Inject(module)
 	module.OnLayoutWidgets = function(self, frame)
-		if( not frame.visibility[module.moduleKey] ) then return end
+		if( not frame.visibility[module.moduleKey] or not frame[module.moduleKey].blocks) then return end
 
 		local height = frame[module.moduleKey]:GetHeight()
 		for _, block in pairs(frame[module.moduleKey].blocks) do

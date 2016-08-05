@@ -147,7 +147,7 @@ function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 		pointsFrame.blocks[id]:Show()
 	end
 
-	for id=max+1, max do
+	for id=max+1, #pointsFrame.blocks do
 		pointsFrame.blocks[id]:Hide()
 	end
 
