@@ -92,6 +92,20 @@ function Health:UpdateColor(frame)
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorType == "playerclass" and unit == "pet") then
 		local class = select(2, UnitClass("player"))
 		color = class and ShadowUF.db.profile.classColors[class]
+	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorType == "playerclass" and (frame.unitType == "partypet" or frame.unitType == "raidpet" or frame.unitType == "arenapet") and (frame.parent or frame.unitType == "raidpet") ) then
+		local unit
+		if frame.unitType == "raidpet" then
+			local id = string.match(frame.unit, "raidpet(%d+)")
+			if id then
+				unit = "raid" .. id
+			end
+		elseif frame.parent then
+			unit = frame.parent.unit
+		end
+		if unit then
+			local class = select(2, UnitClass(unit))
+			color = class and ShadowUF.db.profile.classColors[class]
+		end
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorType == "static" ) then
 		color = ShadowUF.db.profile.healthColors.static
 	end
