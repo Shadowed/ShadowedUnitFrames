@@ -83,7 +83,6 @@ function IncHeal:OnLayoutApplied(frame)
 		end
 
 		bar.positionMod = bar.reverseFill and -1 or 1
-		bar.cappedSize = bar.healthSize * (cap - 1)
 		bar.maxSize = bar.healthSize * cap
 	end
 end
