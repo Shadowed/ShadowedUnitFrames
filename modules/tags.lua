@@ -889,7 +889,7 @@ Tags.defaultTags = {
 	["per:incheal"] = [[function(unit, unitOwner, fontString)
 		local heal = UnitGetIncomingHeals(unit)
 		local maxHealth = UnitHealthMax(unit)
-		return heal and heal > 0 and maxHealth > 0 and string.format("%d%%", (heal / maxHealth))
+		return heal and heal > 0 and maxHealth > 0 and string.format("%d%%", (heal / maxHealth) * 100)
 	end]],
 	["abs:incheal"] = [[function(unit, unitOwner, fontString)
 	    local heal = UnitGetIncomingHeals(unit) 
