@@ -118,7 +118,7 @@ function IncHeal:PositionBar(frame, incAmount)
 		local incSize = bar.healthSize * (maxHealth > 0 and incAmount / maxHealth or 0)
 
 		if( (healthSize + incSize) > bar.maxSize ) then
-			incSize = bar.cappedSize
+			incSize = bar.maxSize - healthSize
 		end
 
 		if( bar.orientation == "HORIZONTAL" ) then
