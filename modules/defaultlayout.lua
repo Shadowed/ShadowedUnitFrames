@@ -245,7 +245,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			{width = 0.50, name = L["Left text"], anchorTo = "$powerBar", anchorPoint = "CLI", x = 3, y = 0, size = 0, default = true},
 			{width = 0.60, name = L["Right text"], anchorTo = "$powerBar", anchorPoint = "CRI", x = -3, y = 0, size = 0, default = true},
 
-			{width = 1, name = L["Text"], anchorTo = "$emptyBar", anchorPoint = "CLI", x = 3, y = 0, size = 0, default = true},
+			{width = 0.50, name = L["Left text"], anchorTo = "$emptyBar", anchorPoint = "CLI", x = 3, y = 0, size = 0, default = true},
+			{width = 0.60, name = L["Right text"], anchorTo = "$emptyBar", anchorPoint = "CRI", x = -3, y = 0, size = 0, default = true},
 		},
 		indicators = {
 			raidTarget = {anchorTo = "$parent", anchorPoint = "C", size = 20, x = 0, y = 0},

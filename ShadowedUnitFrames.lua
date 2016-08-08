@@ -5,7 +5,7 @@
 ShadowUF = select(2, ...)
 
 local L = ShadowUF.L
-ShadowUF.dbRevision = 57
+ShadowUF.dbRevision = 58
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
 ShadowUF.modules = {}
@@ -99,6 +99,20 @@ end
 
 function ShadowUF:CheckUpgrade()
 	local revision = self.db.profile.revision or self.dbRevision
+	if( revision <= 57 ) then
+		for unit, config in pairs(self.db.profile.units) do
+			if config.text then
+				for _, text in pairs(config.text) do
+					if text.anchorTo == "$emptyBar" and text.name == L["Left text"] then
+						text.width = 0.50
+					end
+				end
+				-- insert empty bar right text
+				table.insert(config.text, {width = 0.60, name = L["Right text"], text = "", anchorTo = "$emptyBar", anchorPoint = "CRI", x = -3, y = 0, size = 0, default = true})
+			end
+		end
+	end
+
 	if( revision <= 56 ) then
 		-- new classes
 		self.db.profile.classColors.DEMONHUNTER = {r = 0.64, g = 0.19, b = 0.79}
@@ -230,7 +244,8 @@ function ShadowUF:LoadUnitDefaults()
 				{enabled = true, name = L["Right text"], text = "[curmaxhp]", anchorPoint = "C", anchorTo = "$healthBar", size = 0},
 				{enabled = true, name = L["Left text"], text = "[level] [race]", anchorPoint = "C", anchorTo = "$powerBar", size = 0},
 				{enabled = true, name = L["Right text"], text = "[curmaxpp]", anchorPoint = "C", anchorTo = "$powerBar", size = 0},
-				{enabled = true, name = L["Text"], text = "", anchorTo = "$emptyBar", anchorPoint = "C", size = 0, x = 0, y = 0}
+				{enabled = true, name = L["Left text"], text = "", anchorTo = "$emptyBar", anchorPoint = "C", size = 0, x = 0, y = 0},
+				{enabled = true, name = L["Right text"], text = "", anchorTo = "$emptyBar", anchorPoint = "C", size = 0, x = 0, y = 0},
 			},
 			indicators = {raidTarget = {enabled = true, size = 0}}, 
 			highlight = {},
