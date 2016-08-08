@@ -115,7 +115,7 @@ function IncHeal:PositionBar(frame, incAmount)
 	else
 		local maxHealth = UnitHealthMax(frame.unit)
 		local healthSize = bar.healthSize * (maxHealth > 0 and health / maxHealth or 0)
-		local incSize = bar.healthSize * (health > 0 and incAmount / health or 0)
+		local incSize = bar.healthSize * (maxHealth > 0 and incAmount / maxHealth or 0)
 
 		if( (healthSize + incSize) > bar.maxSize ) then
 			incSize = bar.cappedSize
