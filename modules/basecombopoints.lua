@@ -56,6 +56,20 @@ local function createBlocks(config, pointsFrame)
 		texture:SetWidth(blockWidth)
 		texture:ClearAllPoints()
 		
+		if not texture.background and config.background then
+			texture.background = pointsFrame:CreateTexture(nil, "BORDER")
+			texture.background:SetHeight(1)
+			texture.background:SetWidth(1)
+			texture.background:SetAllPoints(texture)
+			texture.background:SetHorizTile(false)
+			texture.background:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.bars.backgroundAlpha)
+			texture.background:SetTexture(ShadowUF.Layout.mediaPath.statusbar)
+		end
+
+		if texture.background then
+			texture.background:SetShown(config.background)
+		end
+
 		if( config.growth == "LEFT" ) then
 			if( id > 1 ) then
 				texture:SetPoint("TOPRIGHT", pointsFrame.blocks[id - 1], "TOPLEFT", -1, 0)
