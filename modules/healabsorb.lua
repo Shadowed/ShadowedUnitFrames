@@ -3,6 +3,7 @@ ShadowUF:RegisterModule(HealAbsorb, "healAbsorb", ShadowUF.L["Healing absorb"])
 
 function HealAbsorb:OnEnable(frame)
 	frame.healAbsorb = frame.healAbsorb or ShadowUF.Units:CreateBar(frame)
+	frame.healAbsorb.frameLevelMod = HealAbsorb.frameLevelMod
 
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
 	frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")

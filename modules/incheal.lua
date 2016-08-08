@@ -4,6 +4,7 @@ ShadowUF:RegisterModule(IncHeal, "incHeal", ShadowUF.L["Incoming heals"])
 
 function IncHeal:OnEnable(frame)
 	frame.incHeal = frame.incHeal or ShadowUF.Units:CreateBar(frame)
+	frame.incHeal.frameLevelMod = IncHeal.frameLevelMod
 
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
 	frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
@@ -28,7 +29,7 @@ function IncHeal:OnLayoutApplied(frame)
 		frame:UnregisterSingleEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", self, "UpdateFrame")
 	end
 
-	self.frameLevelMod = (ShadowUF.db.profile.units[frame.unitType].healthBar.invert and 0 or 2)
+	self.frameLevelMod = bar.frameLevelMod - (ShadowUF.db.profile.units[frame.unitType].healthBar.invert and 3 or 0)
 
 	-- Since we're hiding, reset state
 	bar.total = nil

@@ -3,6 +3,7 @@ ShadowUF:RegisterModule(IncAbsorb, "incAbsorb", ShadowUF.L["Incoming absorbs"])
 
 function IncAbsorb:OnEnable(frame)
 	frame.incAbsorb = frame.incAbsorb or ShadowUF.Units:CreateBar(frame)
+	frame.incAbsorb.frameLevelMod = IncAbsorb.frameLevelMod
 
 	frame:RegisterUnitEvent("UNIT_MAXHEALTH", self, "UpdateFrame")
 	frame:RegisterUnitEvent("UNIT_HEALTH", self, "UpdateFrame")
