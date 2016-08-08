@@ -295,7 +295,7 @@ local function updateGroup(self, type, config, reverseConfig)
 	group.type = type
 	group.parent = self
 	group.anchorTo = self
-	group:SetFrameLevel(5)
+	group:SetFrameLevel(self.highFrame:GetFrameLevel() + 1)
 	group:Show()
 
 	-- If debuffs are anchored to buffs, debuffs need to grow however buffs do
