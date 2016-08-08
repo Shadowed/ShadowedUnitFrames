@@ -130,7 +130,8 @@ function Layout:Load(frame)
 	-- Figure out if we're secure locking
 	frame.secureLocked = nil
 	for _, module in pairs(ShadowUF.moduleOrder) do
-		if( frame.visibility[module.moduleKey] and ShadowUF.db.profile.units[frame.unitType][module.moduleKey].secure and module:SecureLockable() ) then
+		if( frame.visibility[module.moduleKey] and ShadowUF.db.profile.units[frame.unitType][module.moduleKey] and
+			ShadowUF.db.profile.units[frame.unitType][module.moduleKey].secure and module:SecureLockable() ) then
 			frame.secureLocked = true
 			break
 		end
