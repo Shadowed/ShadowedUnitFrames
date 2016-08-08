@@ -28,6 +28,8 @@ function IncHeal:OnLayoutApplied(frame)
 		frame:UnregisterSingleEvent("UNIT_HEAL_ABSORB_AMOUNT_CHANGED", self, "UpdateFrame")
 	end
 
+	self.frameLevelMod = (ShadowUF.db.profile.units[frame.unitType].healthBar.invert and 0 or 2)
+
 	-- Since we're hiding, reset state
 	bar.total = nil
 
