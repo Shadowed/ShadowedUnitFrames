@@ -22,27 +22,6 @@ function HolyPower:OnLayoutApplied(frame, config)
 	self:UpdateBarBlocks(frame)
 end
 
-function HolyPower:UpdateBarBlocks(frame, event, unit, powerType)
-	local pointsFrame = frame[self:GetComboPointType()]
-	if( not pointsFrame or ( event and powerType ~= holyConfig.eventType ) ) then return end
-
-	ShadowUF.ComboPoints.UpdateBarBlocks(self, frame)
-
-	local config = ShadowUF.db.profile.units[frame.unitType].holyPower
-	local color = ShadowUF.db.profile.powerColors["BANKEDHOLYPOWER"]
-
-	local max = UnitPowerMax("player", holyConfig.powerType)
-	if( max == 5 ) then
-		for id=4, 5 do
-			if( config.isBar ) then
-				pointsFrame.blocks[id]:SetVertexColor(color.r, color.g, color.b)
-			else
-				pointsFrame.icons[id]:SetVertexColor(color.r, color.g, color.b)
-			end
-		end
-	end
-end
-
 function HolyPower:GetComboPointType()
 	return "holyPower"
 end
