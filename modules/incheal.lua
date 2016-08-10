@@ -103,18 +103,24 @@ function IncHeal:PositionBar(frame, incAmount)
 		return
 	end
 
+	local maxHealth = UnitHealthMax(frame.unit)
+	if( maxHealth <= 0 ) then
+		bar.total = nil
+		bar:Hide()
+		return
+	end
+
 	if( not bar.total ) then bar:Show() end
 	bar.total = incAmount
 
 	-- When the primary bar has an alpha of 100%, we can cheat and do incoming heals easily. Otherwise we need to do it a more complex way to keep it looking good
 	if( bar.simple ) then
 		bar.total = health + incAmount
-		bar:SetMinMaxValues(0, UnitHealthMax(frame.unit) * (ShadowUF.db.profile.units[frame.unitType][self.frameKey].cap or 1.30))
+		bar:SetMinMaxValues(0, maxHealth * (ShadowUF.db.profile.units[frame.unitType][self.frameKey].cap or 1.30))
 		bar:SetValue(bar.total)
 	else
-		local maxHealth = UnitHealthMax(frame.unit)
-		local healthSize = bar.healthSize * (maxHealth > 0 and health / maxHealth or 0)
-		local incSize = bar.healthSize * (maxHealth > 0 and incAmount / maxHealth or 0)
+		local healthSize = bar.healthSize * (health / maxHealth)
+		local incSize = bar.healthSize * (incAmount / maxHealth)
 
 		if( (healthSize + incSize) > bar.maxSize ) then
 			incSize = bar.maxSize - healthSize
