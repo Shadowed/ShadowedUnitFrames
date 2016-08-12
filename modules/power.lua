@@ -13,6 +13,9 @@ function Power:OnEnable(frame)
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdateColor")
 	frame:RegisterUnitEvent("UNIT_CLASSIFICATION_CHANGED", self, "UpdateClassification")
 
+	-- UNIT_MANA fires after repopping at a spirit healer, make sure to update powers then
+	frame:RegisterUnitEvent("UNIT_MANA", self, "Update")
+
 	frame:RegisterUpdateFunc(self, "UpdateClassification")
 	frame:RegisterUpdateFunc(self, "UpdateColor")
 	frame:RegisterUpdateFunc(self, "Update")
