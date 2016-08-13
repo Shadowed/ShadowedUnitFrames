@@ -265,7 +265,7 @@ function Indicators:UpdateAuras(frame)
 	
 	-- Check for any indicators that are triggered due to something missing
 	for name in pairs(ShadowUF.db.profile.auraIndicators.missing) do
-		if( not auraList[name] ) then
+		if( not auraList[name] and self.auraConfig[name] ) then
 			local aura = self.auraConfig[name]
 			local indicator = frame.auraIndicators[aura.indicator]
 			if( indicator and indicator.enabled and aura.priority > indicator.priority and not ShadowUF.db.profile.auraIndicators.disabled[playerClass][name] ) then
