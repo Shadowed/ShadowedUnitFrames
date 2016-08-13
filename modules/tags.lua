@@ -861,6 +861,60 @@ Tags.defaultTags = {
 		
 		return nil
 	end]],
+	["mana:curpp"] = [[function(unit, unitOwner)
+		if( UnitPowerMax(unit, SPELL_POWER_MANA) <= 0 ) then
+			return nil
+		elseif( UnitIsDeadOrGhost(unit) ) then
+			return 0
+		end
+
+		return ShadowUF:FormatLargeNumber(UnitPower(unit, SPELL_POWER_MANA))
+	end]],
+	["mana:abscurpp"] = [[function(unit, unitOwner)
+		if( UnitPowerMax(unit, SPELL_POWER_MANA) <= 0 ) then
+			return nil
+		elseif( UnitIsDeadOrGhost(unit) ) then
+			return 0
+		end
+
+		return UnitPower(unit, SPELL_POWER_MANA)
+	end]],
+	["mana:maxpp"] = [[function(unit, unitOwner)
+		local power = UnitPowerMax(unit, SPELL_POWER_MANA)
+		if( power <= 0 ) then
+			return nil
+		elseif( UnitIsDeadOrGhost(unit) ) then
+			return 0
+		end
+
+		return ShadowUF:FormatLargeNumber(power)
+	end]],
+	["mana:absmaxpp"] = [[function(unit, unitOwner)
+		local power = UnitPowerMax(unit, SPELL_POWER_MANA)
+		return power > 0 and power or nil
+	end]],
+	["mana:absolutepp"] = [[function(unit, unitOwner)
+		local maxPower = UnitPowerMax(unit, SPELL_POWER_MANA)
+		local power = UnitPower(unit, SPELL_POWER_MANA)
+		if( UnitIsDeadOrGhost(unit) ) then
+			return string.format("0/%s", maxPower)
+		elseif( maxPower <= 0 ) then
+			return nil
+		end
+
+		return string.format("%s/%s", power, maxPower)
+	end]],
+	["mana:curmaxpp"] = [[function(unit, unitOwner)
+		local maxPower = UnitPowerMax(unit, SPELL_POWER_MANA)
+		local power = UnitPower(unit, SPELL_POWER_MANA)
+		if( UnitIsDeadOrGhost(unit) ) then
+			return string.format("0/%s", ShadowUF:FormatLargeNumber(maxPower))
+		elseif( maxPower <= 0 ) then
+			return nil
+		end
+
+		return string.format("%s/%s", ShadowUF:FormatLargeNumber(power), ShadowUF:FormatLargeNumber(maxPower))
+	end]],
 	["druid:curpp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
@@ -1004,6 +1058,12 @@ Tags.defaultEvents = {
 	["curmaxpp"]				= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_MAXPOWER",
 	["absolutepp"]				= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_MAXPOWER",
 	["smart:curmaxpp"]			= "SUF_POWERTYPE:CURRENT UNIT_POWER_FREQUENT UNIT_MAXPOWER",
+	["mana:curpp"]				= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
+	["mana:abscurpp"]			= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
+	["mana:maxpp"]				= "SUF_POWERTYPE:MANA UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["mana:absmaxpp"]			= "SUF_POWERTYPE:MANA UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["mana:absolutepp"]			= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["mana:curmaxpp"]			= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
 	["druid:curpp"]  	    	= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
 	["druid:abscurpp"]      	= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
 	["druid:curmaxpp"]			= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
@@ -1144,7 +1204,13 @@ Tags.defaultCategories = {
 	["unit:raid:targeting"] 	= "raid",
 	["monk:chipoints"]			= "classspec",
 	["monk:stagger"]			= "classspec",
-	["monk:abs:stagger"]		= "classspec"
+	["monk:abs:stagger"]		= "classspec",
+	["mana:curpp"]				= "classspec",
+	["mana:abscurpp"]			= "classspec",
+	["mana:maxpp"]				= "classspec",
+	["mana:absmaxpp"]			= "classspec",
+	["mana:absolutepp"]			= "classspec",
+	["mana:curmaxpp"]			= "classspec",
 }
 	
 -- Default tag help
@@ -1232,7 +1298,13 @@ Tags.defaultHelp = {
 	["unit:raid:assist"]		= L["How many people are assisting the unit, for example if you put this on yourself it will show how many people are targeting your target. This includes you in the count!"],
 	["monk:chipoints"]			= L["How many Chi points you currently have."],
 	["monk:stagger"]			= L["Shows the current staggered damage, if 12,000 damage is staggered, shows 12k."],
-	["monk:abs:stagger"]		= L["Shows the absolute staggered damage, if 16,000 damage is staggered, shows 16,000."]
+	["monk:abs:stagger"]		= L["Shows the absolute staggered damage, if 16,000 damage is staggered, shows 16,000."],
+	["mana:curpp"]				= string.format(L["Works the same as [%s], but always shows mana, irregardless of the current primary power type."], "curpp"),
+	["mana:abscurpp"]			= string.format(L["Works the same as [%s], but always shows mana, irregardless of the current primary power type."], "abscurpp"),
+	["mana:maxpp"]				= string.format(L["Works the same as [%s], but always shows mana, irregardless of the current primary power type."], "maxpp"),
+	["mana:absmaxpp"]			= string.format(L["Works the same as [%s], but always shows mana, irregardless of the current primary power type."], "absmaxpp"),
+	["mana:absolutepp"]			= string.format(L["Works the same as [%s], but always shows mana, irregardless of the current primary power type."], "absolutepp"),
+	["mana:curmaxpp"]			= string.format(L["Works the same as [%s], but always shows mana, irregardless of the current primary power type."], "curmaxpp"),
 }
 
 Tags.defaultNames = {
@@ -1319,7 +1391,13 @@ Tags.defaultNames = {
 	["unit:raid:assist"]		= L["Raid assisting unit"],
 	["monk:chipoints"]			= L["Chi Points"],
 	["monk:stagger"]			= L["Stagger (Monk)"],
-	["monk:abs:stagger"]		= L["Stagger (Monk/Absolute)"]
+	["monk:abs:stagger"]		= L["Stagger (Monk/Absolute)"],
+	["mana:curpp"]				= L["Current power (Mana)"],
+	["mana:abscurpp"]			= L["Current power (Mana/Absolute)"],
+	["mana:maxpp"]				= L["Max power (Mana)"],
+	["mana:absmaxpp"]			= L["Max power (Mana/Absolute)"],
+	["mana:absolutepp"]			= L["Cur/Max power (Mana/Absolute)"],
+	["mana:curmaxpp"]			= L["Cur/Max power (Mana)"],
 }
 
 -- List of event types
