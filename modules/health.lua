@@ -1,5 +1,6 @@
 local Health = {}
 ShadowUF:RegisterModule(Health, "healthBar", ShadowUF.L["Health bar"], true)
+local canCure = ShadowUF.Units.canCure
 
 local function getGradientColor(unit)
 	local maxHealth = UnitHealthMax(unit)
@@ -41,13 +42,40 @@ function Health:OnEnable(frame)
 	if( frame.unit == "pet" ) then
 		frame:RegisterUnitEvent("UNIT_POWER", self, "UpdateColor")
 	end
-	
+
+	if ( ShadowUF.db.profile.units[frame.unitType].healthBar.colorDispel ) then
+		frame:RegisterNormalEvent("UNIT_AURA", self, "UpdateAura")
+		frame:RegisterUpdateFunc(self, "UpdateAura")
+	end
+
 	frame:RegisterUpdateFunc(self, "UpdateColor")
 	frame:RegisterUpdateFunc(self, "Update")
 end
 
 function Health:OnDisable(frame)
 	frame:UnregisterAll(self)
+end
+
+function Health:UpdateAura(frame)
+	local hadDebuff = frame.healthBar.hasDebuff
+	frame.healthBar.hasDebuff = nil
+	if( UnitIsFriend(frame.unit, "player") ) then
+		local id = 0
+		while( true ) do
+			id = id + 1
+			local name, _, _, _, auraType = UnitDebuff(frame.unit, id)
+			if( not name ) then break end
+
+			if( canCure[auraType] ) then
+				frame.healthBar.hasDebuff = auraType
+				break
+			end
+		end
+	end
+
+	if hadDebuff ~= frame.healthBar.hasDebuff then
+		self:UpdateColor(frame)
+	end
 end
 
 function Health:UpdateColor(frame)
@@ -62,6 +90,8 @@ function Health:UpdateColor(frame)
 		frame.healthBar.wasOffline = true
 		frame:SetBarColor("healthBar", ShadowUF.db.profile.healthColors.offline.r, ShadowUF.db.profile.healthColors.offline.g, ShadowUF.db.profile.healthColors.offline.b)
 		return
+	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorDispel and frame.healthBar.hasDebuff ) then
+		color = DebuffTypeColor[frame.healthBar.hasDebuff]
 	elseif( ShadowUF.db.profile.units[frame.unitType].healthBar.colorAggro and UnitThreatSituation(frame.unit) == 3 ) then
 		frame:SetBarColor("healthBar", ShadowUF.db.profile.healthColors.aggro.r, ShadowUF.db.profile.healthColors.aggro.g, ShadowUF.db.profile.healthColors.aggro.b)
 		return
