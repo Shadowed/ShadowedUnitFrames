@@ -2158,7 +2158,14 @@ local function loadUnitOptions()
 						name = L["Show any other auras"],
 						desc = L["Whether to show auras that do not fall into the above categories."],
 						width = "full"
-					}
+					},
+					relevant = {
+						order = 6,
+						type = "toggle",
+						name = L["Smart Friendly/Hostile Filter"],
+						desc = L["Only apply the selected filters to buffs on friendly units and debuffs on hostile units, and otherwise show all auras."],
+						width = "full"
+					},
 				}
 			},
 			display = {

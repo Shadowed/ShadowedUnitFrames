@@ -524,7 +524,7 @@ local function renderAura(parent, frame, type, config, displayConfig, index, fil
 
 	-- Now do our type filter
 	local category = categorizeAura(type, curable, auraType, caster, isRemovable, canApplyAura, isBossDebuff)
-	if( not config.show[category] ) then return end
+	if( not config.show[category] and (not config.show.relevant or (type == "debuffs") ~= isFriendly) ) then return end
 
 	-- Create any buttons we need
 	frame.totalAuras = frame.totalAuras + 1
