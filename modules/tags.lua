@@ -72,6 +72,10 @@ function Tags:RegisterEvents(parent, fontString, tags)
 				-- register UNIT_MANA event since its the only event that fires after repopping at a spirit healer
 				if event == "UNIT_POWER" or event == "UNIT_POWER_FREQUENT" then
 					parent:RegisterUnitEvent("UNIT_MANA", fontString, "UpdateTags")
+
+					if ( parent.unit == "player" ) then
+						parent:RegisterNormalEvent("PLAYER_UNGHOST", fontString, "UpdateTags")
+					end
 				end
 			end
 		end

@@ -13,6 +13,11 @@ function Power:OnEnable(frame)
 	frame:RegisterUnitEvent("UNIT_DISPLAYPOWER", self, "UpdateColor")
 	frame:RegisterUnitEvent("UNIT_CLASSIFICATION_CHANGED", self, "UpdateClassification")
 
+	-- run an update after returning to life
+	if ( frame.unit == "player" ) then
+		frame:RegisterNormalEvent("PLAYER_UNGHOST", self, "Update")
+	end
+
 	-- UNIT_MANA fires after repopping at a spirit healer, make sure to update powers then
 	frame:RegisterUnitEvent("UNIT_MANA", self, "Update")
 
