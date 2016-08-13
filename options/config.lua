@@ -6642,7 +6642,8 @@ local function loadAuraIndicatorsOptions()
 					for groupID, name in pairs(groupMap) do
 						if( not groupList[name] ) then
 							unitTable.args[tostring(groupID)] = nil
-							options.args.auraIndicators.args.auras.args[tostring(groupID)] = nil
+							options.args.auraIndicators.args.units.args.global.args.groups.args[tostring(groupID)] = nil
+							options.args.auraIndicators.args.auras.args.groups.args[tostring(groupID)] = nil
 							groupMap[groupID] = nil
 						end
 					end
