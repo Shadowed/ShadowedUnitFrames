@@ -87,7 +87,7 @@ function Highlight:OnEnable(frame)
 	end
 
 	if( ShadowUF.db.profile.units[frame.unitType].highlight.debuff ) then
-		frame:RegisterNormalEvent("UNIT_AURA", self, "UpdateAura")
+		frame:RegisterUnitEvent("UNIT_AURA", self, "UpdateAura")
 		frame:RegisterUpdateFunc(self, "UpdateAura")
 	end
 

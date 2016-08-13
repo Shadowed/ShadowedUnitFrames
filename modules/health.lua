@@ -44,7 +44,7 @@ function Health:OnEnable(frame)
 	end
 
 	if ( ShadowUF.db.profile.units[frame.unitType].healthBar.colorDispel ) then
-		frame:RegisterNormalEvent("UNIT_AURA", self, "UpdateAura")
+		frame:RegisterUnitEvent("UNIT_AURA", self, "UpdateAura")
 		frame:RegisterUpdateFunc(self, "UpdateAura")
 	end
 
