@@ -895,6 +895,72 @@ Tags.defaultTags = {
 
 		return UnitPower(unit, SPELL_POWER_MANA)
 	end]],
+	["sec:curpp"] = [[function(unit, unitOwner)
+		local class = select(2, UnitClass(unit))
+		local powerType = UnitPowerType(unit)
+		if( class == "DRUID" ) then
+			if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
+		elseif( class == "PRIEST" ) then
+			if( powerType ~= SPELL_POWER_INSANITY ) then return nil end
+		elseif( class == "SHAMAN" ) then
+			if( powerType ~= SPELL_POWER_MAELSTROM ) then return nil end
+		else
+			return nil
+		end
+		return ShadowUF:FormatLargeNumber(UnitPower(unit, SPELL_POWER_MANA))
+	end]],
+	["sec:abscurpp"] = [[function(unit, unitOwner)
+		local class = select(2, UnitClass(unit))
+		local powerType = UnitPowerType(unit)
+		if( class == "DRUID" ) then
+			if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
+		elseif( class == "PRIEST" ) then
+			if( powerType ~= SPELL_POWER_INSANITY ) then return nil end
+		elseif( class == "SHAMAN" ) then
+			if( powerType ~= SPELL_POWER_MAELSTROM ) then return nil end
+		else
+			return nil
+		end
+		return UnitPower(unit, SPELL_POWER_MANA)
+	end]],
+	["sec:curmaxpp"] = [[function(unit, unitOwner)
+		local class = select(2, UnitClass(unit))
+		local powerType = UnitPowerType(unit)
+		if( class == "DRUID" ) then
+			if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
+		elseif( class == "PRIEST" ) then
+			if( powerType ~= SPELL_POWER_INSANITY ) then return nil end
+		elseif( class == "SHAMAN" ) then
+			if( powerType ~= SPELL_POWER_MAELSTROM ) then return nil end
+		else
+			return nil
+		end
+
+		local maxPower = UnitPowerMax(unit, SPELL_POWER_MANA)
+		local power = UnitPower(unit, SPELL_POWER_MANA)
+		if( UnitIsDeadOrGhost(unit) ) then
+			return string.format("0/%s", ShadowUF:FormatLargeNumber(maxPower))
+		elseif( maxPower == 0 and power == 0 ) then
+			return nil
+		end
+
+		return string.format("%s/%s", ShadowUF:FormatLargeNumber(power), ShadowUF:FormatLargeNumber(maxPower))
+	end]],
+	["sec:absolutepp"] = [[function(unit, unitOwner)
+		local class = select(2, UnitClass(unit))
+		local powerType = UnitPowerType(unit)
+		if( class == "DRUID" ) then
+			if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
+		elseif( class == "PRIEST" ) then
+			if( powerType ~= SPELL_POWER_INSANITY ) then return nil end
+		elseif( class == "SHAMAN" ) then
+			if( powerType ~= SPELL_POWER_MAELSTROM ) then return nil end
+		else
+			return nil
+		end
+
+		return UnitPower(unit, SPELL_POWER_MANA)
+	end]],
 	["per:incheal"] = [[function(unit, unitOwner, fontString)
 		local heal = UnitGetIncomingHeals(unit)
 		local maxHealth = UnitHealthMax(unit)
@@ -1008,6 +1074,10 @@ Tags.defaultEvents = {
 	["druid:abscurpp"]      	= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
 	["druid:curmaxpp"]			= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
 	["druid:absolutepp"]		= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["sec:curpp"]  	    		= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
+	["sec:abscurpp"]      		= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_DISPLAYPOWER",
+	["sec:curmaxpp"]			= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
+	["sec:absolutepp"]			= "SUF_POWERTYPE:MANA UNIT_POWER_FREQUENT UNIT_MAXPOWER UNIT_DISPLAYPOWER",
 	["sshards"]					= "SUF_POWERTYPE:SOUL_SHARDS UNIT_POWER_FREQUENT",
 	["hpower"]					= "SUF_POWERTYPE:HOLY_POWER UNIT_POWER_FREQUENT",
 	["level"]               	= "UNIT_LEVEL UNIT_FACTION PLAYER_LEVEL_UP",
@@ -1128,6 +1198,10 @@ Tags.defaultCategories = {
 	["druid:abscurpp"]  	    = "classspec",
 	["druid:curmaxpp"]			= "classspec",
 	["druid:absolutepp"]		= "classspec",
+	["sec:curpp"]     	    	= "classspec",
+	["sec:abscurpp"]  	    	= "classspec",
+	["sec:curmaxpp"]			= "classspec",
+	["sec:absolutepp"]			= "classspec",
 	["sshards"]					= "classspec",
 	["hpower"]					= "classspec",
 	["situation"]				= "playerthreat",
@@ -1218,6 +1292,10 @@ Tags.defaultHelp = {
 	["druid:abscurpp"]      	= string.format(L["Works the same as [%s], but this is only shown if the unit is in Cat or Bear form."], "abscurpp"),
 	["druid:curmaxpp"]			= string.format(L["Works the same as [%s], but this is only shown if the unit is in Cat or Bear form."], "curmaxpp"),
 	["druid:absolutepp"]		= string.format(L["Works the same as [%s], but this is only shown if the unit is in Cat or Bear form."], "absolutepp"),
+	["sec:curpp"]         		= string.format(L["Works the same as [%s], but always shows mana and is only shown if mana is a secondary power."], "curpp"),
+	["sec:abscurpp"]      		= string.format(L["Works the same as [%s], but always shows mana and is only shown if mana is a secondary power."], "abscurpp"),
+	["sec:curmaxpp"]			= string.format(L["Works the same as [%s], but always shows mana and is only shown if mana is a secondary power."], "curmaxpp"),
+	["sec:absolutepp"]			= string.format(L["Works the same as [%s], but always shows mana and is only shown if mana is a secondary power."], "absolutepp"),
 	["situation"]				= L["Returns text based on your threat situation with your target: Aggro for Aggro, High for being close to taking aggro, and Medium as a general warning to be wary."],
 	["color:sit"]				= L["Returns a color code of the threat situation with your target: Red for Aggro, Orange for High threat and Yellow to be careful."],
 	["scaled:threat"]			= L["Returns a scaled threat percent of your aggro on your current target, always 0 - 100%."],
