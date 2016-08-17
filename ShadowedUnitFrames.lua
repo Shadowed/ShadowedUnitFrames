@@ -105,14 +105,17 @@ function ShadowUF:CheckUpgrade()
 				local i = 1
 				while i <= #config.text do
 					local text = config.text[i]
-					if text.anchorTo == "$emptyBar" and text.name == L["Left text"] then
-						text.width = 0.50
-					end
-					if text.anchorTo == "$demonicFuryBar" or text.anchorTo == "$eclipseBar" or text.anchorTo == "$burningEmbersBar" or text.anchorTo == "$monkBar" then
+					if not text then
+						table.remove(config.text, i)
+					elseif text.anchorTo == "$demonicFuryBar" or text.anchorTo == "$eclipseBar" or text.anchorTo == "$burningEmbersBar" or text.anchorTo == "$monkBar" then
 						table.remove(config.text, i)
 					elseif i > 6 and text.default and text.anchorTo == "$emptyBar" then
 						table.remove(config.text, i)
 					else
+						if text.anchorTo == "$emptyBar" and text.name == L["Left text"] then
+							text.width = 0.50
+						end
+
 						i = i + 1
 					end
 				end
