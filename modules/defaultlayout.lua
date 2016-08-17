@@ -299,6 +299,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = ""},
 				{text = ""},
 				{text = "[(()afk() )][name]"},
+				{text = ""},
 			},
 		},
 		raidpet = {
@@ -329,6 +330,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = ""},
 				{text = ""},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},
 		player = {
@@ -367,6 +369,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[perpp]"},
 				{text = "[curmaxpp]"},
 				{text = "[(()afk() )][name][( ()group())]"},
+				{text = ""},
 				{enabled = true, width = 1, name = L["Timer Text"], text = "[totem:timer]", anchorTo = "$totemBar", anchorPoint = "C", x = 0, y = 0, size = 0, default = true, block = true},
 				{enabled = true, width = 1, name = L["Timer Text"], text = "[rune:timer]", anchorTo = "$runeBar", anchorPoint = "C", size = 0, x = 0, y = 0, default = true, block = true},
 				{enabled = true, width = 1, name = L["Text"], text = "[monk:abs:stagger]", anchorTo = "$staggerBar", anchorPoint = "C", size = 0, x = 0, y = 0, default = true}
@@ -400,6 +403,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[level( )][perpp]"},
 				{text = "[curmaxpp]"},
 				{text = "[(()afk() )][name]"},
+				{text = ""},
 			},
 		},
 		boss = {
@@ -422,6 +426,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[perpp]"},
 				{text = "[curmaxpp]"},
 				{text = "[name]"},
+				{text = ""},
 			},
 			portrait = {enabled = false},
 		},
@@ -451,6 +456,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = ""},
 				{text = ""},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},
 		arena = {
@@ -478,6 +484,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[perpp]"},
 				{text = "[curmaxpp]"},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},
 		arenapet = {
@@ -511,6 +518,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = ""},
 				{text = ""},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},
 		arenatargettarget = {
@@ -529,6 +537,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = ""},
 				{text = ""},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},		
 		battleground = {
@@ -556,6 +565,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = ""},
 				{text = ""},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},
 		battlegroundpet = {
@@ -571,6 +581,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = ""},
 				{text = ""},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},
 		battlegroundtarget = {
@@ -589,6 +600,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = ""},
 				{text = ""},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},
 		battlegroundtargettarget = {
@@ -607,6 +619,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = ""},
 				{text = ""},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},
 		maintank = {
@@ -637,6 +650,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[perpp]"},
 				{text = "[curmaxpp]"},
 				{text = "[(()afk() )][name]"},
+				{text = ""},
 			},
 		},
 		maintanktarget = {
@@ -653,6 +667,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[classification( )][perpp]", width = 0.50},
 				{text = "[curmaxpp]", anchorTo = "$powerBar", width = 0.60},
 				{text = "[(()afk() )][name]"},
+				{text = ""},
 			},
 		},
 		maintanktargettarget = {
@@ -669,6 +684,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[classification( )][perpp]", width = 0.50},
 				{text = "[curmaxpp]", anchorTo = "$powerBar", width = 0.60},
 				{text = "[(()afk() )][name]"},
+				{text = ""},
 			},
 		},
 		mainassist = {
@@ -699,6 +715,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[level( )][perpp]"},
 				{text = "[curmaxpp]"},
 				{text = "[(()afk() )][name]"},
+				{text = ""},
 			},
 		},
 		mainassisttarget = {
@@ -716,6 +733,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[level( )][classification( )][perpp]", width = 0.50},
 				{text = "[curmaxpp]", anchorTo = "$powerBar", width = 0.60},
 				{text = "[(()afk() )][name]"},
+				{text = ""},
 			},
 		},
 		mainassisttargettarget = {
@@ -733,6 +751,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[level( )][classification( )][perpp]", width = 0.50},
 				{text = "[curmaxpp]", anchorTo = "$powerBar", width = 0.60},
 				{text = "[(()afk() )][name]"},
+				{text = ""},
 			},
 		},
 		partypet = {
@@ -764,6 +783,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = ""},
 				{text = ""},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},
 		partytargettarget = {
@@ -781,6 +801,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = ""},
 				{text = ""},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},		
 		target = {
@@ -809,6 +830,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[level( )][classification( )][perpp]", width = 0.50},
 				{text = "[curmaxpp]", anchorTo = "$powerBar", width = 0.60},
 				{text = "[(()afk() )][name]"},
+				{text = ""},
 			},
 		},
 		pet = {
@@ -826,6 +848,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[perpp]"},
 				{text = "[curmaxpp]"},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},
 		pettarget = {
@@ -842,6 +865,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[perpp]"},
 				{text = "[curmaxpp]"},
 				{text = "[name]"},
+				{text = ""},
 			},
 		},
 		focus = {
@@ -864,6 +888,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[perpp]"},
 				{text = "[curpp]"},
 				{text = "[(()afk() )][name]"},
+				{text = ""},
 			},
 		},
 		focustarget = {
@@ -882,6 +907,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = ""},
 				{text = ""},
 				{text = "[(()afk() )][name]"},
+				{text = ""},
 			},
 		},
 		targettarget = {
@@ -899,6 +925,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[curhp]"},
 				{text = "[perpp]"},
 				{text = "[curpp]"},
+				{text = ""},
+				{text = ""},
 			},
 		},
 		targettargettarget = {
@@ -913,6 +941,8 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			},
 			text = {
 				{text = "[name]", width = 1.0},
+				{text = ""},
+				{text = ""},
 				{text = ""},
 				{text = ""},
 				{text = ""},
