@@ -104,7 +104,11 @@ function ShadowUF:CheckUpgrade()
 			if config.text then
 				local i = 1
 				while i <= #config.text do
-					local text = config.text[i]
+					local text
+					if rawget(config.text, i) or i <= #(self.defaults.profile.units[unit].text) then
+						text = config.text[i]
+					end
+
 					if not text then
 						table.remove(config.text, i)
 					elseif text.anchorTo == "$demonicFuryBar" or text.anchorTo == "$eclipseBar" or text.anchorTo == "$burningEmbersBar" or text.anchorTo == "$monkBar" then
