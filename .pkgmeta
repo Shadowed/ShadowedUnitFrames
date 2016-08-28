@@ -18,6 +18,8 @@ externals:
     libs/LibDualSpec-1.0:
       url: git://git.wowace.com/wow/libdualspec-1-0/mainline.git
       tag: latest
+    libs/LibSpellRange-1.0:
+        url: svn://svn.curseforge.com/wow/libspellrange-1-0/mainline/trunk
     options/libs/AceConfig-3.0:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceConfig-3.0
     options/libs/AceDBOptions-3.0:
