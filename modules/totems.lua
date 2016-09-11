@@ -36,7 +36,7 @@ function Totems:OnEnable(frame)
 		frame.totemBar.totems = {}
 		frame.totemBar.blocks = frame.totemBar.totems
 
-		local priorities = (select(2, UnitClass("player")) == "SHAMAN") and SHAMAN_TOTEM_PRIORITIES or STANDARD_TOTEM_PRIORITIES
+		local priorities = (playerClass == "SHAMAN") and SHAMAN_TOTEM_PRIORITIES or STANDARD_TOTEM_PRIORITIES
 		
 		for id=1, MAX_TOTEMS do
 			local totem = ShadowUF.Units:CreateBar(frame.totemBar)
