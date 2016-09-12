@@ -5065,13 +5065,13 @@ end
 -- FILTER CONFIGURATION
 ---------------------
 local function loadFilterOptions()
-	local hasWhitelist, hasBlacklist, rebuildFilters
+	local hasWhitelist, hasBlacklist, hasOverridelist, rebuildFilters
 	local filterMap, spellMap = {}, {}
 
 	local manageFiltersTable = {
-		order = function(info) return info[#(info)] == "whitelists" and 1 or 2 end,
+		order = function(info) return info[#(info)] == "whitelists" and 1 or info[#(info)] == "blacklists" and 2 or 3 end,
 		type = "group",
-		name = function(info) return info[#(info)] == "whitelists" and L["Whitelists"] or L["Blacklists"] end,
+		name = function(info) return info[#(info)] == "whitelists" and L["Whitelists"] or info[#(info)] == "blacklists" and L["Blacklists"] or L["Override lists"] end,
 		args = {
 		},
 	}
@@ -5144,7 +5144,7 @@ local function loadFilterOptions()
 							ShadowUF.db.profile.filters[filterType][filter] = nil
 							
 							-- Delete anything that used this filter too
-							local filterList = filterType == "whitelists" and ShadowUF.db.profile.filters.zonewhite or filterType == "blacklists" and ShadowUF.db.profile.filters.zoneblack
+							local filterList = filterType == "whitelists" and ShadowUF.db.profile.filters.zonewhite or filterType == "blacklists" and ShadowUF.db.profile.filters.zoneblack or filterType == "overridelists" and ShadowUF.db.profile.filters.zoneoverride
 							if filterList then
 								for id, filterUsed in pairs(filterList) do
 									if( filterUsed == filter ) then
@@ -5264,13 +5264,13 @@ local function loadFilterOptions()
 		order = function(info) return info[#(info)] == "global" and 1 or info[#(info)] == "none" and 2 or 3 end,
 		type = "group",
 		inline = true,
-		hidden = function() return not hasWhitelist and not hasBlacklist end,
+		hidden = function() return not hasWhitelist and not hasBlacklist and not hasOverridelist end,
 		name = function(info) return AREA_NAMES[info[#(info)]] or L["Global"] end,
 		set = function(info, value)
 			local filter = filterMap[info[#(info)]]
 			local zone = info[#(info) - 1]
 			local unit = info[#(info) - 2]
-			local filterKey = ShadowUF.db.profile.filters.whitelists[filter] and "zonewhite" or "zoneblack"
+			local filterKey = ShadowUF.db.profile.filters.whitelists[filter] and "zonewhite" or ShadowUF.db.profile.filters.blacklists[filter] and "zoneblack" or "zoneoverride"
 			
 			for _, zoneConfig in pairs(zoneList) do
 				if( zone == "global" or zoneConfig == zone ) then
@@ -5299,20 +5299,20 @@ local function loadFilterOptions()
 			
 			if( unit == "global" or zone == "global" ) then 
 				local id = zone == "global" and zone .. unit or zone
-				local filterKey = ShadowUF.db.profile.filters.whitelists[filter] and "zonewhite" or "zoneblack"
+				local filterKey = ShadowUF.db.profile.filters.whitelists[filter] and "zonewhite" or ShadowUF.db.profile.filters.blacklists[filter] and "zoneblack" or "zoneoverride"
 				
 				if( info[#(info)] == "nofilter" ) then
-					return globalSettings[id .. "zonewhite"] == false and globalSettings[id .. "zoneblack"] == false
+					return globalSettings[id .. "zonewhite"] == false and globalSettings[id .. "zoneblack"] == false and globalSettings[id .. "zoneoverride"] == false
 				end
 
 				return globalSettings[id .. filterKey] == filter
 			end
 			
 			if( info[#(info)] == "nofilter" ) then
-				return not ShadowUF.db.profile.filters.zonewhite[zone .. unit] and not ShadowUF.db.profile.filters.zoneblack[zone .. unit]
+				return not ShadowUF.db.profile.filters.zonewhite[zone .. unit] and not ShadowUF.db.profile.filters.zoneblack[zone .. unit] and not ShadowUF.db.profile.filters.zoneoverride[zone .. unit]
 			end
 			
-			return ShadowUF.db.profile.filters.zonewhite[zone .. unit] == filter or ShadowUF.db.profile.filters.zoneblack[zone .. unit] == filter
+			return ShadowUF.db.profile.filters.zonewhite[zone .. unit] == filter or ShadowUF.db.profile.filters.zoneblack[zone .. unit] == filter or ShadowUF.db.profile.filters.zoneoverride[zone .. unit] == filter
 		end,
 		args = {
 			nofilter = {
@@ -5330,14 +5330,17 @@ local function loadFilterOptions()
 							if( unit == "global" ) then
 								globalSettings[zoneConfig .. "zonewhite"] = false
 								globalSettings[zoneConfig .. "zoneblack"] = false
+								globalSettings[zoneConfig .. "zoneoverride"] = false
 								
 								for _, unit in pairs(ShadowUF.unitList) do
 									ShadowUF.db.profile.filters.zonewhite[zoneConfig .. unit] = nil
 									ShadowUF.db.profile.filters.zoneblack[zoneConfig .. unit] = nil
+									ShadowUF.db.profile.filters.zoneoverride[zoneConfig .. unit] = nil
 								end
 							else
 								ShadowUF.db.profile.filters.zonewhite[zoneConfig .. unit] = nil
 								ShadowUF.db.profile.filters.zoneblack[zoneConfig .. unit] = nil
+								ShadowUF.db.profile.filters.zoneoverride[zoneConfig .. unit] = nil
 							end
 						end
 					end
@@ -5345,6 +5348,7 @@ local function loadFilterOptions()
 					if( zone == "global" ) then
 						globalSettings[zone .. unit .. "zonewhite"] = false
 						globalSettings[zone .. unit .. "zoneblack"] = false
+						globalSettings[zone .. unit .. "zoneoverride"] = false
 					end
 
 					reloadUnitAuras()
@@ -5362,17 +5366,23 @@ local function loadFilterOptions()
 				name = L["Blacklists"], -- In theory I would make this black, but as black doesn't work with a black background I'll skip that
 				hidden = function(info) return not hasBlacklist end
 			},
+			override = {
+				order = 5,
+				type = "header",
+				name = L["Override lists"], -- In theory I would make this black, but as black doesn't work with a black background I'll skip that
+				hidden = function(info) return not hasOverridelist end
+			},
 		},
 	}
 	
 	-- Toggle used for set filter zones to enable filters
 	local filterToggle = {
-		order = function(info) return ShadowUF.db.profile.filters.whitelists[filterMap[info[#(info)]]] and 2 or 4 end,
+		order = function(info) return ShadowUF.db.profile.filters.whitelists[filterMap[info[#(info)]]] and 2 or ShadowUF.db.profile.filters.blacklists[filterMap[info[#(info)]]] and 4 or 6 end,
 		type = "toggle",
 		name = function(info) return filterMap[info[#(info)]] end,
 		desc = function(info)
 			local filter = filterMap[info[#(info)]]
-			filter = ShadowUF.db.profile.filters.whitelists[filter] or ShadowUF.db.profile.filters.blacklists[filter]
+			filter = ShadowUF.db.profile.filters.whitelists[filter] or ShadowUF.db.profile.filters.blacklists[filter] or ShadowUF.db.profile.filters.overridelists[filter]
 			if( filter.buffs and filter.debuffs ) then
 				return L["Filtering both buffs and debuffs"]
 			elseif( filter.buffs ) then
@@ -5390,15 +5400,15 @@ local function loadFilterOptions()
 	local filterID, spellID = 0, 0
 	local function buildList(type)
 		local manageFiltersTable = {
-			order = type == "whitelists" and 1 or 2,
+			order = type == "whitelists" and 1 or type == "blacklists" and 2 or 3,
 			type = "group",
-			name = type == "whitelists" and L["Whitelists"] or L["Blacklists"],
+			name = type == "whitelists" and L["Whitelists"] or type == "blacklists" and L["Blacklists"] or L["Override lists"],
 			args = {
 				groups = {
 					order = 0,
 					type = "group",
 					inline = true,
-					name = function(info) return info[#(info) - 1] == "whitelists" and L["Whitelist filters"] or L["Blacklist filters"] end,
+					name = function(info) return info[#(info) - 1] == "whitelists" and L["Whitelist filters"] or info[#(info) - 1] == "blacklists" and L["Blacklist filters"] or L["Override list filters"] end,
 					args = {
 					},
 				},
@@ -5437,7 +5447,7 @@ local function loadFilterOptions()
 		end
 		
 		if( not hasFilters ) then
-			if( type == "whitelists" ) then hasWhitelist = nil else hasBlacklist = nil end
+			if( type == "whitelists" ) then hasWhitelist = nil elseif( type == "blacklists" ) then hasBlacklist = nil else hasOverridelist = nil end
 			manageFiltersTable.args.groups.args.noFilters = noFilters
 		end
 		
@@ -5451,12 +5461,14 @@ local function loadFilterOptions()
 		filterID = 0
 		hasBlacklist = true
 		hasWhitelist = true
+		hasOverridelist = true
 	
 		table.wipe(filterMap)
 		table.wipe(spellMap)
 		
 		options.args.filter.args.filters.args.whitelists = buildList("whitelists")
 		options.args.filter.args.filters.args.blacklists = buildList("blacklists")
+		options.args.filter.args.filters.args.overridelists = buildList("overridelists")
 	end
 		
 	local unitFilterSelection = {
@@ -5476,7 +5488,7 @@ local function loadFilterOptions()
 				type = "group",
 				inline = true,
 				name = L["Help"],
-				hidden = function() return hasWhitelist or hasBlacklist end,
+				hidden = function() return hasWhitelist or hasBlacklist or hasOverridelist end,
 				args = {
 					help = {
 						type = "description",
@@ -5489,7 +5501,7 @@ local function loadFilterOptions()
 				order = 0,
 				type = "header",
 				name = function(info) return (info[#(info) - 1] == "global" and L["Global"] or L.units[info[#(info) - 1]]) end,
-				hidden = function() return not hasWhitelist and not hasBlacklist end,
+				hidden = function() return not hasWhitelist and not hasBlacklist and not hasOverridelist end,
 			},
 			global = filterTable,
 			none = filterTable,
@@ -5548,7 +5560,7 @@ local function loadFilterOptions()
 								args = {
 									help = {
 										type = "description",
-										name = L["Whitelists will hide any aura not in the filter group.|nBlacklists will hide auras that are in the filter group."],
+										name = L["Whitelists will hide any aura not in the filter group.|nBlacklists will hide auras that are in the filter group.|nOverride lists will bypass any filter and always be shown."],
 										width = "full",
 									}
 								},
@@ -5603,7 +5615,16 @@ local function loadFilterOptions()
 													return ""
 												end
 											end
-											
+
+											for filter in pairs(ShadowUF.db.profile.filters.overridelists) do
+												if( string.lower(filter) == name ) then
+													addFilter.error = string.format(L["The override list \"%s\" already exists."], value)
+													addFilter.errorName = value
+													AceRegistry:NotifyChange("ShadowedUF")
+													return ""
+												end
+											end
+
 											addFilter.error = nil
 											addFilter.errorName = nil
 											return true
@@ -5614,7 +5635,7 @@ local function loadFilterOptions()
 										type = "select",
 										name = L["Filter type"],
 										set = function(info, value) addFilter[info[#(info)]] = value end,
-										values = {["whitelists"] = L["Whitelist"], ["blacklists"] = L["Blacklist"]},
+										values = {["whitelists"] = L["Whitelist"], ["blacklists"] = L["Blacklist"], ["overridelists"] = L["Override list"]},
 									},
 									add = {
 										order = 2,

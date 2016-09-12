@@ -492,8 +492,10 @@ function Auras:UpdateFilter(frame)
 	
 	local white = ShadowUF.db.profile.filters.zonewhite[zone .. frame.unitType]
 	local black = ShadowUF.db.profile.filters.zoneblack[zone .. frame.unitType]
+	local override = ShadowUF.db.profile.filters.zoneoverride[zone .. frame.unitType]
 	frame.auras.whitelist = white and ShadowUF.db.profile.filters.whitelists[white] or filterDefault
 	frame.auras.blacklist = black and ShadowUF.db.profile.filters.blacklists[black] or filterDefault
+	frame.auras.overridelist = override and ShadowUF.db.profile.filters.overridelists[override] or filterDefault
 end
 
 local function categorizeAura(type, curable, auraType, caster, isRemovable, canApplyAura, isBossDebuff)
@@ -524,7 +526,8 @@ local function renderAura(parent, frame, type, config, displayConfig, index, fil
 
 	-- Now do our type filter
 	local category = categorizeAura(type, curable, auraType, caster, isRemovable, canApplyAura, isBossDebuff)
-	if( not config.show[category] and (not config.show.relevant or (type == "debuffs") ~= isFriendly) ) then return end
+	-- check override and type filters
+	if( not ( parent.overridelist[type] and ( parent.overridelist[name] or parent.overridelist[spellID] ) ) and not config.show[category] and (not config.show.relevant or (type == "debuffs") ~= isFriendly) ) then return end
 
 	-- Create any buttons we need
 	frame.totalAuras = frame.totalAuras + 1

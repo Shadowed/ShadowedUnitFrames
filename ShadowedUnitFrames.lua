@@ -37,7 +37,7 @@ function ShadowUF:OnInitialize()
 			units = {},
 			positions = {},
 			range = {},
-			filters = {zonewhite = {}, zoneblack = {}, whitelists = {}, blacklists = {}},
+			filters = {zonewhite = {}, zoneblack = {}, zoneoverride = {}, whitelists = {}, blacklists = {}, overridelists = {}},
 			visibility = {arena = {}, pvp = {}, party = {}, raid = {}},
 			hidden = {cast = false, playerPower = true, buffs = false, party = true, raid = false, player = true, pet = true, target = true, focus = true, boss = true, arena = true, playerAltPower = false},
 		},
