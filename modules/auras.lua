@@ -520,6 +520,8 @@ local function categorizeAura(type, curable, auraType, caster, isRemovable, canA
 end
 
 local function renderAura(parent, frame, type, config, displayConfig, index, filter, isFriendly, curable, name, rank, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff)
+	-- aura filters are all saved as strings, so need to override here
+	spellID = tostring(spellID)
 	-- Do our initial list check to see if we can quick filter it out
 	if( parent.whitelist[type] and not parent.whitelist[name] and not parent.whitelist[spellID] ) then return end
 	if( parent.blacklist[type] and ( parent.blacklist[name] or parent.blacklist[spellID] ) ) then return end

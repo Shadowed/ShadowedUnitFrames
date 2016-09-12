@@ -5117,7 +5117,7 @@ local function loadFilterOptions()
 					add = {
 						order = 0,
 						type = "input",
-						name = L["Aura name"],
+						name = L["Aura name or spell ID"],
 						--dialogControl = "Aura_EditBox",
 						hidden = false,
 						set = function(info, value)
@@ -5201,11 +5201,16 @@ local function loadFilterOptions()
 	local spellLabel = {
 		order = function(info) return tonumber(string.match(info[#(info)], "(%d+)")) end,
 		type = "description",
-		-- Odd I know, AceConfigDialog-3.0 expands descriptions to full width if width is nil
-		-- on the other hand we can't set width to "normal" so tricking it
-		width = "", 
+		width = "double",
 		fontSize = "medium",
-		name = function(info) return spellMap[info[#(info)]] end,
+		name = function(info)
+				local name = spellMap[info[#(info)]]
+				if tonumber(name) then
+					local spellName, _, icon = GetSpellInfo(name)
+					name = string.format("|T%s:14:14:0:0|t %s (#%i)", icon or "Interface\\Icons\\Inv_misc_questionmark", spellName or L["Unknown"], name)
+				end
+				return name
+			end,
 	}
 	
 	local spellRow = {
