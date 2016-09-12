@@ -7584,7 +7584,7 @@ function Config:Open()
 		loadOptions()
 		
 		AceRegistry:RegisterOptionsTable("ShadowedUF", options, true)
-		AceDialog:SetDefaultSize("ShadowedUF", 865, 550)
+		AceDialog:SetDefaultSize("ShadowedUF", 895, 570)
 		registered = true
 	end
 	
