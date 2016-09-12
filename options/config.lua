@@ -5224,6 +5224,8 @@ local function loadFilterOptions()
 			local filterType = info[#(info) - 3]
 			
 			ShadowUF.db.profile.filters[filterType][filter][spell] = nil
+
+			reloadUnitAuras()
 			rebuildFilters()
 		end
 	}
