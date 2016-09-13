@@ -167,6 +167,8 @@ function Totems:Update(frame)
 				have, name, start, duration, icon = GetTotemInfo(id)
 				id = id + 1
 			end
+		else
+			have, name, start, duration, icon = GetTotemInfo(indicator.id)
 		end
 		if( have and start > 0 ) then
 			if( ShadowUF.db.profile.units[frame.unitType].totemBar.icon ) then
