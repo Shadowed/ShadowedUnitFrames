@@ -1,5 +1,4 @@
 local Runes = {}
-local RUNE_MAP = {[1] = 1, [2] = 2, [3] = 5, [4] = 6, [5] = 3, [6] = 4}
 ShadowUF:RegisterModule(Runes, "runeBar", ShadowUF.L["Rune bar"], true, "DEATHKNIGHT")
 ShadowUF.BlockTimers:Inject(Runes, "RUNE_TIMER")
 ShadowUF.DynamicBlocks:Inject(Runes)
@@ -17,12 +16,12 @@ function Runes:OnEnable(frame)
 			rune.id = id
 
 			if( id > 1 ) then
-				rune:SetPoint("TOPLEFT", frame.runeBar.runes[RUNE_MAP[id - 1]], "TOPRIGHT", 1, 0)
+				rune:SetPoint("TOPLEFT", frame.runeBar.runes[id-1], "TOPRIGHT", 1, 0)
 			else
 				rune:SetPoint("TOPLEFT", frame.runeBar, "TOPLEFT", 0, 0)
 			end
 			
-			frame.runeBar.runes[RUNE_MAP[id]] = rune
+			frame.runeBar.runes[id] = rune
 		end
 	end
 	
