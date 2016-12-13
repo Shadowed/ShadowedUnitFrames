@@ -13,11 +13,11 @@ externals:
     libs/AceDB-3.0:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceDB-3.0
     libs/LibSharedMedia-3.0:
-        url: svn://svn.wowace.com/wow/libsharedmedia-3-0/mainline/trunk
+        url: svn://svn.wowace.com/wow/libsharedmedia-3-0/mainline/trunk/LibSharedMedia-3.0
         tag: latest
     libs/LibDualSpec-1.0:
-      url: git://git.wowace.com/wow/libdualspec-1-0/mainline.git
-      tag: latest
+        url: git://git.wowace.com/wow/libdualspec-1-0/mainline.git
+        tag: latest
     libs/LibSpellRange-1.0:
         url: svn://svn.curseforge.com/wow/libspellrange-1-0/mainline/trunk
     options/libs/AceConfig-3.0:
@@ -27,7 +27,7 @@ externals:
     options/libs/AceGUI-3.0:
         url: svn://svn.wowace.com/wow/ace3/mainline/trunk/AceGUI-3.0
     options/libs/AceGUI-3.0-SharedMediaWidgets:
-        url: svn://svn.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline/trunk
+        url: svn://svn.wowace.com/wow/ace-gui-3-0-shared-media-widgets/mainline/trunk/AceGUI-3.0-SharedMediaWidgets
         tag: latest
 
 ignore:
