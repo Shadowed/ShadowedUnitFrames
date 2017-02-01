@@ -36,7 +36,7 @@ local Range = {
 		["PRIEST"] = GetSpellInfo(585), -- Smite
 		--["ROGUE"] = GetSpellInfo(1725), -- Distract
 		["SHAMAN"] = GetSpellInfo(403), -- Lightning Bolt
-		["WARLOCK"] = GetSpellInfo(689), -- Drain Life
+		["WARLOCK"] = GetSpellInfo(686), -- Shadow Bolt
 		["WARRIOR"] = GetSpellInfo(355), -- Taunt
 	},
 }
