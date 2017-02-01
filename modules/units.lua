@@ -691,7 +691,7 @@ end
 
 local function ArenaClassToken(self)
 	local specID = GetArenaOpponentSpec(self.unitID)
-	return specID and select(7, GetSpecializationInfoByID(specID))
+	return specID and select(6, GetSpecializationInfoByID(specID))
 end
 
 function Units:CreateUnit(...)
