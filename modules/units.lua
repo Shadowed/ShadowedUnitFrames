@@ -643,28 +643,6 @@ local function initializeUnit(header, frameName)
 	Units:CreateUnit(frame)
 end
 
--- Update helper
-local function SetTimer(self, seconds)
-	self.animation:SetDuration(seconds)
-	self:Play()
-end
-
-local function CreateOnUpdate(self, seconds, callback)
-	local group = self:CreateAnimationGroup()
-	group:SetLooping("REPEAT")
-	group:SetScript("OnLoop", callback)
-
-	local animation = group:CreateAnimation("Animation")
-	animation:SetOrder(1)
-
-	group.animation = animation
-	group.SetTimer = SetTimer
-
-	group:SetTimer(seconds)
-
-	return group
-end
-
 -- Show tooltip
 local function OnEnter(self)
 	if( self.OnEnter ) then
@@ -709,7 +687,6 @@ function Units:CreateUnit(...)
 	frame.DisableRangeAlpha = DisableRangeAlpha
 	frame.UnregisterUpdateFunc = UnregisterUpdateFunc
 	frame.ReregisterUnitEvents = ReregisterUnitEvents
-	frame.CreateOnUpdate = CreateOnUpdate
 	frame.SetBarColor = SetBarColor
 	frame.SetBlockColor = SetBlockColor
 	frame.FullUpdate = FullUpdate
