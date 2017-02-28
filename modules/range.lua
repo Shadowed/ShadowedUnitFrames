@@ -95,12 +95,26 @@ local function updateSpellCache(category)
 	end
 end
 
+local function createTimer(frame)
+	if( not frame.range.timer ) then
+		frame.range.timer = C_Timer.NewTicker(0.5, checkRange)
+		frame.range.timer.parent = frame
+	end
+end
+
+local function cancelTimer(frame)
+	if( frame.range and frame.range.timer ) then
+		frame.range.timer:Cancel()
+		frame.range.timer = nil
+	end
+end
+
 function Range:ForceUpdate(frame)
 	if( UnitIsUnit(frame.unit, "player") ) then
 		frame:SetRangeAlpha(ShadowUF.db.profile.units[frame.unitType].range.inAlpha)
-		frame.range.timer:Stop()
+		cancelTimer(frame)
 	else
-		frame.range.timer:Play()
+		createTimer(frame)
 		checkRange(frame.range.timer)
 	end
 end
@@ -108,15 +122,12 @@ end
 function Range:OnEnable(frame)
 	if( not frame.range ) then
 		frame.range = CreateFrame("Frame", nil, frame)
-
-		frame.range.timer = frame:CreateOnUpdate(0.50, checkRange)
-		frame.range.timer.parent = frame
 	end
 
 	frame:RegisterNormalEvent("PLAYER_SPECIALIZATION_CHANGED", self, "SpellChecks")
 	frame:RegisterUpdateFunc(self, "ForceUpdate")
 
-	frame.range.timer:Play()
+	createTimer(frame)
 end
 
 function Range:OnLayoutApplied(frame)
@@ -127,7 +138,7 @@ function Range:OnDisable(frame)
 	frame:UnregisterAll(self)
 	
 	if( frame.range ) then
-		frame.range.timer:Stop()
+		cancelTimer(frame)
 		frame:SetRangeAlpha(1.0)
 	end
 end
