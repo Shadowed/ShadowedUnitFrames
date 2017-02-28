@@ -226,6 +226,23 @@ local function createTagFunction(tags, resetCache)
 	return tagPool[tags], frequencyCache[tags]
 end
 
+local function createMonitorTimer(fontString, frequency)
+	if( not fontString.monitor or fontString.monitor.frequency ~= frequency ) then
+		if fontString.monitor then
+			fontString.monitor:Cancel()
+		end
+		fontString.monitor  = C_Timer.NewTicker(frequency, function() fontString:UpdateTags() end)
+		fontString.monitor.frequency = frequency
+	end
+end
+
+local function cancelMonitorTimer(fontString)
+	if( fontString.monitor ) then
+		fontString.monitor:Cancel()
+		fontString.monitor = nil
+	end
+end
+
 function Tags:Register(parent, fontString, tags, resetCache)
 	-- Unregister the font string first if we did register it already
 	if( fontString.UpdateTags ) then
@@ -240,13 +257,9 @@ function Tags:Register(parent, fontString, tags, resetCache)
 	fontString.UpdateTags, frequency = createTagFunction(tags, resetCache)
 
 	if( frequency ) then
-		fontString.monitor = fontString.monitor or parent:CreateOnUpdate(frequency, function()
-			fontString:UpdateTags()
-		end)
-
-		fontString.monitor:SetTimer(frequency)
+		createMonitorTimer(fontString, frequency)
 	elseif( fontString.monitor ) then
-		fontString.monitor:Stop()
+		cancelMonitorTimer(fontString)
 	end
 
 	-- Register any needed event
@@ -265,7 +278,7 @@ function Tags:Unregister(fontString)
 	end
 	
 	-- Kill any tag data
-	if( fontString.monitor ) then fontString.monitor:Stop() end
+	cancelMonitorTimer(fontString)
 	fontString.parent:UnregisterAll(fontString)
 	fontString.powerFilters = nil
 	fontString.UpdateTags = nil
