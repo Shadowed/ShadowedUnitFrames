@@ -48,6 +48,20 @@ local function monitorFakeCast(self)
 	end
 end
 
+local function createFakeCastMonitor(frame)
+	if( not frame.castBar.monitor ) then
+		frame.castBar.monitor = C_Timer.NewTicker(0.10, monitorFakeCast)
+		frame.castBar.monitor.parent = frame
+	end
+end
+
+local function cancelFakeCastMonitor(frame)
+	if( frame.castBar and frame.castBar.monitor ) then
+		frame.castBar.monitor:Cancel()
+		frame.castBar.monitor = nil
+	end
+end
+
 function Cast:OnEnable(frame)
 	if( not frame.castBar ) then
 		frame.castBar = CreateFrame("Frame", nil, frame)
@@ -62,8 +76,7 @@ function Cast:OnEnable(frame)
 	end
 	
 	if( ShadowUF.fakeUnits[frame.unitType] ) then
-		frame.castBar.monitor = frame:CreateOnUpdate(0.10, monitorFakeCast)
-		frame.castBar.monitor.parent = frame
+		createFakeCastMonitor(frame)
 		frame:RegisterUpdateFunc(self, "UpdateFakeCast")
 		return
 	end
@@ -163,7 +176,7 @@ function Cast:OnDisable(frame, unit)
 	frame:UnregisterAll(self)
 
 	if( frame.castBar ) then
-		if( frame.castBar.monitor ) then frame.castBar.monitor:Stop() end
+		cancelFakeCastMonitor(frame)
 
 		frame.castBar.bar.name:Hide()
 		frame.castBar.bar.time:Hide()
