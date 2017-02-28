@@ -148,6 +148,6 @@ function Range:SpellChecks(frame)
 	updateSpellCache("friendly")
 	updateSpellCache("hostile")
 	if( frame.range ) then
-		checkRange(frame.range.timer)
+		self:ForceUpdate(frame)
 	end
 end
