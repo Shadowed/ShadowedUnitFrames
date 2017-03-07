@@ -228,7 +228,6 @@ local function updateButton(id, group, config)
 		button.cooldown:SetReverse(true)
 		button.cooldown:SetDrawEdge(false)
 		button.cooldown:SetDrawSwipe(true)
-		button.cooldown:SetHideCountdownNumbers(true)
 		button.cooldown:SetSwipeColor(0, 0, 0, 0.8)
 		button.cooldown:Hide()
 		
@@ -264,6 +263,7 @@ local function updateButton(id, group, config)
 	
 	-- Set the button sizing
 	button.cooldown.noCooldownCount = ShadowUF.db.profile.omnicc
+	button.cooldown:SetHideCountdownNumbers(button.cooldown.noCooldownCount)
 	button:SetHeight(config.size)
 	button:SetWidth(config.size)
 	button.border:SetHeight(config.size + 1)
