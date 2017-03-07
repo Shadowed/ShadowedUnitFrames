@@ -32,7 +32,7 @@ local Range = {
 			(GetSpellInfo(133)), -- Fireball
 		},
 		["MONK"] = GetSpellInfo(115546), -- Provoke
-		["PALADIN"] = GetSpellInfo(20271), -- Judgement
+		["PALADIN"] = GetSpellInfo(62124), -- Hand of Reckoning
 		["PRIEST"] = GetSpellInfo(585), -- Smite
 		--["ROGUE"] = GetSpellInfo(1725), -- Distract
 		["SHAMAN"] = GetSpellInfo(403), -- Lightning Bolt
