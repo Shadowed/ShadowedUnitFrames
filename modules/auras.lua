@@ -263,7 +263,7 @@ local function updateButton(id, group, config)
 	
 	-- Set the button sizing
 	button.cooldown.noCooldownCount = ShadowUF.db.profile.omnicc
-	button.cooldown:SetHideCountdownNumbers(button.cooldown.noCooldownCount)
+	button.cooldown:SetHideCountdownNumbers(ShadowUF.db.profile.blizzardcc)
 	button:SetHeight(config.size)
 	button:SetWidth(config.size)
 	button.border:SetHeight(config.size + 1)

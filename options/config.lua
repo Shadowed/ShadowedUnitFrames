@@ -727,9 +727,17 @@ local function loadGeneralOptions()
 							omnicc = {
 								order = 2.5,
 								type = "toggle",
-								name = L["Disable Cooldown Count"],
-								desc = L["Disables showing Cooldown Count timers (Blizzard/OmniCC) in all Shadowed Unit Frame auras."],
+								name = L["Disable OmniCC Cooldown Count"],
+								desc = L["Disables showing Cooldown Count timers in all Shadowed Unit Frame auras."],
 								arg = "omnicc",
+								width = "double",
+							},
+							blizzardcc = {
+								order = 2.5,
+								type = "toggle",
+								name = L["Disable Blizzard Cooldown Count"],
+								desc = L["Disables showing Cooldown Count timers in all Shadowed Unit Frame auras."],
+								arg = "blizzardcc",
 								width = "double",
 							},
 							hideCombat = {
