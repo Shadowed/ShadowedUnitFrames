@@ -34,6 +34,6 @@ end
 
 function Druid:Update(frame, event, unit, powerType)
 	if( powerType and powerType ~= "MANA" ) then return end
-	frame.druidBar:SetMinMaxValues(0, UnitPowerMax(frame.unit, SPELL_POWER_MANA))
-	frame.druidBar:SetValue(UnitIsDeadOrGhost(frame.unit) and 0 or not UnitIsConnected(frame.unit) and 0 or UnitPower(frame.unit, SPELL_POWER_MANA))
+	frame.druidBar:SetMinMaxValues(0, UnitPowerMax(frame.unit, Enum.PowerType.Mana))
+	frame.druidBar:SetValue(UnitIsDeadOrGhost(frame.unit) and 0 or not UnitIsConnected(frame.unit) and 0 or UnitPower(frame.unit, Enum.PowerType.Mana))
 end

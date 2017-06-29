@@ -793,15 +793,15 @@ Tags.defaultTags = {
 		end
 	end]],
 	["sshards"] = [[function(unit, unitOwner)
-		local points = UnitPower(ShadowUF.playerUnit, SPELL_POWER_SOUL_SHARDS)
+		local points = UnitPower(ShadowUF.playerUnit, Enum.PowerType.SoulShards)
 		return points and points > 0 and points
 	end]],
 	["hpower"] = [[function(unit, unitOwner)
-		local points = UnitPower(ShadowUF.playerUnit, SPELL_POWER_HOLY_POWER)
+		local points = UnitPower(ShadowUF.playerUnit, Enum.PowerType.HolyPower)
 		return points and points > 0 and points
 	end]],
 	["monk:chipoints"] = [[function(unit, unitOwner)
-		local points = UnitPower(ShadowUF.playerUnit, SPELL_POWER_CHI)
+		local points = UnitPower(ShadowUF.playerUnit, Enum.PowerType.Chi)
 		return points and points > 0 and points
 	end]],
 	["cpoints"] = [[function(unit, unitOwner)
@@ -813,7 +813,7 @@ Tags.defaultTags = {
 
 			return points
 		else
-			return UnitPower("player", SPELL_POWER_COMBO_POINTS)
+			return UnitPower("player", Enum.PowerType.ComboPoints)
 		end
 	end]],
 	["smartlevel"] = [[function(unit, unitOwner)
@@ -877,22 +877,22 @@ Tags.defaultTags = {
 	["druid:curpp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
-		if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
-		return ShadowUF:FormatLargeNumber(UnitPower(unit, SPELL_POWER_MANA))
+		if( powerType ~= Enum.PowerType.Rage and powerType ~= Enum.PowerType.Energy and powerType ~= Enum.PowerType.LunarPower ) then return nil end
+		return ShadowUF:FormatLargeNumber(UnitPower(unit, Enum.PowerType.Mana))
 	end]],
 	["druid:abscurpp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
-		if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
-		return UnitPower(unit, SPELL_POWER_MANA)
+		if( powerType ~= Enum.PowerType.Rage and powerType ~= Enum.PowerType.Energy and powerType ~= Enum.PowerType.LunarPower ) then return nil end
+		return UnitPower(unit, Enum.PowerType.Mana)
 	end]],
 	["druid:curmaxpp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
-		if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
+		if( powerType ~= Enum.PowerType.Rage and powerType ~= Enum.PowerType.Energy and powerType ~= Enum.PowerType.LunarPower ) then return nil end
 		
-		local maxPower = UnitPowerMax(unit, SPELL_POWER_MANA)
-		local power = UnitPower(unit, SPELL_POWER_MANA)
+		local maxPower = UnitPowerMax(unit, Enum.PowerType.Mana)
+		local power = UnitPower(unit, Enum.PowerType.Mana)
 		if( UnitIsDeadOrGhost(unit) ) then
 			return string.format("0/%s", ShadowUF:FormatLargeNumber(maxPower))
 		elseif( maxPower == 0 and power == 0 ) then
@@ -904,53 +904,53 @@ Tags.defaultTags = {
 	["druid:absolutepp"] = [[function(unit, unitOwner)
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		local powerType = UnitPowerType(unit)
-		if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
+		if( powerType ~= Enum.PowerType.Rage and powerType ~= Enum.PowerType.Energy and powerType ~= Enum.PowerType.LunarPower ) then return nil end
 
-		return UnitPower(unit, SPELL_POWER_MANA)
+		return UnitPower(unit, Enum.PowerType.Mana)
 	end]],
 	["sec:curpp"] = [[function(unit, unitOwner)
 		local class = select(2, UnitClass(unit))
 		local powerType = UnitPowerType(unit)
 		if( class == "DRUID" ) then
-			if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
+			if( powerType ~= Enum.PowerType.Rage and powerType ~= Enum.PowerType.Energy and powerType ~= Enum.PowerType.LunarPower ) then return nil end
 		elseif( class == "PRIEST" ) then
-			if( powerType ~= SPELL_POWER_INSANITY ) then return nil end
+			if( powerType ~= Enum.PowerType.Insanity ) then return nil end
 		elseif( class == "SHAMAN" ) then
-			if( powerType ~= SPELL_POWER_MAELSTROM ) then return nil end
+			if( powerType ~= Enum.PowerType.Maelstrom ) then return nil end
 		else
 			return nil
 		end
-		return ShadowUF:FormatLargeNumber(UnitPower(unit, SPELL_POWER_MANA))
+		return ShadowUF:FormatLargeNumber(UnitPower(unit, Enum.PowerType.Mana))
 	end]],
 	["sec:abscurpp"] = [[function(unit, unitOwner)
 		local class = select(2, UnitClass(unit))
 		local powerType = UnitPowerType(unit)
 		if( class == "DRUID" ) then
-			if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
+			if( powerType ~= Enum.PowerType.Rage and powerType ~= Enum.PowerType.Energy and powerType ~= Enum.PowerType.LunarPower ) then return nil end
 		elseif( class == "PRIEST" ) then
-			if( powerType ~= SPELL_POWER_INSANITY ) then return nil end
+			if( powerType ~= Enum.PowerType.Insanity ) then return nil end
 		elseif( class == "SHAMAN" ) then
-			if( powerType ~= SPELL_POWER_MAELSTROM ) then return nil end
+			if( powerType ~= Enum.PowerType.Maelstrom ) then return nil end
 		else
 			return nil
 		end
-		return UnitPower(unit, SPELL_POWER_MANA)
+		return UnitPower(unit, Enum.PowerType.Mana)
 	end]],
 	["sec:curmaxpp"] = [[function(unit, unitOwner)
 		local class = select(2, UnitClass(unit))
 		local powerType = UnitPowerType(unit)
 		if( class == "DRUID" ) then
-			if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
+			if( powerType ~= Enum.PowerType.Rage and powerType ~= Enum.PowerType.Energy and powerType ~= Enum.PowerType.LunarPower ) then return nil end
 		elseif( class == "PRIEST" ) then
-			if( powerType ~= SPELL_POWER_INSANITY ) then return nil end
+			if( powerType ~= Enum.PowerType.Insanity ) then return nil end
 		elseif( class == "SHAMAN" ) then
-			if( powerType ~= SPELL_POWER_MAELSTROM ) then return nil end
+			if( powerType ~= Enum.PowerType.Maelstrom ) then return nil end
 		else
 			return nil
 		end
 
-		local maxPower = UnitPowerMax(unit, SPELL_POWER_MANA)
-		local power = UnitPower(unit, SPELL_POWER_MANA)
+		local maxPower = UnitPowerMax(unit, Enum.PowerType.Mana)
+		local power = UnitPower(unit, Enum.PowerType.Mana)
 		if( UnitIsDeadOrGhost(unit) ) then
 			return string.format("0/%s", ShadowUF:FormatLargeNumber(maxPower))
 		elseif( maxPower == 0 and power == 0 ) then
@@ -963,16 +963,16 @@ Tags.defaultTags = {
 		local class = select(2, UnitClass(unit))
 		local powerType = UnitPowerType(unit)
 		if( class == "DRUID" ) then
-			if( powerType ~= SPELL_POWER_RAGE and powerType ~= SPELL_POWER_ENERGY and powerType ~= SPELL_POWER_LUNAR_POWER ) then return nil end
+			if( powerType ~= Enum.PowerType.Rage and powerType ~= Enum.PowerType.Energy and powerType ~= Enum.PowerType.LunarPower ) then return nil end
 		elseif( class == "PRIEST" ) then
-			if( powerType ~= SPELL_POWER_INSANITY ) then return nil end
+			if( powerType ~= Enum.PowerType.Insanity ) then return nil end
 		elseif( class == "SHAMAN" ) then
-			if( powerType ~= SPELL_POWER_MAELSTROM ) then return nil end
+			if( powerType ~= Enum.PowerType.Maelstrom ) then return nil end
 		else
 			return nil
 		end
 
-		return UnitPower(unit, SPELL_POWER_MANA)
+		return UnitPower(unit, Enum.PowerType.Mana)
 	end]],
 	["per:incheal"] = [[function(unit, unitOwner, fontString)
 		local heal = UnitGetIncomingHeals(unit)

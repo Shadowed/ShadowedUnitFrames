@@ -34,6 +34,6 @@ end
 
 function Shaman:Update(frame, event, unit, powerType)
 	if( powerType and powerType ~= "MANA" ) then return end
-	frame.shamanBar:SetMinMaxValues(0, UnitPowerMax(frame.unit, SPELL_POWER_MANA))
-	frame.shamanBar:SetValue(UnitIsDeadOrGhost(frame.unit) and 0 or not UnitIsConnected(frame.unit) and 0 or UnitPower(frame.unit, SPELL_POWER_MANA))
+	frame.shamanBar:SetMinMaxValues(0, UnitPowerMax(frame.unit, Enum.PowerType.Mana))
+	frame.shamanBar:SetValue(UnitIsDeadOrGhost(frame.unit) and 0 or not UnitIsConnected(frame.unit) and 0 or UnitPower(frame.unit, Enum.PowerType.Mana))
 end

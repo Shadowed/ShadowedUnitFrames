@@ -42,11 +42,9 @@ local function createConfigEnv()
 		end,
 		UnitHealthMax = function(unit) return 50000 end,
 		UnitPower = function(unit, powerType)
-			if( powerType == SPELL_POWER_HOLY_POWER or powerType == SPELL_POWER_SOUL_SHARDS ) then
+			if( powerType == Enum.PowerType.HolyPower or powerType == Enum.PowerType.SoulShards ) then
 				return 3
-			elseif( powerType == SPELL_POWER_ECLIPSE ) then
-				return getValue("UnitPower", unit, math.random(-100, 100))
-			elseif( powerType == SPELL_POWER_CHI) then
+			elseif( powerType == Enum.PowerType.Chi) then
 				return 4
 			end
 
@@ -62,18 +60,18 @@ local function createConfigEnv()
 			return getValue("UnitGetTotalAbsorbs", unit, math.random(2500, 5000))
 		end,
 		UnitPowerMax = function(unit, powerType)
-			if( powerType == SPELL_POWER_RAGE or powerType == SPELL_POWER_ENERGY or powerType == SPELL_POWER_RUNIC_POWER
-			 or powerType == SPELL_POWER_LUNAR_POWER or powerType == SPELL_POWER_MAELSTROM or powerType == SPELL_POWER_INSANITY
-			 or powerType == SPELL_POWER_FURY or powerType == SPELL_POWER_PAIN ) then
+			if( powerType == Enum.PowerType.Rage or powerType == Enum.PowerType.Energy or powerType == Enum.PowerType.RunicPower
+			 or powerType == Enum.PowerType.LunarPower or powerType == Enum.PowerType.Maelstrom or powerType == Enum.PowerType.Insanity
+			 or powerType == Enum.PowerType.Fury or powerType == Enum.PowerType.Pain ) then
 				return 100
-			elseif( powerType == SPELL_POWER_FOCUS ) then
+			elseif( powerType == Enum.PowerType.Focus ) then
 				return 120
-			elseif( powerType == SPELL_POWER_COMBO_POINTS or powerType == SPELL_POWER_SOUL_SHARDS or powerType == SPELL_POWER_HOLY_POWER
-			     or powerType == SPELL_POWER_CHI ) then
+			elseif( powerType == Enum.PowerType.ComboPoints or powerType == Enum.PowerType.SoulShards or powerType == Enum.PowerType.HolyPower
+			     or powerType == Enum.PowerType.Chi ) then
 				return 5
-			elseif( powerType == SPELL_POWER_RUNES ) then
+			elseif( powerType == Enum.PowerType.Runes ) then
 				return 6
-			elseif( powerType == SPELL_POWER_ARCANE_CHARGES ) then
+			elseif( powerType == Enum.PowerType.ArcaneCharges ) then
 				return 4
 			end
 

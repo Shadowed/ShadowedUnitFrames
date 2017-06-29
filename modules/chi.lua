@@ -2,7 +2,7 @@ if( not ShadowUF.ComboPoints ) then return end
 
 local Chi = setmetatable({}, {__index = ShadowUF.ComboPoints})
 ShadowUF:RegisterModule(Chi, "chi", ShadowUF.L["Chi"], nil, "MONK", SPEC_MONK_WINDWALKER)
-local chiConfig = {max = 5, key = "chi", colorKey = "CHI", powerType = SPELL_POWER_CHI, eventType = "CHI", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
+local chiConfig = {max = 5, key = "chi", colorKey = "CHI", powerType = Enum.PowerType.Chi, eventType = "CHI", icon = "Interface\\AddOns\\ShadowedUnitFrames\\media\\textures\\combo"}
 
 function Chi:OnEnable(frame)
 	frame.chi = frame.chi or CreateFrame("Frame", nil, frame)

@@ -1,5 +1,5 @@
 local Fader = {}
-local powerDepletes = {[SPELL_POWER_MANA] = true, [SPELL_POWER_ENERGY] = true, [SPELL_POWER_FOCUS] = true}
+local powerDepletes = {[Enum.PowerType.Mana] = true, [Enum.PowerType.Energy] = true, [Enum.PowerType.Focus] = true}
 ShadowUF:RegisterModule(Fader, "fader", ShadowUF.L["Combat fader"])
 
 -- TODO: Remove once Blizzard fixes cooldown wheels not taking parents alpha
