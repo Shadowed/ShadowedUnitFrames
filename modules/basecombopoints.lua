@@ -44,7 +44,7 @@ local function createBlocks(config, pointsFrame)
 	pointsFrame.visibleBlocks = pointsConfig.max
 
 	-- Position bars, the 5 accounts for borders
-	local blockWidth = (pointsFrame:GetWidth() - (pointsConfig.max - 1)) / pointsConfig.max
+	local blockWidth = (pointsFrame:GetWidth() - ((pointsConfig.max / pointsConfig.grouping or 1) - 1)) / pointsConfig.max
 	for id=1, pointsConfig.max do
 		pointsFrame.blocks[id] = pointsFrame.blocks[id] or pointsFrame:CreateTexture(nil, "OVERLAY")
 		local texture = pointsFrame.blocks[id]
@@ -70,15 +70,19 @@ local function createBlocks(config, pointsFrame)
 			texture.background:SetShown(config.background)
 		end
 
+		local offset = 1
+		if pointsConfig.grouping and ((id - 1) % pointsConfig.grouping ~= 0) then
+			offset = 0
+		end
 		if( config.growth == "LEFT" ) then
 			if( id > 1 ) then
-				texture:SetPoint("TOPRIGHT", pointsFrame.blocks[id - 1], "TOPLEFT", -1, 0)
+				texture:SetPoint("TOPRIGHT", pointsFrame.blocks[id - 1], "TOPLEFT", -offset, 0)
 			else
 				texture:SetPoint("TOPRIGHT", pointsFrame, "TOPRIGHT", 0, 0)
 			end
 		else
 			if( id > 1 ) then
-				texture:SetPoint("TOPLEFT", pointsFrame.blocks[id - 1], "TOPRIGHT", 1, 0)
+				texture:SetPoint("TOPLEFT", pointsFrame.blocks[id - 1], "TOPRIGHT", offset, 0)
 			else
 				texture:SetPoint("TOPLEFT", pointsFrame, "TOPLEFT", 0, 0)
 			end
@@ -141,7 +145,7 @@ function Combo:UpdateBarBlocks(frame, event, unit, powerType)
 	if( not pointsFrame or not pointsFrame.cpConfig.eventType or not pointsFrame.blocks ) then return end
 	if( event and powerType ~= pointsFrame.cpConfig.eventType ) then return end
 
-	local max = UnitPowerMax("player", pointsFrame.cpConfig.powerType)
+	local max = self.GetMaxPoints and self:GetMaxPoints() or UnitPowerMax("player", pointsFrame.cpConfig.powerType)
 	if( max == 0 or pointsFrame.visibleBlocks == max ) then return end
 
 	pointsFrame.cpConfig.max = max
