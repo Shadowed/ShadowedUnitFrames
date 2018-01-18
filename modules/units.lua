@@ -631,7 +631,7 @@ local secureInitializeUnit = [[
 	end
 ]]
 
-local unitButtonTemplate = ClickCastHeader and "ClickCastUnitTemplate,SecureUnitButtonTemplate" or "SecureUnitButtonTemplate"
+local unitButtonTemplate = ClickCastHeader and "ClickCastUnitTemplate,SUF_SecureUnitTemplate" or "SUF_SecureUnitTemplate"
 
 -- Header unit initialized
 local function initializeUnit(header, frameName)
@@ -699,7 +699,7 @@ function Units:CreateUnit(...)
 	frame.highFrame:SetFrameLevel(frame.topFrameLevel + 2)
 	frame.highFrame:SetAllPoints(frame)
 	
-	frame:SetScript("OnAttributeChanged", OnAttributeChanged)
+	frame:HookScript("OnAttributeChanged", OnAttributeChanged)
 	frame:SetScript("OnEvent", OnEvent)
 	frame:HookScript("OnEnter", OnEnter)
 	frame:HookScript("OnLeave", OnLeave)

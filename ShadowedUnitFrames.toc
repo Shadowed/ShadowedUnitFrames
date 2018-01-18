@@ -26,6 +26,7 @@ localization\ruRU.lua
 localization\zhCN.lua
 localization\zhTW.lua
 
+ShadowedUnitFrames.xml
 ShadowedUnitFrames.lua
 modules\helpers.lua
 modules\units.lua
