@@ -58,6 +58,7 @@ function Totems:OnEnable(frame)
 			totemColors[1] = ShadowUF.db.profile.powerColors.MUSHROOMS
 		elseif( playerClass == "WARLOCK" ) then
 			totemColors[1] = ShadowUF.db.profile.classColors.PET
+			totemColors[2] = ShadowUF.db.profile.classColors.PET
 		elseif( playerClass == "MONK" ) then
 			totemColors[1] = ShadowUF.db.profile.powerColors.STATUE
 		elseif( playerClass == "MAGE" ) then
