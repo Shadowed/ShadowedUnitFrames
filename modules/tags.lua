@@ -368,7 +368,7 @@ end})
 
 -- Going to have to start using an env wrapper for tags I think
 local Druid = {}
-Druid.CatForm, Druid.Shapeshift = GetSpellInfo(768)
+Druid.CatForm = GetSpellInfo(768)
 Druid.MoonkinForm = GetSpellInfo(24858)
 Druid.TravelForm = GetSpellInfo(783)
 Druid.BearForm = GetSpellInfo(5487)
@@ -394,19 +394,19 @@ Tags.defaultTags = {
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		
 		local Druid = ShadowUF.Druid
-		if( UnitAura(unit, Druid.CatForm, Druid.Shapeshift) ) then
+		if( ShadowUF.UnitAuraBySpell(unit, Druid.CatForm) ) then
 			return ShadowUF.L["C"]
-		elseif( UnitAura(unit, Druid.TreeForm, Druid.Shapeshift) ) then
+		elseif( ShadowUF.UnitAuraBySpell(unit, Druid.TreeForm) ) then
 			return ShadowUF.L["T"]
-		elseif( UnitAura(unit, Druid.MoonkinForm, Druid.Shapeshift) ) then
+		elseif( ShadowUF.UnitAuraBySpell(unit, Druid.MoonkinForm) ) then
 			return ShadowUF.L["M"]
-		elseif( UnitAura(unit, Druid.BearForm, Druid.Shapeshift) ) then
+		elseif( ShadowUF.UnitAuraBySpell(unit, Druid.BearForm) ) then
 			return ShadowUF.L["B"]
-		elseif( UnitAura(unit, Druid.SwiftFlightForm, Druid.Shapeshift) or UnitAura(unit, Druid.FlightForm, Druid.Shapeshift) ) then
+		elseif( ShadowUF.UnitAuraBySpell(unit, Druid.SwiftFlightForm) or ShadowUF.UnitAuraBySpell(unit, Druid.FlightForm) ) then
 			return ShadowUF.L["F"]
-		elseif( UnitAura(unit, Druid.TravelForm, Druid.Shapeshift) ) then
+		elseif( ShadowUF.UnitAuraBySpell(unit, Druid.TravelForm) ) then
 			return ShadowUF.L["T"]
-		elseif( UnitAura(unit, Druid.AquaticForm, Druid.Shapeshift) ) then
+		elseif( ShadowUF.UnitAuraBySpell(unit, Druid.AquaticForm) ) then
 			return ShadowUF.L["A"]
 		end
 	end]],
@@ -414,19 +414,19 @@ Tags.defaultTags = {
 		if( select(2, UnitClass(unit)) ~= "DRUID" ) then return nil end
 		
 		local Druid = ShadowUF.Druid
-		if( UnitAura(unit, Druid.CatForm, Druid.Shapeshift) ) then
+		if( ShadowUF.UnitAuraBySpell(unit, Druid.CatForm) ) then
 			return ShadowUF.L["Cat"]
-		elseif( UnitAura(unit, Druid.TreeForm, Druid.Shapeshift) ) then
+		elseif( ShadowUF.UnitAuraBySpell(unit, Druid.TreeForm) ) then
 			return ShadowUF.L["Tree"]
-		elseif( UnitAura(unit, Druid.MoonkinForm, Druid.Shapeshift) ) then
+		elseif( ShadowUF.UnitAuraBySpell(unit, Druid.MoonkinForm) ) then
 			return ShadowUF.L["Moonkin"]
-		elseif( UnitAura(unit, Druid.BearForm, Druid.Shapeshift) ) then
+		elseif( ShadowUF.UnitAuraBySpell(unit, Druid.BearForm) ) then
 			return ShadowUF.L["Bear"]
-		elseif( UnitAura(unit, Druid.SwiftFlightForm, Druid.Shapeshift) or UnitAura(unit, Druid.FlightForm, Druid.Shapeshift) ) then
+		elseif( ShadowUF.UnitAuraBySpell(unit, Druid.SwiftFlightForm) or ShadowUF.UnitAuraBySpell(unit, Druid.FlightForm) ) then
 			return ShadowUF.L["Flight"]
-		elseif( UnitAura(unit, Druid.TravelForm, Druid.Shapeshift) ) then
+		elseif( ShadowUF.UnitAuraBySpell(unit, Druid.TravelForm) ) then
 			return ShadowUF.L["Travel"]
-		elseif( UnitAura(unit, Druid.AquaticForm, Druid.Shapeshift) ) then
+		elseif( ShadowUF.UnitAuraBySpell(unit, Druid.AquaticForm) ) then
 			return ShadowUF.L["Aquatic"]
 		end
 	end]],
