@@ -6,10 +6,10 @@ ShadowUF:RegisterModule(Cast, "castBar", L["Cast bar"], true)
 
 -- I'm not really thrilled with this method of detecting fake unit casts, mostly because it's inefficient and ugly
 local function monitorFakeCast(self)
-	local spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(self.parent.unit)
+	local spell, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo(self.parent.unit)
 	local isChannelled
 	if( not spell ) then
-		spell, rank, displayName, icon, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(self.parent.unit)
+		spell, displayName, icon, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo(self.parent.unit)
 		isChannelled = true
 	end
 	
@@ -18,11 +18,12 @@ local function monitorFakeCast(self)
 		self.endTime = endTime
 		self.notInterruptible = notInterruptible
 		self.spellName = spell
-		Cast:UpdateCast(self.parent, self.parent.unit, isChannelled, spell, rank, displayName, icon, startTime, endTime, isTradeSkill, notInterruptible)
+		self.spellID = spellID
+		Cast:UpdateCast(self.parent, self.parent.unit, isChannelled, spell, displayName, icon, startTime, endTime, isTradeSkill, notInterruptible, spellID)
 	-- Cast stopped
 	elseif( self.endTime and not endTime ) then
 		if( GetTime() <= (self.endTime / 1000) ) then
-			Cast:EventInterruptCast(self.parent, nil, self.parent.unit, self.spellName)
+			Cast:EventInterruptCast(self.parent, nil, self.parent.unit, nil, self.spellID)
 		end
 		
 		self.notInterruptible = nil
@@ -34,7 +35,7 @@ local function monitorFakeCast(self)
 	-- Cast delayed
 	if( self.endTime and endTime ~= self.endTime ) then
 		self.endTime = endTime
-		Cast:UpdateDelay(self.parent, spell, rank, displayName, icon, startTime, endTime)
+		Cast:UpdateDelay(self.parent, spell, displayName, icon, startTime, endTime)
 	end
 
 	-- Cast interruptible status changed
@@ -90,7 +91,7 @@ function Cast:OnEnable(frame)
 	
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_START", self, "EventUpdateChannel")
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_STOP", self, "EventStopCast")
-	frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_INTERRUPTED", self, "EventInterruptCast")
+	--frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_INTERRUPTED", self, "EventInterruptCast")
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_CHANNEL_UPDATE", self, "EventDelayChannel")
 
 	frame:RegisterUnitEvent("UNIT_SPELLCAST_INTERRUPTIBLE", self, "EventInterruptible")
@@ -276,10 +277,11 @@ end
 
 function Cast:UpdateCurrentCast(frame)
 	if( UnitCastingInfo(frame.unit) ) then
-		local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(frame.unit)
-		self:UpdateCast(frame, frame.unit, false, name, subText, text, texture, startTime, endTime, isTradeSkill, notInterruptible)
+		local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo(frame.unit)
+		self:UpdateCast(frame, frame.unit, false, name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID)
 	elseif( UnitChannelInfo(frame.unit) ) then
-		self:UpdateCast(frame, frame.unit, true, UnitChannelInfo(frame.unit))
+		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo(frame.unit)
+		self:UpdateCast(frame, frame.unit, true, name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID)
 	else
 		if( ShadowUF.db.profile.units[frame.unitType].castBar.autoHide ) then
 			ShadowUF.Layout:SetBarVisibility(frame, "castBar", false)
@@ -296,28 +298,30 @@ end
 
 -- Cast updated/changed
 function Cast:EventUpdateCast(frame)
-	local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(frame.unit)
-	self:UpdateCast(frame, frame.unit, false, name, subText, text, texture, startTime, endTime, isTradeSkill, notInterruptible)
+	local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo(frame.unit)
+	self:UpdateCast(frame, frame.unit, false, name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID)
 end
 
 function Cast:EventDelayCast(frame)
-	local name, subText, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(frame.unit)
-	self:UpdateDelay(frame, name, subText, text, texture, startTime, endTime, isTradeSkill, notInterruptible)
+	local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo(frame.unit)
+	self:UpdateDelay(frame, name, text, texture, startTime, endTime)
 end
 
 -- Channel updated/changed
 function Cast:EventUpdateChannel(frame)
-	self:UpdateCast(frame, frame.unit, true, UnitChannelInfo(frame.unit))
+	local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo(frame.unit)
+	self:UpdateCast(frame, frame.unit, true, name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID)
 end
 
 function Cast:EventDelayChannel(frame)
-	self:UpdateDelay(frame, UnitChannelInfo(frame.unit))
+	local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo(frame.unit)
+	self:UpdateDelay(frame, name, text, texture, startTime, endTime)
 end
 
 -- Cast finished
-function Cast:EventStopCast(frame, event, unit, spell)
+function Cast:EventStopCast(frame, event, unit, castID, spellID)
 	local cast = frame.castBar.bar
-	if( cast.spellName ~= spell or ( event == "UNIT_SPELLCAST_FAILED" and cast.isChannelled ) ) then return end
+	if( cast.spellID ~= spellID or ( event == "UNIT_SPELLCAST_FAILED" and cast.isChannelled ) ) then return end
 	if( cast.time.enabled ) then
 		cast.time:SetText("0.0")
 	end
@@ -337,9 +341,9 @@ function Cast:EventStopCast(frame, event, unit, spell)
 end
 
 -- Cast interrupted
-function Cast:EventInterruptCast(frame, event, unit, spell)
+function Cast:EventInterruptCast(frame, event, unit, castID, spellID)
 	local cast = frame.castBar.bar
-	if( cast.spellName ~= spell ) then return end
+	if( spellID and cast.spellID ~= spellID ) then return end
 	
 	setBarColor(cast, ShadowUF.db.profile.castColors.interrupted.r, ShadowUF.db.profile.castColors.interrupted.g, ShadowUF.db.profile.castColors.interrupted.b)
 	if( ShadowUF.db.profile.units[frame.unitType].castBar.autoHide ) then
@@ -350,7 +354,7 @@ function Cast:EventInterruptCast(frame, event, unit, spell)
 		cast.name:SetText(L["Interrupted"])
 	end
 
-	cast.spellName = nil
+	cast.spellID = nil
 	cast.fadeElapsed = FADE_TIME + 0.20
 	cast.fadeStart = cast.fadeElapsed
 	cast:SetScript("OnUpdate", fadeOnUpdate)
@@ -381,7 +385,7 @@ function Cast:EventUninterruptible(frame)
 	setBarColor(frame.castBar.bar, ShadowUF.db.profile.castColors.uninterruptible.r, ShadowUF.db.profile.castColors.uninterruptible.g, ShadowUF.db.profile.castColors.uninterruptible.b)
 end
 
-function Cast:UpdateDelay(frame, spell, rank, displayName, icon, startTime, endTime)
+function Cast:UpdateDelay(frame, spell, displayName, icon, startTime, endTime)
 	if( not spell or not frame.castBar.bar.startTime ) then return end
 	local cast = frame.castBar.bar
 	startTime = startTime / 1000
@@ -403,7 +407,7 @@ function Cast:UpdateDelay(frame, spell, rank, displayName, icon, startTime, endT
 end
 
 -- Update the actual bar
-function Cast:UpdateCast(frame, unit, channelled, spell, rank, displayName, icon, startTime, endTime, isTradeSkill, notInterruptible)
+function Cast:UpdateCast(frame, unit, channelled, spell, displayName, icon, startTime, endTime, isTradeSkill, notInterruptible, spellID)
 	if( not spell ) then return end
 	local cast = frame.castBar.bar
 	if( ShadowUF.db.profile.units[frame.unitType].castBar.autoHide ) then
@@ -412,15 +416,9 @@ function Cast:UpdateCast(frame, unit, channelled, spell, rank, displayName, icon
 
 	-- Set casted spell
 	if( ShadowUF.db.profile.units[frame.unitType].castBar.name.enabled ) then
-		if( ShadowUF.db.profile.units[frame.unitType].castBar.name.rank and rank and rank ~= "" ) then
-			cast.name:SetFormattedText("%s (%s)", spell, rank)
-			cast.name:SetAlpha(ShadowUF.db.profile.bars.alpha)
-			cast.name:Show()
-		else
-			cast.name:SetText(spell)
-			cast.name:SetAlpha(ShadowUF.db.profile.bars.alpha)
-			cast.name:Show()
-		end
+		cast.name:SetText(spell)
+		cast.name:SetAlpha(ShadowUF.db.profile.bars.alpha)
+		cast.name:Show()
 	end
 	
 	-- Show cast time
@@ -442,7 +440,7 @@ function Cast:UpdateCast(frame, unit, channelled, spell, rank, displayName, icon
 	cast.endSeconds = cast.endTime - cast.startTime
 	cast.elapsed = cast.isChannelled and cast.endSeconds or 0
 	cast.spellName = spell
-	cast.spellRank = rank
+	cast.spellID = spellID
 	cast.pushback = 0
 	cast.lastUpdate = cast.startTime
 	cast:SetMinMaxValues(0, cast.endSeconds)

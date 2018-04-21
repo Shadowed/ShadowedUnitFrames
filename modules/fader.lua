@@ -122,7 +122,7 @@ end
 
 
 local activeCastID
-function Fader:CastStart(frame, event, unit, spellName, spellRank, id)
+function Fader:CastStart(frame, event, unit, id)
 	if( unit ~= "player" or activeCastID == id ) then return end
 	activeCastID = id
 	
@@ -130,7 +130,7 @@ function Fader:CastStart(frame, event, unit, spellName, spellRank, id)
 	self:Update(frame)
 end
 
-function Fader:CastStop(frame, event, unit, spellName, spellRank, id)
+function Fader:CastStop(frame, event, unit, id)
 	if( unit ~= "player" or activeCastID ~= id ) then return end
 	activeCastID = nil
 	

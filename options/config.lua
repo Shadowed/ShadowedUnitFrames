@@ -4517,14 +4517,6 @@ local function loadUnitOptions()
 								arg = "castBar.name.enabled",
 								hidden = hideAdvancedOption,
 							},
-							rankEnabled = {
-								order = 4.5,
-								type = "toggle",
-								name = L["Show cast rank"],
-								arg = "castBar.name.rank",
-								hidden = hideAdvancedOption,
-								disabled = disableIfCastName,
-							},
 							nameAnchor = {
 								order = 5,
 								type = "select",
