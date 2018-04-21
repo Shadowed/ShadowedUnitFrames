@@ -136,7 +136,7 @@ local function createConfigEnv()
 			local texture = filter == "HELPFUL" and "Interface\\Icons\\Spell_Nature_Rejuvenation" or "Interface\\Icons\\Ability_DualWield"
 			local mod = id % 5
 			local auraType = mod == 0 and "Magic" or mod == 1 and "Curse" or mod == 2 and "Poison" or mod == 3 and "Disease" or "none"
-			return L["Test Aura"], L["Rank 1"], texture, id, auraType, 0, 0, "player", id % 6 == 0
+			return L["Test Aura"], texture, id, auraType, 0, 0, "player", id % 6 == 0
 		end,
 		UnitName = function(unit)
 			local unitID = string.match(unit, "(%d+)")

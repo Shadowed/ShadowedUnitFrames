@@ -25,5 +25,5 @@ function AuraPoints:GetComboPointType()
 end
 
 function AuraPoints:GetPoints(unit)
-	return select(4, UnitAura("player", trackSpell.name, nil, trackSpell.filter)) or 0
+	return select(3, UnitAura("player", trackSpell.name, nil, trackSpell.filter)) or 0
 end
