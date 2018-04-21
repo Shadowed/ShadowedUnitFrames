@@ -70,7 +70,7 @@ function Tags:RegisterEvents(parent, fontString, tags)
 				end
 
 				-- register UNIT_MANA event since its the only event that fires after repopping at a spirit healer
-				if event == "UNIT_POWER" or event == "UNIT_POWER_FREQUENT" then
+				if event == "UNIT_POWER_UPDATE" or event == "UNIT_POWER_FREQUENT" then
 					parent:RegisterUnitEvent("UNIT_MANA", fontString, "UpdateTags")
 
 					if ( parent.unit == "player" ) then
@@ -137,7 +137,7 @@ end
 
 
 -- Register a font string with the tag system
-local powerEvents = {["UNIT_POWER"] = true, ["UNIT_POWER_FREQUENT"] = true, ["UNIT_MAXPOWER"] = true}
+local powerEvents = {["UNIT_POWER_UPDATE"] = true, ["UNIT_POWER_FREQUENT"] = true, ["UNIT_MAXPOWER"] = true}
 local frequencyCache = {}
 local function createTagFunction(tags, resetCache)
 	if( tagPool[tags] and not resetCache ) then

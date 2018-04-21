@@ -40,7 +40,7 @@ function Health:OnEnable(frame)
 	frame:RegisterUnitEvent("UNIT_TARGETABLE_CHANGED", self, "UpdateColor")
 	
 	if( frame.unit == "pet" ) then
-		frame:RegisterUnitEvent("UNIT_POWER", self, "UpdateColor")
+		frame:RegisterUnitEvent("UNIT_POWER_UPDATE", self, "UpdateColor")
 	end
 
 	if ( ShadowUF.db.profile.units[frame.unitType].healthBar.colorDispel ) then

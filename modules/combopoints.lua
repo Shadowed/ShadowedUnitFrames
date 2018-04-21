@@ -9,7 +9,7 @@ function Combo:OnEnable(frame)
 	frame.comboPoints.cpConfig = cpConfig
 	cpConfig.max = UnitPowerMax("player", cpConfig.powerType)
 
-	frame:RegisterNormalEvent("UNIT_POWER", self, "Update", "player")
+	frame:RegisterNormalEvent("UNIT_POWER_UPDATE", self, "Update", "player")
 	frame:RegisterNormalEvent("UNIT_POWER_FREQUENT", self, "Update", "player")
 	frame:RegisterNormalEvent("UNIT_MAXPOWER", self, "UpdateBarBlocks", "player")
 
