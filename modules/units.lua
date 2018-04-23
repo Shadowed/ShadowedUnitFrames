@@ -658,7 +658,15 @@ end
 
 local function SUF_OnEnter(self)
 	if( not ShadowUF.db.profile.tooltipCombat or not InCombatLockdown() ) then
-		UnitFrame_OnEnter(self)
+		if not GameTooltip:IsForbidden() then
+			UnitFrame_OnEnter(self)
+		end
+	end
+end
+
+local function SUF_OnLeave(self)
+	if not GameTooltip:IsForbidden() then
+		UnitFrame_OnLeave(self)
 	end
 end
 
@@ -707,7 +715,7 @@ function Units:CreateUnit(...)
 	frame:SetScript("OnHide", OnHide)
 
 	frame.OnEnter = SUF_OnEnter
-	frame.OnLeave = UnitFrame_OnLeave
+	frame.OnLeave = SUF_OnLeave
 
 	frame:RegisterForClicks("AnyUp")
 	-- non-header frames don't set those, so we need to do it
