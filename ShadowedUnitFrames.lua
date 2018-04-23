@@ -52,9 +52,6 @@ function ShadowUF:OnInitialize()
 	self.db.RegisterCallback(self, "OnProfileCopied", "ProfilesChanged")
 	self.db.RegisterCallback(self, "OnProfileReset", "ProfileReset")
 
-	local LibDualSpec = LibStub("LibDualSpec-1.0", true)
-	if LibDualSpec then LibDualSpec:EnhanceDatabase(self.db, "ShadowedUnitFrames") end
-
 	-- Setup tag cache
 	self.tagFunc = setmetatable({}, {
 		__index = function(tbl, index)
@@ -88,6 +85,9 @@ function ShadowUF:OnInitialize()
 	self.Layout:LoadSML()
 	self:LoadUnits()
 	self.modules.movers:Update()
+
+	local LibDualSpec = LibStub("LibDualSpec-1.0", true)
+	if LibDualSpec then LibDualSpec:EnhanceDatabase(self.db, "ShadowedUnitFrames") end
 end
 
 function ShadowUF:CheckBuild()
