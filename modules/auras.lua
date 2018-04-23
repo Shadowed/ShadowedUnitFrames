@@ -182,13 +182,14 @@ end
 -- Aura button functions
 -- Updates the X seconds left on aura tooltip while it's shown
 local function updateTooltip(self)
-	if( GameTooltip:IsOwned(self) ) then
+	if( not GameTooltip:IsForbidden() and GameTooltip:IsOwned(self) ) then
 		GameTooltip:SetUnitAura(self.unit, self.auraID, self.filter)
 	end
 end
 
 local function showTooltip(self)
 	if( not ShadowUF.db.profile.locked ) then return end
+	if( GameTooltip:IsForbidden() ) then return end
 
 	GameTooltip:SetOwner(self, "ANCHOR_BOTTOMLEFT")
 	if( self.filter == "TEMP" ) then
@@ -202,7 +203,9 @@ end
 
 local function hideTooltip(self)
 	self:SetScript("OnUpdate", nil)
-	GameTooltip:Hide()
+	if not GameTooltip:IsForbidden() then
+		GameTooltip:Hide()
+	end
 end
 
 local function cancelAura(self, mouse)
