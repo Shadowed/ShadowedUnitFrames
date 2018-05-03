@@ -345,7 +345,7 @@ function Indicators:OnEnable(frame)
 
 	if( config.indicators.phase and config.indicators.phase.enabled ) then
 		-- Player phase changes do not generate a phase change event. This seems to be the best
-		frame:RegisterNormalEvent("UPDATE_WORLD_STATES", self, "UpdatePhase")
+		-- TODO: what event does fire here? frame:RegisterNormalEvent("UPDATE_WORLD_STATES", self, "UpdatePhase")
         frame:RegisterUpdateFunc(self, "UpdatePhase")
         frame.indicators.phase = frame.indicators.phase or frame.indicators:CreateTexture(nil, "OVERLAY")
     end
