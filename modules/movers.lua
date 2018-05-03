@@ -101,7 +101,7 @@ local function createConfigEnv()
 				data[6] = false
 				data[7] = math.floor(GetTime())
 				data[8] = math.random(0, 100) < 25
-				data[9] = 1000,
+				data[9] = 1000
 				unitConfig["UnitCastingInfo" .. unit] = data
 			end
 			
