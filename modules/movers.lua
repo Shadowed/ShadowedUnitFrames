@@ -92,12 +92,12 @@ local function createConfigEnv()
 		UnitCastingInfo = function(unit)
 			-- 1 -> 10: spell, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID
 			local data = unitConfig["UnitCastingInfo" .. unit] or {}
-			if( not data[6] or GetTime() < data[6] ) then
+			if( not data[5] or GetTime() < data[5] ) then
 				data[1] = L["Test spell"]
 				data[2] = L["Test spell"]
 				data[3] = "Interface\\Icons\\Spell_Nature_Rejuvenation"
 				data[4] = GetTime() * 1000
-				data[5] = data[5] + 60000
+				data[5] = data[4] + 60000
 				data[6] = false
 				data[7] = math.floor(GetTime())
 				data[8] = math.random(0, 100) < 25
