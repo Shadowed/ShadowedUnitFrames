@@ -90,18 +90,18 @@ local function createConfigEnv()
 		UnitThreatSituation = function() return 0 end,
 		UnitDetailedThreatSituation = function() return nil end,
 		UnitCastingInfo = function(unit)
-			-- 1 -> 10: spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible
+			-- 1 -> 10: spell, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID
 			local data = unitConfig["UnitCastingInfo" .. unit] or {}
 			if( not data[6] or GetTime() < data[6] ) then
 				data[1] = L["Test spell"]
-				data[2] = L["Rank 1"]
-				data[3] = L["Test spell"]
-				data[4] = "Interface\\Icons\\Spell_Nature_Rejuvenation"
-				data[5] = GetTime() * 1000
-				data[6] = data[5] + 60000
-				data[7] = false
-				data[8] = math.floor(GetTime())
-				data[9] = math.random(0, 100) < 25
+				data[2] = L["Test spell"]
+				data[3] = "Interface\\Icons\\Spell_Nature_Rejuvenation"
+				data[4] = GetTime() * 1000
+				data[5] = data[5] + 60000
+				data[6] = false
+				data[7] = math.floor(GetTime())
+				data[8] = math.random(0, 100) < 25
+				data[9] = 1000,
 				unitConfig["UnitCastingInfo" .. unit] = data
 			end
 			
