@@ -161,7 +161,7 @@ function Indicators:UpdatePVPFlag(frame)
 
 	local faction = UnitFactionGroup(frame.unit)
 	if( UnitIsPVPFreeForAll(frame.unit) ) then
-		local prestige = UnitPrestige(frame.unit)
+		local prestige = 0 --UnitPrestige(frame.unit)
 		if (prestige > 0) then
 			frame.indicators.pvp:SetTexture(GetPrestigeInfo(prestige))
 			frame.indicators.pvp:SetTexCoord(0.1,1.1,0.1,1.1)
@@ -172,7 +172,7 @@ function Indicators:UpdatePVPFlag(frame)
 			frame.indicators.pvp:Show()
 		end
 	elseif( faction and faction ~= "Neutral" and UnitIsPVP(frame.unit) ) then
-		local prestige = UnitPrestige(frame.unit)
+		local prestige = 0 --UnitPrestige(frame.unit)
 		if (prestige > 0) then
 			frame.indicators.pvp:SetTexture(GetPrestigeInfo(prestige))
 			frame.indicators.pvp:SetTexCoord(0.1,1.1,0.1,1.1)
