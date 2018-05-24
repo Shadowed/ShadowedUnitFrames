@@ -362,8 +362,7 @@ function Indicators:OnEnable(frame)
 	if( config.indicators.pvp and config.indicators.pvp.enabled ) then
 		frame:RegisterUnitEvent("PLAYER_FLAGS_CHANGED", self, "UpdatePVPFlag")
 		frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdatePVPFlag")
-		frame:RegisterNormalEvent("HONOR_PRESTIGE_UPDATE", self, "UpdatePVPFlag")
-		frame:RegisterNormalEvent("PRESTIGE_AND_HONOR_INVOLUNTARILY_CHANGED", self, "UpdatePVPFlag")
+		frame:RegisterNormalEvent("HONOR_LEVEL_UPDATE", self, "UpdatePVPFlag")
 		frame:RegisterUpdateFunc(self, "UpdatePVPFlag")
 
 		frame.indicators.pvp = frame.indicators.pvp or frame.indicators:CreateTexture(nil, "OVERLAY")
