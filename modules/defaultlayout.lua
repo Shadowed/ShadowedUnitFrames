@@ -116,7 +116,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 	
 	-- Some localizations do not work with Myriad Condensed Web, need to automatically swap it to a localization that will work for it
 	local SML = LibStub:GetLibrary("LibSharedMedia-3.0")
-	if( GetLocale() == "koKR" or GetLocale() == "zhCN" or GetLocale() == "zhTW" or GetLocale() == "ruRU" ) then
+	if( GetLocale() == "koKR" or GetLocale() == "zhCN" or GetLocale() == "zhTW" ) then
 		config.font.name = SML.DefaultMedia.font
 	end
 	
