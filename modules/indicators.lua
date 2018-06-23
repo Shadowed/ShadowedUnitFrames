@@ -161,27 +161,13 @@ function Indicators:UpdatePVPFlag(frame)
 
 	local faction = UnitFactionGroup(frame.unit)
 	if( UnitIsPVPFreeForAll(frame.unit) ) then
-		local prestige = 0 --UnitPrestige(frame.unit)
-		if (prestige > 0) then
-			frame.indicators.pvp:SetTexture(GetPrestigeInfo(prestige))
-			frame.indicators.pvp:SetTexCoord(0.1,1.1,0.1,1.1)
-			frame.indicators.pvp:Show()
-		else
-			frame.indicators.pvp:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA")
-			frame.indicators.pvp:SetTexCoord(0,1,0,1)
-			frame.indicators.pvp:Show()
-		end
+		frame.indicators.pvp:SetTexture("Interface\\TargetingFrame\\UI-PVP-FFA")
+		frame.indicators.pvp:SetTexCoord(0,1,0,1)
+		frame.indicators.pvp:Show()
 	elseif( faction and faction ~= "Neutral" and UnitIsPVP(frame.unit) ) then
-		local prestige = 0 --UnitPrestige(frame.unit)
-		if (prestige > 0) then
-			frame.indicators.pvp:SetTexture(GetPrestigeInfo(prestige))
-			frame.indicators.pvp:SetTexCoord(0.1,1.1,0.1,1.1)
-			frame.indicators.pvp:Show()
-		else
-			frame.indicators.pvp:SetTexture(string.format("Interface\\TargetingFrame\\UI-PVP-%s", faction))
-			frame.indicators.pvp:SetTexCoord(0,1,0,1)
-			frame.indicators.pvp:Show()
-		end
+		frame.indicators.pvp:SetTexture(string.format("Interface\\TargetingFrame\\UI-PVP-%s", faction))
+		frame.indicators.pvp:SetTexCoord(0,1,0,1)
+		frame.indicators.pvp:Show()
 	else
 		frame.indicators.pvp:Hide()
 	end
@@ -362,7 +348,6 @@ function Indicators:OnEnable(frame)
 	if( config.indicators.pvp and config.indicators.pvp.enabled ) then
 		frame:RegisterUnitEvent("PLAYER_FLAGS_CHANGED", self, "UpdatePVPFlag")
 		frame:RegisterUnitEvent("UNIT_FACTION", self, "UpdatePVPFlag")
-		frame:RegisterNormalEvent("HONOR_LEVEL_UPDATE", self, "UpdatePVPFlag")
 		frame:RegisterUpdateFunc(self, "UpdatePVPFlag")
 
 		frame.indicators.pvp = frame.indicators.pvp or frame.indicators:CreateTexture(nil, "OVERLAY")
