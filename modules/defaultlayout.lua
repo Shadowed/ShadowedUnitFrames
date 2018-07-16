@@ -460,6 +460,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 			},
 		},
 		arena = {
+			enabled = true,
 			width = 170,
 			height = 45,
 			scale = 1.0,
@@ -539,8 +540,9 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				{text = "[name]"},
 				{text = ""},
 			},
-		},		
+		},
 		battleground = {
+			enabled = true,
 			width = 140,
 			height = 35,
 			scale = 1.0,
@@ -557,7 +559,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				debuffs = {enabled = false, maxRows = 1, perRow = 9},
 			},
 			indicators = {
-				pvp = {enabled = true, anchorTo = "$parent", anchorPoint = "LC", size = 40, x = 16, y = -8},
+				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
 			},
 			text = {
 				{text = "[name]"},
