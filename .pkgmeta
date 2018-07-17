@@ -28,4 +28,4 @@ externals:
         url: https://repos.wowace.com/wow/ace-gui-3-0-shared-media-widgets/trunk/AceGUI-3.0-SharedMediaWidgets
 
 ignore:
-  - locale-export.lua
+  - locale-import.lua
