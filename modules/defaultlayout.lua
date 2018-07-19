@@ -559,7 +559,7 @@ function ShadowUF:LoadDefaultLayout(useMerge)
 				debuffs = {enabled = false, maxRows = 1, perRow = 9},
 			},
 			indicators = {
-				pvp = {anchorTo = "$parent", anchorPoint = "BL", size = 22, x = 0, y = 11},
+				pvp = {enabled = true, anchorTo = "$parent", anchorPoint = "LC", size = 40, x = 16, y = -8},
 			},
 			text = {
 				{text = "[name]"},
