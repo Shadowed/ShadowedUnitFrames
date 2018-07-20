@@ -767,9 +767,6 @@ function ShadowUF:HideBlizzardFrames()
 		ArenaEnemyFrames:SetParent(self.hiddenFrame)
 		ArenaPrepFrames:UnregisterAllEvents()
 		ArenaPrepFrames:SetParent(self.hiddenFrame)
-
-		SetCVar("showArenaEnemyFrames", 0, "SHOW_ARENA_ENEMY_FRAMES_TEXT")
-
 	end
 
 	if( self.db.profile.hidden.playerAltPower and not active_hiddens.playerAltPower ) then
