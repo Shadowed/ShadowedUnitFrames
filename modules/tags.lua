@@ -63,7 +63,14 @@ function Tags:RegisterEvents(parent, fontString, tags)
 					fontString[event] = true
 				-- Unit event
 				elseif( Tags.eventType[event] ~= "unitless" or ShadowUF.Units.unitEvents[event] ) then
-					parent:RegisterUnitEvent(event, fontString, "UpdateTags")
+					local success, err = pcall(parent.RegisterUnitEvent, parent, event, fontString, "UpdateTags")
+					if not success then
+						-- switch the tag back
+						ShadowUF.Units.unitEvents[event] = false
+						Tags.eventType[event] = "unitless"
+
+						parent:RegisterNormalEvent(event, fontString, "UpdateTags")
+					end
 				-- Everything else
 				else
 					parent:RegisterNormalEvent(event, fontString, "UpdateTags")
@@ -1430,12 +1437,20 @@ Tags.eventType = {
 	["PLAYER_TARGET_CHANGED"] = "unitless",
 	["PARTY_LEADER_CHANGED"] = "unitless",
 	["PLAYER_ENTERING_WORLD"] = "unitless",
+	["PLAYER_REGEN_DISABLED"] = "unitless",
+	["PLAYER_REGEN_ENABLED"] = "unitless",
 	["PLAYER_XP_UPDATE"] = "unitless",
 	["PLAYER_TOTEM_UPDATE"] = "unitless",
 	["PLAYER_LEVEL_UP"] = "unitless",
 	["UPDATE_EXHAUSTION"] = "unitless",
 	["PLAYER_UPDATE_RESTING"] = "unitless",
 	["UNIT_COMBO_POINTS"] = "unitless",
+	["PARTY_LOOT_METHOD_CHANGED"] = "unitless",
+	["READY_CHECK"] = "unitless",
+	["READY_CHECK_FINISHED"] = "unitless",
+	["RUNE_POWER_UPDATE"] = "unitless",
+	["RUNE_TYPE_UPDATE"] = "unitless",
+	["UPDATE_FACTION"] = "unitless",
 }
 
 -- Tag groups that have a special filter that can't be used on certain units, like the threat API's
