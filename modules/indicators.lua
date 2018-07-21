@@ -324,7 +324,7 @@ function Indicators:OnEnable(frame)
 	end
 
 	if( config.indicators.arenaSpec and config.indicators.arenaSpec.enabled ) then
-		frame:RegisterUnitEvent("ARENA_OPPONENT_UPDATE", self, "UpdateArenaSpec")
+		frame:RegisterNormalEvent("ARENA_OPPONENT_UPDATE", self, "UpdateArenaSpec")
 		frame:RegisterUpdateFunc(self, "UpdateArenaSpec")
         frame.indicators.arenaSpec = frame.indicators.arenaSpec or frame.indicators:CreateTexture(nil, "OVERLAY")
 	end
