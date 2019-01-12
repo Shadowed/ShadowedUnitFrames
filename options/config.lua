@@ -355,7 +355,6 @@ Config.hideBasicOption = hideBasicOption
 --------------------
 -- GENERAL CONFIGURATION
 ---------------------
-
 local function writeTable(tbl)
 	local data = ""
 	for key, value in pairs(tbl) do

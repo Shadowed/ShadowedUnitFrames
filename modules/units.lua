@@ -953,7 +953,7 @@ function Units:LoadUnit(unit)
 	frame:SetAttribute("unit", unit)
 	frame.hasStateWatch = unit == "pet"
 		
-	-- Annd lets get this going
+	-- And lets get this going
 	RegisterUnitWatch(frame, frame.hasStateWatch)
 end
 

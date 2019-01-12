@@ -72,7 +72,7 @@ local positionData = setmetatable({}, {
 	end,
 })
 
-local function positionButton(id,  group, config)
+local function positionButton(id, group, config)
 	local position = positionData[group.forcedAnchorPoint or config.anchorPoint] 
 	local button = group.buttons[id]
 	button.isAuraAnchor = nil
@@ -106,7 +106,9 @@ local function positionButton(id,  group, config)
 	end
 end
 
-
+--[[
+	cartok: maybe this is, where the time sorting addition needs to get implemented.
+]]
 local columnsHaveScale = {}
 local function positionAllButtons(group, config)
 	local position = positionData[group.forcedAnchorPoint or config.anchorPoint]
@@ -208,6 +210,14 @@ local function hideTooltip(self)
 	end
 end
 
+--[[
+	cartok: add a handler to blacklist buffs/debuffs on a extra blacklist
+	- every unit frame should have this extra blacklist
+	- ... bigger plan inc.
+]]
+local function addAuraToBlacklist(self, mouse)
+end
+
 local function cancelAura(self, mouse)
 	if( mouse ~= "RightButton" or ( not UnitIsUnit(self.parent.unit, "player") and not UnitIsUnit(self.parent.unit, "vehicle") ) or InCombatLockdown() or self.filter == "TEMP" ) then
 		return
@@ -226,6 +236,7 @@ local function updateButton(id, group, config)
 		button:SetScript("OnLeave", hideTooltip)
 		button:RegisterForClicks("RightButtonUp")
 		
+		-- cartok: should check if these features are enabled or if omnicc is used.
 		button.cooldown = CreateFrame("Cooldown", group.parent:GetName() .. "Aura" .. group.type .. id .. "Cooldown", button, "CooldownFrameTemplate")
 		button.cooldown:SetAllPoints(button)
 		button.cooldown:SetReverse(true)
@@ -274,6 +285,7 @@ local function updateButton(id, group, config)
 	button.stack:SetFont("Interface\\AddOns\\ShadowedUnitFrames\\media\\fonts\\Myriad Condensed Web.ttf", math.floor((config.size * 0.60) + 0.5), "OUTLINE")
 
 	button:SetScript("OnClick", cancelAura)
+
 	button.parent = group.parent
 	button:ClearAllPoints()
 	button:Hide()
@@ -319,6 +331,11 @@ local function updateGroup(self, type, config, reverseConfig)
 	-- Update filters used for the anchor
 	group.filter = group.type == "buffs" and "HELPFUL" or group.type == "debuffs" and "HARMFUL" or ""
 	
+	--[[
+		cartok: add time sorting here?
+		- setting it to descending/ascending will mean the aura with the longest/shortest 
+		- duration will be the first/last, and the aura vanishing soonest will be last/fist.
+	]]
 	for id, button in pairs(group.buttons) do
 		updateButton(id, group, config)
 	end	
@@ -439,7 +456,7 @@ end
 
 -- Unfortunately, temporary enchants have basically no support beyond hacks. So we will hack!
 tempEnchantScan = function(self, elapsed)
-	if( self.parent.unit == self.parent.vehicleUnit and self.lastTemporary > 0 ) then
+   	if( self.parent.unit == self.parent.vehicleUnit and self.lastTemporary > 0 ) then
 		mainHand.has = false
 		offHand.has = false
 		ranged.has = false
