@@ -610,19 +610,61 @@ local function scan(parent, frame, type, config, displayConfig, filter)
 	-- UnitIsFriend returns true during a duel, which breaks stealable/curable detection
 	local isFriendly = not UnitIsEnemy(frame.parent.unit, "player")
 	local curable = (isFriendly and type == "debuffs")
-	local index = 0
-	while( true ) do
-		index = index + 1
-		local name, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff = UnitAura(frame.parent.unit, index, filter)
-		if( not name ) then break end
 
-		renderAura(parent, frame, type, config, displayConfig, index, filter, isFriendly, curable, name, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff)
-
-		-- Too many auras shown, break out
-		-- Get down
-		if( frame.totalAuras >= frame.maxAuras ) then break end
+	-- get all displayable auras
+	-- sort auras by endTime if enabled
+	if(config.timeSortingEnabled and config.timeSortingMethod ~= nil) then
+		-- create table of all auras containing only save index and endTime of all auras
+		local auras = {}
+		local index = 0
+		while( frame.totalAuras <= frame.maxAuras ) do
+			index = index + 1
+			local name, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff = UnitAura(frame.parent.unit, index, filter)
+			if( not name ) then
+				break
+			else
+				-- auras with infinite duration have duration = 0 and endTime = 0
+				-- set endTime to infinity so they will be properly handled
+				if(duration == 0) then
+					endTime = math.huge
+				end
+				auras[index] = { 
+					["endTime"] = endTime,
+					["index"] = index,
+				}
+			end
+		end
+		-- sort table by ascending endTime
+		if(config.timeSortingMethod == "ASC") then
+			table.sort(auras, function(a,b) return (a.endTime < b.endTime) end)
+		end
+		-- sort table by descending endTime
+		if(config.timeSortingMethod == "DESC") then
+			table.sort(auras, function(a,b) return (a.endTime > b.endTime) end)
+		end
+		-- use ordered aura index
+		-- aura render loop
+		for _, aura in pairs(auras) do
+			local index = aura.index
+			local name, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff = UnitAura(frame.parent.unit, index, filter)
+			renderAura(parent, frame, type, config, displayConfig, index, filter, isFriendly, curable, name, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff)
+		end
+	else
+		-- no time sorting
+		-- aura render loop
+		local index = 0
+		while( frame.totalAuras <= frame.maxAuras ) do
+			index = index + 1
+			local name, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff = UnitAura(frame.parent.unit, index, filter)
+			if( not name ) then
+				break
+			else
+				renderAura(parent, frame, type, config, displayConfig, index, filter, isFriendly, curable, name, texture, count, auraType, duration, endTime, caster, isRemovable, nameplateShowPersonal, spellID, canApplyAura, isBossDebuff)
+			end
+		end
 	end
-	
+
+	-- what is this for?
 	for i=frame.totalAuras + 1, #(frame.buttons) do frame.buttons[i]:Hide() end
 
 	-- The default 1.30 scale doesn't need special handling, after that it does

@@ -2287,7 +2287,7 @@ local function loadUnitOptions()
 				order = 3,
 				args = {
 					anchorOn = {
-						order = 1,
+						order = 1.1,
 						type = "toggle",
 						name = function(info) return info[#(info) - 2] == "buffs" and L["Anchor to debuffs"] or L["Anchor to buffs"] end,
 						desc = L["Allows you to anchor the aura group to another, you can then choose where it will be anchored using the position.|n|nUse this if you want to duplicate the default ui style where buffs and debuffs are separate groups."],
@@ -2295,11 +2295,24 @@ local function loadUnitOptions()
 							setVariable(info[2], "auras", info[#(info) - 2] == "buffs" and "debuffs" or "buffs", "anchorOn", false)
 							setUnit(info, value)
 						end,
-						width = "full",
+						disabled = aurasDisabled,
 						arg = "auras.$parentparent.anchorOn",
 					},
+					timeSortingEnabled = {
+						order = 1.2,
+						type = "toggle",
+						name = "Enable time sorting",
+						desc = "Allows you to select a sorting method for the unit frames auras.",
+						set = function(info, value)
+							local current = getVariable(info[2], "auras", info[#(info) - 2] == "buffs" and "debuffs" or "buffs", "timeSortingToggle")
+							setVariable(info[2], "auras", info[#(info) - 2] == "buffs" and "debuffs" or "buffs", "timeSortingToggle", not current)
+							setUnit(info, value)
+						end,
+						disabled = aurasDisabled,
+						arg = "auras.$parentparent.timeSortingEnabled",
+					},
 					anchorPoint = {
-						order = 1.5,
+						order = 2.1,
 						type = "select",
 						name = L["Position"],
 						desc = L["How you want this aura to be anchored to the unit frame."],
@@ -2307,16 +2320,17 @@ local function loadUnitOptions()
 						disabled = disableAnchoredTo,
 						arg = "auras.$parentparent.anchorPoint",
 					},					
-					size = {
-						order = 2,
-						type = "range",
-						name = L["Icon Size"],
-						min = 1, max = 30, step = 1,
-						arg = "auras.$parentparent.size",
+					timeSortingMethod = {
+						order = 2.2,
+						type = "select",
+						name = "Sorting method",
+						desc = "Sort auras by ascending or descending duration. Ascending sorts least duration to the start, descending sorts least duration to the end.",
+						values = { ["ASC"] = "Ascending", ["DESC"] = "Descending" },
+						disabled = disableTimeSorting,
+						arg = "auras.$parentparent.timeSortingMethod",
 					},
-					sep1 = {order = 3, type = "description", name = "", width = "full"},
 					perRow = {
-						order = 13,
+						order = 3.1,
 						type = "range",
 						name = function(info)
 							local anchorPoint = getVariable(info[2], "auras", info[#(info) - 2], "anchorPoint")
@@ -2332,7 +2346,7 @@ local function loadUnitOptions()
 						arg = "auras.$parentparent.perRow",
 					},
 					maxRows = {
-						order = 14,
+						order = 3.2,
 						type = "range",
 						name = L["Max rows"],
 						desc = L["How many rows total should be used, rows will be however long the per row value is set at."],
@@ -2349,7 +2363,7 @@ local function loadUnitOptions()
 						arg = "auras.$parentparent.maxRows",
 					},
 					maxColumns = {
-						order = 14,
+						order = 3.2,
 						type = "range",
 						name = L["Max columns"],
 						desc = L["How many auras per a column for example, entering two her will create two rows that are filled up to whatever per row is set as."],
@@ -2366,24 +2380,31 @@ local function loadUnitOptions()
 						arg = "auras.$parentparent.maxRows",
 					},
 					x = {
-						order = 18,
+						order = 4.1,
 						type = "range",
 						name = L["X Offset"],
-						min = -1000, max = 1000, step = 1, softMin = -100, softMax = 100,
+						min = -1000, max = 1000, step = 1, softMin = -300, softMax = 300,
 						disabled = disableSameAnchor,
 						hidden = hideAdvancedOption,
 						arg = "auras.$parentparent.x",
 					},
 					y = {
-						order = 19,
+						order = 4.2,
 						type = "range",
 						name = L["Y Offset"],
-						min = -1000, max = 1000, step = 1, softMin = -100, softMax = 100,
+						min = -1000, max = 1000, step = 1, softMin = -300, softMax = 300,
 						disabled = disableSameAnchor,
 						hidden = hideAdvancedOption,
 						arg = "auras.$parentparent.y",
 					},
-
+					size = {
+						order = 5.1,
+						type = "range",
+						name = L["Icon Size"],
+						min = 1, max = 40, step = 1,
+						disabled = aurasDisabled,
+						arg = "auras.$parentparent.size",
+					},
 				}
 			}
 		}
