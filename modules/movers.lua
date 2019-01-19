@@ -131,7 +131,16 @@ local function createConfigEnv()
 			return getValue("UnitStagger", math.random(2000, 10000))
 		end,
 		UnitAura = function(unit, id, filter)
-			if( type(id) ~= "number" or id > 40 ) then return end
+			-- apply buff and debuff configurations
+			-- info: raid and group frame units have numbers we need to load their general config
+			-- by removing the numbers from the name.
+			local config = ShadowUF.db.profile.units[string.match(unit, "%a+")]
+			local buffConfig = config.auras.buffs
+			local debuffConfig = config.auras.debuffs
+			-- calculate max auras
+			local maxBuffs, maxDebuffs = buffConfig.perRow * buffConfig.maxRows, debuffConfig.perRow * debuffConfig.maxRows
+			if( filter == "HELPFUL" and (type(id) ~= "number" or id > maxBuffs) ) then return end
+			if( filter ~= "HELPFUL" and (type(id) ~= "number" or id > maxDebuffs) ) then return end
 			
 			local texture = filter == "HELPFUL" and "Interface\\Icons\\Spell_Nature_Rejuvenation" or "Interface\\Icons\\Ability_DualWield"
 			local mod = id % 5
