@@ -41,6 +41,9 @@ function Combat:Update(frame, event, unit, type, ...)
 	end
 	
 	-- Increasing the font size will make the text look pixelated, however scaling it up will make it look smooth and awesome
-	frame.combatText:SetScale(frame.combatText.feedbackText:GetStringHeight() / ShadowUF.db.profile.font.size)
-	frame.combatText.feedbackText:SetFont(frame.combatText.fontPath, ShadowUF.db.profile.font.size, "OUTLINE")
+	local scale = frame.combatText.feedbackText:GetStringHeight() / ShadowUF.db.profile.font.size
+	if( scale > 0 ) then
+		frame.combatText:SetScale(scale)
+		frame.combatText.feedbackText:SetFont(frame.combatText.fontPath, ShadowUF.db.profile.font.size, "OUTLINE")
+	end
 end

@@ -34,7 +34,7 @@ local function updateBackdrop()
 	-- Update the backdrop table
 	local backdrop = ShadowUF.db.profile.backdrop
 	backdropTbl.bgFile = mediaPath.background
-	backdropTbl.edgeFile = mediaPath.border
+	if( mediaPath.border ~= "Interface\\None" ) then backdropTbl.edgeFile = mediaPath.border end
 	backdropTbl.tile = backdrop.tileSize > 0 and true or false
 	backdropTbl.edgeSize = backdrop.edgeSize
 	backdropTbl.tileSize = backdrop.tileSize
@@ -74,10 +74,21 @@ function Layout:ToggleVisibility(frame, visible)
 end	
 
 function Layout:SetBarVisibility(frame, key, status)
+	if( frame.secureLocked ) then return end
+
+	-- Show the bar if it wasn't already
 	if( status and not frame[key]:IsVisible() ) then
+		ShadowUF.Tags:FastRegister(frame, frame[key])
+
+		frame[key].visibilityManaged = true
 		frame[key]:Show()
 		ShadowUF.Layout:PositionWidgets(frame, ShadowUF.db.profile.units[frame.unitType])
+
+	-- Hide the bar if it wasn't already
 	elseif( not status and frame[key]:IsVisible() ) then
+		ShadowUF.Tags:FastUnregister(frame, frame[key])
+
+		frame[key].visibilityManaged = nil
 		frame[key]:Hide()
 		ShadowUF.Layout:PositionWidgets(frame, ShadowUF.db.profile.units[frame.unitType])
 	end
@@ -96,7 +107,16 @@ function Layout:Reload(unit)
 			frame:FullUpdate()
 		end
 	end
-	
+
+	for header in pairs(ShadowUF.Units.headerFrames) do
+		if( header.unitType and ( not unit or header.unitType == unit ) ) then
+			local config = ShadowUF.db.profile.units[header.unitType]
+			header:SetAttribute("style-height", config.height)
+			header:SetAttribute("style-width", config.width)
+			header:SetAttribute("style-scale", config.scale)
+		end
+	end
+
 	ShadowUF:FireModuleEvent("OnLayoutReload", unit)
 end
 
@@ -106,6 +126,16 @@ function Layout:Load(frame)
 
 	-- About to set layout
 	ShadowUF:FireModuleEvent("OnPreLayoutApply", frame, unitConfig)
+
+	-- Figure out if we're secure locking
+	frame.secureLocked = nil
+	for _, module in pairs(ShadowUF.moduleOrder) do
+		if( frame.visibility[module.moduleKey] and ShadowUF.db.profile.units[frame.unitType][module.moduleKey] and
+			ShadowUF.db.profile.units[frame.unitType][module.moduleKey].secure and module:SecureLockable() ) then
+			frame.secureLocked = true
+			break
+		end
+	end
 	
 	-- Load all of the layout things
 	self:SetupFrame(frame, unitConfig)
@@ -266,6 +296,10 @@ function Layout:AnchorFrame(parent, frame, config)
 			return
 		end
 	end
+
+	if( config.block ) then
+		anchorTo = anchorTo.blocks[frame.blockID]
+	end
 	
 	-- Figure out where it's anchored
 	local point = config.point and config.point ~= "" and config.point or preDefPoint[config.anchorPoint] or "CENTER"
@@ -331,15 +365,22 @@ function Layout:SetupBars(frame, config)
 		local key = module.moduleKey
 		local widget = frame[key]
 		if( widget and ( module.moduleHasBar or config[key] and config[key].isBar ) ) then
-			self:ToggleVisibility(widget, frame.visibility[key])
+			if( frame.visibility[key] and not frame[key].visibilityManaged and module.defaultVisibility == false ) then
+				self:ToggleVisibility(widget, false)
+			else
+				self:ToggleVisibility(widget, frame.visibility[key])
+			end
 			
-			if( widget:IsShown() and widget.SetStatusBarTexture ) then
+			if( ( widget:IsShown() or ( not frame[key].visibilityManaged and module.defaultVisibility == false ) ) and widget.SetStatusBarTexture ) then
 				widget:SetStatusBarTexture(mediaPath.statusbar)
 				widget:GetStatusBarTexture():SetHorizTile(false)
+
+				widget:SetOrientation(config[key].vertical and "VERTICAL" or "HORIZONTAL")
+				widget:SetReverseFill(config[key].reverse and true or false)
 			end
 
 			if( widget.background ) then
-				if( config[key].background ) then
+				if( config[key].background or config[key].invert ) then
 					widget.background:SetTexture(mediaPath.statusbar)
 					widget.background:SetHorizTile(false)
 					widget.background:Show()
@@ -374,6 +415,38 @@ function Layout:SetupFontString(fontString, extraSize)
 end
 
 local totalWeight = {}
+function Layout:InitFontString(parent, frame, id, config, blockID)
+	local rowID = blockID and tonumber(id .. "." .. blockID) or id
+
+	local fontString = frame.fontStrings[rowID] or frame.highFrame:CreateFontString(nil, "ARTWORK")
+	fontString.configID = id
+	if( blockID ) then
+		fontString.blockID = blockID
+		fontString.block = parent.blocks[blockID]
+	end
+
+	self:SetupFontString(fontString, config.size)
+	fontString:SetTextColor(ShadowUF.db.profile.font.color.r, ShadowUF.db.profile.font.color.g, ShadowUF.db.profile.font.color.b, ShadowUF.db.profile.font.color.a)
+	fontString:SetText(config.text)
+	fontString:SetJustifyH(self:GetJustify(config))
+	self:AnchorFrame(frame, fontString, config)
+
+	-- We figure out the anchor point so we can put text in the same area with the same width requirements
+	local anchorPoint = columnDirection[config.anchorPoint]
+	if( string.len(config.anchorPoint) == 3 ) then anchorPoint = anchorPoint .. "I" end
+
+	fontString.parentBar = parent
+	fontString.availableWidth = parent:GetWidth() - config.x
+	fontString.widthID = config.anchorTo .. anchorPoint .. config.y
+	totalWeight[fontString.widthID] = (totalWeight[fontString.widthID] or 0) + config.width
+
+	ShadowUF.Tags:Register(frame, fontString, config.text)
+	fontString:UpdateTags()
+	fontString:Show()
+
+	frame.fontStrings[rowID] = fontString
+end	
+
 function Layout:SetupText(frame, config)
 	-- Update tag text
 	frame.fontStrings = frame.fontStrings or {}
@@ -386,33 +459,22 @@ function Layout:SetupText(frame, config)
 	
 	-- Update the actual text, and figure out the weighting information now
 	for id, row in pairs(config.text) do
-		local parent = row.anchorTo == "$parent" and frame or frame[string.sub(row.anchorTo, 2)]
-		if( parent and parent:IsShown() and row.enabled and row.text ~= "" ) then
-			local fontString = frame.fontStrings[id] or frame.highFrame:CreateFontString(nil, "ARTWORK")
-			self:SetupFontString(fontString, row.size)
-			fontString:SetTextColor(ShadowUF.db.profile.font.color.r, ShadowUF.db.profile.font.color.g, ShadowUF.db.profile.font.color.b, ShadowUF.db.profile.font.color.a)
-			fontString:SetText(row.text)
-			fontString:SetJustifyH(self:GetJustify(row))
-			self:AnchorFrame(frame, fontString, row)
-			
-			-- We figure out the anchor point so we can put text in the same area with the same width requirements
-			local anchorPoint = columnDirection[row.anchorPoint]
-			if( string.len(row.anchorPoint) == 3 ) then anchorPoint = anchorPoint .. "I" end
-			
-			fontString.availableWidth = parent:GetWidth() - row.x
-			fontString.widthID = row.anchorTo .. anchorPoint .. row.y
-			totalWeight[fontString.widthID] = (totalWeight[fontString.widthID] or 0) + row.width
-			
-			ShadowUF.Tags:Register(frame, fontString, row.text)
-			fontString:UpdateTags()
-			fontString:Show()
-			
-			frame.fontStrings[id] = fontString
+		local module = string.sub(row.anchorTo, 2)
+		local parent = row.anchorTo == "$parent" and frame or frame[module]
+		if( parent and ( ShadowUF.modules[module].defaultVisibility == false or parent:IsShown() ) and row.enabled and row.text ~= "" ) then
+			if( not row.block ) then
+				self:InitFontString(parent, frame, id, row, nil)
+			else
+				for blockID, block in pairs(parent.blocks) do
+					self:InitFontString(parent, frame, id, row, blockID)
+				end
+			end
 		end
 	end
 
 	-- Now set all of the width using our weightings
-	for id, fontString in pairs(frame.fontStrings) do
+	for _, fontString in pairs(frame.fontStrings) do
+		local id = fontString.configID
 		if( fontString:IsShown() ) then
 			fontString:SetWidth(fontString.availableWidth * (config.text[id].width / totalWeight[fontString.widthID]))
 			fontString:SetHeight(ShadowUF.db.profile.font.size + 1)
@@ -438,11 +500,15 @@ function Layout:PositionWidgets(frame, config)
 	-- Figure out total weighting as well as what bars are full sized
 	for i=#(barOrder), 1, -1 do table.remove(barOrder, i) end
 	for key, module in pairs(ShadowUF.modules) do
+		if( config[key] and not config[key].height ) then config[key].height = 0.50 end
+
 		if( ( module.moduleHasBar or config[key] and config[key].isBar ) and frame[key] and frame[key]:IsShown() and config[key].height > 0 ) then
 			totalWeight = totalWeight + config[key].height
 			totalBars = totalBars + 1
 						
 			table.insert(barOrder, key)
+
+			config[key].order = config[key].order or 99
 			
 			-- Decide whats full sized
 			if( not frame.visibility.portrait or config.portrait.isBar or config[key].order < config.portrait.fullBefore or config[key].order > config.portrait.fullAfter ) then

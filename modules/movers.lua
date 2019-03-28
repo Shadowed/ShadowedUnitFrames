@@ -22,7 +22,6 @@ local function createConfigEnv()
 		GetRaidTargetIndex = function(unit) return getValue("GetRaidTargetIndex", unit, math.random(1, 8)) end,
 		GetLootMethod = function(unit) return "master", 0, 0 end,
 		GetComboPoints = function() return MAX_COMBO_POINTS end,
-		GetPetHappiness = function() return getValue("GetPetHappiness", "pet", math.random(1, 3)) end,
 		UnitInRaid = function() return true end,
 		UnitInParty = function() return true end,
 		UnitIsUnit = function(unitA, unitB) return unitB == "player" and true or false end,
@@ -31,11 +30,58 @@ local function createConfigEnv()
 		UnitLevel = function(unit) return MAX_PLAYER_LEVEL end,
 		UnitIsPlayer = function(unit) return unit ~= "boss" and unit ~= "pet" and not string.match(unit, "(%w+)pet") end,
 		UnitHealth = function(unit) return getValue("UnitHealth", unit, math.random(20000, 50000)) end,
+		UnitIsQuestBoss = function(unit) return unit == "target" or unit == "focus" end,
+		UnitIsWildBattlePet = function(unit) return unit == "target" or unit == "focus" end,
+		UnitBattlePetType = function(unit)
+			if( unit == "target" or unit == "focus" ) then
+				return getValue("UnitBattlePetType", unit, math.random(#(PET_TYPE_SUFFIX)))
+			end
+		end,
+		GetArenaOpponentSpec = function(unitID)
+			return getValue("GetArenaOpponentSpec", unitID, math.random(250, 270))
+		end,
 		UnitHealthMax = function(unit) return 50000 end,
-		UnitPower = function(unit) return getValue("UnitPower", unit, math.random(20000, 50000)) end,
+		UnitPower = function(unit, powerType)
+			if( powerType == Enum.PowerType.HolyPower or powerType == Enum.PowerType.SoulShards ) then
+				return 3
+			elseif( powerType == Enum.PowerType.Chi) then
+				return 4
+			end
+
+			return getValue("UnitPower", unit, math.random(20000, 50000))
+		end,
+		UnitGetTotalHealAbsorbs = function(unit)
+			return getValue("UnitGetTotalHealAbsorbs", unit, math.random(5000, 10000))
+		end,
+		UnitGetIncomingHeals = function(unit)
+			return getValue("UnitGetIncomingHeals", unit, math.random(10000, 15000))
+		end,
+		UnitGetTotalAbsorbs = function(unit)
+			return getValue("UnitGetTotalAbsorbs", unit, math.random(2500, 5000))
+		end,
+		UnitPowerMax = function(unit, powerType)
+			if( powerType == Enum.PowerType.Rage or powerType == Enum.PowerType.Energy or powerType == Enum.PowerType.RunicPower
+			 or powerType == Enum.PowerType.LunarPower or powerType == Enum.PowerType.Maelstrom or powerType == Enum.PowerType.Insanity
+			 or powerType == Enum.PowerType.Fury or powerType == Enum.PowerType.Pain ) then
+				return 100
+			elseif( powerType == Enum.PowerType.Focus ) then
+				return 120
+			elseif( powerType == Enum.PowerType.ComboPoints or powerType == Enum.PowerType.SoulShards or powerType == Enum.PowerType.HolyPower
+			     or powerType == Enum.PowerType.Chi ) then
+				return 5
+			elseif( powerType == Enum.PowerType.Runes ) then
+				return 6
+			elseif( powerType == Enum.PowerType.ArcaneCharges ) then
+				return 4
+			end
+
+			return 50000
+		end, 
+		UnitHasIncomingResurrection = function(unit) return true end,
+		UnitInOtherParty = function(unit) return getValue("UnitInOtherParty", unit, math.random(0, 1) == 1) end,
+		UnitInPhase = function(unit) return false end,
 		UnitExists = function(unit) return true end,
-		UnitPowerMax = function(unit) return 50000 end,
-		UnitIsPartyLeader = function() return true end,
+		UnitIsGroupLeader = function() return true end,
 		UnitIsPVP = function(unit) return true end,
 		UnitIsDND = function(unit) return false end,
 		UnitIsAFK = function(unit) return false end,
@@ -43,20 +89,19 @@ local function createConfigEnv()
 		UnitAffectingCombat = function() return true end,
 		UnitThreatSituation = function() return 0 end,
 		UnitDetailedThreatSituation = function() return nil end,
-		UnitThreatSituation = function() return 0 end,
 		UnitCastingInfo = function(unit)
-			-- 1 -> 10: spell, rank, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible
+			-- 1 -> 10: spell, displayName, icon, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID
 			local data = unitConfig["UnitCastingInfo" .. unit] or {}
-			if( not data[6] or GetTime() < data[6] ) then
+			if( not data[5] or GetTime() < data[5] ) then
 				data[1] = L["Test spell"]
-				data[2] = L["Rank 1"]
-				data[3] = L["Test spell"]
-				data[4] = "Interface\\Icons\\Spell_Nature_Rejuvenation"
-				data[5] = GetTime() * 1000
-				data[6] = data[5] + 60000
-				data[7] = false
-				data[8] = math.floor(GetTime())
-				data[9] = math.random(0, 100) < 25
+				data[2] = L["Test spell"]
+				data[3] = "Interface\\Icons\\Spell_Nature_Rejuvenation"
+				data[4] = GetTime() * 1000
+				data[5] = data[4] + 60000
+				data[6] = false
+				data[7] = math.floor(GetTime())
+				data[8] = math.random(0, 100) < 25
+				data[9] = 1000
 				unitConfig["UnitCastingInfo" .. unit] = data
 			end
 			
@@ -73,7 +118,7 @@ local function createConfigEnv()
 		end,
 		UnitGroupRolesAssigned = function(unit)
 			local role = getValue("UnitGroupRolesAssigned", unit, math.random(1, 3))
-			return role == 1, role == 2, role == 3
+			return role == 1 and "TANK" or (role == 2 and "HEALER" or (role == 3 and "DAMAGER"))
 		end,
 		UnitPowerType = function(unit)
 			local powerType = math.random(0, 4)
@@ -81,13 +126,26 @@ local function createConfigEnv()
 			
 			return powerType, powerType == 0 and "MANA" or powerType == 1 and "RAGE" or powerType == 2 and "FOCUS" or powerType == 3 and "ENERGY" or powerType == 6 and "RUNIC_POWER"
 		end,
+		UnitStagger = function(unit)
+			if( unit ~= "player" ) then return nil end
+			return getValue("UnitStagger", math.random(2000, 10000))
+		end,
 		UnitAura = function(unit, id, filter)
-			if( type(id) ~= "number" or id > 40 ) then return end
+			-- apply buff and debuff configurations
+			-- info: raid and group frame units have numbers we need to load their general config
+			-- by removing the numbers from the name.
+			local config = ShadowUF.db.profile.units[string.match(unit, "%a+")]
+			local buffConfig = config.auras.buffs
+			local debuffConfig = config.auras.debuffs
+			-- calculate max auras
+			local maxBuffs, maxDebuffs = buffConfig.perRow * buffConfig.maxRows, debuffConfig.perRow * debuffConfig.maxRows
+			if( filter == "HELPFUL" and (type(id) ~= "number" or id > maxBuffs) ) then return end
+			if( filter ~= "HELPFUL" and (type(id) ~= "number" or id > maxDebuffs) ) then return end
 			
 			local texture = filter == "HELPFUL" and "Interface\\Icons\\Spell_Nature_Rejuvenation" or "Interface\\Icons\\Ability_DualWield"
 			local mod = id % 5
 			local auraType = mod == 0 and "Magic" or mod == 1 and "Curse" or mod == 2 and "Poison" or mod == 3 and "Disease" or "none"
-			return L["Test Aura"], L["Rank 1"], texture, id, auraType, 0, 0, "player", id % 6 == 0
+			return L["Test Aura"], texture, id, auraType, 0, 0, "player", id % 6 == 0
 		end,
 		UnitName = function(unit)
 			local unitID = string.match(unit, "(%d+)")
@@ -114,7 +172,7 @@ local function prepareChildUnits(header, ...)
 		if( frame.unitType and not frame.configUnitID ) then
 			ShadowUF.Units.frameList[frame] = true
 			frame.configUnitID = header.groupID and (header.groupID * 5) - 5 + i or i
-			frame:SetAttribute("unit", ShadowUF[header.unitType .. "Units"][frame.configUnitID])
+			frame:SetAttribute("unit", ShadowUF[header.unitMappedType .. "Units"][frame.configUnitID])
 		end
 	end
 end
@@ -144,19 +202,21 @@ local function setupUnits(childrenOnly)
 			-- Unit's not visible and it's enabled so it should
 			elseif( not frame:IsVisible() and ShadowUF.db.profile.units[frame.unitType].enabled ) then
 				UnregisterUnitWatch(frame)
+
+				frame:SetAttribute("state-unitexists", true)
 				frame:FullUpdate()
 				frame:Show()
 			end
 		elseif( not frame.configMode and ShadowUF.db.profile.units[frame.unitType].enabled ) then
 			frame.originalUnit = frame:GetAttribute("unit")
-			frame.originalOnEnter = frame:GetScript("OnEnter")
-			frame.originalOnLeave = frame:GetScript("OnLeave")
+			frame.originalOnEnter = frame.OnEnter
+			frame.originalOnLeave = frame.OnLeave
 			frame.originalOnUpdate = frame:GetScript("OnUpdate")
 			frame:SetMovable(not ShadowUF.Units.childUnits[frame.unitType])
 			frame:SetScript("OnDragStop", OnDragStop)
 			frame:SetScript("OnDragStart", OnDragStart)
-			frame:SetScript("OnEnter", OnEnter)
-			frame:SetScript("OnLeave", OnLeave)
+			frame.OnEnter = OnEnter
+			frame.OnLeave = OnLeave
 			frame:SetScript("OnEvent", nil)
 			frame:SetScript("OnUpdate", nil)
 			frame:RegisterForDrag("LeftButton")
@@ -224,7 +284,7 @@ function Movers:Enable()
 		header:SetMovable(true)
 		prepareChildUnits(header, header:GetChildren())
 	end
-	
+
 	-- Setup the test env
 	if( not self.isEnabled ) then
 		for _, func in pairs(ShadowUF.tagFunc) do
@@ -250,7 +310,15 @@ function Movers:Enable()
 	-- so the first call gets all the parent units, the second call gets the child units
 	setupUnits()
 	setupUnits(true)
-	
+
+	for unitType in pairs(ShadowUF.Units.zoneUnits) do
+		local header = ShadowUF.Units.headerFrames[unitType]
+		if( ShadowUF.db.profile.units[unitType].enabled and header ) then
+			header:SetAttribute("childChanged", 1)
+		end
+	end
+
+
 	-- Don't show the dialog if the configuration is opened through the configmode spec
 	if( not self.isConfigModeSpec ) then
 		self:CreateInfoFrame()
@@ -286,10 +354,10 @@ function Movers:Disable()
 			frame:SetAttribute("unit", frame.originalUnit)
 			frame:SetScript("OnDragStop", nil)
 			frame:SetScript("OnDragStart", nil)
-			frame:SetScript("OnEvent", frame:IsVisible() and ShadowUF.Units.OnEvent)
+			frame:SetScript("OnEvent", frame:IsVisible() and ShadowUF.Units.OnEvent or nil)
 			frame:SetScript("OnUpdate", frame.originalOnUpdate)
-			frame:SetScript("OnEnter", frame.originalOnEnter)
-			frame:SetScript("OnLeave", frame.originalOnLeave)
+			frame.OnEnter = frame.originalOnEnter
+			frame.OnLeave = frame.originalOnLeave
 			frame:SetMovable(false)
 			frame:RegisterForDrag()
 			
@@ -316,6 +384,9 @@ function Movers:Disable()
 	ShadowUF.Units:CheckPlayerZone(true)
 	ShadowUF.Layout:Reload()
 	
+	-- Don't store these so everything can be GCed
+	unitConfig = {}
+
 	if( self.infoFrame ) then
 		self.infoFrame:Hide()
 	end
@@ -427,8 +498,6 @@ function Movers:CreateInfoFrame()
 			DEFAULT_CHAT_FRAME:AddMessage(L["You have entered combat, unit frames have been locked. Once you leave combat you will need to unlock them again through /shadowuf."])
 		end
 	end)
-	frame:SetScript("OnShow", OnShow)
-	frame:SetScript("OnHide", OnHide)
 	frame:SetScript("OnDragStart", function(self)
 		self:StartMoving()
 	end)

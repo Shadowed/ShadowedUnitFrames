@@ -1,5 +1,8 @@
 local Highlight = {}
 local goldColor, mouseColor = {r = 0.75, g = 0.75, b = 0.35}, {r = 0.75, g = 0.75, b = 0.50}
+local rareColor, eliteColor = {r = 0, g = 0.63, b = 1}, {r = 1, g = 0.81, b = 0}
+
+local canCure = ShadowUF.Units.canCure
 ShadowUF:RegisterModule(Highlight, "highlight", ShadowUF.L["Highlight"])
 
 -- Might seem odd to hook my code in the core manually, but HookScript is ~40% slower due to it being a secure hook
@@ -84,16 +87,21 @@ function Highlight:OnEnable(frame)
 	end
 
 	if( ShadowUF.db.profile.units[frame.unitType].highlight.debuff ) then
-		frame:RegisterNormalEvent("UNIT_AURA", self, "UpdateAura")
+		frame:RegisterUnitEvent("UNIT_AURA", self, "UpdateAura")
 		frame:RegisterUpdateFunc(self, "UpdateAura")
 	end
-	
+
 	if( ShadowUF.db.profile.units[frame.unitType].highlight.mouseover and not frame.highlight.OnEnter ) then
-		frame.highlight.OnEnter = frame:GetScript("OnEnter")
-		frame.highlight.OnLeave = frame:GetScript("OnLeave")
+		frame.highlight.OnEnter = frame.OnEnter
+		frame.highlight.OnLeave = frame.OnLeave
 		
-		frame:SetScript("OnEnter", OnEnter)
-		frame:SetScript("OnLeave", OnLeave)
+		frame.OnEnter = OnEnter
+		frame.OnLeave = OnLeave
+	end
+
+	if( ShadowUF.db.profile.units[frame.unitType].highlight.rareMob or ShadowUF.db.profile.units[frame.unitType].highlight.eliteMob ) then
+		frame:RegisterUnitEvent("UNIT_CLASSIFICATION_CHANGED", self, "UpdateClassification")
+		frame:RegisterUpdateFunc(self, "UpdateClassification")
 	end
 end
 
@@ -113,20 +121,32 @@ function Highlight:OnDisable(frame)
 	frame.highlight.hasMouseover = nil
 
 	frame.highlight:Hide()
+
+	if( frame.highlight.OnEnter ) then
+		frame.OnEnter = frame.highlight.OnEnter
+		frame.OnLeave = frame.highlight.OnLeave
+
+		frame.highlight.OnEnter = nil
+		frame.highlight.OnLeave = nil
+	end
 end
 
 function Highlight:Update(frame)
 	local color
 	if( frame.highlight.hasDebuff ) then
-		color = DebuffTypeColor[frame.highlight.hasDebuff]
+		color = DebuffTypeColor[frame.highlight.hasDebuff] or DebuffTypeColor[""]
 	elseif( frame.highlight.hasThreat ) then
 		color = ShadowUF.db.profile.healthColors.hostile
 	elseif( frame.highlight.hasAttention ) then
 		color = goldColor
 	elseif( frame.highlight.hasMouseover ) then
 		color = mouseColor
+	elseif( ShadowUF.db.profile.units[frame.unitType].highlight.rareMob and ( frame.highlight.hasClassification == "rareelite" or frame.highlight.hasClassification == "rare" ) ) then
+		color = rareColor
+	elseif( ShadowUF.db.profile.units[frame.unitType].highlight.eliteMob and frame.highlight.hasClassification == "elite" ) then
+		color = eliteColor
 	end
-		
+
 	if( color ) then
 		frame.highlight.top:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.units[frame.unitType].highlight.alpha)
 		frame.highlight.left:SetVertexColor(color.r, color.g, color.b, ShadowUF.db.profile.units[frame.unitType].highlight.alpha)
@@ -148,8 +168,27 @@ function Highlight:UpdateAttention(frame)
 	self:Update(frame)
 end
 
+function Highlight:UpdateClassification(frame)
+	frame.highlight.hasClassification = UnitClassification(frame.unit)
+	self:Update(frame)
+end
+
 function Highlight:UpdateAura(frame)
-	-- In theory, we don't need aura scanning because the first debuff returned is always one we can cure... in theory
-	frame.highlight.hasDebuff = UnitIsFriend(frame.unit, "player") and select(5, UnitDebuff(frame.unit, 1, "RAID")) or nil
+	frame.highlight.hasDebuff = nil
+	if( UnitIsFriend(frame.unit, "player") ) then
+		local id = 0
+		while( true ) do
+			id = id + 1
+			local name, _, _, auraType = UnitDebuff(frame.unit, id)
+			if( not name ) then break end
+			if( auraType == "" ) then auraType = "Enrage" end
+			
+			if( canCure[auraType] ) then
+				frame.highlight.hasDebuff = auraType
+				break
+			end
+		end
+	end
+
 	self:Update(frame)
 end
