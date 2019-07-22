@@ -537,7 +537,10 @@ OnAttributeChanged = function(self, name, unit)
 		self:RegisterUnitEvent("UNIT_TARGETABLE_CHANGED", self, "FullUpdate")
 				
 	elseif( self.unit == "player" ) then
-		self:SetAttribute("toggleForVehicle", true)
+		-- this should not get called in combat, but just in case make sure we are not actually in combat
+		if not InCombatLockdown() then
+			self:SetAttribute("toggleForVehicle", true)
+		end
 		
 		-- Force a full update when the player is alive to prevent freezes when releasing in a zone that forces a ressurect (naxx/tk/etc)
 		self:RegisterNormalEvent("PLAYER_ALIVE", self, "FullUpdate")
