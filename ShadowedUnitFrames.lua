@@ -680,7 +680,7 @@ function ShadowUF:HideBlizzardFrames()
 	if( self.db.profile.hidden.party and not active_hiddens.party ) then
 		for i=1, MAX_PARTY_MEMBERS do
 			local name = "PartyMemberFrame" .. i
-			hideBlizzardFrames(true, _G[name], _G[name .. "HealthBar"], _G[name .. "ManaBar"])
+			hideBlizzardFrames(false, _G[name], _G[name .. "HealthBar"], _G[name .. "ManaBar"])
 		end
 
 		-- This stops the compact party frame from being shown
