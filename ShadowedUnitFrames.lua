@@ -653,6 +653,7 @@ end
 local function hideBlizzardFrames(taint, ...)
 	for i=1, select("#", ...) do
 		local frame = select(i, ...)
+		UnregisterUnitWatch(frame)
 		frame:UnregisterAllEvents()
 		frame:Hide()
 
