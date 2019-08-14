@@ -407,9 +407,7 @@ function Layout:SetupFontString(fontString, extraSize)
 
 	if( ShadowUF.db.profile.font.shadowColor and ShadowUF.db.profile.font.shadowX and ShadowUF.db.profile.font.shadowY ) then
 		fontString:SetShadowColor(ShadowUF.db.profile.font.shadowColor.r, ShadowUF.db.profile.font.shadowColor.g, ShadowUF.db.profile.font.shadowColor.b, ShadowUF.db.profile.font.shadowColor.a)
-		local scale = fontString:GetEffectiveScale()
-		local x, y = ShadowUF.db.profile.font.shadowX * scale, ShadowUF.db.profile.font.shadowY * scale
-		fontString:SetShadowOffset(x, y)
+		fontString:SetShadowOffset(ShadowUF.db.profile.font.shadowX, ShadowUF.db.profile.font.shadowY)
 	else
 		fontString:SetShadowColor(0, 0, 0, 0)
 		fontString:SetShadowOffset(0, 0)
