@@ -836,8 +836,8 @@ function ShadowUF:ShowInfoPanel()
 	frame.hide:SetHeight(20)
 	frame.hide:SetWidth(100)
 	frame.hide:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 8, 8)
-	frame.hide:SetScript("OnClick", function(self)
-		self:GetParent():Hide()
+	frame.hide:SetScript("OnClick", function(f)
+		f:GetParent():Hide()
 	end)
 end
 

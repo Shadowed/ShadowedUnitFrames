@@ -8,6 +8,7 @@ exclude_files = {
 
 ignore = {
 	"11./BINDING_.*", -- Setting an undefined (Keybinding) global variable
+	"11./SLASH_.*", -- Setting an undefined (Slash) global variable
 	"211", -- Unused local variable
 	"211/L", -- Unused local variable "L"
 	"212", -- Unused argument
@@ -22,6 +23,8 @@ ignore = {
 globals = {
 	"ShadowUF",
 	"ClickCastFrames",
+	"CONFIGMODE_CALLBACKS",
+	"SlashCmdList",
 }
 
 read_globals = {
@@ -73,6 +76,7 @@ read_globals = {
 	"IsShiftKeyDown",
 	"IsUsableSpell",
 	"IsXPUserDisabled",
+	"LoadAddOn",
 	"UnitAffectingCombat",
 	"UnitAlternatePowerInfo",
 	"UnitAura",
@@ -132,6 +136,8 @@ read_globals = {
 	"UnitXPMax",
 
 	-- FrameXML frames
+	"ArenaEnemyFrames",
+	"ArenaPrepFrames",
 	"BuffFrame",
 	"CastingBarFrame",
 	"ComboFrame",
@@ -149,6 +155,7 @@ read_globals = {
 	"PetFrame",
 	"PlayerFrame",
 	"PlayerFrameAlternateManaBar",
+	"PlayerPowerBarAlt",
 	"PriestBarFrame",
 	"RuneFrame",
 	"TargetFrame",
