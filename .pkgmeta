@@ -5,11 +5,9 @@ move-folders:
 
 externals:
     libs/LibStub:
-        url: https://repos.wowace.com/wow/libstub/trunk
-        tag: latest
+        url: https://repos.wowace.com/wow/libstub/tags/1.0
     libs/CallbackHandler-1.0:
         url: https://repos.wowace.com/wow/callbackhandler/trunk
-        tag: latest
     libs/AceDB-3.0:
         url: https://repos.wowace.com/wow/ace3/trunk/AceDB-3.0
     libs/LibSharedMedia-3.0:
