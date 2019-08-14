@@ -17,7 +17,7 @@ externals:
     libs/LibDualSpec-1.0:
         url: https://repos.wowace.com/wow/libdualspec-1-0
     libs/LibSpellRange-1.0:
-        url: git://github.com/ascott18/LibSpellRange-1.0.git
+        url: https://github.com/ascott18/LibSpellRange-1.0.git
     options/libs/AceConfig-3.0:
         url: https://repos.wowace.com/wow/ace3/trunk/AceConfig-3.0
     options/libs/AceDBOptions-3.0:
