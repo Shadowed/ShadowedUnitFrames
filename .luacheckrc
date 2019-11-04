@@ -40,6 +40,7 @@ read_globals = {
 	"LibStub",
 
 	-- API functions
+	"C_IncomingSummon",
 	"C_Timer",
 	"CancelUnitBuff",
 	"CanHearthAndResurrectFromArea",
