@@ -121,6 +121,7 @@ read_globals = {
 	"UnitIsUnit",
 	"UnitIsVisible",
 	"UnitIsWildBattlePet",
+	"UnitLeadsAnyGroup",
 	"UnitLevel",
 	"UnitPlayerControlled",
 	"UnitPlayerOrPetInParty",
