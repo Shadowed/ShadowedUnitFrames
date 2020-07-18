@@ -11,6 +11,8 @@ local unitFrames, headerFrames, frameList, unitEvents, childUnits, headerUnits, 
 local remappedUnits = Units.remappedUnits
 local _G = getfenv(0)
 
+local WoW90 = select(4, GetBuildInfo()) >= 90000
+
 ShadowUF.Units = Units
 ShadowUF:RegisterModule(Units, "units")
 
@@ -64,6 +66,11 @@ local function RegisterNormalEvent(self, event, handler, func, unitOverride)
 	if( not handler[func] ) then
 		error(string.format("Invalid handler/function passed for %s on event %s, the function %s does not exist.", self:GetName() or tostring(self), tostring(event), tostring(func)), 3)
 		return
+	end
+
+	-- XXX: replace once 9.0 goes live, and we can cleanly remove events from tags and all modules
+	if WoW90 and event == "UNIT_HEALTH_FREQUENT" then
+		event = "UNIT_HEALTH"
 	end
 
 	if( unitEvents[event] and not ShadowUF.fakeUnits[self.unitRealType] ) then
