@@ -167,6 +167,7 @@ read_globals = {
 	"WarlockPowerFrame",
 
 	-- FrameXML functions
+	"BackdropTemplateMixin",
 	"CombatFeedback_OnCombatEvent",
 	"CombatFeedback_OnUpdate",
 	"CompactRaidFrameManager_GetSetting",

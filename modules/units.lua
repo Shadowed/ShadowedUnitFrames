@@ -634,7 +634,7 @@ local secureInitializeUnit = [[
 	end
 ]]
 
-local unitButtonTemplate = ClickCastHeader and "ClickCastUnitTemplate,SUF_SecureUnitTemplate" or "SUF_SecureUnitTemplate"
+local unitButtonTemplate = ClickCastHeader and (BackdropTemplateMixin and "ClickCastUnitTemplate,SUF_SecureUnitTemplate,BackdropTemplate" or "ClickCastUnitTemplate,SUF_SecureUnitTemplate") or (BackdropTemplateMixin and "SUF_SecureUnitTemplate,BackdropTemplate" or "SUF_SecureUnitTemplate")
 
 -- Header unit initialized
 local function initializeUnit(header, frameName)
@@ -952,7 +952,7 @@ function Units:LoadUnit(unit)
 		return
 	end
 
-	local frame = self:CreateUnit("Button", "SUFUnit" .. unit, petBattleFrame, "SecureUnitButtonTemplate")
+	local frame = self:CreateUnit("Button", "SUFUnit" .. unit, petBattleFrame, BackdropTemplateMixin and "SecureUnitButtonTemplate,BackdropTemplate" or "SecureUnitButtonTemplate")
 	frame:SetAttribute("unit", unit)
 	frame.hasStateWatch = unit == "pet"
 
@@ -1180,7 +1180,7 @@ function Units:LoadZoneHeader(type)
 	end
 
 	for id, unit in pairs(ShadowUF[type .. "Units"]) do
-		local frame = self:CreateUnit("Button", "SUFHeader" .. type .. "UnitButton" .. id, headerFrame, "SecureUnitButtonTemplate")
+		local frame = self:CreateUnit("Button", "SUFHeader" .. type .. "UnitButton" .. id, headerFrame, BackdropTemplateMixin and "SecureUnitButtonTemplate,BackdropTemplate" or "SecureUnitButtonTemplate")
 		frame.ignoreAnchor = true
 		frame.hasStateWatch = true
 		frame.unitUnmapped = type .. id
@@ -1296,7 +1296,7 @@ function Units:LoadChildUnit(parent, type, id)
 	end
 
 	-- Now we can create the actual frame
-	local frame = self:CreateUnit("Button", "SUFChild" .. type .. string.match(parent:GetName(), "(%d+)"), parent, "SecureUnitButtonTemplate")
+	local frame = self:CreateUnit("Button", "SUFChild" .. type .. string.match(parent:GetName(), "(%d+)"), parent, BackdropTemplateMixin and "SecureUnitButtonTemplate,BackdropTemplate" or "SecureUnitButtonTemplate")
 	frame.unitType = type
 	frame.parent = parent
 	frame.isChildUnit = true

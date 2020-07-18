@@ -473,7 +473,7 @@ function Movers:CreateInfoFrame()
 	if( self.infoFrame ) then return end
 
 	-- Show an info frame that users can lock the frames through
-	local frame = CreateFrame("Frame", nil, UIParent)
+	local frame = CreateFrame("Frame", nil, UIParent, BackdropTemplateMixin and "BackdropTemplate" or nil)
 	frame:SetClampedToScreen(true)
 	frame:SetWidth(300)
 	frame:SetHeight(115)
