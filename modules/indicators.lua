@@ -2,6 +2,8 @@ local Indicators = {list = {"status", "pvp", "leader", "resurrect", "sumPending"
 
 ShadowUF:RegisterModule(Indicators, "indicators", ShadowUF.L["Indicators"])
 
+local UnitInPhase = UnitInPhase or UnitPhaseReason
+
 function Indicators:UpdateArenaSpec(frame)
 	if( not frame.indicators.arenaSpec or not frame.indicators.arenaSpec.enabled ) then return end
 

@@ -48,6 +48,8 @@ local LSR = LibStub("SpellRange-1.0")
 local playerClass = select(2, UnitClass("player"))
 local rangeSpells = {}
 
+local UnitInPhase = UnitInPhase or UnitPhaseReason
+
 local function checkRange(self)
 	local frame = self.parent
 
