@@ -1,3 +1,6 @@
+local WoW90 = select(4, GetBuildInfo()) >= 90001
+if WoW90 then return end -- no more maelstrom in 9.0, so no need for the shaman mana bar
+
 local Shaman = {}
 ShadowUF:RegisterModule(Shaman, "shamanBar", ShadowUF.L["Shaman mana bar"], true, "SHAMAN")
 
