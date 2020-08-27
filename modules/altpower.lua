@@ -46,8 +46,8 @@ end
 
 function AltPower:Update(frame, event, unit, type)
 	if( event and type ~= "ALTERNATE" ) then return end
-	local barID = UnitPowerBarID(frame.unit)
-	local barInfo = GetUnitPowerBarInfoByID(barID) or 0
+	local barID = UnitPowerBarID(frame.unit) or 0
+	local barInfo = GetUnitPowerBarInfoByID(barID)
 	local minPower = barInfo and barInfo.minPower or 0
 
 	frame.altPowerBar:SetMinMaxValues(minPower, UnitPowerMax(frame.unit, ALTERNATE_POWER_INDEX) or 0)
