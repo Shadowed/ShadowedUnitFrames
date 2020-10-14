@@ -79,7 +79,7 @@ local function createConfigEnv()
 		end,
 		UnitHasIncomingResurrection = function(unit) return true end,
 		UnitInOtherParty = function(unit) return getValue("UnitInOtherParty", unit, math.random(0, 1) == 1) end,
-		UnitInPhase = function(unit) return false end,
+		UnitPhaseReason = function(unit) return nil end,
 		UnitExists = function(unit) return true end,
 		UnitIsGroupLeader = function() return true end,
 		UnitIsPVP = function(unit) return true end,
