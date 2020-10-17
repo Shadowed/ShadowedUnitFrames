@@ -1,8 +1,8 @@
 local Range = {
 	friendly = {
 		["PRIEST"] = {
-			(GetSpellInfo(527)), -- Purify
 			(GetSpellInfo(17)), -- Power Word: Shield
+			(GetSpellInfo(527)), -- Purify
 		},
 		["DRUID"] = {
 			(GetSpellInfo(774)), -- Rejuvenation
