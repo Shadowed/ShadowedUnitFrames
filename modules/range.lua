@@ -48,6 +48,15 @@ local LSR = LibStub("SpellRange-1.0")
 local playerClass = select(2, UnitClass("player"))
 local rangeSpells = {}
 
+local UnitPhaseReason_o = UnitPhaseReason
+local UnitPhaseReason = function(unit)
+	local phase = UnitPhaseReason_o(unit)
+	if (phase == Enum.PhaseReason.WarMode or phase == Enum.PhaseReason.ChromieTime) and UnitIsVisible(unit) then
+		return nil
+	end
+	return phase
+end
+
 local function checkRange(self)
 	local frame = self.parent
 
