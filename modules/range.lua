@@ -147,7 +147,7 @@ end
 function Range:SpellChecks(frame)
 	updateSpellCache("friendly")
 	updateSpellCache("hostile")
-	if( frame.range ) then
+	if( frame.range and ShadowUF.db.profile.units[frame.unitType].range.enabled ) then
 		self:ForceUpdate(frame)
 	end
 end
