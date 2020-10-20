@@ -76,6 +76,7 @@ read_globals = {
 	"IsPlayerSpell",
 	"IsResting",
 	"IsShiftKeyDown",
+	"IsSpellKnown",
 	"IsUsableSpell",
 	"IsXPUserDisabled",
 	"LoadAddOn",
