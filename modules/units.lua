@@ -11,8 +11,6 @@ local unitFrames, headerFrames, frameList, unitEvents, childUnits, headerUnits, 
 local remappedUnits = Units.remappedUnits
 local _G = getfenv(0)
 
-local WoW90 = select(4, GetBuildInfo()) >= 90000
-
 ShadowUF.Units = Units
 ShadowUF:RegisterModule(Units, "units")
 
@@ -69,7 +67,7 @@ local function RegisterNormalEvent(self, event, handler, func, unitOverride)
 	end
 
 	-- XXX: replace once 9.0 goes live, and we can cleanly remove events from tags and all modules
-	if WoW90 and event == "UNIT_HEALTH_FREQUENT" then
+	if event == "UNIT_HEALTH_FREQUENT" then
 		event = "UNIT_HEALTH"
 	end
 
