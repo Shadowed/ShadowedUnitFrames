@@ -7,7 +7,7 @@ if( playerClass == "DEATHKNIGHT" ) then
 	MAX_TOTEMS = 1
 	-- Unholy DKs get rank 2 on level 29 which converts their ghoul into a proper pet.
 	local spec = (UnitLevel("player") < 29) and {1, 2, 3} or {1, 2}
-	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Totem bar"], true, "DEATHKNIGHT", spec, 12)
+	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Ghoul bar"], true, "DEATHKNIGHT", spec, 12)
 elseif( playerClass == "DRUID" ) then
 	MAX_TOTEMS = 1
 	ShadowUF:RegisterModule(Totems, "totemBar", ShadowUF.L["Mushroom bar"], true, "DRUID", 4, 39)
@@ -55,7 +55,9 @@ function Totems:OnEnable(frame)
 			table.insert(frame.totemBar.totems, totem)
 		end
 
-		if( playerClass == "DRUID" ) then
+		if( playerClass == "DEATHKNIGHT" ) then
+			totemColors[1] = ShadowUF.db.profile.classColors.PET
+		elseif( playerClass == "DRUID" ) then
 			totemColors[1] = ShadowUF.db.profile.powerColors.MUSHROOMS
 		elseif( playerClass == "WARLOCK" ) then
 			totemColors[1] = ShadowUF.db.profile.classColors.PET
