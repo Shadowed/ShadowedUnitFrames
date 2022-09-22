@@ -694,13 +694,21 @@ end
 local active_hiddens = {}
 function ShadowUF:HideBlizzardFrames()
 	if( self.db.profile.hidden.cast and not active_hiddens.cast ) then
-		hideBlizzardFrames(true, CastingBarFrame, PetCastingBarFrame)
+		hideBlizzardFrames(true, PlayerCastingBarFrame or CastingBarFrame, PetCastingBarFrame)
 	end
 
 	if( self.db.profile.hidden.party and not active_hiddens.party ) then
-		for i=1, MAX_PARTY_MEMBERS do
-			local name = "PartyMemberFrame" .. i
-			hideBlizzardFrames(false, _G[name], _G[name .. "HealthBar"], _G[name .. "ManaBar"])
+		if( PartyFrame ) then
+			hideBlizzardFrames(false, PartyFrame)
+			for memberFrame in PartyFrame.PartyMemberFramePool:EnumerateActive() do
+				hideBlizzardFrames(false, memberFrame, memberFrame.HealthBar, memberFrame.ManaBar)
+			end
+			PartyFrame.PartyMemberFramePool:ReleaseAll()
+		else
+			for i=1, MAX_PARTY_MEMBERS do
+				local name = "PartyMemberFrame" .. i
+				hideBlizzardFrames(false, _G[name], _G[name .. "HealthBar"], _G[name .. "ManaBar"])
+			end
 		end
 
 		-- This stops the compact party frame from being shown
@@ -741,7 +749,7 @@ function ShadowUF:HideBlizzardFrames()
 	end
 
 	if( self.db.profile.hidden.buffs and not active_hiddens.buffs ) then
-		hideBlizzardFrames(false, BuffFrame, TemporaryEnchantFrame)
+		hideBlizzardFrames(false, BuffFrame, TemporaryEnchantFrame or DebuffFrame)
 	end
 
 	if( self.db.profile.hidden.player and not active_hiddens.player ) then
@@ -777,7 +785,11 @@ function ShadowUF:HideBlizzardFrames()
 	if( self.db.profile.hidden.boss and not active_hiddens.boss ) then
 		for i=1, MAX_BOSS_FRAMES do
 			local name = "Boss" .. i .. "TargetFrame"
-			hideBlizzardFrames(false, _G[name], _G[name .. "HealthBar"], _G[name .. "ManaBar"])
+			if _G[name].TargetFrameContent then
+				hideBlizzardFrames(false, _G[name], _G[name].TargetFrameContent.TargetFrameContentMain.HealthBar, _G[name].TargetFrameContent.TargetFrameContentMain.ManaBar)
+			else
+				hideBlizzardFrames(false, _G[name], _G[name .. "HealthBar"], _G[name .. "ManaBar"])
+			end
 		end
 	end
 
