@@ -66,6 +66,7 @@ modules\aurapoints.lua
 modules\priest.lua
 modules\shaman.lua
 modules\arcanecharges.lua
+modules\essence.lua
 #@do-not-package@
 options\config.lua
 #@end-do-not-package@
