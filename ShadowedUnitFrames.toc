@@ -5,7 +5,7 @@
 ## Version: @project-version@
 ## SavedVariables: ShadowedUFDB
 ## X-Website: https://www.wowace.com/addons/shadowed-unit-frames/
-## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibDualSpec-1.0, LibSpellRange-1.0, Clique
+## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibDualSpec-1.0, LibSpellRange-1.0, UTF8, Clique
 ## X-Curse-Project-ID: 19268
 ## X-WoWI-ID: 13494
 
@@ -16,6 +16,7 @@ libs\LibSharedMedia-3.0\lib.xml
 libs\AceDB-3.0\AceDB-3.0.xml
 libs\LibDualSpec-1.0\LibDualSpec-1.0.lua
 libs\LibSpellRange-1.0\lib.xml
+libs\UTF8\utf8.lua
 #@end-no-lib-strip@
 
 localization\enUS.lua
