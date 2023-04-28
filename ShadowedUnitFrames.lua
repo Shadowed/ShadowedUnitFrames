@@ -804,13 +804,10 @@ function ShadowUF:HideBlizzardFrames()
 		end
 	end
 
-	if( self.db.profile.hidden.arena and not active_hiddens.arenaTriggered and IsAddOnLoaded("Blizzard_ArenaUI") and not InCombatLockdown() ) then
+	if( self.db.profile.hidden.arena and not active_hiddens.arenaTriggered ) then
 		active_hiddens.arenaTriggered = true
 
-		ArenaEnemyFrames:UnregisterAllEvents()
-		ArenaEnemyFrames:SetParent(self.hiddenFrame)
-		ArenaPrepFrames:UnregisterAllEvents()
-		ArenaPrepFrames:SetParent(self.hiddenFrame)
+		hideBlizzardFrames(true, ArenaEnemyFramesContainer, ArenaEnemyPrepFramesContainer, ArenaEnemyMatchFramesContainer)
 	end
 
 	if( self.db.profile.hidden.playerAltPower and not active_hiddens.playerAltPower ) then

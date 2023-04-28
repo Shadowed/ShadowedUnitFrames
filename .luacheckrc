@@ -142,8 +142,9 @@ read_globals = {
 	"UnitXPMax",
 
 	-- FrameXML frames
-	"ArenaEnemyFrames",
-	"ArenaPrepFrames",
+	"ArenaEnemyFramesContainer",
+	"ArenaEnemyPrepFramesContainer",
+	"ArenaEnemyMatchFramesContainer",
 	"BuffFrame",
 	"CastingBarFrame",
 	"ComboFrame",
