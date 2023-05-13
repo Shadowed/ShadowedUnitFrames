@@ -42,7 +42,7 @@ local function createConfigEnv()
 		end,
 		UnitHealthMax = function(unit) return 50000 end,
 		UnitPower = function(unit, powerType)
-			if( powerType == Enum.PowerType.HolyPower or powerType == Enum.PowerType.SoulShards ) then
+			if( powerType == Enum.PowerType.HolyPower or powerType == Enum.PowerType.SoulShards or powerType == Enum.PowerType.Essence ) then
 				return 3
 			elseif( powerType == Enum.PowerType.Chi) then
 				return 4
@@ -67,7 +67,7 @@ local function createConfigEnv()
 			elseif( powerType == Enum.PowerType.Focus ) then
 				return 120
 			elseif( powerType == Enum.PowerType.ComboPoints or powerType == Enum.PowerType.SoulShards or powerType == Enum.PowerType.HolyPower
-			     or powerType == Enum.PowerType.Chi ) then
+			     or powerType == Enum.PowerType.Chi or powerType == Enum.PowerType.Essence ) then
 				return 5
 			elseif( powerType == Enum.PowerType.Runes ) then
 				return 6
