@@ -111,6 +111,7 @@ function Combo:OnLayoutApplied(frame, config)
 	if( pointsFrame.points ) then
 		for _, texture in pairs(pointsFrame.points) do
 			texture:Hide()
+			texture:ClearAllPoints()
 		end
 	end
 
