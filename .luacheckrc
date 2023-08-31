@@ -225,4 +225,5 @@ read_globals = {
 	"STAGGER_RED_TRANSITION",
 	"STAGGER_YELLOW_TRANSITION",
 	"STANDARD_TOTEM_PRIORITIES",
+	"TextureKitConstants",
 }
