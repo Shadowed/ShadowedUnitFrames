@@ -45,7 +45,6 @@ read_globals = {
 	"C_Timer",
 	"CancelUnitBuff",
 	"CanHearthAndResurrectFromArea",
-	"CheckInteractDistance",
 	"CreateFrame",
 	"GetArenaOpponentSpec",
 	"GetBuildInfo",
