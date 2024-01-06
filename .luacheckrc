@@ -181,6 +181,7 @@ read_globals = {
 	"CombatFeedback_OnUpdate",
 	"CompactRaidFrameManager_GetSetting",
 	"CompactRaidFrameManager_SetSetting",
+	"GetClassAtlas",
 	"RegisterStateDriver",
 	"RegisterUnitWatch",
 	"SecureButton_GetModifiedUnit",
