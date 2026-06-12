@@ -4,6 +4,18 @@
 
 ShadowUF = select(2, ...)
 local L = ShadowUF.L
+
+-- Fix for MoP Classic 5.5.4: DebuffTypeColor was removed by Blizzard
+if not DebuffTypeColor then
+    DebuffTypeColor = {
+        ["Magic"]   = {r = 0.2, g = 0.6, b = 1.0},
+        ["Curse"]   = {r = 0.6, g = 0.0, b = 1.0},
+        ["Disease"] = {r = 0.6, g = 0.4, b = 0.0},
+        ["Poison"]  = {r = 0.0, g = 0.5, b = 0.0},
+        ["none"]    = {r = 0.8, g = 0.0, b = 0.0},
+    }
+end
+
 ShadowUF.dbRevision = 1
 ShadowUF.playerUnit = "player"
 ShadowUF.enabledUnits = {}
