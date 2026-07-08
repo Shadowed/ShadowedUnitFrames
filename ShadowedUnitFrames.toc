@@ -1,17 +1,24 @@
-## Interface: 30300
+## Interface: 11508,20505,50503
 ## Title: Shadowed Unit Frames
-## Notes: An apple a day keeps the raptor away, or so they say
+## Notes: Moooooooooooooooooo
 ## Author: Shadowed
-## Version: @project-version@
+## Version: v4.3.9-classic
 ## SavedVariables: ShadowedUFDB
-## OptionalDeps: Ace3, LibSharedMedia-3.0, LibHealComm-4.0, AceGUI-3.0-SharedMediaWidgets
+## X-Website: https://www.wowace.com/addons/shadowed-unit-frames/
+## OptionalDeps: Ace3, LibSharedMedia-3.0, AceGUI-3.0-SharedMediaWidgets, LibSpellRange-1.0, UTF8, Clique, LibClassicDurations, LibClassicCasterino
+## X-Curse-Project-ID: 19268
+## X-WoWI-ID: 13494
 
 #@no-lib-strip@
 libs\LibStub\LibStub.lua
-libs\CallbackHandler-1.0\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 libs\LibSharedMedia-3.0\lib.xml
-libs\LibHealComm-4.0\LibHealComm-4.0.xml
-libs\AceDB-3.0\AceDB-3.0.xml#@end-no-lib-strip@
+libs\AceDB-3.0\AceDB-3.0.xml
+libs\LibSpellRange-1.0\lib.xml
+libs\LibClassicDurations\LibClassicDurations.xml [AllowLoadGameType vanilla]
+libs\LibClassicCasterino\LibClassicCasterino.lua [AllowLoadGameType vanilla]
+libs\UTF8\utf8.lua
+#@end-no-lib-strip@
 
 localization\enUS.lua
 localization\deDE.lua
@@ -23,7 +30,10 @@ localization\ruRU.lua
 localization\zhCN.lua
 localization\zhTW.lua
 
+ExternalAPI.lua
+ShadowedUnitFrames.xml
 ShadowedUnitFrames.lua
+modules\helpers.lua
 modules\units.lua
 modules\layout.lua
 modules\movers.lua
@@ -34,18 +44,19 @@ modules\health.lua
 modules\power.lua
 modules\portrait.lua
 modules\indicators.lua
+modules\incheal.lua
 modules\xp.lua
 modules\cast.lua
 modules\auras.lua
+modules\auraindicators.lua
 modules\combattext.lua
 modules\totems.lua
-modules\runes.lua
 modules\fader.lua
+modules\basecombopoints.lua
 modules\combopoints.lua
-modules\incheal.lua
 modules\range.lua
 modules\empty.lua
 modules\druid.lua
-#@do-not-package@
-options\config.lua
-#@end-do-not-package@
+modules\runes.lua
+modules\holypower.lua
+modules\soulshards.lua
